@@ -1,7 +1,3 @@
-def test_name_in_list(name, list):
-    """Comprueba si el nombre no está en la lista"""
-    for x in list:
-        if (x.name == name):
-            return test_name_in_list(name+'_', list)
-
-    return name
+def print_message(message):
+    """Function to print all the messages"""
+    print(message)

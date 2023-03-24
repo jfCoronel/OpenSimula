@@ -4,9 +4,8 @@ from opensimula.Project import Project
 simul = Simulation()
 print("Versión: ", simul.version)
 
-p1 = Project('Proyecto 1')
-print("p1: ", p1.name)
+p1 = Project()
 
 simul.append(p1)
-simul.append(Project('Proyecto 1'))
-simul.append(Project('Proyecto 1'))
+simul.append(Project())
+simul.append("Hola")
