@@ -1,6 +1,0 @@
-from opensimula.Property import Property
-
-
-class Property_string(Property):
-    def __init__(self, name, value=""):
-        Property.__init__(self, name, value)

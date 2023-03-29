@@ -1,13 +1,10 @@
-from opensimula.Simulation import Simulation
-from opensimula.Project import Project
-from opensimula.components.Material import Material
+import opensimula as oms
 
-simul = Simulation()
-p1 = Project()
-m1 = Material()
-m1.property["name"].value = "Material 1"
-m1.property["conductivity"].value = 0.01
-p1.addComponent(m1)
-simul.addProject(p1)
+simul = oms.simulation()
+proyecto = oms.project(simul)
+proyecto.info()
 
-p1.component[0].print()
+mat1 = oms.component(proyecto, "Material")
+mat1.parameter['conductivity'].value = 0.4
+mat1.parameter['density'].value = -200
+mat1.info()

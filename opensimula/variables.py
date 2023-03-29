@@ -1,4 +1,4 @@
-from opensimula.Child import Child
+from .base import Child
 
 
 class Variable(Child):

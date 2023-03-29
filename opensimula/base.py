@@ -1,4 +1,3 @@
-
 class Child():
     """Objects with parent"""
 
