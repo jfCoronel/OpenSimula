@@ -1,5 +1,5 @@
-from .base import Child
-from .parameters import Parameter_string
+from opensimula.base import Child
+from opensimula.parameters import Parameter_string
 
 
 class Component(Child):
@@ -36,6 +36,11 @@ class Component(Child):
 
     def delVariable(self, variable):
         self._variables.remove(variable)
+
+    def set(self, dictonary):
+        """Read parameters from dictonary"""
+        for key, value in dictonary.items():
+            self.parameter[key].value = value
 
     def info(self):
         self.simulation.message(type(self).__name__ + ": ")

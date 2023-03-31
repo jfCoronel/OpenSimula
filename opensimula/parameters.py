@@ -1,4 +1,4 @@
-from .base import Child
+from opensimula.base import Child
 
 
 class Parameter(Child):

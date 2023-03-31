@@ -1,5 +1,5 @@
-from .core import Simulation, Project
-from .components import *
+from opensimula.core import Simulation, Project
+from opensimula.components import *
 
 
 # OpenSimula
