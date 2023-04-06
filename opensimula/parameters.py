@@ -20,17 +20,38 @@ class Parameter(Child):
         self._value = value
 
     def info(self):
-        return self.name + ": " + str(self.value)
+        return self.parent.parameter['name'].value + " -> "+self.name + ": " + str(self.value)
 
 
 class Parameter_boolean(Parameter):
     def __init__(self, name, value=False):
         Parameter.__init__(self, name, value)
 
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if (isinstance(value, bool)):
+            self._value = value
+        else:
+            self.parent.simulation.message(
+                "Error: " + str(value) +
+                " is not boolean, " + self.info())
+
 
 class Parameter_string(Parameter):
     def __init__(self, name, value=""):
         Parameter.__init__(self, name, value)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = str(value)
 
 
 class Parameter_number(Parameter):
@@ -50,13 +71,19 @@ class Parameter_number(Parameter):
 
     @value.setter
     def value(self, value):
-        if (value >= self._min and value <= self._max):
-            self._value = value
+        if (isinstance(value, (int, float))):
+            if (value >= self._min and value <= self._max):
+                self._value = value
+            else:
+                self.parent.simulation.message(
+                    "Error: " + str(value) +
+                    " is not at [" + str(self._min)+"," +
+                    str(self._max) + "], "
+                    + self.info())
         else:
             self.parent.simulation.message(
-                self.parent.parameter['name'].value + "->"+self.name+": " + str(value) +
-                " is not at [" + str(self._min)+"," + str(self._max) + "], "
-                + self.info())
+                "Error: " + str(value) +
+                " is not number, " + self.info())
 
     def info(self):
-        return self.name + ": " + str(self.value) + " ["+self._unit+"]"
+        return self.parent.parameter['name'].value + " -> " + self.name + ": " + str(self.value) + " ["+self._unit+"]"
