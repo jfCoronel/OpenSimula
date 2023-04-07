@@ -51,8 +51,10 @@ class Component(Child):
 class Project(Component):
     """Project contains a list of Components"""
 
-    def __init__(self):
+    def __init__(self, sim):
+        """Create new project in the sim Simulation"""
         Component.__init__(self)
+        sim.addProject(self)
         self.parameter['name'].value = 'Project_x'
         self._componentes = []
 
@@ -90,7 +92,7 @@ class Simulation():
         self._proyectos.remove(project)
 
     @property
-    def project(self):
+    def projects(self):
         return self._proyectos
 
     def message(self, msg):
