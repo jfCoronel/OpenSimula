@@ -45,7 +45,7 @@ class Component(Child):
     def info(self):
         self.simulation.message(type(self).__name__ + ": ")
         for key, param in self.parameter.items():
-            self.simulation.message(param.info())
+            self.simulation.message("p-> "+param.info())
 
 
 class Project(Component):

@@ -20,7 +20,7 @@ class Parameter(Child):
         self._value = value
 
     def info(self):
-        return self.parent.parameter['name'].value + " -> "+self.name + ": " + str(self.value)
+        return self.name + ": " + str(self.value)
 
 
 class Parameter_boolean(Parameter):
@@ -86,4 +86,4 @@ class Parameter_number(Parameter):
                 " is not number, " + self.info())
 
     def info(self):
-        return self.parent.parameter['name'].value + " -> " + self.name + ": " + str(self.value) + " ["+self._unit+"]"
+        return self.name + ": " + str(self.value) + " ["+self._unit+"]"

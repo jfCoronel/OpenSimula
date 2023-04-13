@@ -1,1 +1,1 @@
-from opensimula.components.material import Material
+from opensimula.components.Material import Material
