@@ -1,26 +1,4 @@
-from opensimula.base import Child
-
-
-class Parameter(Child):
-    def __init__(self, name, value=0):
-        Child.__init__(self)
-        self._name = name
-        self._value = value
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = value
-
-    def info(self):
-        return self.name + ": " + str(self.value)
+from opensimula.core import Parameter, Component
 
 
 class Parameter_boolean(Parameter):
@@ -36,7 +14,7 @@ class Parameter_boolean(Parameter):
         if (isinstance(value, bool)):
             self._value = value
         else:
-            self.parent.simulation.message(
+            self.parent.message(
                 "Error: " + str(value) +
                 " is not boolean, " + self.info())
 
@@ -75,15 +53,55 @@ class Parameter_number(Parameter):
             if (value >= self._min and value <= self._max):
                 self._value = value
             else:
-                self.parent.simulation.message(
+                self.parent.message(
                     "Error: " + str(value) +
                     " is not at [" + str(self._min)+"," +
                     str(self._max) + "], "
                     + self.info())
         else:
-            self.parent.simulation.message(
+            self.parent.message(
                 "Error: " + str(value) +
                 " is not number, " + self.info())
 
     def info(self):
         return self.name + ": " + str(self.value) + " ["+self._unit+"]"
+
+
+class Parameter_component(Parameter):
+    def __init__(self, name, value=""):
+        Parameter.__init__(self, name, value)
+        self._component = None
+
+    @property
+    def component(self):
+        return self._component
+
+    # @component.setter
+    # def component(self, comp):
+    #     if (isinstance(comp, (int, Component)) or comp == None):
+    #         self._value = comp.name
+    #     else:
+    #         self.parent.message(
+    #             "Error: " + str(comp) +
+    #             " is not a Component")
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = str(value)
+        self._findComponent()
+
+    def info(self):
+        if (self.component == None):
+            return self.name + ": " + str(self.value) + " (Component not found)"
+        else:
+            return self.name + ": " + str(self.value)
+
+    def _findComponent(self):
+        if ("->" not in self.value):  # en el propio proyecto
+            comp = self.parent.parent.find_component(self.value)
+            self._component = comp
+        # else:
