@@ -1,39 +1,25 @@
-class Child():
-    """Objects with parent an name"""
+from opensimula.Child import Child
+from opensimula.parameters import Parameter_string
 
-    def __init__(self, name, parent=None):
-        self._parent = parent
-        self._name = name
-
-    @property
-    def parent(self):
-        return self._parent
-
-    @parent.setter
-    def parent(self, parent):
-        self._parent = parent
-
-    @property
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        self._name = name
+# ________________ Component __________________________
 
 
 class Component(Child):
-    def __init__(self, name="Component x", parent=None):
-        Child.__init__(self, name, parent)
+    """Objtects with paramaters and variables"""
+
+    def __init__(self, parent=None):
+        Child.__init__(self, parent)
         self._parameters = {}
         self._variables = {}
+        self.add_parameter(Parameter_string("name", "Component_X"))
 
     def add_parameter(self, param):
-        """add Property"""
+        """add Parameter"""
         param.parent = self
-        self._parameters[param.name] = param
+        self._parameters[param.key] = param
 
     def del_parameter(self, param):
+        """Deletet parameter"""
         self._parameters.remove(param)
 
     @property
@@ -56,13 +42,13 @@ class Component(Child):
     def del_variable(self, variable):
         self._variables.remove(variable)
 
-    def set(self, dictonary):
+    def set_parameters(self, dictonary):
         """Read parameters from dictonary"""
         for key, value in dictonary.items():
             self.parameter[key].value = value
 
     def info(self):
-        self.message(type(self).__name__ + ": " + self.name)
+        self.message(type(self).__name__ + ": ")
         for key, param in self.parameter.items():
             self.message("p-> "+param.info())
 
@@ -70,15 +56,18 @@ class Component(Child):
         """Function to print all the messages"""
         self.parent.parent.message(msg)
 
+# ___________________ Project __________________________________
+
 
 class Project(Component):
-    """Project contains a list of Components"""
+    """Project is a Compoenent that contains a list of Components"""
 
-    def __init__(self, name, sim):
+    def __init__(self, sim):
         """Create new project in the sim Simulation"""
-        Component.__init__(self, name, sim)
+        Component.__init__(self, sim)
         sim.add_project(self)
         self._componentes = []
+        self.parameter['name'].value = 'Project_X'
 
     def add_component(self, component):
         """Add component to the Project"""
@@ -90,7 +79,7 @@ class Project(Component):
 
     def find_component(self, name):
         for comp in self._componentes:
-            if (comp.name == name):
+            if (comp.parameter['name'].value == name):
                 return comp
         return None
 
@@ -105,6 +94,8 @@ class Project(Component):
     def message(self, msg):
         """Function to print all the messages"""
         self.parent.message(msg)
+
+# _________________ Simulation _______________________________
 
 
 class Simulation():
@@ -125,7 +116,7 @@ class Simulation():
 
     def find_project(self, name):
         for pro in self._proyectos:
-            if (pro.name == name):
+            if (pro.parameter['name'] == name):
                 return pro
         return None
 
@@ -136,25 +127,3 @@ class Simulation():
     def message(self, msg):
         """Function to print all the messages"""
         print(str(msg))
-
-
-class Parameter(Child):
-    def __init__(self, name, value=0):
-        Child.__init__(self, name)
-        self._value = value
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = value
-
-    def info(self):
-        return self.name + ": " + str(self.value)
-
-
-class Variable(Child):
-    def __init__(self, name):
-        Child.__init__(self, name)
