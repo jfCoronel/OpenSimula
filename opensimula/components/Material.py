@@ -5,6 +5,7 @@ from opensimula.Component import Component
 class Material(Component):
     def __init__(self):
         Component.__init__(self)
+        self.parameter["type"].value = "Material"
         self.add_parameter(Parameter_number("conductivity", 1, "W/(m·K)"))
         self.add_parameter(Parameter_number("density", 1000, "kg/m³"))
         self.add_parameter(Parameter_number("specific_heat", 1000, "J/(kg·K)"))

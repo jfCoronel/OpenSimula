@@ -8,6 +8,7 @@ class Project(Component):
     def __init__(self, sim):
         """Create new project in the sim Simulation"""
         Component.__init__(self, sim)
+        self.parameter["type"].value = "Project"
         sim.add_project(self)
         self._componentes = []
         self.parameter['name'].value = 'Project_X'
@@ -47,8 +48,9 @@ class Project(Component):
     def load_from_json(self, json):
         """Create paramaters an components from json dictionary"""
         for key, value in json.items():
-            if isinstance(value, dict):  # Es un componente
-                comp = self.new_component(key)
-                comp.set_parameters(value)
+            if (key == "components"):  # Lista de compoenentes
+                for component in value:
+                    comp = self.new_component(component["type"])
+                    comp.set_parameters(component)
             else:   # Debe ser un parámetro
                 self.parameter[key].value = value

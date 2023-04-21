@@ -142,15 +142,6 @@ class Parameter_component(Parameter):
     def component(self):
         return self._component
 
-    # @component.setter
-    # def component(self, comp):
-    #     if (isinstance(comp, (int, Component)) or comp == None):
-    #         self._value = comp.name
-    #     else:
-    #         self.parent.message(
-    #             "Error: " + str(comp) +
-    #             " is not a Component")
-
     @property
     def value(self):
         return self._value
@@ -158,7 +149,7 @@ class Parameter_component(Parameter):
     @value.setter
     def value(self, value):
         self._value = str(value)
-        self._findComponent()
+        # self._findComponent()  hacerlo cuando estén todos los componentes cargados en la función check del componente
 
     def info(self):
         if (self.component == None):
@@ -166,7 +157,7 @@ class Parameter_component(Parameter):
         else:
             return self.key + ": " + str(self.value)
 
-    def _findComponent(self):
+    def findComponent(self):
         if ("->" not in self.value):  # en el propio proyecto
             comp = self.parent.parent.find_component(self.value)
             self._component = comp

@@ -11,6 +11,7 @@ class Component(Child):
         Child.__init__(self, parent)
         self._parameters = {}
         self._variables = {}
+        self.add_parameter(Parameter_string("type", "Component"))
         self.add_parameter(Parameter_string("name", "Component_X"))
 
     def add_parameter(self, param):
@@ -55,3 +56,7 @@ class Component(Child):
     def message(self, msg):
         """Function to print all the messages"""
         self.parent.parent.message(msg)
+    
+    def check(self):
+        """Component check if all is correct"""
+        return(True)
