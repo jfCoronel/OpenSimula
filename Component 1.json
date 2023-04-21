@@ -1,8 +1,0 @@
-{
-    "name": "Component 1",
-    "string": "Hola Mundo",
-    "number": 20.678,
-    "boolean": true,
-    "options": "Two",
-    "component": "Component 1"
-}

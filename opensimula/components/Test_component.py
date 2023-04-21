@@ -1,5 +1,5 @@
 from opensimula.parameters import Parameter_boolean, Parameter_number, Parameter_string, Parameter_options, Parameter_component
-from opensimula.core import Component
+from opensimula.Component import Component
 
 
 class Test_component(Component):

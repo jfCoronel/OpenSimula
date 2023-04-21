@@ -1,0 +1,19 @@
+{
+    "name": "Proyecto 1",
+    "Test_component": {
+        "name": "Component 1",
+        "string": "Hola Mundo",
+        "number": 20.678,
+        "boolean": true,
+        "options": "Two",
+        "component": "Component 2"
+    },
+    "Test_component": {
+        "name": "Component 2",
+        "string": "Hola Mundo",
+        "number": 20.678,
+        "boolean": true,
+        "options": "Two",
+        "component": "Component 1"
+    }
+}

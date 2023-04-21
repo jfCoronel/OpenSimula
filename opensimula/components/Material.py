@@ -1,5 +1,5 @@
 from opensimula.parameters import Parameter_boolean, Parameter_number
-from opensimula.core import Component
+from opensimula.Component import Component
 
 
 class Material(Component):
