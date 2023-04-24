@@ -1,3 +1,4 @@
+import json
 from opensimula.Component import Component
 from opensimula.components import *
 
@@ -54,3 +55,15 @@ class Project(Component):
                     comp.set_parameters(component)
             else:   # Debe ser un parámetro
                 self.parameter[key].value = value
+
+    def read_json(self, json_file):
+        """Read paramaters an components from json file"""
+        try:
+            f = open(json_file, "r")
+        except OSError:
+            self.message("Error: Could not open/read file: " +
+                         json_file)
+            return False
+        with f:
+            json_dict = json.load(f)
+            self.load_from_json(json_dict)
