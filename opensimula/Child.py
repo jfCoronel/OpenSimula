@@ -5,12 +5,12 @@ class Child():
     """Objects with parent"""
 
     def __init__(self, parent=None):
-        self._parent = parent
+        self._parent_ = parent
 
     @property
     def parent(self):
-        return self._parent
+        return self._parent_
 
     @parent.setter
     def parent(self, parent):
-        self._parent = parent
+        self._parent_ = parent

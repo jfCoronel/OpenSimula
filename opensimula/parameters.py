@@ -8,24 +8,24 @@ class Parameter(Child):
 
     def __init__(self, key, value=0):
         Child.__init__(self)
-        self._key = key
-        self._value = value
+        self._key_ = key
+        self._value_ = value
 
     @property
     def key(self):
-        return self._key
+        return self._key_
 
     @key.setter
     def key(self, key):
-        self._key = key
+        self._key_ = key
 
     @property
     def value(self):
-        return self._value
+        return self._value_
 
     @value.setter
     def value(self, value):
-        self._value = value
+        self._value_ = value
 
     def info(self):
         return self.key + ": " + str(self.value)
@@ -39,12 +39,12 @@ class Parameter_boolean(Parameter):
 
     @property
     def value(self):
-        return self._value
+        return self._value_
 
     @value.setter
     def value(self, value):
         if (isinstance(value, bool)):
-            self._value = value
+            self._value_ = value
         else:
             self.parent.message(
                 "Error: " + str(value) +
@@ -60,11 +60,11 @@ class Parameter_string(Parameter):
 
     @property
     def value(self):
-        return self._value
+        return self._value_
 
     @value.setter
     def value(self, value):
-        self._value = str(value)
+        self._value_ = str(value)
 
 
 # _____________ Parameter_number ___________________________
@@ -73,28 +73,28 @@ class Parameter_string(Parameter):
 class Parameter_number(Parameter):
     def __init__(self, key, value=0.0, unit="", min=0, max=float('inf')):
         Parameter.__init__(self, key, value)
-        self._unit = unit
-        self._min = min
-        self._max = max
+        self._unit_ = unit
+        self._min_ = min
+        self._max_ = max
 
     @property
     def unit(self):
-        return self._unit
+        return self._unit_
 
     @property
     def value(self):
-        return self._value
+        return self._value_
 
     @value.setter
     def value(self, value):
         if (isinstance(value, (int, float))):
-            if (value >= self._min and value <= self._max):
-                self._value = value
+            if (value >= self._min_ and value <= self._max_):
+                self._value_ = value
             else:
                 self.parent.message(
                     "Error: " + str(value) +
-                    " is not at [" + str(self._min)+"," +
-                    str(self._max) + "], "
+                    " is not at [" + str(self._min_)+"," +
+                    str(self._max_) + "], "
                     + self.info())
         else:
             self.parent.message(
@@ -102,7 +102,7 @@ class Parameter_number(Parameter):
                 " is not number, " + self.info())
 
     def info(self):
-        return self.key + ": " + str(self.value) + " ["+self._unit+"]"
+        return self.key + ": " + str(self.value) + " ["+self._unit_+"]"
 
 # _____________ Parameter_options ___________________________
 
@@ -110,17 +110,17 @@ class Parameter_number(Parameter):
 class Parameter_options(Parameter):
     def __init__(self, key, value="", options=[]):
         Parameter.__init__(self, key, value)
-        self._options = options
+        self._options_ = options
         self.value = value  # To check included in options
 
     @property
     def value(self):
-        return self._value
+        return self._value_
 
     @value.setter
     def value(self, value):
         if (value in self.options):
-            self._value = str(value)
+            self._value_ = str(value)
         else:
             self.parent.message(
                 "Error: " + str(value) +
@@ -128,7 +128,7 @@ class Parameter_options(Parameter):
 
     @property
     def options(self):
-        return self._options
+        return self._options_
 
 
 # _____________ Parameter_component ___________________________
@@ -136,19 +136,19 @@ class Parameter_options(Parameter):
 class Parameter_component(Parameter):
     def __init__(self, key, value=""):
         Parameter.__init__(self, key, value)
-        self._component = None
+        self._component_ = None
 
     @property
     def component(self):
-        return self._component
+        return self._component_
 
     @property
     def value(self):
-        return self._value
+        return self._value_
 
     @value.setter
     def value(self, value):
-        self._value = str(value)
+        self._value_ = str(value)
         # self._findComponent()  hacerlo cuando estén todos los componentes cargados en la función check del componente
 
     def info(self):
@@ -160,5 +160,5 @@ class Parameter_component(Parameter):
     def findComponent(self):
         if ("->" not in self.value):  # en el propio proyecto
             comp = self.parent.parent.find_component(self.value)
-            self._component = comp
+            self._component_ = comp
         # else:

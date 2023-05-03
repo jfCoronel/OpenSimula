@@ -9,27 +9,27 @@ class Component(Child):
 
     def __init__(self, parent=None):
         Child.__init__(self, parent)
-        self._parameters = {}
-        self._variables = {}
+        self._parameters_ = {}
+        self._variables_ = {}
         self.add_parameter(Parameter_string("type", "Component"))
         self.add_parameter(Parameter_string("name", "Component_X"))
 
     def add_parameter(self, param):
         """add Parameter"""
         param.parent = self
-        self._parameters[param.key] = param
+        self._parameters_[param.key] = param
 
     def del_parameter(self, param):
         """Deletet parameter"""
-        self._parameters.remove(param)
+        self._parameters_.remove(param)
 
     @property
     def parameter(self):
-        return self._parameters
+        return self._parameters_
 
     @property
     def variable(self):
-        return self._variables
+        return self._variables_
 
     @property
     def simulation(self):
@@ -38,10 +38,10 @@ class Component(Child):
     def add_variable(self, variable):
         """add new Variable"""
         variable._parent = self
-        self._variables[variable.name] = variable
+        self._variables_[variable.name] = variable
 
     def del_variable(self, variable):
-        self._variables.remove(variable)
+        self._variables_.remove(variable)
 
     def set_parameters(self, dictonary):
         """Read parameters from dictonary"""
@@ -56,7 +56,7 @@ class Component(Child):
     def message(self, msg):
         """Function to print all the messages"""
         self.parent.parent.message(msg)
-    
+
     def check(self):
         """Component check if all is correct"""
         return(True)

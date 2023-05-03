@@ -11,6 +11,5 @@ class Material(Component):
         self.add_parameter(Parameter_number("specific_heat", 1000, "J/(kg·K)"))
         self.add_parameter(Parameter_number("thickness", 0.1, "m"))
         self.add_parameter(Parameter_boolean("simplified_definition", False))
-        self.add_parameter(Parameter_number(
-            "thermal_resistance", 1, "(m²·K)/W"))
+        self.add_parameter(Parameter_number("thermal_resistance", 1, "(m²·K)/W"))
         self.add_parameter(Parameter_number("weight", 10, "kg/m²"))

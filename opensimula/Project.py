@@ -11,26 +11,26 @@ class Project(Component):
         Component.__init__(self, sim)
         self.parameter["type"].value = "Project"
         sim.add_project(self)
-        self._componentes = []
+        self._components_ = []
         self.parameter['name'].value = 'Project_X'
 
     def add_component(self, component):
         """Add component to the Project"""
         component.parent = self
-        self._componentes.append(component)
+        self._components_.append(component)
 
     def del_component(self, component):
-        self._componentes.remove(component)
+        self._components_.remove(component)
 
     def find_component(self, name):
-        for comp in self._componentes:
+        for comp in self._components_:
             if (comp.parameter['name'].value == name):
                 return comp
         return None
 
     @property
     def component(self):
-        return self._componentes
+        return self._components_
 
     @property
     def simulation(self):
