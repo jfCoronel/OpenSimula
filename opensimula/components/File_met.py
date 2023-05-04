@@ -9,6 +9,7 @@ class File_met(Component):
     def __init__(self):
         Component.__init__(self)
         self.parameter["type"].value = "File_met"
+        self.parameter["name"].value = "File_met_x"
         self.add_parameter(Parameter_string("file_name", "name.met"))
         # Las variables leidas las guardamos en numpy arrays
         self.temperature = np.zeros(8760)
@@ -27,9 +28,11 @@ class File_met(Component):
         try:
             f = open(self.parameter["file_name"].value, "r")
         except OSError:
-            self.message("Error: Could not open/read file: " +
+            self.message("Error in component: " +
+                         self.parameter["name"].value + ", type: " + self.parameter['type'].value)
+            self.message("   could not open/read file: " +
                          self.parameter["file_name"].value)
-            return False
+            return 1
         with f:
             f.readline()
             line = f.readline()
@@ -51,6 +54,7 @@ class File_met(Component):
                 self.wind_direction[t] = float(valores[10])
                 self.sol_azimut[t] = float(valores[11])
                 self.sol_cenit[t] = float(valores[12])
+        return 0
 
     def get_instant_values(self, datetime):
         """Dictonary with all the meteo values for the datatime"""

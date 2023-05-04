@@ -8,6 +8,7 @@ class Test_component(Component):
     def __init__(self):
         Component.__init__(self)
         self.parameter["type"].value = "Test_component"
+        self.parameter["name"].value = "Test_component_x"
         self.add_parameter(Parameter_string("string", "Hello World"))
         self.add_parameter(Parameter_number("number", 100, "m"))
         self.add_parameter(Parameter_boolean("boolean", False))
@@ -20,6 +21,6 @@ class Test_component(Component):
         self.parameter['component'].findComponent()
         self.parameter['component'].info()
         if (self.parameter['component'].component == None):
-            return False
+            return 1
         else:
-            return True
+            return 0

@@ -33,7 +33,15 @@ class Component(Child):
 
     @property
     def simulation(self):
+        """
+        Returns:
+            Simulation: Simulation environment 
+        """
         return self.parent.parent
+
+    @property
+    def project(self):
+        return self.parent
 
     def add_variable(self, variable):
         """add new Variable"""
@@ -49,14 +57,21 @@ class Component(Child):
             self.parameter[key].value = value
 
     def info(self):
-        self.message(type(self).__name__ + ": ")
+        """Print component information 
+        """
+        self.message("Component info: ")
+        self.message("   Parameters:")
         for key, param in self.parameter.items():
-            self.message("p-> "+param.info())
+            self.message("      "+param.info())
 
     def message(self, msg):
         """Function to print all the messages"""
         self.parent.parent.message(msg)
 
     def check(self):
-        """Component check if all is correct"""
-        return(True)
+        """Check if all is correct
+
+        Returns:
+            int: Number of errors
+        """
+        return 0

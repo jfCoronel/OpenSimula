@@ -37,3 +37,12 @@ class Simulation():
     def message(self, msg):
         """Function to print all the messages"""
         print(str(msg))
+    
+    def info(self):
+        """Print simularion information 
+        """
+        self.message("Simulation info: ")
+        self.message("   Projects number: "+str(len(self._projects_)))
+        self.message("   time_step: "+str(self.time_step)+" s")
+        self.message("   version: "+self.version)
+        

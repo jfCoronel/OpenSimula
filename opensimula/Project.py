@@ -4,7 +4,7 @@ from opensimula.components import *
 
 
 class Project(Component):
-    """Project is a Compoenent that contains a list of Components"""
+    """Project is a Compenent that contains a list of Components"""
 
     def __init__(self, sim):
         """Create new project in the sim Simulation"""
@@ -34,7 +34,24 @@ class Project(Component):
 
     @property
     def simulation(self):
+        """
+        Returns:
+            Simulation: Simulation environment 
+        """
         return self.parent
+
+    @property
+    def project(self):
+        return self
+
+    def info(self):
+        """Print project information 
+        """
+        self.message("Project info: ")
+        self.message("   Parameters:")
+        for key, param in self.parameter.items():
+            self.message("       "+param.info())
+        self.message("   Components number: "+str(len(self._components_)))
 
     def message(self, msg):
         """Function to print all the messages"""
@@ -67,3 +84,24 @@ class Project(Component):
         with f:
             json_dict = json.load(f)
             self.load_from_json(json_dict)
+
+    def check(self):
+        """Check if all is correct, for all its components
+
+        Returns:
+            int: Number of errors
+        """
+        names = []
+        n_errors = 0
+        for comp in self.component:
+            error_comp = comp.check()
+            n_errors += error_comp
+            if comp.parameter["name"].value in names:
+                self.message("Error in project: "+self.parameter["name"].value)
+                self.message(
+                "   "+comp.parameter["name"].value + " is used by other component as name")
+                n_errors += 1
+            else:
+                names.append(comp.parameter["name"].value)
+            
+        return n_errors

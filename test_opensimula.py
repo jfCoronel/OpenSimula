@@ -1,13 +1,26 @@
+
 import opensimula as oms
-import datetime as dt
+
+proyecto_json = {
+    "name": "Proyecto 1",
+    "components": [
+        {
+            "type": "File_met",
+            "name": "zonaB4",
+            "file_name": "meteo/zonaB4.met"
+        },
+        {
+            "type": "Outdoor",
+            "name": "Outdoor zone",
+            "meteo_file": "zonaB4"
+        }
+    ]
+}
 
 sim = oms.Simulation()
 proyecto = oms.Project(sim)
+proyecto.load_from_json(proyecto_json)
+proyecto.check()
 
-proyecto.read_json("Proyecto_1.json")
-
-proyecto.component[0].check()
-proyecto.component[0].info()
-time = dt.datetime(2001, 1, 1, 0, 18)
-print(time)
-print(proyecto.component[0].get_instant_values(time))
+sim.info()
+proyecto.info()

@@ -5,6 +5,11 @@
             "type": "File_met",
             "name": "zonaB4",
             "file_name": "meteo/zonaB4.met"
+        },
+        {
+            "type": "Outdoor",
+            "name": "Outdoor zone",
+            "meteo_file": "zonaB4"
         }
     ]
 }
