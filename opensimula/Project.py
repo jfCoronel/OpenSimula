@@ -1,6 +1,7 @@
 import json
 import datetime as dt
 import numpy as np
+import pandas as pd
 from opensimula.Component import Component
 from opensimula.parameters import Parameter_number, Parameter_string
 from opensimula.components import *
@@ -49,6 +50,15 @@ class Project(Component):
     @property
     def project(self):
         return self
+
+    def components_dataframe(self):
+        names = []
+        types = []
+        for comp in self.component:
+            names.append(comp.parameter["name"].value)
+            types.append(comp.parameter["type"].value)
+        data = pd.DataFrame({"name": names, "type": types})
+        return data
 
     def info(self):
         """Print project information"""

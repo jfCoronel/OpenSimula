@@ -1,3 +1,4 @@
+import pandas as pd
 from opensimula.Child import Child
 from opensimula.parameters import Parameter_string
 
@@ -51,10 +52,26 @@ class Component(Child):
     def del_variable(self, variable):
         self._variables_.remove(variable)
 
+    def variables_dataframe(self):
+        series = {"dates": self.project.dates_array()}
+        for key, var in self.variable.items():
+            series[key] = var.array
+        data = pd.DataFrame(series)
+        return data
+
     def set_parameters(self, dictonary):
         """Read parameters from dictonary"""
         for key, value in dictonary.items():
             self.parameter[key].value = value
+
+    def parameters_dataframe(self):
+        keys = []
+        values = []
+        for key, par in self.parameter.items():
+            keys.append(key)
+            values.append(par.value)
+        data = pd.DataFrame({"key": keys, "value": values})
+        return data
 
     def info(self):
         """Print component information"""
