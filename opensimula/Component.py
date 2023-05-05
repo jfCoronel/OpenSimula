@@ -35,7 +35,7 @@ class Component(Child):
     def simulation(self):
         """
         Returns:
-            Simulation: Simulation environment 
+            Simulation: Simulation environment
         """
         return self.parent.parent
 
@@ -46,7 +46,7 @@ class Component(Child):
     def add_variable(self, variable):
         """add new Variable"""
         variable._parent = self
-        self._variables_[variable.name] = variable
+        self._variables_[variable.key] = variable
 
     def del_variable(self, variable):
         self._variables_.remove(variable)
@@ -57,17 +57,17 @@ class Component(Child):
             self.parameter[key].value = value
 
     def info(self):
-        """Print component information 
-        """
+        """Print component information"""
         self.message("Component info: ")
         self.message("   Parameters:")
         for key, param in self.parameter.items():
-            self.message("      "+param.info())
+            self.message("      " + param.info())
 
     def message(self, msg):
         """Function to print all the messages"""
         self.parent.parent.message(msg)
 
+    # ____________ Functions that must be overwriten for time simulation _________________
     def check(self):
         """Check if all is correct
 
@@ -75,3 +75,18 @@ class Component(Child):
             int: Number of errors
         """
         return 0
+
+    def pre_simulation(self, n_time_steps):
+        pass
+
+    def post_simulation(self):
+        pass
+
+    def pre_iteration(self, time_index, date):
+        pass
+
+    def iteration(self, time_index, date):
+        return True
+
+    def post_iteration(self, time_index, date):
+        pass

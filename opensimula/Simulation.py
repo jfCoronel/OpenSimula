@@ -1,15 +1,14 @@
 import datetime as dt
 
 
-class Simulation():
+class Simulation:
     """Simulation contains a list of Projects"""
-    version = '0.0.1'
+
+    version = "0.0.1"
 
     def __init__(self):
         """Simulation enviroment, contains a list of Projects"""
         self._projects_ = []
-        self._time_step_ = 600  # 10 min
-        self._init_seconds_ = dt.datetime(2001, 1, 1).timestamp()
 
     def add_project(self, project):
         """Add project to Simulation"""
@@ -21,7 +20,7 @@ class Simulation():
 
     def find_project(self, name):
         for pro in self._projects_:
-            if (pro.parameter['name'] == name):
+            if pro.parameter["name"] == name:
                 return pro
         return None
 
@@ -29,20 +28,11 @@ class Simulation():
     def projects(self):
         return self._projects_
 
-    @property
-    def time_step(self):
-        """Time step in seconds"""
-        return self._time_step_
-
     def message(self, msg):
         """Function to print all the messages"""
         print(str(msg))
-    
+
     def info(self):
-        """Print simularion information 
-        """
+        """Print simularion information"""
         self.message("Simulation info: ")
-        self.message("   Projects number: "+str(len(self._projects_)))
-        self.message("   time_step: "+str(self.time_step)+" s")
-        self.message("   version: "+self.version)
-        
+        self.message("   Projects number: " + str(len(self._projects_)))
