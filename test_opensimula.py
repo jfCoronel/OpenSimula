@@ -1,4 +1,3 @@
-# %%
 import opensimula as oms
 
 proyecto_json = {
@@ -19,5 +18,3 @@ proyecto.check()
 proyecto.simulate()
 
 proyecto.info()
-t = proyecto.component[1].variable["temperature"].array
-# %%

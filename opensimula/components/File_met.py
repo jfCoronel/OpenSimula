@@ -110,7 +110,7 @@ class File_met(Component):
             hours
             - (datetime.timestamp() - dt.datetime(datetime.year, 1, 1).timestamp())
             / 3600
-        ) + 1
+        )
         # Ecuación del tiempo en minutos Duffie and Beckmann
         B = math.radians((day - 1) * 360 / 365)
         ecuacion_tiempo = 229.2 * (
@@ -121,5 +121,5 @@ class File_met(Component):
             - 0.04089 * math.sin(2 * B)
         )
         longitude_correction = (self.reference_time_longitude - self.longitude) * 1 / 15
-        hours += ecuacion_tiempo / 60 + daylight_saving + longitude_correction
+        hours += ecuacion_tiempo / 60 - daylight_saving - longitude_correction
         return hours
