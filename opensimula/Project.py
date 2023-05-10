@@ -77,7 +77,7 @@ class Project(Component):
     def load_from_json(self, json):
         """Create paramaters an components from json dictionary"""
         for key, value in json.items():
-            if key == "components":  # Lista de compoenentes
+            if key == "components":  # Lista de componentes
                 for component in value:
                     comp = self.new_component(component["type"])
                     comp.set_parameters(component)
