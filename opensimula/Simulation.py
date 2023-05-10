@@ -20,7 +20,7 @@ class Simulation:
 
     def find_project(self, name):
         for pro in self._projects_:
-            if pro.parameter["name"] == name:
+            if pro.parameter["name"].value == name:
                 return pro
         return None
 
@@ -28,11 +28,7 @@ class Simulation:
     def projects(self):
         return self._projects_
 
-    def message(self, msg):
-        """Function to print all the messages"""
-        print(str(msg))
-
     def info(self):
         """Print simularion information"""
-        self.message("Simulation info: ")
-        self.message("   Projects number: " + str(len(self._projects_)))
+        print("Simulation info: ")
+        print("   Projects number: ",len(self._projects_))

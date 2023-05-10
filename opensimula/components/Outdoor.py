@@ -14,33 +14,33 @@ class Outdoor(Component):
             Parameter_string("description", "Outdoor zone from a meteorological file")
         )
         self.add_parameter(Parameter_component("meteo_file", "not_defined"))
+        self._meteo_file_ = None
 
     def check(self):
         #
-        self.parameter["meteo_file"].findComponent()
-        if self.parameter["meteo_file"].component == None:
-            self.message(
-                "Error in component: "
-                + self.parameter["name"].value
-                + ", type: "
-                + self.parameter["type"].value
+        self._meteo_file_ = self.parameter["meteo_file"].find_component()
+        if self._meteo_file_ == None:
+            print(
+                "Error in component: ",
+                self.parameter["name"].value,
+                ", type: ",
+                self.parameter["type"].value,
             )
-            self.message(
-                "   meteo_file: "
-                + self.parameter["meteo_file"].value
-                + " component not found"
+            print(
+                "   meteo_file: ",
+                self.parameter["meteo_file"].value,
+                " component not found",
             )
             return 1
         else:
             return 0
 
     def pre_simulation(self, n_time_steps):
-        self.latitude = self.parameter["meteo_file"].component.latitude
-        self.longitude = self.parameter["meteo_file"].component.longitude
-        self.altitude = self.parameter["meteo_file"].component.altitude
-        self.reference_time_longitude = self.parameter[
-            "meteo_file"
-        ].component.reference_time_longitude
+        self._meteo_file_ = self.parameter["meteo_file"].find_component()
+        self.latitude = self._meteo_file_.latitude
+        self.longitude = self._meteo_file_.longitude
+        self.altitude = self._meteo_file_.altitude
+        self.reference_time_longitude = self._meteo_file_.reference_time_longitude
         self.add_variable(Variable("temperature", n_time_steps, unit="°C"))
         self.add_variable(Variable("sky_temperature", n_time_steps, unit="°C"))
         self.add_variable(Variable("abs_humidity", n_time_steps, unit="g/kg"))
@@ -52,7 +52,7 @@ class Outdoor(Component):
         self.add_variable(Variable("sol_altitude", n_time_steps, unit="°"))
 
     def pre_iteration(self, time_index, date):
-        values = self.parameter["meteo_file"].component.get_instant_values(date)
+        values = self._meteo_file_.get_instant_values(date)
         self.variable["temperature"].array[time_index] = values["temperature"]
         self.variable["sky_temperature"].array[time_index] = values["sky_temperature"]
         self.variable["abs_humidity"].array[time_index] = values["abs_humidity"] * 1000

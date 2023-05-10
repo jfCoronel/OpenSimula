@@ -28,15 +28,13 @@ class File_met(Component):
         try:
             f = open(self.parameter["file_name"].value, "r")
         except OSError:
-            self.message(
-                "Error in component: "
-                + self.parameter["name"].value
-                + ", type: "
-                + self.parameter["type"].value
+            print(
+                "Error in component: ",
+                self.parameter["name"].value,
+                ", type: ",
+                self.parameter["type"].value,
             )
-            self.message(
-                "   could not open/read file: " + self.parameter["file_name"].value
-            )
+            print("   could not open/read file: ", self.parameter["file_name"].value)
             return 1
         with f:
             f.readline()

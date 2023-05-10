@@ -30,6 +30,7 @@ class Parameter(Child):
     def info(self):
         return self.key + ": " + str(self.value)
 
+
 # _____________ Parameter_boolean ___________________________
 
 
@@ -43,12 +44,10 @@ class Parameter_boolean(Parameter):
 
     @value.setter
     def value(self, value):
-        if (isinstance(value, bool)):
+        if isinstance(value, bool):
             self._value_ = value
         else:
-            self.parent.message(
-                "Error: " + str(value) +
-                " is not boolean, " + self.info())
+            print("Error: ", value, " is not boolean, ", self.info())
 
 
 # _____________ Parameter_string ___________________________
@@ -71,7 +70,7 @@ class Parameter_string(Parameter):
 
 
 class Parameter_number(Parameter):
-    def __init__(self, key, value=0.0, unit="", min=0, max=float('inf')):
+    def __init__(self, key, value=0.0, unit="", min=0, max=float("inf")):
         Parameter.__init__(self, key, value)
         self._unit_ = unit
         self._min_ = min
@@ -87,22 +86,26 @@ class Parameter_number(Parameter):
 
     @value.setter
     def value(self, value):
-        if (isinstance(value, (int, float))):
-            if (value >= self._min_ and value <= self._max_):
+        if isinstance(value, (int, float)):
+            if value >= self._min_ and value <= self._max_:
                 self._value_ = value
             else:
-                self.parent.message(
-                    "Error: " + str(value) +
-                    " is not at [" + str(self._min_)+"," +
-                    str(self._max_) + "], "
-                    + self.info())
+                print(
+                    "Error: ",
+                    value,
+                    " is not at [",
+                    self._min_,
+                    ",",
+                    self._max_,
+                    "], ",
+                    self.info(),
+                )
         else:
-            self.parent.message(
-                "Error: " + str(value) +
-                " is not number, " + self.info())
+            print("Error: ", value, " is not number, ", self.info())
 
     def info(self):
-        return self.key + ": " + str(self.value) + " ["+self._unit_+"]"
+        return self.key + ": " + str(self.value) + " [" + self._unit_ + "]"
+
 
 # _____________ Parameter_options ___________________________
 
@@ -119,12 +122,10 @@ class Parameter_options(Parameter):
 
     @value.setter
     def value(self, value):
-        if (value in self.options):
+        if value in self.options:
             self._value_ = str(value)
         else:
-            self.parent.message(
-                "Error: " + str(value) +
-                " is not in options, " + self.info())
+            print("Error: ", value, " is not in options, ", self.info())
 
     @property
     def options(self):
@@ -133,32 +134,18 @@ class Parameter_options(Parameter):
 
 # _____________ Parameter_component ___________________________
 
-class Parameter_component(Parameter):
+
+class Parameter_component(Parameter_string):
     def __init__(self, key, value=""):
-        Parameter.__init__(self, key, value)
-        self._component_ = None
+        Parameter_string.__init__(self, key, value)
 
-    @property
-    def component(self):
-        return self._component_
-
-    @property
-    def value(self):
-        return self._value_
-
-    @value.setter
-    def value(self, value):
-        self._value_ = str(value)
-        # self._findComponent()  hacerlo cuando estén todos los componentes cargados en la función check del componente
-
-    def info(self):
-        if (self.component == None):
-            return self.key + ": " + str(self.value) + " (Component not found)"
+    def find_component(self):
+        if "->" not in self.value:  # en el propio proyecto
+            return self.parent.project.find_component(self.value)
         else:
-            return self.key + ": " + str(self.value)
-
-    def findComponent(self):
-        if ("->" not in self.value):  # en el propio proyecto
-            comp = self.parent.parent.find_component(self.value)
-            self._component_ = comp
-        # else:
+            splits = self.value.split("->")
+            proj = self.parent.simulation.find_project(splits[0])
+            if proj == None:
+                return None
+            else:
+                return proj.find_component(splits[1])

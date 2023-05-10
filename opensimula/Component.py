@@ -75,14 +75,10 @@ class Component(Child):
 
     def info(self):
         """Print component information"""
-        self.message("Component info: ")
-        self.message("   Parameters:")
+        print("Component info: ")
+        print("   Parameters:")
         for key, param in self.parameter.items():
-            self.message("      " + param.info())
-
-    def message(self, msg):
-        """Function to print all the messages"""
-        self.parent.parent.message(msg)
+            print("      " + param.info())
 
     # ____________ Functions that must be overwriten for time simulation _________________
     def check(self):

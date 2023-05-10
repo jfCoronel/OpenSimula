@@ -62,15 +62,11 @@ class Project(Component):
 
     def info(self):
         """Print project information"""
-        self.message("Project info: ")
-        self.message("   Parameters:")
+        print("Project info: ")
+        print("   Parameters:")
         for key, param in self.parameter.items():
-            self.message("       " + param.info())
-        self.message("   Components number: " + str(len(self._components_)))
-
-    def message(self, msg):
-        """Function to print all the messages"""
-        self.parent.message(msg)
+            print("       ", param.info())
+        print("   Components number: ", len(self._components_))
 
     def new_component(self, type):
         clase = globals()[type]
@@ -93,7 +89,7 @@ class Project(Component):
         try:
             f = open(json_file, "r")
         except OSError:
-            self.message("Error: Could not open/read file: " + json_file)
+            print("Error: Could not open/read file: ", json_file)
             return False
         with f:
             json_dict = json.load(f)
@@ -105,6 +101,7 @@ class Project(Component):
         Returns:
             int: Number of errors
         """
+        print("Checking project: ", self.parameter["name"].value)
         names = []
         n_errors = 0
         # Check initial time
@@ -113,11 +110,11 @@ class Project(Component):
                 self.parameter["initial_time"].value, "%d/%m/%Y %H:%M:%S"
             )
         except ValueError:
-            self.message("Error in project: " + self.parameter["name"].value)
-            self.message(
-                "   "
-                + self.parameter["initial_time"].value
-                + " does not match format (dd/mm/yyyy HH:MM:SS)"
+            print("Error in project: ", self.parameter["name"].value)
+            print(
+                "   ",
+                self.parameter["initial_time"].value,
+                " does not match format (dd/mm/yyyy HH:MM:SS)",
             )
             n_errors += 1
 
@@ -125,16 +122,18 @@ class Project(Component):
             error_comp = comp.check()
             n_errors += error_comp
             if comp.parameter["name"].value in names:
-                self.message("Error in project: " + self.parameter["name"].value)
-                self.message(
-                    "   "
-                    + comp.parameter["name"].value
-                    + " is used by other component as name"
+                print("Error in project: ", self.parameter["name"].value)
+                print(
+                    "   ",
+                    comp.parameter["name"].value,
+                    " is used by other component as name",
                 )
                 n_errors += 1
             else:
                 names.append(comp.parameter["name"].value)
 
+        if n_errors == 0:
+            print("ok")
         return n_errors
 
     def simulate(self):
