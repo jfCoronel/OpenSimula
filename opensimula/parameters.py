@@ -1,3 +1,4 @@
+import sys
 from opensimula.Child import Child
 
 # ___________________ Parameter _________________________
@@ -60,11 +61,15 @@ class Parameter_boolean_List(Parameter):
 
     @value.setter
     def value(self, value):
-        test_type = all(isinstance(n, bool) for n in value)
-        if test_type:
-            self._value_ = value
-        else:
+        error = False
+        if not isinstance(value, list):
+            error = True
+        if not all(isinstance(n, bool) for n in value):
+            error = True
+        if error:
             print("Error: ", value, " is not a list of booleans, ", self.info())
+        else:
+            self._value_ = value
 
 
 # _____________ Parameter_string ___________________________
@@ -80,7 +85,7 @@ class Parameter_string(Parameter):
 
     @value.setter
     def value(self, value):
-        self._value_ = value
+        self._value_ = str(value)
 
 
 class Parameter_string_List(Parameter):
@@ -93,18 +98,19 @@ class Parameter_string_List(Parameter):
 
     @value.setter
     def value(self, value):
-        test_type = all(isinstance(n, str) for n in value)
-        if test_type:
-            self._value_ = value
+        if not isinstance(value, list):
+            self._value_ = [str(value)]
         else:
-            print("Error: ", value, " is not a a list of strings, ", self.info())
+            for el in value:
+                el = str(el)
+            self._value_ = value
 
 
-# _____________ Parameter_number ___________________________
+# _____________ Parameter_int ___________________________
 
 
-class Parameter_number(Parameter):
-    def __init__(self, key, value=0.0, unit="", min=0, max=float("inf")):
+class Parameter_int(Parameter):
+    def __init__(self, key, value=0, unit="", min=0, max=sys.maxsize):
         Parameter.__init__(self, key, value)
         self._unit_ = unit
         self._min_ = min
@@ -120,7 +126,7 @@ class Parameter_number(Parameter):
 
     @value.setter
     def value(self, value):
-        if isinstance(value, (int, float)):
+        if isinstance(value, (int)):
             if value >= self._min_ and value <= self._max_:
                 self._value_ = value
             else:
@@ -135,14 +141,14 @@ class Parameter_number(Parameter):
                     self.info(),
                 )
         else:
-            print("Error: ", value, " is not number, ", self.info())
+            print("Error: ", value, " is not integer, ", self.info())
 
     def info(self):
         return self.key + ": " + str(self.value) + " [" + self._unit_ + "]"
 
 
-class Parameter_number_List(Parameter):
-    def __init__(self, key, value=[0.0], unit="", min=0, max=float("inf")):
+class Parameter_int_List(Parameter):
+    def __init__(self, key, value=[0], unit="", min=0, max=sys.maxsize):
         Parameter.__init__(self, key, value)
         self._unit_ = unit
         self._min_ = min
@@ -158,17 +164,54 @@ class Parameter_number_List(Parameter):
 
     @value.setter
     def value(self, value):
-        test_type = all(isinstance(n, (float, int)) for n in value)
-        if test_type:
-            self._value_ = value
+        error = False
+        if not isinstance(value, list):
+            error = True
+        if not all(isinstance(n, int) for n in value):
+            error = True
+        if error:
+            print("Error: ", value, " is not a list of integers, ", self.info())
         else:
-            print("Error: ", value, " is not a a list of numbers, ", self.info())
+            for n in value:
+                if n < self._min_ or n > self._max_:
+                    print(
+                        "Error: ",
+                        n,
+                        " is not at [",
+                        self._min_,
+                        ",",
+                        self._max_,
+                        "], ",
+                        self.info(),
+                    )
+                    return
+            self._value_ = value
 
-        for n in value:
-            if n < self._min_ or n > self._max_:
+    def info(self):
+        return self.key + ": " + str(self.value) + " [" + self._unit_ + "]"
+
+
+# _____________ Parameter_float ___________________________
+
+
+class Parameter_float(Parameter_int):
+    def __init__(self, key, value=0.0, unit="", min=0.0, max=float("inf")):
+        Parameter_int.__init__(self, key, float(value), unit, float(min), float(max))
+
+    @property
+    def value(self):
+        return self._value_
+
+    @value.setter
+    def value(self, value):
+        try:
+            flotante = float(value)
+            if value >= self._min_ and value <= self._max_:
+                self._value_ = flotante
+            else:
                 print(
                     "Error: ",
-                    n,
+                    value,
                     " is not at [",
                     self._min_,
                     ",",
@@ -176,9 +219,44 @@ class Parameter_number_List(Parameter):
                     "], ",
                     self.info(),
                 )
+        except ValueError:
+            print("Error: ", ValueError, ", ", self.info())
 
-    def info(self):
-        return self.key + ": " + str(self.value) + " [" + self._unit_ + "]"
+
+class Parameter_float_List(Parameter_int_List):
+    def __init__(self, key, value=[0.0], unit="", min=0.0, max=float("inf")):
+        Parameter_int_List.__init__(self, key, value, unit, float(min), float(max))
+
+    @property
+    def value(self):
+        return self._value_
+
+    @value.setter
+    def value(self, value):
+        try:
+            if not isinstance(value, list):
+                flotante = [float(value)]
+            else:
+                flotante = []
+                for n in value:
+                    n_float = float(n)
+                    if n_float < self._min_ or n_float > self._max_:
+                        print(
+                            "Error: ",
+                            n_float,
+                            " is not at [",
+                            self._min_,
+                            ",",
+                            self._max_,
+                            "], ",
+                            self.info(),
+                        )
+                        return
+                    else:
+                        flotante.append(n_float)
+            self._value_ = flotante
+        except ValueError:
+            print("Error: ", ValueError, ", ", self.info())
 
 
 # _____________ Parameter_options ___________________________
@@ -218,15 +296,15 @@ class Parameter_options_List(Parameter):
 
     @value.setter
     def value(self, value):
-        test_type = all(isinstance(n, str) for n in value)
-        if test_type:
-            self._value_ = value
+        if not isinstance(value, list):
+            self._value_ = [str(value)]
         else:
-            print("Error: ", value, " is not a a list of strings, ", self.info())
-
-        for n in value:
-            if n not in self.options:
-                print("Error: ", n, " is not in options, ", self.info())
+            for el in value:
+                el = str(el)
+                if el not in self.options:
+                    print("Error: ", el, " is not in options, ", self.info())
+                    return
+            self._value_ = value
 
     @property
     def options(self):

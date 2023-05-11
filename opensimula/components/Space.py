@@ -8,7 +8,7 @@ class Space(Component):
         Component.__init__(self)
         self.parameter["type"].value = "Space"
         self.parameter["name"].value = "Space_x"
-        self.add_parameter(Parameter_string("description", "Indoor building space"))
+        self.parameter["description"].value = "Indoor building space"
         self.add_parameter(Parameter_component_List("walls", ["not_defined"]))
 
     def check(self):

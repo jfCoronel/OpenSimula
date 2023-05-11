@@ -14,6 +14,9 @@ class Component(Child):
         self._variables_ = {}
         self.add_parameter(Parameter_string("type", "Component"))
         self.add_parameter(Parameter_string("name", "Component_X"))
+        self.add_parameter(
+            Parameter_string("description", "Description of the component")
+        )
 
     def add_parameter(self, param):
         """add Parameter"""

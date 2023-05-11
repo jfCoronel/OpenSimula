@@ -10,9 +10,7 @@ class Outdoor(Component):
         Component.__init__(self)
         self.parameter["type"].value = "Outdoor"
         self.parameter["name"].value = "Outdoor_x"
-        self.add_parameter(
-            Parameter_string("description", "Outdoor zone from a meteorological file")
-        )
+        self.parameter["description"].value = "Outdoor zone from a meteorological file"
         self.add_parameter(Parameter_component("meteo_file", "not_defined"))
         self._meteo_file_ = None
 

@@ -10,6 +10,7 @@ class File_met(Component):
         Component.__init__(self)
         self.parameter["type"].value = "File_met"
         self.parameter["name"].value = "File_met_x"
+        self.parameter["description"].value = "Meteo file in met format"
         self.add_parameter(Parameter_string("file_name", "name.met"))
         # Las variables leidas las guardamos en numpy arrays
         self.temperature = np.zeros(8760)

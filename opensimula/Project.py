@@ -3,7 +3,7 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 from opensimula.Component import Component
-from opensimula.parameters import Parameter_number, Parameter_string
+from opensimula.parameters import Parameter_int, Parameter_string
 from opensimula.components import *
 
 
@@ -15,8 +15,9 @@ class Project(Component):
         Component.__init__(self, sim)
         self.parameter["type"].value = "Project"
         self.parameter["name"].value = "Project_X"
-        self.add_parameter(Parameter_number("time_step", 600, "s", min=1))
-        self.add_parameter(Parameter_number("n_time_steps", 52560, min=1))
+        self.parameter["description"].value = "Description of the project"
+        self.add_parameter(Parameter_int("time_step", 600, "s", min=1))
+        self.add_parameter(Parameter_int("n_time_steps", 52560, min=1))
         self.add_parameter(Parameter_string("initial_time", "01/01/2001 00:00:00"))
         sim.add_project(self)
         self._components_ = []

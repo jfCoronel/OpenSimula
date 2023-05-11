@@ -8,6 +8,8 @@ class Wall(Component):
         Component.__init__(self)
         self.parameter["type"].value = "Wall"
         self.parameter["name"].value = "Wall_x"
+        self.parameter["description"].value = "enclosure of the building's spaces"
+
         self.add_parameter(Parameter_component("construction", ""))
         self.add_parameter(
             Parameter_options(
