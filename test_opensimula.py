@@ -76,9 +76,9 @@ proyecto_json = {
 
 sim = oms.Simulation()
 bdd = oms.Project(sim)
-bdd.load_from_json(bdd_json)
+bdd.read_excel("bdd_project.xlsx")
 bdd.check()
 proyecto = oms.Project(sim)
-proyecto.load_from_json(proyecto_json)
+proyecto.read_excel("example_project.xlsx")
 proyecto.check()
 proyecto.simulate()

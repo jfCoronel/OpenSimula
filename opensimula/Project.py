@@ -96,6 +96,51 @@ class Project(Component):
             json_dict = json.load(f)
             self.load_from_json(json_dict)
 
+    def read_excel(self, excel_file):
+        """Read paramaters an component from excel file
+
+        Args:
+            excel_file (string): excel file path
+        """
+        try:
+            xls_file = pd.ExcelFile(excel_file)
+            json_dict = self._excel_to_json_(xls_file)
+            self.load_from_json(json_dict)
+        except Exception as e:
+            print("Error: Could not open/read file: ", excel_file)
+            return False
+
+    def _excel_to_json_(self, xls_file):
+        json = {"components": []}
+        sheets = xls_file.sheet_names
+        # project sheet
+        project_df = xls_file.parse(sheet_name="project")
+        for index, row in project_df.iterrows():
+            json[row["key"]] = self._value_to_json_(row["value"])
+        # rest of sheets
+        for sheet in sheets:
+            if sheet != "project":
+                comp_df = xls_file.parse(sheet_name=sheet)
+                column_names = comp_df.columns.values.tolist()
+                for index, row in comp_df.iterrows():
+                    j = 0
+                    comp_json = {}
+                    comp_json["type"] = sheet
+                    for cell in row:
+                        comp_json[column_names[j]] = self._value_to_json_(cell)
+                        j += 1
+                    json["components"].append(comp_json)
+        return json
+
+    def _value_to_json_(self, value):
+        if isinstance(value, str):
+            if value[0] == "[":
+                return value[1:-1].split(",")
+            else:
+                return value
+        else:
+            return value
+
     def check(self):
         """Check if all is correct, for all its components
 
