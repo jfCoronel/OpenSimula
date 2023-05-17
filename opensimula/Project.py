@@ -70,20 +70,37 @@ class Project(Component):
         print("   Components number: ", len(self._components_))
 
     def new_component(self, type):
-        clase = globals()[type]
-        comp = clase()
-        self.add_component(comp)
-        return comp
+        try:
+            clase = globals()[type]
+            comp = clase()
+            self.add_component(comp)
+            return comp
+        except KeyError:
+            return None
 
     def load_from_json(self, json):
         """Create paramaters an components from json dictionary"""
         for key, value in json.items():
             if key == "components":  # Lista de componentes
                 for component in value:
-                    comp = self.new_component(component["type"])
-                    comp.set_parameters(component)
-            else:  # Debe ser un parámetro
-                self.parameter[key].value = value
+                    if "type" in component:
+                        comp = self.new_component(component["type"])
+                        if comp == None:
+                            print(
+                                "Error: Component type ",
+                                component["type"],
+                                " does no exist",
+                            )
+                        else:
+                            comp.set_parameters(component)
+                    else:
+                        print('Error: Component does not contain "type" ', component)
+            else:
+                if key in self.parameter:
+                    self.parameter[key].value = value
+                else:
+                    print("Error: Project parameter ", key, " does not exist")
+        self.check()
 
     def read_json(self, json_file):
         """Read paramaters an components from json file"""
@@ -107,7 +124,7 @@ class Project(Component):
             json_dict = self._excel_to_json_(xls_file)
             self.load_from_json(json_dict)
         except Exception as e:
-            print("Error: Could not open/read file: ", excel_file)
+            print("Error: reading file: ", excel_file, " -> ", e)
             return False
 
     def _excel_to_json_(self, xls_file):

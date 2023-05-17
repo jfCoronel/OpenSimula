@@ -2,6 +2,7 @@ import opensimula as oms
 
 bdd_json = {
     "name": "Base de Datos",
+    "type": "Project",
     "components": [
         {"type": "File_met", "name": "zonaB4", "file_name": "meteo/zonaB4.met"},
         {
@@ -77,8 +78,9 @@ proyecto_json = {
 sim = oms.Simulation()
 bdd = oms.Project(sim)
 bdd.read_excel("bdd_project.xlsx")
-bdd.check()
+# bdd.read_json("bdd_project.json")
+# bdd.load_from_json(bdd_json)
+
 proyecto = oms.Project(sim)
 proyecto.read_excel("example_project.xlsx")
-proyecto.check()
 proyecto.simulate()

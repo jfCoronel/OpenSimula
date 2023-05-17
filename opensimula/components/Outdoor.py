@@ -41,7 +41,7 @@ class Outdoor(Component):
         self.reference_time_longitude = self._meteo_file_.reference_time_longitude
         self.add_variable(Variable("temperature", n_time_steps, unit="°C"))
         self.add_variable(Variable("sky_temperature", n_time_steps, unit="°C"))
-        self.add_variable(Variable("abs_humidity", n_time_steps, unit="g/kg"))
+        self.add_variable(Variable("rel_humidity", n_time_steps, unit="%"))
         self.add_variable(Variable("sol_direct", n_time_steps, unit="W/m²"))
         self.add_variable(Variable("sol_diffuse", n_time_steps, unit="W/m²"))
         self.add_variable(Variable("wind_speed", n_time_steps, unit="m/s"))
@@ -53,7 +53,7 @@ class Outdoor(Component):
         values = self._meteo_file_.get_instant_values(date)
         self.variable["temperature"].array[time_index] = values["temperature"]
         self.variable["sky_temperature"].array[time_index] = values["sky_temperature"]
-        self.variable["abs_humidity"].array[time_index] = values["abs_humidity"] * 1000
+        self.variable["rel_humidity"].array[time_index] = values["rel_humidity"]
         self.variable["sol_direct"].array[time_index] = values["sol_direct"]
         self.variable["sol_diffuse"].array[time_index] = values["sol_diffuse"]
         self.variable["wind_speed"].array[time_index] = values["wind_speed"]

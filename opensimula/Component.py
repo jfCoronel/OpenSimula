@@ -65,7 +65,10 @@ class Component(Child):
     def set_parameters(self, dictonary):
         """Read parameters from dictonary"""
         for key, value in dictonary.items():
-            self.parameter[key].value = value
+            if key in self.parameter:
+                self.parameter[key].value = value
+            else:
+                print("Error: Component parameter ", key, " does not exist")
 
     def parameters_dataframe(self):
         keys = []
