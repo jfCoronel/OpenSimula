@@ -23,9 +23,9 @@ bdd_json = {
         },
         {
             "type": "Construction",
-            "name": "Muro exterior",
+            "name": "Muro Exterior",
             "solar_absortivity": [0.8, 0.8],
-            "materials": ["Mortero demento", "Ladrillo hueco"],
+            "materials": ["Mortero cemento", "Ladrillo hueco"],
         },
     ],
 }
@@ -69,7 +69,7 @@ proyecto_json = {
         {
             "type": "Space",
             "name": "Room",
-            "walls": ["wall_S", "wall_E", "wall_W", "wall_N", "cealing"],
+            "walls": ["wall_S", "wall_E", "wall_W", "wall_N", "ceiling"],
         },
     ],
 }
