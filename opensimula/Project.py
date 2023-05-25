@@ -165,8 +165,8 @@ class Project(Component):
             int: Number of errors
         """
         print("Checking project: ", self.parameter["name"].value)
+        n_errors = super().check()  # Parameters
         names = []
-        n_errors = 0
         # Check initial time
         try:
             dt.datetime.strptime(
@@ -209,6 +209,7 @@ class Project(Component):
         self.pre_simulation(n)
 
         for i in range(n):
+            print("Simulation: ", i, " of ", n, end="\r")
             self.pre_iteration(i, date)
             converge = False
             while not converge:
@@ -217,6 +218,7 @@ class Project(Component):
             self.post_iteration(i, date)
             date = date + dt.timedelta(0, delta_t)
 
+        print("Simulation: ", n, " of ", n)
         self.post_simulation()
 
     def pre_simulation(self, n_time_steps):

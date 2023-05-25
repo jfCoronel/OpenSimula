@@ -55,6 +55,9 @@ class Component(Child):
     def del_variable(self, variable):
         self._variables_.remove(variable)
 
+    def del_all_variables(self):
+        self._variables_ = {}
+
     def variables_dataframe(self):
         series = {"dates": self.project.dates_array()}
         for key, var in self.variable.items():
@@ -93,7 +96,10 @@ class Component(Child):
         Returns:
             int: Number of errors
         """
-        return 0
+        nErrors = 0
+        for key, value in self.parameter.items():
+            nErrors += value.check()
+        return nErrors
 
     def pre_simulation(self, n_time_steps):
         pass

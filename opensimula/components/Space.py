@@ -1,5 +1,5 @@
 from opensimula.Component import Component
-from opensimula.parameters import Parameter_string, Parameter_component_List
+from opensimula.parameters import Parameter_component_list
 from opensimula.variables import Variable
 
 
@@ -9,13 +9,14 @@ class Space(Component):
         self.parameter["type"].value = "Space"
         self.parameter["name"].value = "Space_x"
         self.parameter["description"].value = "Indoor building space"
-        self.add_parameter(Parameter_component_List("walls", ["not_defined"]))
+        self.add_parameter(Parameter_component_list("walls", ["not_defined"]))
 
     def check(self):
-        # TODO check walls
-        return 0
+        n_errors = super().check()
+        return n_errors
 
     def pre_simulation(self, n_time_steps):
+        self.del_all_variables()
         self.add_variable(Variable("temperature", n_time_steps, unit="°C"))
         self.add_variable(Variable("rel_humidity", n_time_steps, unit="%"))
 

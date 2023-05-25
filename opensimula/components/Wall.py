@@ -18,10 +18,11 @@ class Wall(Component):
         )
 
     def check(self):
-        # TODO check construction
-        return 0
+        n_errors = super().check()
+        return n_errors
 
     def pre_simulation(self, n_time_steps):
+        self.del_all_variables()
         self.add_variable(Variable("t_sup1", n_time_steps, unit="°C"))
         self.add_variable(Variable("t_sup2", n_time_steps, unit="°C"))
 

@@ -1,7 +1,7 @@
 import math
 import datetime as dt
 from opensimula.Component import Component
-from opensimula.parameters import Parameter_string, Parameter_component
+from opensimula.parameters import Parameter_component
 from opensimula.variables import Variable
 
 
@@ -15,23 +15,8 @@ class Outdoor(Component):
         self._meteo_file_ = None
 
     def check(self):
-        #
-        self._meteo_file_ = self.parameter["meteo_file"].find_component()
-        if self._meteo_file_ == None:
-            print(
-                "Error in component: ",
-                self.parameter["name"].value,
-                ", type: ",
-                self.parameter["type"].value,
-            )
-            print(
-                "   meteo_file: ",
-                self.parameter["meteo_file"].value,
-                " component not found",
-            )
-            return 1
-        else:
-            return 0
+        n_errors = super().check()
+        return n_errors
 
     def pre_simulation(self, n_time_steps):
         self._meteo_file_ = self.parameter["meteo_file"].find_component()
@@ -39,6 +24,7 @@ class Outdoor(Component):
         self.longitude = self._meteo_file_.longitude
         self.altitude = self._meteo_file_.altitude
         self.reference_time_longitude = self._meteo_file_.reference_time_longitude
+        self.del_all_variables()
         self.add_variable(Variable("temperature", n_time_steps, unit="°C"))
         self.add_variable(Variable("sky_temperature", n_time_steps, unit="°C"))
         self.add_variable(Variable("rel_humidity", n_time_steps, unit="%"))
