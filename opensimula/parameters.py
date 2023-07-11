@@ -32,7 +32,7 @@ class Parameter(Child):
         return self.key + ": " + str(self.value)
 
     def check(self):
-        return 0
+        return []
 
 
 # _____________ Parameter_boolean ___________________________
@@ -139,12 +139,9 @@ class Parameter_int(Parameter):
 
     def check(self):
         if self.value < self._min_ and self.value > self._max_:
-            print(
-                "Error: ", self.value, " is not at [", self._min_, ",", self._max_, "]"
-            )
-            return 1
+            return [f"Error: {self.value} is not at [{self._min_},{self._max_}]"]
         else:
-            return 0
+            return []
 
 
 class Parameter_int_list(Parameter):
@@ -175,12 +172,11 @@ class Parameter_int_list(Parameter):
             self._value_ = value
 
     def check(self):
-        nErrors = 0
+        errors = []
         for n in self.value:
             if n < self._min_ or n > self._max_:
-                print("Error: ", n, " is not at [", self._min_, ",", self._max_, "]")
-                nErrors += 1
-        return nErrors
+                errors.append(f"Error: {n} is not at [{self._min_},{self._max_}]")
+        return errors
 
     def info(self):
         return self.key + ": " + str(self.value) + " [" + self._unit_ + "]"
@@ -206,12 +202,9 @@ class Parameter_float(Parameter_int):
 
     def check(self):
         if self.value < self._min_ and self.value > self._max_:
-            print(
-                "Error: ", self.value, " is not at [", self._min_, ",", self._max_, "]"
-            )
-            return 1
+            return [f"Error: {self.value} is not at [{self._min_},{self._max_}]"] 
         else:
-            return 0
+            return []
 
 
 class Parameter_float_list(Parameter_int_list):
@@ -236,12 +229,11 @@ class Parameter_float_list(Parameter_int_list):
             print("Error: ", ValueError, ", ", self.info())
 
     def check(self):
-        nErrors = 0
+        errors = []
         for n in self.value:
             if n < self._min_ or n > self._max_:
-                print("Error: ", n, " is not at [", self._min_, ",", self._max_, "]")
-                nErrors += 1
-        return nErrors
+                errors.append(f"Error: {n} is not at [{self._min_},{self._max_}]")
+        return errors
 
 
 # _____________ Parameter_options ___________________________
@@ -267,10 +259,9 @@ class Parameter_options(Parameter):
 
     def check(self):
         if self.value not in self.options:
-            print("Error: ", self.value, " is not in options.")
-            return 1
+            return [f"Error: {self.value} is not in options."]
         else:
-            return 0
+            return []
 
 
 class Parameter_options_list(Parameter):
@@ -297,12 +288,11 @@ class Parameter_options_list(Parameter):
         return self._options_
 
     def check(self):
-        nErrors = 0
+        errors = []
         for el in self.value:
             if el not in self.options:
-                print("Error: ", el, " is not in options.")
-                nErrors += 1
-        return nErrors
+                errors.append(f"Error: {el} is not in options.")
+        return errors
 
 
 # _____________ Parameter_component ___________________________
@@ -326,10 +316,9 @@ class Parameter_component(Parameter_string):
     def check(self):
         comp = self.find_component()
         if comp == None and self.value != "not_defined":
-            print("Error: ", self.value, " component not found.")
-            return 1
+            return [f"Error: {self.value} component not found."]
         else:
-            return 0
+            return []
 
 
 class Parameter_component_list(Parameter_string_list):
@@ -351,10 +340,9 @@ class Parameter_component_list(Parameter_string_list):
         return components
 
     def check(self):
-        nErrors = 0
+        errors = []
         comps = self.find_component()
         for i in range(len(comps)):
             if comps[i] == None and self.value[i] != "not_defined":
-                print("Error: ", self.value[i], " component not found.")
-                nErrors += 1
-        return nErrors
+                errors.append(f"Error: {self.value[i]} component not found.")
+        return errors

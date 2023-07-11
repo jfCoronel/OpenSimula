@@ -1,6 +1,6 @@
 from opensimula.Component import Component
-from opensimula.parameters import Parameter_options, Parameter_component
-from opensimula.variables import Variable
+from opensimula.Parameters import Parameter_options, Parameter_component
+from opensimula.Variable import Variable
 
 
 class Wall(Component):
@@ -16,10 +16,6 @@ class Wall(Component):
                 "position", "exterior", ["exterior", "interior", "ground"]
             )
         )
-
-    def check(self):
-        n_errors = super().check()
-        return n_errors
 
     def pre_simulation(self, n_time_steps):
         self.del_all_variables()

@@ -1,8 +1,8 @@
 import math
 import datetime as dt
 from opensimula.Component import Component
-from opensimula.parameters import Parameter_component
-from opensimula.variables import Variable
+from opensimula.Parameters import Parameter_component
+from opensimula.Variable import Variable
 
 
 class Outdoor(Component):
@@ -13,10 +13,6 @@ class Outdoor(Component):
         self.parameter["description"].value = "Outdoor zone from a meteorological file"
         self.add_parameter(Parameter_component("meteo_file", "not_defined"))
         self._meteo_file_ = None
-
-    def check(self):
-        n_errors = super().check()
-        return n_errors
 
     def pre_simulation(self, n_time_steps):
         self._meteo_file_ = self.parameter["meteo_file"].find_component()

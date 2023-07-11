@@ -1,6 +1,6 @@
 from opensimula.Component import Component
-from opensimula.parameters import Parameter_component_list
-from opensimula.variables import Variable
+from opensimula.Parameters import Parameter_component_list
+from opensimula.Variable import Variable
 
 
 class Space(Component):
@@ -10,10 +10,6 @@ class Space(Component):
         self.parameter["name"].value = "Space_x"
         self.parameter["description"].value = "Indoor building space"
         self.add_parameter(Parameter_component_list("walls", ["not_defined"]))
-
-    def check(self):
-        n_errors = super().check()
-        return n_errors
 
     def pre_simulation(self, n_time_steps):
         self.del_all_variables()

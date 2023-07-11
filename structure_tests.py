@@ -47,8 +47,8 @@ p2_json = {
 
 sim = oms.Simulation()
 p1 = oms.Project(sim)
-p1.load_from_json(p1_json)
+p1.load_from_dic(p1_json)
 
 p2 = oms.Project(sim)
-p2.load_from_json(p2_json)
+p2.load_from_dic(p2_json)
 p2.simulate()

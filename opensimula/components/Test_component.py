@@ -1,4 +1,4 @@
-from opensimula.parameters import (
+from opensimula.Parameters import (
     Parameter_boolean,
     Parameter_float,
     Parameter_int,
@@ -13,7 +13,7 @@ from opensimula.parameters import (
     Parameter_component_list,
 )
 from opensimula.Component import Component
-from opensimula.variables import Variable
+from opensimula.Variable import Variable
 
 
 class Test_component(Component):
@@ -46,10 +46,6 @@ class Test_component(Component):
             Parameter_component_list("component_list", ["not_defined", "not_defined"])
         )
         self._initial_date_ = None
-
-    def check(self):
-        # Check parameters
-        return super().check()
 
     def pre_simulation(self, n_time_steps):
         self.del_all_variables()

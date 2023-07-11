@@ -1,6 +1,3 @@
-import datetime as dt
-
-
 class Simulation:
     """Simulation environment object for hadling projects"""
 
@@ -33,9 +30,9 @@ class Simulation:
             name (string): name of the project
         
         Returns:
-            project (Project): project, None if not found.
+            project (Project): project found, None if not found.
         """
-        for pro in self._projects_:
+        for pro in self.projects:
             if pro.parameter["name"].value == name:
                 return pro
         return None
@@ -48,8 +45,11 @@ class Simulation:
             projects (Project): List of projects.
         """
         return self._projects_
-
-    def info(self):
-        """Print simulation information"""
-        print("Simulation info: ")
-        print("   Projects number: ",len(self._projects_))
+        
+    def _repr_html_(self):
+        html = "<h3>Simulation projects:</h3><ul>"
+        for p in self.projects:
+            html += f"<li>{p.parameter['name'].value}</li>"
+        html += "</ul>"
+        return html;
+        

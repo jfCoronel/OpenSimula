@@ -1,4 +1,4 @@
-from opensimula.parameters import Parameter_boolean, Parameter_float
+from opensimula.Parameters import Parameter_boolean, Parameter_float
 from opensimula.Component import Component
 
 

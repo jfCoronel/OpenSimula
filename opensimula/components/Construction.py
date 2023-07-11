@@ -1,4 +1,4 @@
-from opensimula.parameters import Parameter_component_list, Parameter_float_list
+from opensimula.Parameters import Parameter_component_list, Parameter_float_list
 from opensimula.Component import Component
 
 

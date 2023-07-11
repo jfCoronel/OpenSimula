@@ -1,6 +1,6 @@
 import pandas as pd
 from opensimula.Child import Child
-from opensimula.parameters import Parameter_string
+from opensimula.Parameters import Parameter_string
 
 # ________________ Component __________________________
 
@@ -94,12 +94,15 @@ class Component(Child):
         """Check if all is correct
 
         Returns:
-            int: Number of errors
+            errors (string list): List of errors
         """
-        nErrors = 0
+        errors = []
         for key, value in self.parameter.items():
-            nErrors += value.check()
-        return nErrors
+            param_error = value.check()
+            if (len(param_error) > 1):
+                for e in param_error:
+                    errors.append(e)
+        return errors
 
     def pre_simulation(self, n_time_steps):
         pass

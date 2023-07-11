@@ -3,15 +3,30 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 from opensimula.Component import Component
-from opensimula.parameters import Parameter_int, Parameter_string
+from opensimula.Parameters import Parameter_int, Parameter_string
 from opensimula.components import *
 
 
 class Project(Component):
-    """Project is a Compenent that contains a list of Components"""
+    """Project has the following features:
+    
+    - It is included in one Simulation environment
+    - Contain a list of components
+    - Contains the following parameters:
+        * name (string, "Project_X"): name of the project
+        * type (string, "Project"): "Project"
+        * description (string, "Description of the project"): Description of the project
+        * time_step (int, 600): Time step in seconds
+        * n_time_steps (int, 52560): Number of time steps to be simulated
+        * initial_time (string, "01/01/2001 00:00:00"): Initial time for the simulation
+    """
 
     def __init__(self, sim):
-        """Create new project in the sim Simulation"""
+        """Create new project
+        
+        Args:
+            sim (Simulation): parent Simulation environment
+        """
         Component.__init__(self, sim)
         self.parameter["type"].value = "Project"
         self.parameter["name"].value = "Project_X"
@@ -23,51 +38,71 @@ class Project(Component):
         self._components_ = []
 
     def add_component(self, component):
-        """Add component to the Project"""
+        """Add component to Project
+        
+        Args:
+            component (Component): Component to be added to the project
+        """
         component.parent = self
         self._components_.append(component)
 
     def del_component(self, component):
+        """Delete component from Project
+        
+        Args:
+            component (Component): Component to be removed from the project
+        """
         self._components_.remove(component)
 
     def find_component(self, name):
+        """Find component
+        
+        Args:
+            name (string): name of the component
+        
+        Returns:
+            component (Component): component found, None if not found.
+        """
         for comp in self._components_:
             if comp.parameter["name"].value == name:
                 return comp
         return None
 
     @property
-    def component(self):
+    def components(self):
+        """Components list in the project
+        
+        Returns:
+            components (Components list): List of components.
+        """
         return self._components_
 
     @property
     def simulation(self):
         """
         Returns:
-            Simulation: Simulation environment
+            simulation (Simulation): Simulation environment
         """
         return self.parent
 
     @property
     def project(self):
+        """
+        Returns:
+            project (Project): Parent proyect
+        """
         return self
 
     def components_dataframe(self):
         names = []
         types = []
-        for comp in self.component:
+        descriptions = []
+        for comp in self.components:
             names.append(comp.parameter["name"].value)
             types.append(comp.parameter["type"].value)
-        data = pd.DataFrame({"name": names, "type": types})
+            descriptions.append(comp.parameter["description"].value)
+        data = pd.DataFrame({"name": names, "type": types, "description": descriptions})
         return data
-
-    def info(self):
-        """Print project information"""
-        print("Project info: ")
-        print("   Parameters:")
-        for key, param in self.parameter.items():
-            print("       ", param.info())
-        print("   Components number: ", len(self._components_))
 
     def new_component(self, type):
         try:
@@ -78,9 +113,14 @@ class Project(Component):
         except KeyError:
             return None
 
-    def load_from_json(self, json):
-        """Create paramaters an components from json dictionary"""
-        for key, value in json.items():
+    def load_from_dic(self, dic):
+        """Load paramaters an components from dictionary
+        
+        Args:
+            dic (dictionary): dictonary with the parameters and componenets to be loaded in the project
+        
+        """
+        for key, value in dic.items():
             if key == "components":  # Lista de componentes
                 for component in value:
                     if "type" in component:
@@ -103,7 +143,12 @@ class Project(Component):
         self.check()
 
     def read_json(self, json_file):
-        """Read paramaters an components from json file"""
+        """Read paramaters an components from dictionary in a json file
+        
+        Args:
+            json_file (string): file name that contains dictonary with the parameters and componenets to be loaded in the project
+        
+        """
         try:
             f = open(json_file, "r")
         except OSError:
@@ -111,10 +156,10 @@ class Project(Component):
             return False
         with f:
             json_dict = json.load(f)
-            self.load_from_json(json_dict)
+            self.load_from_dic(json_dict)
 
     def read_excel(self, excel_file):
-        """Read paramaters an component from excel file
+        """Read paramaters an components from excel file
 
         Args:
             excel_file (string): excel file path
@@ -122,7 +167,7 @@ class Project(Component):
         try:
             xls_file = pd.ExcelFile(excel_file)
             json_dict = self._excel_to_json_(xls_file)
-            self.load_from_json(json_dict)
+            self.load_from_dic(json_dict)
         except Exception as e:
             print("Error: reading file: ", excel_file, " -> ", e)
             return False
@@ -159,13 +204,15 @@ class Project(Component):
             return value
 
     def check(self):
-        """Check if all is correct, for all its components
+        """Check if all is correct, for the project and all its components
+        
+            Prints all errors found
 
         Returns:
-            int: Number of errors
+            errors (string list): List of errors
         """
         print("Checking project: ", self.parameter["name"].value)
-        n_errors = super().check()  # Parameters
+        errors = super().check()  # Parameters
         names = []
         # Check initial time
         try:
@@ -173,33 +220,32 @@ class Project(Component):
                 self.parameter["initial_time"].value, "%d/%m/%Y %H:%M:%S"
             )
         except ValueError:
-            print("Error in project: ", self.parameter["name"].value)
-            print(
-                "   ",
-                self.parameter["initial_time"].value,
-                " does not match format (dd/mm/yyyy HH:MM:SS)",
-            )
-            n_errors += 1
+            error = f"Error in project: {self.parameter['name'].value},"
+            error += f" initial_time: {self.parameter['initial_time'].value} does not match format (dd/mm/yyyy HH:MM:SS)"
+            errors.append(error)
 
-        for comp in self.component:
+        for comp in self.components:
             error_comp = comp.check()
-            n_errors += error_comp
+            if (len(error_comp) > 1):
+                for e in error_comp:
+                    errors.append(e)
             if comp.parameter["name"].value in names:
-                print("Error in project: ", self.parameter["name"].value)
-                print(
-                    "   ",
-                    comp.parameter["name"].value,
-                    " is used by other component as name",
-                )
-                n_errors += 1
+                error = f"Error in project: {self.parameter['name'].value},"
+                error += f" '{comp.parameter['name'].value}' is used by other component as name"
+                errors.append(error)
             else:
                 names.append(comp.parameter["name"].value)
 
-        if n_errors == 0:
+        if len(errors) == 0:
             print("ok")
-        return n_errors
+        else: 
+            for error in errors:
+                print(error)
+        
+        return errors
 
     def simulate(self):
+        """ Project Time Simulation"""
         n = self.parameter["n_time_steps"].value
         date = dt.datetime.strptime(
             self.parameter["initial_time"].value, "%d/%m/%Y %H:%M:%S"
@@ -222,26 +268,26 @@ class Project(Component):
         self.post_simulation()
 
     def pre_simulation(self, n_time_steps):
-        for comp in self.component:
+        for comp in self.components:
             comp.pre_simulation(n_time_steps)
 
     def post_simulation(self):
-        for comp in self.component:
+        for comp in self.components:
             comp.post_simulation()
 
     def pre_iteration(self, time_index, date):
-        for comp in self.component:
+        for comp in self.components:
             comp.pre_iteration(time_index, date)
 
     def iteration(self, time_index, date):
         converge = True
-        for comp in self.component:
+        for comp in self.components:
             if not comp.iteration(time_index, date):
                 converge = False
         return converge
 
     def post_iteration(self, time_index, date):
-        for comp in self.component:
+        for comp in self.components:
             comp.post_iteration(time_index, date)
 
     def dates_array(self):
@@ -257,3 +303,10 @@ class Project(Component):
             date = date + dt.timedelta(0, delta_t)
 
         return array
+    
+    
+    def _repr_html_(self):
+        html = f"<h3>Project: {self.parameter['name'].value}</h3><p>{self.parameter['description'].value}</p>"
+        html += "<strong>Components list:</strong>"
+        html += self.components_dataframe().to_html()
+        return html;

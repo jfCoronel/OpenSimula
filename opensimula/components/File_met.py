@@ -1,7 +1,7 @@
 import numpy as np
 import datetime as dt
 import math
-from opensimula.parameters import Parameter_string
+from opensimula.Parameters import Parameter_string
 from opensimula.Component import Component
 
 
@@ -25,19 +25,13 @@ class File_met(Component):
         self.sol_cenit = np.zeros(8760)
 
     def check(self):
-        n_errors = super().check()  # Check parameters
+        errors = super().check()  # Check parameters
         # Read the file
         try:
             f = open(self.parameter["file_name"].value, "r")
         except OSError:
-            print(
-                "Error in component: ",
-                self.parameter["name"].value,
-                ", type: ",
-                self.parameter["type"].value,
-            )
-            print("   could not open/read file: ", self.parameter["file_name"].value)
-            n_errors += 1
+            errors.append(f"Error in component: {self.parameter['name'].value}, could not open/read file: {self.parameter['file_name'].value}")
+            return errors
         with f:
             f.readline()
             line = f.readline()
@@ -59,7 +53,7 @@ class File_met(Component):
                 self.wind_direction[t] = float(valores[10])
                 self.sol_azimut[t] = float(valores[11])
                 self.sol_cenit[t] = float(valores[12])
-        return n_errors
+        return errors
 
     def get_instant_values(self, datetime):
         """Dictonary with all the meteo values for the datatime"""
