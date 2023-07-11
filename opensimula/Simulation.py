@@ -2,23 +2,39 @@ import datetime as dt
 
 
 class Simulation:
-    """Simulation contains a list of Projects"""
+    """Simulation environment object for hadling projects"""
 
     version = "0.0.1"
 
     def __init__(self):
-        """Simulation enviroment, contains a list of Projects"""
         self._projects_ = []
 
     def add_project(self, project):
-        """Add project to Simulation"""
+        """Add project to Simulation
+        
+        Args:
+            project (Project): Project to be added to the simulation environment
+        """
         project.parent = self
         self._projects_.append(project)
 
     def del_project(self, project):
+        """Delete project from Simulation
+        
+        Args:
+            project (Project): Project to be removed from the simulation environment
+        """
         self._projects_.remove(project)
 
     def find_project(self, name):
+        """Find project
+        
+        Args:
+            name (string): name of the project
+        
+        Returns:
+            project (Project): project, None if not found.
+        """
         for pro in self._projects_:
             if pro.parameter["name"].value == name:
                 return pro
@@ -26,9 +42,14 @@ class Simulation:
 
     @property
     def projects(self):
+        """Projects list in the simulation environment
+        
+        Returns:
+            projects (Project): List of projects.
+        """
         return self._projects_
 
     def info(self):
-        """Print simularion information"""
+        """Print simulation information"""
         print("Simulation info: ")
         print("   Projects number: ",len(self._projects_))

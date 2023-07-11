@@ -1,12 +1,21 @@
 site_name: OpenSimula
 
 theme:
-  name: "material"
+    name: "material"
+    logo: img/logo_opensimula.png
+    palette:
+        primary: indigo
 
 plugins:
-  - mkdocstrings
+    - search
+    - mkdocstrings:
+          default_handler: python
+          handlers:
+              python:
+                  options:
+                      show_source: false
 
 nav:
-  - OpenSimula: index.md
-  - Tutorials: tutorials.md
-  - API Reference: reference.md
+    - OpenSimula: index.md
+    - Getting started: getting_started.md
+    - API Reference: reference.md

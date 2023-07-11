@@ -1,11 +1,13 @@
-This site contains the project documentation for the
-`OpenSimula`.
 
-## Table Of Contents
+![Logo](img/logo_opensimula.png) This site contains the documentation for the
+___OpenSimula___ project.
+
+
+## Pages
 
 The documentation consists of two separate parts:
 
-1. [Tutorials](tutorials.md)
+1. [Getting started](getting_started.md)
 2. [API Reference](reference.md)
 
 
