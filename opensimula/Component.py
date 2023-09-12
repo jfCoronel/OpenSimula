@@ -6,7 +6,14 @@ from opensimula.Parameters import Parameter_string
 
 
 class Component(Child):
-    """Objtects with paramaters and variables"""
+    """Objects with paramaters and variables
+
+    - all components have parent
+    - Contains a list of Parameters
+    - Contains a list of Variables
+
+
+    """
 
     def __init__(self, parent=None):
         Child.__init__(self, parent)
@@ -99,7 +106,7 @@ class Component(Child):
         errors = []
         for key, value in self.parameter.items():
             param_error = value.check()
-            if (len(param_error) > 1):
+            if len(param_error) > 1:
                 for e in param_error:
                     errors.append(e)
         return errors

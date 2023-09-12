@@ -9,7 +9,7 @@ from opensimula.components import *
 
 class Project(Component):
     """Project has the following features:
-    
+
     - It is included in one Simulation environment
     - Contain a list of components
     - Contains the following parameters:
@@ -23,7 +23,7 @@ class Project(Component):
 
     def __init__(self, sim):
         """Create new project
-        
+
         Args:
             sim (Simulation): parent Simulation environment
         """
@@ -39,7 +39,7 @@ class Project(Component):
 
     def add_component(self, component):
         """Add component to Project
-        
+
         Args:
             component (Component): Component to be added to the project
         """
@@ -48,7 +48,7 @@ class Project(Component):
 
     def del_component(self, component):
         """Delete component from Project
-        
+
         Args:
             component (Component): Component to be removed from the project
         """
@@ -56,10 +56,10 @@ class Project(Component):
 
     def find_component(self, name):
         """Find component
-        
+
         Args:
             name (string): name of the component
-        
+
         Returns:
             component (Component): component found, None if not found.
         """
@@ -71,7 +71,7 @@ class Project(Component):
     @property
     def components(self):
         """Components list in the project
-        
+
         Returns:
             components (Components list): List of components.
         """
@@ -89,7 +89,7 @@ class Project(Component):
     def project(self):
         """
         Returns:
-            project (Project): Parent proyect
+            project (Project): return itself
         """
         return self
 
@@ -115,10 +115,10 @@ class Project(Component):
 
     def load_from_dic(self, dic):
         """Load paramaters an components from dictionary
-        
+
         Args:
             dic (dictionary): dictonary with the parameters and componenets to be loaded in the project
-        
+
         """
         for key, value in dic.items():
             if key == "components":  # Lista de componentes
@@ -144,10 +144,10 @@ class Project(Component):
 
     def read_json(self, json_file):
         """Read paramaters an components from dictionary in a json file
-        
+
         Args:
             json_file (string): file name that contains dictonary with the parameters and componenets to be loaded in the project
-        
+
         """
         try:
             f = open(json_file, "r")
@@ -205,7 +205,7 @@ class Project(Component):
 
     def check(self):
         """Check if all is correct, for the project and all its components
-        
+
             Prints all errors found
 
         Returns:
@@ -226,7 +226,7 @@ class Project(Component):
 
         for comp in self.components:
             error_comp = comp.check()
-            if (len(error_comp) > 1):
+            if len(error_comp) > 1:
                 for e in error_comp:
                     errors.append(e)
             if comp.parameter["name"].value in names:
@@ -238,14 +238,14 @@ class Project(Component):
 
         if len(errors) == 0:
             print("ok")
-        else: 
+        else:
             for error in errors:
                 print(error)
-        
+
         return errors
 
     def simulate(self):
-        """ Project Time Simulation"""
+        """Project Time Simulation"""
         n = self.parameter["n_time_steps"].value
         date = dt.datetime.strptime(
             self.parameter["initial_time"].value, "%d/%m/%Y %H:%M:%S"
@@ -303,10 +303,9 @@ class Project(Component):
             date = date + dt.timedelta(0, delta_t)
 
         return array
-    
-    
+
     def _repr_html_(self):
         html = f"<h3>Project: {self.parameter['name'].value}</h3><p>{self.parameter['description'].value}</p>"
         html += "<strong>Components list:</strong>"
         html += self.components_dataframe().to_html()
-        return html;
+        return html
