@@ -12,7 +12,7 @@ class Simulation:
         Args:
             project (Project): Project to be added to the simulation environment
         """
-        project.parent = self
+        project._simulation_ = self
         self._projects_.append(project)
 
     def del_project(self, project):
@@ -23,8 +23,8 @@ class Simulation:
         """
         self._projects_.remove(project)
 
-    def find_project(self, name):
-        """Find project
+    def project(self, name):
+        """Find and return a project using its name
 
         Args:
             name (string): name of the project
@@ -33,12 +33,11 @@ class Simulation:
             project (Project): project found, None if not found.
         """
         for pro in self._projects_:
-            if pro.parameter["name"].value == name:
+            if pro.parameter("name").value == name:
                 return pro
         return None
 
-    @property
-    def projects(self):
+    def project_list(self):
         """Projects list in the simulation environment
 
         Returns:

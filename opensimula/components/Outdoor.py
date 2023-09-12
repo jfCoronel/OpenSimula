@@ -8,14 +8,14 @@ from opensimula.Variable import Variable
 class Outdoor(Component):
     def __init__(self):
         Component.__init__(self)
-        self.parameter["type"].value = "Outdoor"
-        self.parameter["name"].value = "Outdoor_x"
-        self.parameter["description"].value = "Outdoor zone from a meteorological file"
+        self.parameter("type").value = "Outdoor"
+        self.parameter("name").value = "Outdoor_x"
+        self.parameter("description").value = "Outdoor zone from a meteorological file"
         self.add_parameter(Parameter_component("meteo_file", "not_defined"))
         self._meteo_file_ = None
 
     def pre_simulation(self, n_time_steps):
-        self._meteo_file_ = self.parameter["meteo_file"].find_component()
+        self._meteo_file_ = self.parameter("meteo_file").find_component()
         self.latitude = self._meteo_file_.latitude
         self.longitude = self._meteo_file_.longitude
         self.altitude = self._meteo_file_.altitude

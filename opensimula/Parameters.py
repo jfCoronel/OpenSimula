@@ -5,7 +5,11 @@ from opensimula.Child import Child
 
 
 class Parameter(Child):
-    """Elements with key-value pair"""
+    """Elements with key-value pair
+    
+    - key
+    - value
+    """
 
     def __init__(self, key, value=0):
         Child.__init__(self)
@@ -24,7 +28,7 @@ class Parameter(Child):
     def value(self):
         return self._value_
 
-    @value.setter
+    @value.setter #TODO: Cambiar por set_value() que devuelve error si se produce
     def value(self, value):
         self._value_ = value
 
@@ -304,14 +308,14 @@ class Parameter_component(Parameter_string):
 
     def find_component(self):
         if "->" not in self.value:  # en el propio proyecto
-            return self.parent.project.find_component(self.value)
+            return self.parent.project().component(self.value)
         else:
             splits = self.value.split("->")
-            proj = self.parent.simulation.find_project(splits[0])
+            proj = self.parent.project().simulation().project(splits[0])
             if proj == None:
                 return None
             else:
-                return proj.find_component(splits[1])
+                return proj.component(splits[1])
 
     def check(self):
         comp = self.find_component()
@@ -329,14 +333,14 @@ class Parameter_component_list(Parameter_string_list):
         components = []
         for element in self.value:
             if "->" not in element:  # en el propio proyecto
-                components.append(self.parent.project.find_component(element))
+                components.append(self.parent.project().component(element))
             else:
                 splits = element.split("->")
-                proj = self.parent.simulation.find_project(splits[0])
+                proj = self.parent.project().simulation().project(splits[0])
                 if proj == None:
                     components.append(None)
                 else:
-                    components.append(proj.find_component(splits[1]))
+                    components.append(proj.component(splits[1]))
         return components
 
     def check(self):

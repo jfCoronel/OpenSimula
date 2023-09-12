@@ -21,9 +21,9 @@ class Test_component(Component):
 
     def __init__(self):
         Component.__init__(self)
-        self.parameter["type"].value = "Test_component"
-        self.parameter["name"].value = "Test_component_x"
-        self.parameter["description"].value = "Dummy component for testing"
+        self.parameter("type").value = "Test_component"
+        self.parameter("name").value = "Test_component_x"
+        self.parameter("description").value = "Dummy component for testing"
 
         self.add_parameter(Parameter_boolean("boolean", False))
         self.add_parameter(Parameter_string("string", "Hello World"))

@@ -2,7 +2,10 @@
 
 
 class Child():
-    """Objects with parent"""
+    """Objects with parent
+    
+    Superclass for Paramaters an Variables
+    """
 
     def __init__(self, parent=None):
         self._parent_ = parent
