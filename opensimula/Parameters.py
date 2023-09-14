@@ -6,7 +6,7 @@ from opensimula.Child import Child
 
 class Parameter(Child):
     """Elements with key-value pair
-    
+
     - key
     - value
     """
@@ -15,6 +15,7 @@ class Parameter(Child):
         Child.__init__(self)
         self._key_ = key
         self._value_ = value
+        self._sim_ = None
 
     @property
     def key(self):
@@ -28,7 +29,7 @@ class Parameter(Child):
     def value(self):
         return self._value_
 
-    @value.setter #TODO: Cambiar por set_value() que devuelve error si se produce
+    @value.setter  # TODO: Cambiar por set_value() que devuelve error si se produce
     def value(self, value):
         self._value_ = value
 
@@ -55,7 +56,7 @@ class Parameter_boolean(Parameter):
         if isinstance(value, bool):
             self._value_ = value
         else:
-            print("Error: ", value, " is not boolean, ", self.info())
+            self._sim_.print("Error: " + str(value) + " is not boolean, " + self.info())
 
 
 class Parameter_boolean_list(Parameter):
@@ -74,7 +75,9 @@ class Parameter_boolean_list(Parameter):
         if not all(isinstance(n, bool) for n in value):
             error = True
         if error:
-            print("Error: ", value, " is not a list of booleans, ", self.info())
+            self._sim_.print(
+                "Error: " + str(value) + " is not a list of booleans, " + self.info()
+            )
         else:
             self._value_ = value
 
@@ -136,7 +139,7 @@ class Parameter_int(Parameter):
         if isinstance(value, (int)):
             self._value_ = value
         else:
-            print("Error: ", value, " is not integer, ", self.info())
+            self._sim_.print("Error: " + str(value) + " is not integer, " + self.info())
 
     def info(self):
         return self.key + ": " + str(self.value) + " [" + self._unit_ + "]"
@@ -171,7 +174,9 @@ class Parameter_int_list(Parameter):
         if not all(isinstance(n, int) for n in value):
             error = True
         if error:
-            print("Error: ", value, " is not a list of integers, ", self.info())
+            self._sim_.print(
+                "Error: " + str(value) + " is not a list of integers, " + self.info()
+            )
         else:
             self._value_ = value
 
@@ -201,12 +206,12 @@ class Parameter_float(Parameter_int):
     def value(self, value):
         try:
             self._value_ = float(value)
-        except ValueError:
-            print("Error: ", ValueError, ", ", self.info())
+        except ValueError as error:
+            self._sim_.print("Error: " + str(error) + ", ", self.info())
 
     def check(self):
         if self.value < self._min_ and self.value > self._max_:
-            return [f"Error: {self.value} is not at [{self._min_},{self._max_}]"] 
+            return [f"Error: {self.value} is not at [{self._min_},{self._max_}]"]
         else:
             return []
 
@@ -229,8 +234,8 @@ class Parameter_float_list(Parameter_int_list):
                 for n in value:
                     flotante.append(float(n))
             self._value_ = flotante
-        except ValueError:
-            print("Error: ", ValueError, ", ", self.info())
+        except ValueError as error:
+            self._sim_.print("Error: " + str(error) + ", " + self.info())
 
     def check(self):
         errors = []
@@ -306,7 +311,8 @@ class Parameter_component(Parameter_string):
     def __init__(self, key, value=""):
         Parameter_string.__init__(self, key, value)
 
-    def find_component(self):
+    @property
+    def component(self):
         if "->" not in self.value:  # en el propio proyecto
             return self.parent.project().component(self.value)
         else:
@@ -318,7 +324,7 @@ class Parameter_component(Parameter_string):
                 return proj.component(splits[1])
 
     def check(self):
-        comp = self.find_component()
+        comp = self.component
         if comp == None and self.value != "not_defined":
             return [f"Error: {self.value} component not found."]
         else:
@@ -329,7 +335,8 @@ class Parameter_component_list(Parameter_string_list):
     def __init__(self, key, value=[""]):
         Parameter_string.__init__(self, key, value)
 
-    def find_component(self):
+    @property
+    def component(self):
         components = []
         for element in self.value:
             if "->" not in element:  # en el propio proyecto
@@ -345,7 +352,7 @@ class Parameter_component_list(Parameter_string_list):
 
     def check(self):
         errors = []
-        comps = self.find_component()
+        comps = self.component
         for i in range(len(comps)):
             if comps[i] == None and self.value[i] != "not_defined":
                 errors.append(f"Error: {self.value[i]} component not found.")

@@ -4,11 +4,11 @@ from opensimula.Variable import Variable
 
 
 class Space(Component):
-    def __init__(self):
-        Component.__init__(self)
-        self.parameter["type"].value = "Space"
-        self.parameter["name"].value = "Space_x"
-        self.parameter["description"].value = "Indoor building space"
+    def __init__(self, project):
+        Component.__init__(self, project)
+        self.parameter("type").value = "Space"
+        self.parameter("name").value = "Space_x"
+        self.parameter("description").value = "Indoor building space"
         self.add_parameter(Parameter_component_list("walls", ["not_defined"]))
 
     def pre_simulation(self, n_time_steps):

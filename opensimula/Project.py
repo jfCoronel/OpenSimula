@@ -27,7 +27,7 @@ class Project(Parameter_container):
         Args:
             sim (Simulation): parent Simulation environment
         """
-        Parameter_container.__init__(self)
+        Parameter_container.__init__(self, sim)
         self.parameter("type").value = "Project"
         self.parameter("name").value = "Project_X"
         self.parameter("description").value = "Description of the project"
@@ -35,7 +35,6 @@ class Project(Parameter_container):
         self.add_parameter(Parameter_int("n_time_steps", 52560, min=1))
         self.add_parameter(Parameter_string("initial_time", "01/01/2001 00:00:00"))
         sim.add_project(self)
-        self._simulation_ = sim
         self._components_ = []
 
     def add_component(self, component):
@@ -82,13 +81,13 @@ class Project(Parameter_container):
         Returns:
             simulation (Simulation): Simulation environment
         """
-        return self._simulation_
+        return self._sim_
 
-    def components_dataframe(self):
+    def component_dataframe(self):
         names = []
         types = []
         descriptions = []
-        for comp in self.components:
+        for comp in self._components_:
             names.append(comp.parameter("name").value)
             types.append(comp.parameter("type").value)
             descriptions.append(comp.parameter("description").value)
@@ -98,39 +97,48 @@ class Project(Parameter_container):
     def new_component(self, type):
         try:
             clase = globals()[type]
-            comp = clase()
+            comp = clase(self)
             self.add_component(comp)
             return comp
         except KeyError:
             return None
 
-    def load_from_dict(self, dic):
-        """Load paramaters an components from dictionary
-
-        Args:
-            dic (dictionary): dictonary with the parameters and componenets to be loaded in the project
-
-        """
+    def _load_from_dict_(self, dic):
         for key, value in dic.items():
             if key == "components":  # Lista de componentes
                 for component in value:
                     if "type" in component:
                         comp = self.new_component(component["type"])
                         if comp == None:
-                            print(
-                                "Error: Component type ",
-                                component["type"],
-                                " does no exist",
+                            self._sim_.print(
+                                "Error: Component type "
+                                + component["type"]
+                                + " does no exist"
                             )
                         else:
                             comp.set_parameters(component)
                     else:
-                        print('Error: Component does not contain "type" ', component)
+                        self._sim_print(
+                            'Error: Component does not contain "type" ' + component
+                        )
             else:
                 if key in self._parameters_:
                     self.parameter(key).value = value
                 else:
-                    print("Error: Project parameter ", key, " does not exist")
+                    self._sim_.print(
+                        "Error: Project parameter " + key + " does not exist"
+                    )
+
+    def read_dict(self, dict):
+        """Load paramaters an components from dictionary
+
+        Args:
+            dic (dictionary): dictonary with the parameters and componenets to be loaded in the project
+
+        """
+        self._sim_.print("Reading project data from dictonary")
+        self._load_from_dict_(dict)
+        self._sim_.print("Reading completed.")
         self.check()
 
     def read_json(self, json_file):
@@ -143,11 +151,14 @@ class Project(Parameter_container):
         try:
             f = open(json_file, "r")
         except OSError:
-            print("Error: Could not open/read file: ", json_file)
+            self._sim_.print("Error: Could not open/read file: " + json_file)
             return False
         with f:
             json_dict = json.load(f)
-            self.load_from_dict(json_dict)
+            self._sim_.print("Reading project data from file: " + json_file)
+            self._load_from_dict(json_dict)
+            self._sim_.print("Reading completed.")
+            self.check()
 
     def read_excel(self, excel_file):
         """Read paramaters an components from excel file
@@ -157,10 +168,13 @@ class Project(Parameter_container):
         """
         try:
             xls_file = pd.ExcelFile(excel_file)
+            self._sim_.print("Reading project data from file: " + excel_file)
             json_dict = self._excel_to_json_(xls_file)
-            self.load_from_dict(json_dict)
+            self._load_from_dict_(json_dict)
+            self._sim_.print("Reading completed.")
+            self.check()
         except Exception as e:
-            print("Error: reading file: ", excel_file, " -> ", e)
+            self._sim_.print("Error: reading file: " + excel_file + " -> " + e)
             return False
 
     def _excel_to_json_(self, xls_file):
@@ -202,7 +216,7 @@ class Project(Parameter_container):
         Returns:
             errors (string list): List of errors
         """
-        print("Checking project: ", self.parameter("name").value)
+        self._sim_.print("Checking project: " + self.parameter("name").value)
         errors = self.check_parameters()  # Parameters
         names = []
         # Check initial time
@@ -228,10 +242,10 @@ class Project(Parameter_container):
                 names.append(comp.parameter("name").value)
 
         if len(errors) == 0:
-            print("ok")
+            self._sim_.print("ok")
         else:
             for error in errors:
-                print(error)
+                self._sim_.print(error)
 
         return errors
 
@@ -245,8 +259,11 @@ class Project(Parameter_container):
 
         self.pre_simulation(n)
 
+        self._sim_.print("Simulation: ", add_new_line=False)
+
         for i in range(n):
-            print("Simulation: ", i, " of ", n, end="\r")
+            if (10.0 * (i + 1) / n).is_integer():
+                self._sim_.print(str(int(100 * (i + 1) / n)) + "% ", add_new_line=False)
             self.pre_iteration(i, date)
             converge = False
             while not converge:
@@ -255,33 +272,33 @@ class Project(Parameter_container):
             self.post_iteration(i, date)
             date = date + dt.timedelta(0, delta_t)
 
-        print("Simulation: ", n, " of ", n)
+        self._sim_.print(" End")
         self.post_simulation()
 
     def pre_simulation(self, n_time_steps):
-        for comp in self.components:
+        for comp in self._components_:
             comp.pre_simulation(n_time_steps)
 
     def post_simulation(self):
-        for comp in self.components:
+        for comp in self._components_:
             comp.post_simulation()
 
     def pre_iteration(self, time_index, date):
-        for comp in self.components:
+        for comp in self._components_:
             comp.pre_iteration(time_index, date)
 
     def iteration(self, time_index, date):
         converge = True
-        for comp in self.components:
+        for comp in self._components_:
             if not comp.iteration(time_index, date):
                 converge = False
         return converge
 
     def post_iteration(self, time_index, date):
-        for comp in self.components:
+        for comp in self._components_:
             comp.post_iteration(time_index, date)
 
-    def dates_array(self): #TODO: Cambiar a que devuelva una variable con los dates
+    def dates_array(self):  # TODO: Cambiar a que devuelva una variable con los dates
         n = self.parameter("n_time_steps").value
         date = dt.datetime.strptime(
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
@@ -296,7 +313,7 @@ class Project(Parameter_container):
         return array
 
     def _repr_html_(self):
-        html = f"<h3>Project: {self.parameter['name'].value}</h3><p>{self.parameter['description'].value}</p>"
+        html = f"<h3>Project: {self.parameter('name').value}</h3><p>{self.parameter('description').value}</p>"
         html += "<strong>Components list:</strong>"
-        html += self.components_dataframe().to_html()
+        html += self.component_dataframe().to_html()
         return html

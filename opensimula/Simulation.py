@@ -1,10 +1,13 @@
 class Simulation:
-    """Simulation environment object for handling projects"""
+    """Simulation environment object for handling projects and print messages"""
 
     version = "0.0.1"
 
     def __init__(self):
         self._projects_ = []
+        self.console_print = True
+        self._messages_ = []
+        self._new_line_ = True
 
     def add_project(self, project):
         """Add project to Simulation
@@ -48,6 +51,33 @@ class Simulation:
     def _repr_html_(self):
         html = "<h3>Simulation projects:</h3><ul>"
         for p in self._projects_:
-            html += f"<li>{p.parameter['name'].value}</li>"
+            html += f"<li>{p.parameter('name').value}</li>"
         html += "</ul>"
         return html
+
+    def print(self, message, add_new_line=True):
+        """Print message
+
+        Store de message in the message_list and print it console_print = True
+
+        Args:
+            message (string): message to print
+            add_new_line (boolean, True): Add new line at the end, new message will be store in new message
+                if False next message will be added to the last message
+        """
+        if self.console_print:
+            if add_new_line:
+                print(message)
+            else:
+                print(message, end="")
+
+        if self._new_line_:
+            self._messages_.append(message)
+        else:
+            self._messages_[-1] = self._messages_[-1] + message
+
+        self._new_line_ = add_new_line
+
+    def message_list(self):
+        """Return the list of messages"""
+        return self._messages_

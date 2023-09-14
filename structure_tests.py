@@ -1,7 +1,7 @@
 import opensimula as oms
 
-p1_json = {
-    "name": "pro 1",
+p1_dic = {
+    "name": "project 1",
     "type": "Project",
     "components": [
         {
@@ -10,7 +10,7 @@ p1_json = {
             "boolean": True,
             "string": "Hola mundo",
             "int": 24,
-            "float": 34.6,
+            "float": 34.5,
             "options": "Two",
             "boolean_list": [True, True],
             "string_list": ["Hola 1", "Hola 2"],
@@ -31,15 +31,15 @@ p1_json = {
     ],
 }
 
-p2_json = {
-    "name": "pro 2",
+p2_dic = {
+    "name": "project 2",
     "type": "Project",
     "components": [
         {
             "type": "Test_component",
             "name": "comp 3",
-            "component": "pro 1->comp 1",
-            "component_list": ["pro 1->comp 1", "pro 1->comp 2"],
+            "component": "project 1->comp 1",
+            "component_list": ["project 1->comp 1", "project 1->comp 2"],
         }
     ],
 }
@@ -47,8 +47,8 @@ p2_json = {
 
 sim = oms.Simulation()
 p1 = oms.Project(sim)
-p1.load_from_dic(p1_json)
+p1.read_dict(p1_dic)
 
 p2 = oms.Project(sim)
-p2.load_from_dic(p2_json)
+p2.read_dict(p2_dic)
 p2.simulate()

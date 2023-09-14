@@ -10,6 +10,7 @@ class Variable(Child):
         self._key_ = key
         self._unit_ = unit
         self._array_ = np.full(n, default)
+        self._sim_ = None
 
     @property
     def key(self):

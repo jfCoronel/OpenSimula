@@ -19,8 +19,8 @@ from opensimula.Variable import Variable
 class Test_component(Component):
     """Component for development testing"""
 
-    def __init__(self):
-        Component.__init__(self)
+    def __init__(self, project):
+        Component.__init__(self, project)
         self.parameter("type").value = "Test_component"
         self.parameter("name").value = "Test_component_x"
         self.parameter("description").value = "Dummy component for testing"
@@ -50,12 +50,12 @@ class Test_component(Component):
     def pre_simulation(self, n_time_steps):
         self.del_all_variables()
         self.add_variable(Variable("t", n_time_steps, unit="s"))
-        print("Starting simulation ...")
+        self._sim_.print("Starting simulation ...")
 
     def pre_iteration(self, time_index, date):
         if time_index == 0:
             self._initial_date_ = date
-        self.variable["t"].array[time_index] = (
+        self.variable("t").array[time_index] = (
             date - self._initial_date_
         ).total_seconds()
 
@@ -66,4 +66,4 @@ class Test_component(Component):
         pass
 
     def post_simulation(self):
-        print("Ending simulation ...")
+        self.simulation().print("Ending simulation ...")

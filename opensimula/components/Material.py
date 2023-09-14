@@ -3,8 +3,8 @@ from opensimula.Component import Component
 
 
 class Material(Component):
-    def __init__(self):
-        Component.__init__(self)
+    def __init__(self, project):
+        Component.__init__(self, project)
         self.parameter("type").value = "Material"
         self.parameter("name").value = "Material_x"
         self.parameter("description").value = "Material layer properties"

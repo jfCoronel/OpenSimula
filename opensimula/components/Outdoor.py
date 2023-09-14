@@ -6,8 +6,8 @@ from opensimula.Variable import Variable
 
 
 class Outdoor(Component):
-    def __init__(self):
-        Component.__init__(self)
+    def __init__(self, project):
+        Component.__init__(self, project)
         self.parameter("type").value = "Outdoor"
         self.parameter("name").value = "Outdoor_x"
         self.parameter("description").value = "Outdoor zone from a meteorological file"
@@ -15,7 +15,7 @@ class Outdoor(Component):
         self._meteo_file_ = None
 
     def pre_simulation(self, n_time_steps):
-        self._meteo_file_ = self.parameter("meteo_file").find_component()
+        self._meteo_file_ = self.parameter("meteo_file").component
         self.latitude = self._meteo_file_.latitude
         self.longitude = self._meteo_file_.longitude
         self.altitude = self._meteo_file_.altitude
@@ -33,16 +33,16 @@ class Outdoor(Component):
 
     def pre_iteration(self, time_index, date):
         values = self._meteo_file_.get_instant_values(date)
-        self.variable["temperature"].array[time_index] = values["temperature"]
-        self.variable["sky_temperature"].array[time_index] = values["sky_temperature"]
-        self.variable["rel_humidity"].array[time_index] = values["rel_humidity"]
-        self.variable["sol_direct"].array[time_index] = values["sol_direct"]
-        self.variable["sol_diffuse"].array[time_index] = values["sol_diffuse"]
-        self.variable["wind_speed"].array[time_index] = values["wind_speed"]
-        self.variable["wind_direction"].array[time_index] = values["wind_direction"]
+        self.variable("temperature").array[time_index] = values["temperature"]
+        self.variable("sky_temperature").array[time_index] = values["sky_temperature"]
+        self.variable("rel_humidity").array[time_index] = values["rel_humidity"]
+        self.variable("sol_direct").array[time_index] = values["sol_direct"]
+        self.variable("sol_diffuse").array[time_index] = values["sol_diffuse"]
+        self.variable("wind_speed").array[time_index] = values["wind_speed"]
+        self.variable("wind_direction").array[time_index] = values["wind_direction"]
         azi, alt = self.solar_pos(date)
-        self.variable["sol_azimut"].array[time_index] = azi
-        self.variable["sol_altitude"].array[time_index] = alt
+        self.variable("sol_azimut").array[time_index] = azi
+        self.variable("sol_altitude").array[time_index] = alt
 
     def iteration(self, time_index, date):
         return True

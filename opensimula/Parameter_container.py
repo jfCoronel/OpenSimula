@@ -1,11 +1,12 @@
 import pandas as pd
 from opensimula.Parameters import Parameter_string
 
-class Parameter_container():
+
+class Parameter_container:
     """Class to manage a list of Paramaters
-    
+
     Superclass for Projects and Components
-    
+
     Default parameters included:
     - type (string)
     - name (string)
@@ -13,16 +14,17 @@ class Parameter_container():
 
     """
 
-    def __init__(self):
+    def __init__(self, sim):
+        self._sim_ = sim
         self._parameters_ = {}
         self.add_parameter(Parameter_string("type", "Type"))
         self.add_parameter(Parameter_string("name", "Name"))
-        self.add_parameter(Parameter_string("description", "Description")
-        )
+        self.add_parameter(Parameter_string("description", "Description"))
 
     def add_parameter(self, param):
         """add Parameter"""
         param.parent = self
+        param._sim_ = self._sim_
         self._parameters_[param.key] = param
 
     def del_parameter(self, param):
@@ -41,7 +43,9 @@ class Parameter_container():
             if key in self._parameters_:
                 self.parameter(key).value = value
             else:
-                print("Error: Component parameter ", key, " does not exist")
+                self._sim_.print(
+                    "Error: Component parameter " + key, +" does not exist"
+                )
 
     def parameter_dataframe(self):
         keys = []
@@ -51,7 +55,7 @@ class Parameter_container():
             values.append(par.value)
         data = pd.DataFrame({"key": keys, "value": values})
         return data
-    
+
     def check_parameters(self):
         """Check if all is correct
 

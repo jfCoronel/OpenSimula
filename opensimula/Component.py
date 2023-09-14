@@ -1,16 +1,13 @@
 import pandas as pd
 from opensimula.Parameter_container import Parameter_container
-from opensimula.Variable_container import Variable_container
 
 
-class Component(Parameter_container, Variable_container):
-    """Base Class for all the components
-    
-    """
+class Component(Parameter_container):
+    """Base Class for all the components"""
 
-    def __init__(self, proj = None):
-        Parameter_container.__init__(self)
-        Variable_container.__init__(self)
+    def __init__(self, proj):
+        Parameter_container.__init__(self, proj._sim_)
+        self._variables_ = {}
         self.parameter("type").value = "Component"
         self.parameter("name").value = "Component_X"
         self.parameter("description").value = "Description of the component"
@@ -18,6 +15,35 @@ class Component(Parameter_container, Variable_container):
 
     def project(self):
         return self._project_
+
+    def simulation(self):
+        return self._sim_
+
+    def add_variable(self, variable):
+        """add new Variable"""
+        variable._parent = self
+        variable._sim_ = self._sim_
+        self._variables_[variable.key] = variable
+
+    def del_variable(self, variable):
+        self._variables_.remove(variable)
+
+    def del_all_variables(self):
+        self._variables_ = {}
+
+    def variable(self, key):
+        return self._variables_[key]
+
+    def variable_dict(self):
+        return self._variables_
+
+    def variable_dataframe(self):
+        series = {}
+        series["date"] = self.project().dates_array()
+        for key, var in self._variables_.items():
+            series[key] = var.array
+        data = pd.DataFrame(series)
+        return data
 
     # ____________ Functions that must be overwriten for time simulation _________________
 
