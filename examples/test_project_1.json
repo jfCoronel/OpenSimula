@@ -1,0 +1,45 @@
+{
+    "name": "project 1",
+    "type": "Project",
+    "components": [
+        {
+            "type": "Test_component",
+            "name": "comp 1",
+            "boolean": true,
+            "string": "Hola mundo",
+            "int": 24,
+            "float": 34.5,
+            "options": "Two",
+            "boolean_list": [
+                true,
+                true
+            ],
+            "string_list": [
+                "Hola 1",
+                "Hola 2"
+            ],
+            "int_list": [
+                1,
+                2
+            ],
+            "float_list": [
+                1.1,
+                2.1
+            ],
+            "options_list": [
+                "Two",
+                "Two"
+            ]
+        },
+        {
+            "type": "Test_component",
+            "name": "comp 2",
+            "boolean": true,
+            "string": "Hola mundo",
+            "int": 24,
+            "float": 34.6,
+            "options": "Two",
+            "component": "comp 1"
+        }
+    ]
+}

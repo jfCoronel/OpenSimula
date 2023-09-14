@@ -100,3 +100,29 @@ def test_load_from_dic_two_projects():
     assert comp_ref.parameter("name").value == "comp 1"
     comp_ref = p2.component("comp 3").parameter("component_list").component[1]
     assert comp_ref.parameter("name").value == "comp 2"
+
+
+def test_load_from_json_files():
+    sim = osm.Simulation()
+    p1 = osm.Project(sim)
+    p1.read_json("examples/test_project_1.json")
+    p2 = osm.Project(sim)
+    p2.read_json("examples/test_project_2.json")
+
+    comp_ref = p2.component("comp 3").parameter("component").component
+    assert comp_ref.parameter("name").value == "comp 1"
+    comp_ref = p2.component("comp 3").parameter("component_list").component[1]
+    assert comp_ref.parameter("name").value == "comp 2"
+
+
+def test_load_from_excel_files():
+    sim = osm.Simulation()
+    p1 = osm.Project(sim)
+    p1.read_excel("examples/test_project_1.xlsx")
+    p2 = osm.Project(sim)
+    p2.read_excel("examples/test_project_2.xlsx")
+
+    comp_ref = p2.component("comp 3").parameter("component").component
+    assert comp_ref.parameter("name").value == "comp 1"
+    comp_ref = p2.component("comp 3").parameter("component_list").component[1]
+    assert comp_ref.parameter("name").value == "comp 2"

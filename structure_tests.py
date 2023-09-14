@@ -47,8 +47,12 @@ p2_dic = {
 
 sim = oms.Simulation()
 p1 = oms.Project(sim)
-p1.read_dict(p1_dic)
+# p1.read_dict(p1_dic)
+# p1.read_json("examples/test_project_1.json")
+p1.read_excel("examples/test_project_1.xlsx")
 
 p2 = oms.Project(sim)
-p2.read_dict(p2_dic)
+# p2.read_dict(p2_dic)
+# p2.read_json("examples/test_project_2.json")
+p2.read_excel("examples/test_project_2.xlsx")
 p2.simulate()

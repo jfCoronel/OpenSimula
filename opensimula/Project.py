@@ -156,7 +156,7 @@ class Project(Parameter_container):
         with f:
             json_dict = json.load(f)
             self._sim_.print("Reading project data from file: " + json_file)
-            self._load_from_dict(json_dict)
+            self._load_from_dict_(json_dict)
             self._sim_.print("Reading completed.")
             self.check()
 

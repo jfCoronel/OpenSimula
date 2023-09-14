@@ -69,17 +69,16 @@ class Parameter_boolean_list(Parameter):
 
     @value.setter
     def value(self, value):
-        error = False
-        if not isinstance(value, list):
-            error = True
-        if not all(isinstance(n, bool) for n in value):
-            error = True
-        if error:
-            self._sim_.print(
-                "Error: " + str(value) + " is not a list of booleans, " + self.info()
-            )
-        else:
-            self._value_ = value
+        try:
+            if not isinstance(value, list):
+                booleans = [bool(value)]
+            else:
+                booleans = []
+                for n in value:
+                    booleans.append(bool(n))
+                self._value_ = booleans
+        except ValueError as error:
+            self._sim_.print("Error: " + str(error) + ", " + self.info())
 
 
 # _____________ Parameter_string ___________________________
@@ -168,17 +167,16 @@ class Parameter_int_list(Parameter):
 
     @value.setter
     def value(self, value):
-        error = False
-        if not isinstance(value, list):
-            error = True
-        if not all(isinstance(n, int) for n in value):
-            error = True
-        if error:
-            self._sim_.print(
-                "Error: " + str(value) + " is not a list of integers, " + self.info()
-            )
-        else:
-            self._value_ = value
+        try:
+            if not isinstance(value, list):
+                integers = [int(value)]
+            else:
+                integers = []
+                for n in value:
+                    integers.append(int(n))
+                self._value_ = integers
+        except ValueError as error:
+            self._sim_.print("Error: " + str(error) + ", " + self.info())
 
     def check(self):
         errors = []
