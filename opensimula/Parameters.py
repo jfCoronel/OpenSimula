@@ -29,9 +29,13 @@ class Parameter(Child):
     def value(self):
         return self._value_
 
-    @value.setter  # TODO: Cambiar por set_value() que devuelve error si se produce
+    @value.setter
     def value(self, value):
         self._value_ = value
+
+    @property
+    def type(self):
+        return type(self).__name__
 
     def info(self):
         return self.key + ": " + str(self.value)

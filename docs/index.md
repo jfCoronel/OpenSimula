@@ -1,5 +1,7 @@
 
-![Logo](img/logo_opensimula.png) This site contains the documentation for the
+![Logo](img/logo_opensimula.png) 
+
+This site contains the documentation for the
 ___OpenSimula___ project.
 
 

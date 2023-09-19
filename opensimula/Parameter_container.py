@@ -50,10 +50,20 @@ class Parameter_container:
     def parameter_dataframe(self):
         keys = []
         values = []
+        types = []
+        units = []
         for key, par in self._parameters_.items():
             keys.append(key)
             values.append(par.value)
-        data = pd.DataFrame({"key": keys, "value": values})
+            types.append(par.type)
+            if hasattr(par, "unit"):
+                units.append(par.unit)
+            else:
+                units.append("")
+
+        data = pd.DataFrame(
+            {"key": keys, "type": types, "value": values, "unit": units}
+        )
         return data
 
     def check_parameters(self):

@@ -41,7 +41,10 @@ class Component(Parameter_container):
         series = {}
         series["date"] = self.project().dates_array()
         for key, var in self._variables_.items():
-            series[key] = var.array
+            if var.unit == "":
+                series[key] = var.array
+            else:
+                series[key + " [" + var.unit + "]"] = var.array
         data = pd.DataFrame(series)
         return data
 

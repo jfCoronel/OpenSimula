@@ -23,3 +23,7 @@ class Variable(Child):
     @property
     def array(self):
         return self._array_
+
+    @property
+    def unit(self):
+        return self._unit_

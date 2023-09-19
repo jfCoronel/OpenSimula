@@ -1,19 +1,16 @@
-This part of the project documentation focuses on a
-**learning-oriented** approach. You'll learn how to
-get started with the code in this project.
+### Getting Started
 
-> **Note:** Expand this section by considering the
-> following points:
+`OpenSimula` is a component-based time simulation environment in Python. 
 
-- Help newcomers with getting started
-- Teach readers about your library by making them
-    write code
-- Inspire confidence through examples that work for
-    everyone, repeatably
-- Give readers an immediate sense of achievement
-- Show concrete examples, no abstractions
-- Provide the minimum necessary explanation
-- Avoid any distractions
+The general object structure provided by OpenSimula is composed of three main elements:
+
+- Simulation: The global environment for simulation.
+- Project: A set of components that define a problem that can be temporarily simulated.
+- Component: These are the base elements on which the simulation is performed. The types of components currently available can be consulted in ...
+
+![Global structure](img/global_structure.png)
+
+
 
 
 
