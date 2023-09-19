@@ -1,0 +1,37 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "OpenSimula"
+version = "0.0.1"
+authors = [
+  { name="Juan F. Coronel", email="jfc@us.es" },
+]
+description = "Component-based time simulation environment in Python"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "numpy>=1.25",
+  "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+testing = [
+    'pytest',
+]
+docs = [
+    'mkdocs>=1.5',
+]
+
+[project.urls]
+"Homepage" = "http://opensimula.org"
+"Repository" = "https://github.com/jfCoronel/OpenSimula"
+"Bug Tracker" = "https://github.com/jfCoronel/OpenSimula/issues"
+

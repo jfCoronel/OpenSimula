@@ -160,7 +160,7 @@ class Project(Parameter_container):
             self._sim_.print("Reading completed.")
             self.check()
 
-    def read_excel(self, excel_file):
+    def _read_excel_(self, excel_file):
         """Read paramaters an components from excel file
 
         Args:
@@ -208,6 +208,8 @@ class Project(Parameter_container):
         else:
             return value
 
+    # ____________________
+
     def check(self):
         """Check if all is correct, for the project and all its components
 
@@ -231,7 +233,7 @@ class Project(Parameter_container):
 
         for comp in self._components_:
             error_comp = comp.check()
-            if len(error_comp) > 1:
+            if len(error_comp) > 0:
                 for e in error_comp:
                     errors.append(e)
             if comp.parameter("name").value in names:

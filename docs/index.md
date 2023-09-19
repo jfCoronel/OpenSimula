@@ -3,12 +3,11 @@
 ___OpenSimula___ project.
 
 
-## Pages
+## Documentation
 
-The documentation consists of two separate parts:
 
 1. [Getting started](getting_started.md)
-2. [API Reference](reference.md)
+2. [User guide](user_guide.md)
 
 
 ## Acknowledgements
