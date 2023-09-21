@@ -6,3 +6,4 @@ from opensimula.components.Outdoor import Outdoor
 from opensimula.components.Space import Space
 from opensimula.components.Wall import Wall
 from opensimula.components.File_data import File_data
+from opensimula.components.Day_schedule import Day_schedule

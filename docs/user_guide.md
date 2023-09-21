@@ -1,4 +1,3 @@
-This part of the project documentation focuses on
-an **information-oriented** approach. Use it as a
-reference for the technical implementation of the
-`OpenSimula` project code.
+### User Guide
+
+Escribir aquí la guía para el usuario normal ...

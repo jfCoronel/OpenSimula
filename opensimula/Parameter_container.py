@@ -8,7 +8,6 @@ class Parameter_container:
     Superclass for Projects and Components
 
     Default parameters included:
-    - type (string)
     - name (string)
     - description (string)
 
@@ -17,7 +16,6 @@ class Parameter_container:
     def __init__(self, sim):
         self._sim_ = sim
         self._parameters_ = {}
-        self.add_parameter(Parameter_string("type", "Type"))
         self.add_parameter(Parameter_string("name", "Name"))
         self.add_parameter(Parameter_string("description", "Description"))
 

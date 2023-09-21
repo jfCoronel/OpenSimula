@@ -28,7 +28,6 @@ class Project(Parameter_container):
             sim (Simulation): parent Simulation environment
         """
         Parameter_container.__init__(self, sim)
-        self.parameter("type").value = "Project"
         self.parameter("name").value = "Project_X"
         self.parameter("description").value = "Description of the project"
         self.add_parameter(Parameter_int("time_step", 600, "s", min=1))

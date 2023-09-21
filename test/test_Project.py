@@ -3,7 +3,6 @@ from opensimula.components.Material import Material
 
 p1_dic = {
     "name": "project 1",
-    "type": "Project",
     "components": [
         {
             "type": "Test_component",
@@ -34,7 +33,6 @@ p1_dic = {
 
 p2_dic = {
     "name": "project 2",
-    "type": "Project",
     "components": [
         {
             "type": "Test_component",
@@ -54,7 +52,6 @@ def test_project_parameters():
 
     assert p1.simulation() == sim
     assert p1.parameter("name").value == "Project 1"
-    assert p1.parameter("type").value == "Project"
     assert p1.parameter("description").value == "Project 1 description"
 
 

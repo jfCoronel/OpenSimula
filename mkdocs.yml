@@ -9,3 +9,5 @@ nav:
     - Home: index.md
     - Getting started: getting_started.md
     - User guide: user_guide.md
+    - Component list: component_list.md
+    - Developer guide: developer_guide.md

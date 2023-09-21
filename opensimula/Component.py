@@ -1,5 +1,6 @@
 import pandas as pd
 from opensimula.Parameter_container import Parameter_container
+from opensimula.Parameters import Parameter_string
 
 
 class Component(Parameter_container):
@@ -8,7 +9,7 @@ class Component(Parameter_container):
     def __init__(self, proj):
         Parameter_container.__init__(self, proj._sim_)
         self._variables_ = {}
-        self.parameter("type").value = "Component"
+        self.add_parameter(Parameter_string("type", "Component"))
         self.parameter("name").value = "Component_X"
         self.parameter("description").value = "Description of the component"
         self._project_ = proj
