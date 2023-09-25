@@ -47,11 +47,7 @@ project_dic = {
 }
 
 
-def test_day_scehdule():
-    sim = osm.Simulation()
-    p1 = osm.Project(sim)
-    p1.read_dict(project_dic)
-    p1.simulate()
-
-    assert p1.component("year").variable("values").array[10] == 100
-    assert p1.component("year").variable("values").array[8759] == 0
+sim = osm.Simulation()
+p1 = osm.Project(sim)
+p1.read_dict(project_dic)
+p1.simulate()

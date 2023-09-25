@@ -18,9 +18,7 @@ class Wall(Component):
         )
 
     def pre_simulation(self, n_time_steps):
+        super().pre_simulation(n_time_steps)
         self.del_all_variables()
         self.add_variable(Variable("t_sup1", n_time_steps, unit="°C"))
         self.add_variable(Variable("t_sup2", n_time_steps, unit="°C"))
-
-    def iteration(self, time_index, date):
-        return True

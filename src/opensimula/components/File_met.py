@@ -25,7 +25,7 @@ class File_met(Component):
         self.sol_cenit = np.zeros(8760)
 
     def check(self):
-        errors = super().check()  # Check parameters
+        errors = super().check() 
         # Read the file
         try:
             f = open(self.parameter("file_name").value, "r")

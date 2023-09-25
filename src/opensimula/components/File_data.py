@@ -15,7 +15,7 @@ class File_data(Component):
         self._df_ = pd.DataFrame()
 
     def check(self):
-        errors = super().check()  # Check parameters
+        errors = super().check()
         # Read the file
         try:
             if self.parameter("file_type").value == "CSV":
@@ -36,6 +36,7 @@ class File_data(Component):
             return errors
 
     def pre_simulation(self, n_time_steps):
+        super().pre_simulation(n_time_steps)
         self.del_all_variables()
         # Create Variable
         array = self._df_.to_numpy()

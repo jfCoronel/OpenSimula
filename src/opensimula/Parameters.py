@@ -309,21 +309,38 @@ class Parameter_options_list(Parameter):
 # _____________ Parameter_component ___________________________
 
 
-class Parameter_component(Parameter_string):
+class Parameter_component(Parameter):
     def __init__(self, key, value=""):
-        Parameter_string.__init__(self, key, value)
+        Parameter.__init__(self, key, value)
+        self.value = value
+
+    @property
+    def value(self):
+        return self._value_
+
+    @value.setter
+    def value(self, value):
+        self._value_ = str(value)
+        if "->" in self.value:
+            self._external_ = True
+        else:
+            self._external_ = False
+
+    @property
+    def external(self):
+        return self._external_
 
     @property
     def component(self):
-        if "->" not in self.value:  # en el propio proyecto
-            return self.parent.project().component(self.value)
-        else:
+        if self.external:
             splits = self.value.split("->")
             proj = self.parent.project().simulation().project(splits[0])
             if proj == None:
                 return None
             else:
                 return proj.component(splits[1])
+        else:
+            return self.parent.project().component(self.value)
 
     def check(self):
         comp = self.component
@@ -333,23 +350,47 @@ class Parameter_component(Parameter_string):
             return []
 
 
-class Parameter_component_list(Parameter_string_list):
+class Parameter_component_list(Parameter):
     def __init__(self, key, value=[""]):
-        Parameter_string.__init__(self, key, value)
+        Parameter.__init__(self, key, value)
+        self.value = value
+
+    @property
+    def value(self):
+        return self._value_
+
+    @value.setter
+    def value(self, value):
+        if not isinstance(value, list):
+            self._value_ = [str(value)]
+        else:
+            for el in value:
+                el = str(el)
+            self._value_ = value
+        self._external_ = []
+        for el in self.value:
+            if "->" in el:
+                self._external_.append(True)
+            else:
+                self._external_.append(False)
+
+    @property
+    def external(self):
+        return self._external_
 
     @property
     def component(self):
         components = []
-        for element in self.value:
-            if "->" not in element:  # en el propio proyecto
-                components.append(self.parent.project().component(element))
-            else:
+        for i, element in enumerate(self.value):
+            if self.external[i]:
                 splits = element.split("->")
                 proj = self.parent.project().simulation().project(splits[0])
                 if proj == None:
                     components.append(None)
                 else:
                     components.append(proj.component(splits[1]))
+            else:
+                components.append(self.parent.project().component(element))
         return components
 
     def check(self):

@@ -7,3 +7,5 @@ from opensimula.components.Space import Space
 from opensimula.components.Wall import Wall
 from opensimula.components.File_data import File_data
 from opensimula.components.Day_schedule import Day_schedule
+from opensimula.components.Week_schedule import Week_schedule
+from opensimula.components.Year_schedule import Year_schedule

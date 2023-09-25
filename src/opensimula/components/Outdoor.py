@@ -15,6 +15,7 @@ class Outdoor(Component):
         self._meteo_file_ = None
 
     def pre_simulation(self, n_time_steps):
+        super().pre_simulation(n_time_steps)
         self._meteo_file_ = self.parameter("meteo_file").component
         self.latitude = self._meteo_file_.latitude
         self.longitude = self._meteo_file_.longitude
@@ -32,6 +33,7 @@ class Outdoor(Component):
         self.add_variable(Variable("sol_altitude", n_time_steps, unit="°"))
 
     def pre_iteration(self, time_index, date):
+        super().pre_iteration(time_index, date)
         values = self._meteo_file_.get_instant_values(date)
         self.variable("temperature").array[time_index] = values["temperature"]
         self.variable("sky_temperature").array[time_index] = values["sky_temperature"]
@@ -45,7 +47,8 @@ class Outdoor(Component):
         self.variable("sol_altitude").array[time_index] = alt
 
     def iteration(self, time_index, date):
-        return True
+        return_value = super().iteration(time_index, date)
+        return return_value
 
     def _solar_hour_(self, datetime):  # Hora solar
         day = datetime.timetuple().tm_yday  # Día del año
