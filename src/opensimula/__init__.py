@@ -1,8 +1,8 @@
-"""opensimula Package
+"""OpenSimula Package
 
-opensimula is a Python Package for perform time simulations
+OpenSimula is a Python Package for perform time simulations
 
 """
 
-from opensimula.Simulation import Simulation
-from opensimula.Project import Project
+from OpenSimula.Simulation import Simulation
+from OpenSimula.Project import Project

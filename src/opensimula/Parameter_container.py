@@ -1,5 +1,5 @@
 import pandas as pd
-from opensimula.Parameters import Parameter_string
+from OpenSimula.Parameters import Parameter_string
 
 
 class Parameter_container:

@@ -2,9 +2,9 @@ import json
 import datetime as dt
 import numpy as np
 import pandas as pd
-from opensimula.Parameter_container import Parameter_container
-from opensimula.Parameters import Parameter_int, Parameter_string, Parameter_string_list
-from opensimula.components import *
+from OpenSimula.Parameter_container import Parameter_container
+from OpenSimula.Parameters import Parameter_int, Parameter_string, Parameter_string_list
+from OpenSimula.components import *
 
 
 class Project(Parameter_container):

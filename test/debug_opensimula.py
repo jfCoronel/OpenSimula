@@ -45,7 +45,7 @@ project_dic = {
     ],
 }
 
-import opensimula as osm
+import OpenSimula as osm
 
 sim = osm.Simulation()
 pro = osm.Project(sim)

@@ -1,8 +1,8 @@
 import numpy as np
 import datetime as dt
 import math
-from opensimula.Parameters import Parameter_string
-from opensimula.Component import Component
+from OpenSimula.Parameters import Parameter_string
+from OpenSimula.Component import Component
 
 
 class File_met(Component):
@@ -25,7 +25,7 @@ class File_met(Component):
         self.sol_cenit = np.zeros(8760)
 
     def check(self):
-        errors = super().check() 
+        errors = super().check()
         # Read the file
         try:
             f = open(self.parameter("file_name").value, "r")

@@ -1,4 +1,4 @@
-import opensimula as osm
+import OpenSimula as osm
 
 bdd_json = {
     "name": "Base de Datos",

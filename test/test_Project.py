@@ -1,5 +1,5 @@
-import opensimula as osm
-from opensimula.components.Material import Material
+import OpenSimula as osm
+from OpenSimula.components.Material import Material
 
 p1_dic = {
     "name": "project 1",

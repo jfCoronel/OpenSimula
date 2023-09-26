@@ -1,5 +1,5 @@
-from opensimula.Parameters import Parameter_boolean, Parameter_float
-from opensimula.Component import Component
+from OpenSimula.Parameters import Parameter_boolean, Parameter_float
+from OpenSimula.Component import Component
 
 
 class Material(Component):

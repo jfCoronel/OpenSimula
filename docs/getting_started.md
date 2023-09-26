@@ -122,10 +122,10 @@ Finally, the `Year_schedule` named `year` sets three annual periods using the `p
 - August 1st to September 1st: `holiday_week`.
 - September 1st to December 31st: `working_week`.
 
-To simulate this project that we have defined, we first import the opensimula package with the alias osm, create a simulation environment in the `sim` variable, a project within that simulation environment called `pro`. We load the project reading the dictionary that we have explained previously with the `read_dict` function available for projects and we simulate it using the `simulate()` function. 
+To simulate this project that we have defined, we first import the OpenSimula package with the alias osm, create a simulation environment in the `sim` variable, a project within that simulation environment called `pro`. We load the project reading the dictionary that we have explained previously with the `read_dict` function available for projects and we simulate it using the `simulate()` function. 
 
 <pre><code class="python">
-import opensimula as osm
+import OpenSimula as osm
 
 sim = osm.Simulation()
 pro = osm.Project(sim)

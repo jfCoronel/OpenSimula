@@ -1,4 +1,4 @@
-from opensimula.Parameters import (
+from OpenSimula.Parameters import (
     Parameter_boolean,
     Parameter_float,
     Parameter_int,
@@ -12,8 +12,8 @@ from opensimula.Parameters import (
     Parameter_options_list,
     Parameter_component_list,
 )
-from opensimula.Component import Component
-from opensimula.Variable import Variable
+from OpenSimula.Component import Component
+from OpenSimula.Variable import Variable
 
 
 class Test_component(Component):

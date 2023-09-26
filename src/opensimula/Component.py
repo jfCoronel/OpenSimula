@@ -1,6 +1,6 @@
 import pandas as pd
-from opensimula.Parameter_container import Parameter_container
-from opensimula.Parameters import Parameter_string
+from OpenSimula.Parameter_container import Parameter_container
+from OpenSimula.Parameters import Parameter_string
 
 
 class Component(Parameter_container):

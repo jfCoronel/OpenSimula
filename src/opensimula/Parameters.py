@@ -1,5 +1,5 @@
 import sys
-from opensimula.Child import Child
+from OpenSimula.Child import Child
 
 # ___________________ Parameter _________________________
 

@@ -1,8 +1,8 @@
 import math
 import datetime as dt
-from opensimula.Component import Component
-from opensimula.Parameters import Parameter_component
-from opensimula.Variable import Variable
+from OpenSimula.Component import Component
+from OpenSimula.Parameters import Parameter_component
+from OpenSimula.Variable import Variable
 
 
 class Outdoor(Component):
