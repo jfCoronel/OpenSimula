@@ -41,14 +41,13 @@ class Day_schedule(Component):
         return errors
 
     def pre_simulation(self, n_time_steps):
-        super().pre_simulation(n_time_steps)
         # Create array of periods
         self._periods_ = [0]
         acumulated = 0
         for period in self.parameter("time_steps").value:
             acumulated += period
             self._periods_.append(acumulated)
-        self._periods_.append(24 * 3600 + 1)
+        self._periods_.append(24 * 3600)
 
     def get_value(self, date):
         seconds = date.hour * 3600 + date.minute * 60 + date.second
@@ -57,10 +56,10 @@ class Day_schedule(Component):
             x_i = self._periods_[index - 1]
             x_f = self._periods_[index]
             y_i = self.parameter("values").value[index - 1]
-            if index > len(self.parameter("values").value):
-                y_f = self.parameter("values").value[0]
-            else:
+            if index < len(self.parameter("values").value):
                 y_f = self.parameter("values").value[index]
+            else:
+                y_f = self.parameter("values").value[0]
             return (seconds - x_i) / (x_f - x_i) * (y_f - y_i) + y_i
         else:
             return self.parameter("values").value[index - 1]

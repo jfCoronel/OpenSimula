@@ -12,11 +12,6 @@ class Space(Component):
         self.add_parameter(Parameter_component_list("walls", ["not_defined"]))
 
     def pre_simulation(self, n_time_steps):
-        super().pre_simulation(n_time_steps)
         self.del_all_variables()
         self.add_variable(Variable("temperature", n_time_steps, unit="°C"))
         self.add_variable(Variable("rel_humidity", n_time_steps, unit="%"))
-
-    def iteration(self, time_index, date):
-        return_value = super().iteration(time_index, date)
-        return return_value

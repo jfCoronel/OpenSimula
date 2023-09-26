@@ -41,7 +41,6 @@ class Year_schedule(Component):
         return errors
 
     def pre_simulation(self, n_time_steps):
-        super().pre_simulation(n_time_steps)
         self.del_all_variables()
         # Create Variable
         self.add_variable(Variable("values", n_time_steps))
@@ -52,7 +51,6 @@ class Year_schedule(Component):
             self._periods_days_.append(datetime.timetuple().tm_yday)
 
     def pre_iteration(self, time_index, date):
-        super().pre_iteration(time_index, date)
         self.variable("values").array[time_index] = self.get_value(date)
 
     def get_value(self, date):

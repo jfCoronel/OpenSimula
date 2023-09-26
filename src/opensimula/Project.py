@@ -3,7 +3,7 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 from opensimula.Parameter_container import Parameter_container
-from opensimula.Parameters import Parameter_int, Parameter_string
+from opensimula.Parameters import Parameter_int, Parameter_string, Parameter_string_list
 from opensimula.components import *
 
 
@@ -33,6 +33,18 @@ class Project(Parameter_container):
         self.add_parameter(Parameter_int("time_step", 600, "s", min=1))
         self.add_parameter(Parameter_int("n_time_steps", 52560, min=1))
         self.add_parameter(Parameter_string("initial_time", "01/01/2001 00:00:00"))
+        self.add_parameter(
+            Parameter_string_list(
+                "simulation_order",
+                [
+                    "File_data",
+                    "File_met",
+                    "Day_schedule",
+                    "Week_schedule",
+                    "Year_schedule",
+                ],
+            )
+        )
         sim.add_project(self)
         self._components_ = []
 
@@ -209,6 +221,25 @@ class Project(Parameter_container):
 
     # ____________________
 
+    def _set_ordered_component_list_(self):
+        all_comp_list = []
+        for comp in self.component_list():
+            components = comp.get_all_referenced_components()
+            for comp_i in components:
+                if comp_i not in all_comp_list:
+                    all_comp_list.append(comp_i)
+        # order components
+        self._ordered_component_list_ = []
+        # Add components in simulation order
+        for type in self.parameter("simulation_order").value:
+            for comp in all_comp_list:
+                if comp.parameter("type").value == type:
+                    self._ordered_component_list_.append(comp)
+        # Add rest of components
+        for comp in all_comp_list:
+            if comp not in self._ordered_component_list_:
+                self._ordered_component_list_.append(comp)
+
     def check(self):
         """Check if all is correct, for the project and all its components
 
@@ -230,7 +261,9 @@ class Project(Parameter_container):
             error += f" initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
             errors.append(error)
 
-        for comp in self._components_:
+        self._set_ordered_component_list_()
+        list = self._ordered_component_list_
+        for comp in list:
             error_comp = comp.check()
             if len(error_comp) > 0:
                 for e in error_comp:
@@ -258,6 +291,7 @@ class Project(Parameter_container):
         )
         delta_t = self.parameter("time_step").value
 
+        self._set_ordered_component_list_()
         self.pre_simulation(n)
 
         self._sim_.print("Simulation: ", add_new_line=False)
@@ -277,29 +311,29 @@ class Project(Parameter_container):
         self.post_simulation()
 
     def pre_simulation(self, n_time_steps):
-        for comp in self._components_:
+        for comp in self._ordered_component_list_:
             comp.pre_simulation(n_time_steps)
 
     def post_simulation(self):
-        for comp in self._components_:
+        for comp in self._ordered_component_list_:
             comp.post_simulation()
 
     def pre_iteration(self, time_index, date):
-        for comp in self._components_:
+        for comp in self._ordered_component_list_:
             comp.pre_iteration(time_index, date)
 
     def iteration(self, time_index, date):
         converge = True
-        for comp in self._components_:
+        for comp in self._ordered_component_list_:
             if not comp.iteration(time_index, date):
                 converge = False
         return converge
 
     def post_iteration(self, time_index, date):
-        for comp in self._components_:
+        for comp in self._ordered_component_list_:
             comp.post_iteration(time_index, date)
 
-    def dates_array(self):  # TODO: Cambiar a que devuelva una variable con los dates
+    def dates_array(self):
         n = self.parameter("n_time_steps").value
         date = dt.datetime.strptime(
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"

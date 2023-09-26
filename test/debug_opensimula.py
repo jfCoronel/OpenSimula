@@ -1,9 +1,8 @@
-import opensimula as osm
-
 project_dic = {
-    "name": "Test project",
+    "name": "First example project",
     "time_step": 3600,
     "n_time_steps": 8760,
+    "initial_time": "01/01/2001 00:00:00",
     "components": [
         {
             "type": "Day_schedule",
@@ -46,8 +45,9 @@ project_dic = {
     ],
 }
 
+import opensimula as osm
 
 sim = osm.Simulation()
-p1 = osm.Project(sim)
-p1.read_dict(project_dic)
-p1.simulate()
+pro = osm.Project(sim)
+pro.read_dict(project_dic)
+pro.simulate()

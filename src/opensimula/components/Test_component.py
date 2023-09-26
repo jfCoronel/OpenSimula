@@ -48,13 +48,11 @@ class Test_component(Component):
         self._initial_date_ = None
 
     def pre_simulation(self, n_time_steps):
-        super().pre_simulation(n_time_steps)
         self.del_all_variables()
         self.add_variable(Variable("t", n_time_steps, unit="s"))
         self._sim_.print("Starting simulation ...")
 
     def pre_iteration(self, time_index, date):
-        super().pre_iteration(time_index, date)
         if time_index == 0:
             self._initial_date_ = date
         self.variable("t").array[time_index] = (
@@ -62,5 +60,4 @@ class Test_component(Component):
         ).total_seconds()
 
     def post_simulation(self):
-        super().post_simulation()
         self.simulation().print("Ending simulation ...")

@@ -51,6 +51,27 @@ class Component(Parameter_container):
 
     # ____________ Functions that must be overwriten for time simulation _________________
 
+    def get_all_referenced_components(self):
+        """Get list of all referenced components, first itself. Look recursively at the referenced components
+
+        Returns:
+            component_list (component[])
+        """
+        comp_list = [self]
+        for key, value in self.parameter_dict().items():
+            if value.type == "Parameter_component":
+                if value.component is not None:
+                    sublist = value.component.get_all_referenced_components()
+                    for subcomp in sublist:
+                        comp_list.append(subcomp)
+            if value.type == "Parameter_component_list":
+                for comp in value.component:
+                    if comp is not None:
+                        sublist = comp.get_all_referenced_components()
+                        for subcomp in sublist:
+                            comp_list.append(subcomp)
+        return comp_list
+
     def check(self):
         """Check if all is correct
 
@@ -63,47 +84,19 @@ class Component(Parameter_container):
             param_error = value.check()
             for e in param_error:
                 errors.append(e)
-        ext_comp_list = self._get_external_component_list_()
-        # External component errors
-        for comp in ext_comp_list:
-            ext_comp_error = comp.check()
-            for e in ext_comp_error:
-                errors.append(e)
         return errors
 
     def pre_simulation(self, n_time_steps):
-        self._external_component_list_ = self._get_external_component_list_()
-        for comp in self._external_component_list_:
-            comp.pre_simulation(n_time_steps)
+        pass
 
     def post_simulation(self):
-        for comp in self._external_component_list_:
-            comp.post_simulation()
+        pass
 
     def pre_iteration(self, time_index, date):
-        for comp in self._external_component_list_:
-            comp.pre_iteration(time_index, date)
+        pass
 
     def iteration(self, time_index, date):
-        return_value = True
-        for comp in self._external_component_list_:
-            comp_return_value = comp.iteration(time_index, date)
-            if comp_return_value == False:
-                return_value = False
-        return return_value
+        return True
 
     def post_iteration(self, time_index, date):
-        for comp in self._external_component_list_:
-            comp.post_iteration(time_index, date)
-
-    def _get_external_component_list_(self):
-        ext_comp_list = []
-        for key, value in self.parameter_dict().items():
-            if value.type == "Parameter_component":
-                if value.external:
-                    ext_comp_list.append(value.component)
-            if value.type == "Parameter_component_list":
-                for i in range(len(value.value)):
-                    if value.external[i]:
-                        ext_comp_list.append(value.component[i])
-        return ext_comp_list
+        pass
