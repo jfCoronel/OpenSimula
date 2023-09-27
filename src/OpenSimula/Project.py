@@ -294,7 +294,9 @@ class Project(Parameter_container):
         self._set_ordered_component_list_()
         self.pre_simulation(n)
 
-        self._sim_.print("Simulation: ", add_new_line=False)
+        self._sim_.print(
+            f"Simulating {self.parameter('name').value}: ", add_new_line=False
+        )
 
         for i in range(n):
             if (10.0 * (i + 1) / n).is_integer():

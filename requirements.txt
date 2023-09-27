@@ -41,6 +41,7 @@ nest-asyncio==1.5.6
 nh3==0.2.14
 numpy==1.25.0
 openpyxl==3.1.2
+-e git+https://github.com/jfCoronel/OpenSimula.git@b54aa76a1325c82c50eac257af98462bcd13a2c6#egg=OpenSimula
 packaging==23.1
 pandas==2.0.3
 parso==0.8.3
