@@ -310,9 +310,10 @@ class Parameter_options_list(Parameter):
 
 
 class Parameter_component(Parameter):
-    def __init__(self, key, value=""):
+    def __init__(self, key, value="not_defined", allowed_types=[]):
         Parameter.__init__(self, key, value)
         self.value = value
+        self._allowed_types_ = allowed_types
 
     @property
     def value(self):
@@ -331,6 +332,10 @@ class Parameter_component(Parameter):
         return self._external_
 
     @property
+    def allowed_types(self):
+        return self._allowed_types_
+
+    @property
     def component(self):
         if self.external:
             splits = self.value.split("->")
@@ -343,17 +348,23 @@ class Parameter_component(Parameter):
             return self.parent.project().component(self.value)
 
     def check(self):
+        errors = []
         comp = self.component
+        if len(self.allowed_types) > 0 and self.value != "not_defined":
+            if type(comp).__name__ not in self.allowed_types:
+                errors.append(
+                    f"Error: {self.value} component is not one of the allowed types."
+                )
         if comp == None and self.value != "not_defined":
-            return [f"Error: {self.value} component not found."]
-        else:
-            return []
+            errors.append(f"Error: {self.value} component not found.")
+        return errors
 
 
 class Parameter_component_list(Parameter):
-    def __init__(self, key, value=[""]):
+    def __init__(self, key, value=["not_defined"], allowed_types=[]):
         Parameter.__init__(self, key, value)
         self.value = value
+        self._allowed_types_ = allowed_types
 
     @property
     def value(self):
@@ -379,6 +390,10 @@ class Parameter_component_list(Parameter):
         return self._external_
 
     @property
+    def allowed_types(self):
+        return self._allowed_types_
+
+    @property
     def component(self):
         components = []
         for i, element in enumerate(self.value):
@@ -397,6 +412,11 @@ class Parameter_component_list(Parameter):
         errors = []
         comps = self.component
         for i in range(len(comps)):
+            if len(self.allowed_types) > 0 and self.value[i] != "not_defined":
+                if type(comps[i]).__name__ not in self.allowed_types:
+                    errors.append(
+                        f"Error: {self.value[i]} component is not one of the allowed types."
+                    )
             if comps[i] == None and self.value[i] != "not_defined":
                 errors.append(f"Error: {self.value[i]} component not found.")
         return errors

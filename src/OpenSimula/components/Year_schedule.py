@@ -13,7 +13,9 @@ class Year_schedule(Component):
         self.parameter("description").value = "Time schedule for a year"
         self.add_parameter(Parameter_string_list("periods", ["01/06"]))
         self.add_parameter(
-            Parameter_component_list("weeks_schedules", ["not_defined", "not_defined"])
+            Parameter_component_list(
+                "weeks_schedules", ["not_defined", "not_defined"], ["Week_schedule"]
+            )
         )
 
     def check(self):

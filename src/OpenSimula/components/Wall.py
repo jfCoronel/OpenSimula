@@ -11,11 +11,6 @@ class Wall(Component):
         self.parameter("description").value = "enclosure of the building's spaces"
 
         self.add_parameter(Parameter_component("construction", ""))
-        self.add_parameter(
-            Parameter_options(
-                "position", "exterior", ["exterior", "interior", "ground"]
-            )
-        )
 
     def pre_simulation(self, n_time_steps):
         self.del_all_variables()

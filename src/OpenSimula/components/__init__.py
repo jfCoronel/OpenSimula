@@ -9,3 +9,4 @@ from OpenSimula.components.File_data import File_data
 from OpenSimula.components.Day_schedule import Day_schedule
 from OpenSimula.components.Week_schedule import Week_schedule
 from OpenSimula.components.Year_schedule import Year_schedule
+from OpenSimula.components.Space_type import Space_type

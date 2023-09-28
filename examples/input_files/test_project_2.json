@@ -1,6 +1,5 @@
 {
     "name": "project 2",
-    "type": "Project",
     "components": [
         {
             "type": "Test_component",

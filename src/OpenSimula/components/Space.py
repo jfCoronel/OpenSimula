@@ -9,7 +9,7 @@ class Space(Component):
         self.parameter("type").value = "Space"
         self.parameter("name").value = "Space_x"
         self.parameter("description").value = "Indoor building space"
-        self.add_parameter(Parameter_component_list("walls", ["not_defined"]))
+        self.add_parameter(Parameter_component_list("walls"))
 
     def pre_simulation(self, n_time_steps):
         self.del_all_variables()

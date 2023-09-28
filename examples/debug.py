@@ -8,7 +8,7 @@ project_dic = {
             "type": "Day_schedule",
             "name": "working_day",
             "time_steps": [28800, 18000, 7200, 14400],
-            "values": [0, 100, 0, 80, 0],
+            "values": [0, 1, 0, 0.8, 0],
             "interpolation": "STEP",
         },
         {
@@ -38,9 +38,20 @@ project_dic = {
         },
         {
             "type": "Year_schedule",
-            "name": "year",
+            "name": "year_schedule",
             "periods": ["01/08", "01/09"],
             "weeks_schedules": ["working_week", "holiday_week", "working_week"],
+        },
+        {
+            "type": "Space_type",
+            "name": "offices",
+            "people_density": 10,
+            "people_sensible": 50,
+            "people_latent": 25,
+            "people_schedule": "year_schedule",
+            "light_density": 15,
+            "light_schedule": "year_schedule",
+            "other_gains_density": 20,
         },
     ],
 }

@@ -42,7 +42,7 @@ class Parameter_container:
                 self.parameter(key).value = value
             else:
                 self._sim_.print(
-                    "Error: Component parameter " + key, +" does not exist"
+                    "Error: Component parameter " + key + " does not exist"
                 )
 
     def parameter_dataframe(self):

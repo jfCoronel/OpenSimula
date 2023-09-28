@@ -8,7 +8,7 @@ class Week_schedule(Component):
         self.parameter("type").value = "Week_schedule"
         self.parameter("name").value = "week_schedule_x"
         self.parameter("description").value = "Time schedule for a week"
-        self.add_parameter(Parameter_component_list("days_schedules", ["not_defined"]))
+        self.add_parameter(Parameter_component_list("days_schedules", ["not_defined"],["Day_schedule"]))
 
     def check(self):
         errors = super().check()

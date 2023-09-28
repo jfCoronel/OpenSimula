@@ -52,13 +52,13 @@ First we are going to define a Python dictionary that contains the information o
 project_dic = {
     "name": "First example project",
     "time_step": 3600,
-    "n_time_steps": 8760,
+    "n_time_steps": 24*365,
     "initial_time": "01/01/2001 00:00:00",
     "components": [
         {
             "type": "Day_schedule",
             "name": "working_day",
-            "time_steps": [28800, 18000, 7200, 14400],
+            "time_steps": [8*3600, 5*3600, 2*3600, 4*3600],
             "values": [0, 100, 0, 80, 0],
             "interpolation": "STEP",
         },
@@ -106,10 +106,10 @@ All OpenSimula projects must contain the project definition parameters and a key
 
 The project contains two components of type `Day_schedule`, two of type `Week_schedule` and one of type `Year_schedule`. The first Day_schedule component called `working_day` describes how a value changes throughout the day. The day is divided into five periods described in the `time_steps` parameter: 
 
-1. 28800 s (00:00 to 8:00). 
-2. 18000 s (8:00 to 13:00)
-3. 7200 s (13:00 to 15:00)
-4. 14400 s (15:00 to 19:00)
+1. 8*3600 s (00:00 to 8:00). 
+2. 5*3600 s (8:00 to 13:00)
+3. 2*3600 s (13:00 to 15:00)
+4. 4*3600 s (15:00 to 19:00)
 5. Rest of day (19:00 to 24:00)
 
 The values for these periods are defined in the `values` parameter, in our example they are 0, 100, 0, 0, 80 and 0. the `STEP` value of the `interpolation` parameter sets the value to change in steps from 0 to 100 at 8:00. The other option for the interpolation parameter is `LINEAR` which would perform a linear interpolation to obtain the values at each simulation instant. The other `Day_schedule` component called `holiday_day` sets a single all-day period with value 0. 
@@ -149,7 +149,7 @@ After the simulation, each of the components will have its time variables calcul
 import plotly.express as px
 
 datos = pro.component("year").variable_dataframe()
-fig = px.line(datos,x='date',y=['values'],height=600)
+fig = px.bar(datos,x='date',y=['values'],height=600)
 fig.show()
 </code></pre>
 
