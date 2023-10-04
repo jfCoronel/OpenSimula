@@ -1,60 +1,43 @@
+import OpenSimula as oms
+
 project_dic = {
-    "name": "First example project",
-    "time_step": 3600,
-    "n_time_steps": 8760,
-    "initial_time": "01/01/2001 00:00:00",
+    "name": "Base de Datos",
     "components": [
         {
-            "type": "Day_schedule",
-            "name": "working_day",
-            "time_steps": [28800, 18000, 7200, 14400],
-            "values": [0, 1, 0, 0.8, 0],
-            "interpolation": "STEP",
+            "type": "Material",
+            "name": "Mortero cemento",
+            "conductivity": 0.8,
+            "density": 1500,
+            "specific_heat": 1000,
         },
         {
-            "type": "Day_schedule",
-            "name": "holiday_day",
-            "time_steps": [],
-            "values": [0],
-            "interpolation": "STEP",
+            "type": "Material",
+            "name": "Ladrillo hueco",
+            "conductivity": 0.49,
+            "density": 1200,
+            "specific_heat": 920,
         },
         {
-            "type": "Week_schedule",
-            "name": "working_week",
-            "days_schedules": [
-                "working_day",
-                "working_day",
-                "working_day",
-                "working_day",
-                "working_day",
-                "holiday_day",
-                "holiday_day",
+            "type": "Material",
+            "name": "Poliestireno expandido",
+            "conductivity": 0.03,
+            "density": 10,
+            "specific_heat": 1000,
+        },
+        {
+            "type": "Construction",
+            "name": "Muro Exterior",
+            "solar_absortivity": [0.8, 0.8],
+            "materials": [
+                "Mortero cemento",
+                "Poliestireno expandido",
+                "Ladrillo hueco",
             ],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "holiday_week",
-            "days_schedules": ["holiday_day"],
-        },
-        {
-            "type": "Year_schedule",
-            "name": "year_schedule",
-            "periods": ["01/08", "01/09"],
-            "weeks_schedules": ["working_week", "holiday_week", "working_week"],
-        },
-        {
-            "type": "Space_type",
-            "name": "offices",
-            "people_density": 10,
-            "people_sensible": 50,
-            "people_latent": 25,
-            "people_schedule": "year_schedule",
-            "light_density": 15,
-            "light_schedule": "year_schedule",
-            "other_gains_density": 20,
+            "thicknesses": [0.04, 0.05, 0.24],
         },
     ],
 }
+
 
 import OpenSimula as osm
 

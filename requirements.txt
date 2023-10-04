@@ -41,7 +41,7 @@ nest-asyncio==1.5.6
 nh3==0.2.14
 numpy==1.25.0
 openpyxl==3.1.2
--e git+https://github.com/jfCoronel/OpenSimula.git@b54aa76a1325c82c50eac257af98462bcd13a2c6#egg=OpenSimula
+-e git+https://github.com/jfCoronel/OpenSimula.git@165394279ee44bfd1e0edcc1cb23767aac032f4b#egg=OpenSimula
 packaging==23.1
 pandas==2.0.3
 parso==0.8.3
@@ -72,6 +72,7 @@ requests==2.31.0
 requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==13.5.3
+scipy==1.11.3
 six==1.16.0
 stack-data==0.6.2
 tenacity==8.2.2
