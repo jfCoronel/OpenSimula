@@ -30,8 +30,8 @@ class Project(Parameter_container):
         Parameter_container.__init__(self, sim)
         self.parameter("name").value = "Project_X"
         self.parameter("description").value = "Description of the project"
-        self.add_parameter(Parameter_int("time_step", 600, "s", min=1))
-        self.add_parameter(Parameter_int("n_time_steps", 52560, min=1))
+        self.add_parameter(Parameter_int("time_step", 3600, "s", min=1))
+        self.add_parameter(Parameter_int("n_time_steps", 8760, min=1))
         self.add_parameter(Parameter_string("initial_time", "01/01/2001 00:00:00"))
         self.add_parameter(
             Parameter_string_list(
@@ -292,7 +292,7 @@ class Project(Parameter_container):
         delta_t = self.parameter("time_step").value
 
         self._set_ordered_component_list_()
-        self.pre_simulation(n)
+        self.pre_simulation(n,delta_t)
 
         self._sim_.print(
             f"Simulating {self.parameter('name').value}: ", add_new_line=False
@@ -312,9 +312,9 @@ class Project(Parameter_container):
         self._sim_.print(" End")
         self.post_simulation()
 
-    def pre_simulation(self, n_time_steps):
+    def pre_simulation(self, n_time_steps, delta_t):
         for comp in self._ordered_component_list_:
-            comp.pre_simulation(n_time_steps)
+            comp.pre_simulation(n_time_steps, delta_t)
 
     def post_simulation(self):
         for comp in self._ordered_component_list_:

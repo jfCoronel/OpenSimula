@@ -47,7 +47,7 @@ class Test_component(Component):
         )
         self._initial_date_ = None
 
-    def pre_simulation(self, n_time_steps):
+    def pre_simulation(self, n_time_steps, delta_t):
         self.del_all_variables()
         self.add_variable(Variable("t", n_time_steps, unit="s"))
         self._sim_.print("Starting simulation ...")

@@ -30,7 +30,7 @@ class Space_type(Component):
         )
         self.add_parameter(Parameter_component("other_gains_schedule"))
 
-    def pre_simulation(self, n_time_steps):
+    def pre_simulation(self, n_time_steps, delta_t):
         self.del_all_variables()
         self.add_variable(Variable("people_convective", n_time_steps, unit="W/m²"))
         self.add_variable(Variable("people_radiant", n_time_steps, unit="W/m²"))

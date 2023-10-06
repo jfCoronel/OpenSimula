@@ -14,7 +14,7 @@ class Outdoor(Component):
         self.add_parameter(Parameter_component("meteo_file", "not_defined"))
         self._meteo_file_ = None
 
-    def pre_simulation(self, n_time_steps):
+    def pre_simulation(self, n_time_steps, delta_t):
         self._meteo_file_ = self.parameter("meteo_file").component
         self.latitude = self._meteo_file_.latitude
         self.longitude = self._meteo_file_.longitude

@@ -35,7 +35,7 @@ class File_data(Component):
                 )
             return errors
 
-    def pre_simulation(self, n_time_steps):
+    def pre_simulation(self, n_time_steps, delta_t):
         self.del_all_variables()
         # Create Variable
         array = self._df_.to_numpy()

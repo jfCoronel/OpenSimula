@@ -40,10 +40,8 @@ class Construction(Component):
 
     ### Functions for Transfer Function Calculation
 
-    def pre_simulation(self, n_time_steps):
-        # roots = self._B_roots_()
-        self._calc_coef_()
-        # print(roots)
+    def pre_simulation(self, n_time_steps, delta_t):
+        self._calc_coef_(delta_t)
 
     def _resis_layer_(self, layer):
         material = self.parameter("materials").component[layer]
@@ -74,7 +72,6 @@ class Construction(Component):
             )
 
     def _tau_layer_(self, layer):
-        material = self.parameter("materials").component[layer]
         L = self.parameter("thicknesses").value[layer]
         return L * L / self._alpha_layer_(layer)
 
@@ -89,8 +86,8 @@ class Construction(Component):
             B = resis
             C = 0
         else:
-            B = resis * math.sin(aux) / aux
-            C = aux * math.sin(aux) / resis
+            B = resis * math.sin(aux)
+            C = -aux * math.sin(aux) / resis
         return np.matrix([[A, B], [C, A]])
 
     def _dH_Matrix_Layer_(self, s, layer):
@@ -100,17 +97,13 @@ class Construction(Component):
         aux = math.sqrt(tau * s)
 
         if s == 0:
-            L = self.parameter("thicknesses").value[layer]
-            alpha = self._alpha_layer_(layer)
-            A = L * L / (2 * alpha)
-            B = (resis * L * L) * (6 * alpha)
-            C = (L * L) * (alpha * resis)
+            A = tau / 2
+            B = (resis * tau) / 6
+            C = tau / resis
         else:
             A = (tau / 2) * math.sin(aux) / aux
-            B = (resis / 2) * (
-                tau * math.sin(aux) / math.pow(aux, 3) - math.cos(aux) / s
-            )
-            C = (tau / (2 * resis)) * (math.sin(aux) / aux + math.cos(aux))
+            B = (resis / (2 * s)) * (math.sin(aux) / aux - math.cos(aux))
+            C = (tau / (2 * resis)) * ((math.sin(aux) / aux) + math.cos(aux))
         return np.matrix([[A, B], [C, A]])
 
     def _H_Matrix_(self, s):
@@ -132,7 +125,7 @@ class Construction(Component):
             H = H + np.dot(P1, np.dot(self._dH_Matrix_Layer_(s, i), P2))
         return H
 
-    def _B_roots_(self):
+    def _B_roots_(self, delta_t):
         def func(s):
             B = self._H_Matrix_(s)[0, 1]
             return B
@@ -142,61 +135,88 @@ class Construction(Component):
         B_a = func(a)
         b = delta_s
         roots = []
-        while len(roots) <= 30:
+        exp = 1
+        while exp > 1e-10:
             B_b = func(b)
             if B_a * B_b <= 0:  # Signo contrario o un cero
                 bisec = brentq(func, a, b)
                 roots.append(bisec)
+                exp = math.exp(-bisec * delta_t)
             a = b
             B_a = B_b
             b = b + delta_s
 
         return roots
 
-    def _calc_coef_(self):
-        sum_resis = 0
-        n = len(self.parameter("materials").value)
-        dA = []
-        dB = []
-        dC = []
-        for i in range(n):
-            sum_resis = sum_resis + self._resis_layer_(i)
-            L = self.parameter("thicknesses").value[i]
-            dA.append(L * L / (2 * self._alpha_layer_(i)))
-            dB.append(L * L * self._resis_layer_(i) / (6 * self._alpha_layer_(i)))
-            dC.append(L * L / (self._resis_layer_(i) * self._alpha_layer_(i)))
-
-        # dT = np.zeros((2, 2))
-        # for i in range(n):
-        #    P1 = np.eye(2)
-        #    for j in range(i):
-        #        P1 = np.dot(P1, np.matrix([[1, self._resis_layer_(j)], [0, 1]]))
-        #    P2 = np.eye(2)
-        #    for j in range(i + 1, n):
-        #       P2 = np.dot(P2, np.matrix([[1, self._resis_layer_(j)], [0, 1]]))
-        #    dT = dT + np.dot(
-        #        P1, np.dot(np.matrix([[dA[i], dB[i]], [dC[i], dA[i]]]), P2)
-        #    )
-
-        dT = self._dH_Matrix_(0)
-        C0 = 1 / sum_resis
-        C1x = (dT[0, 0] * sum_resis - dT[0, 1]) / (sum_resis * sum_resis)
-        C1y = (-dT[0, 1]) / (sum_resis * sum_resis)
-        C1z = (dT[1, 1] * sum_resis - dT[0, 1]) / (sum_resis * sum_resis)
-        print(C0)
-        print(C1x, C1y, C1z)
+    def _calc_coef_(self, delta_t):
+        min_coef = 1e-10
+        dH_0 = self._dH_Matrix_(0)
+        H_0 = self._H_Matrix_(0)
+        C0 = H_0[0, 0] / H_0[0, 1]
+        C1x = (dH_0[0, 0] * H_0[0, 1] - H_0[0, 0] * dH_0[0, 1]) / (
+            H_0[0, 1] * H_0[0, 1]
+        )
+        C1y = (-dH_0[0, 1]) / (H_0[0, 1] * H_0[0, 1])
+        C1z = (dH_0[1, 1] * H_0[0, 1] - dH_0[0, 1]) / (H_0[0, 1] * H_0[0, 1])
 
         # e_coef
-        roots = self._B_roots_()
+        roots = self._B_roots_(delta_t)
+        n_coef = len(roots) + 1
         ex = []
         ey = []
         ez = []
+        h = []
         for root in roots:
             H = self._H_Matrix_(root)
             dH = self._dH_Matrix_(root)
             ex.append(H[0, 0] / (root * root * dH[0, 1]))
             ey.append(1 / (root * root * dH[0, 1]))
             ez.append(H[1, 1] / (root * root * dH[0, 1]))
-        print(ex)
-        print(ey)
-        print(ez)
+            h.append(math.exp(-root * delta_t))
+        d = [1, -h[0]]
+        for i in range(1, len(roots)):
+            u = [1, -h[i]]
+            d = np.convolve(d, u)
+
+        ox = []
+        oy = []
+        oz = []
+        for i in range(1, n_coef):
+            sum_exp_x = 0
+            sum_exp_y = 0
+            sum_exp_z = 0
+            for j in range(len(roots)):
+                exp = math.exp(-(i) * roots[j] * delta_t)
+                sum_exp_x = sum_exp_x + ex[j] * exp
+                sum_exp_y = sum_exp_y + ey[j] * exp
+                sum_exp_z = sum_exp_z + ez[j] * exp
+            ox.append(C1x + i * C0 * delta_t + sum_exp_x)
+            oy.append(C1y + i * C0 * delta_t + sum_exp_y)
+            oz.append(C1z + i * C0 * delta_t + sum_exp_z)
+
+        ramp = [1 / delta_t, -2 / delta_t, 1 / delta_t]
+        g = np.convolve(ramp, d)
+        a = np.convolve(g, ox)
+        b = np.convolve(g, oy)
+        c = np.convolve(g, oz)
+        # Cut d coefficients
+        for i in range(len(d)):
+            if math.fabs(d[i]) < min_coef:
+                d = d[0 : i + 1]
+                break
+        # Cut a, b, c coefficients
+        for i in range(len(a)):
+            if (
+                math.fabs(a[i]) < min_coef
+                and math.fabs(b[i]) < min_coef
+                and math.fabs(c[i]) < min_coef
+            ):
+                a = a[0 : i + 1]
+                b = b[0 : i + 1]
+                c = c[0 : i + 1]
+                break
+
+        print("a: ", a)
+        print("b: ", b)
+        print("c: ", c)
+        print("d: ", d)

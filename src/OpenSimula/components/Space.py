@@ -11,7 +11,7 @@ class Space(Component):
         self.parameter("description").value = "Indoor building space"
         self.add_parameter(Parameter_component_list("walls"))
 
-    def pre_simulation(self, n_time_steps):
+    def pre_simulation(self, n_time_steps, delta_t):
         self.del_all_variables()
         self.add_variable(Variable("temperature", n_time_steps, unit="°C"))
         self.add_variable(Variable("rel_humidity", n_time_steps, unit="%"))

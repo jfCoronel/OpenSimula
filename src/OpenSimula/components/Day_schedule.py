@@ -40,7 +40,7 @@ class Day_schedule(Component):
             )
         return errors
 
-    def pre_simulation(self, n_time_steps):
+    def pre_simulation(self, n_time_steps,delta_t):
         # Create array of periods
         self._periods_ = [0]
         acumulated = 0

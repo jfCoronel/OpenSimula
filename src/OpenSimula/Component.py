@@ -86,7 +86,7 @@ class Component(Parameter_container):
                 errors.append(e)
         return errors
 
-    def pre_simulation(self, n_time_steps):
+    def pre_simulation(self, n_time_steps, delta_t):
         pass
 
     def post_simulation(self):

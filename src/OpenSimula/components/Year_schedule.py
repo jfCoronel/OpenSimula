@@ -42,7 +42,7 @@ class Year_schedule(Component):
             errors.append(error)
         return errors
 
-    def pre_simulation(self, n_time_steps):
+    def pre_simulation(self, n_time_steps, delta_t):
         self.del_all_variables()
         # Create Variable
         self.add_variable(Variable("values", n_time_steps))
