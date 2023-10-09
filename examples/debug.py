@@ -1,40 +1,49 @@
 import OpenSimula as oms
 
-muro_real = {
-    "name": "Muro real",
+muro_multicapa = {
+    "name": "Muro Multicapa",
     "time_step": 3600,
     "components": [
         {
             "type": "Material",
-            "name": "Mortero cemento",
-            "conductivity": 0.8,
-            "density": 1500,
-            "specific_heat": 1000,
+            "name": "Gypsum board",
+            "conductivity": 0.16,
+            "density": 800,
+            "specific_heat": 1090,
         },
         {
             "type": "Material",
-            "name": "Ladrillo hueco",
-            "conductivity": 0.49,
-            "density": 1200,
-            "specific_heat": 920,
-        },
-        {
-            "type": "Material",
-            "name": "Poliestireno expandido",
+            "name": "EPS board",
             "conductivity": 0.03,
-            "density": 10,
-            "specific_heat": 1000,
+            "density": 43,
+            "specific_heat": 1210,
+        },
+        {
+            "type": "Material",
+            "name": "Heavyweight concrete",
+            "conductivity": 1.95,
+            "density": 2240,
+            "specific_heat": 900,
+        },
+        {
+            "type": "Material",
+            "name": "Stucco",
+            "conductivity": 0.72,
+            "density": 1856,
+            "specific_heat": 840,
         },
         {
             "type": "Construction",
-            "name": "Muro Exterior",
+            "name": "Multilayer Wall",
             "solar_absortivity": [0.8, 0.8],
             "materials": [
-                "Mortero cemento",
-                "Poliestireno expandido",
-                "Ladrillo hueco",
+                "Gypsum board",
+                "EPS board",
+                "Heavyweight concrete",
+                "EPS board",
+                "Stucco",
             ],
-            "thicknesses": [0.04, 0.05, 0.24],
+            "thicknesses": [0.016, 0.076, 0.203, 0.076, 0.025],
         },
     ],
 }
@@ -104,7 +113,7 @@ muro_1C_esto2 = {
 
 muro_1C_pesado = {
     "name": "Muro 1C pesado",
-    "time_step": 60,
+    "time_step": 3600,
     "components": [
         {
             "type": "Material",
@@ -125,7 +134,7 @@ muro_1C_pesado = {
 
 muro_1C_ligero = {
     "name": "Muro 1C ligero",
-    "time_step": 60,
+    "time_step": 3600,
     "components": [
         {
             "type": "Material",
@@ -149,5 +158,5 @@ import OpenSimula as osm
 
 sim = osm.Simulation()
 pro = osm.Project(sim)
-pro.read_dict(muro_1C_ligero)
+pro.read_dict(muro_1C_pesado)
 pro.simulate()

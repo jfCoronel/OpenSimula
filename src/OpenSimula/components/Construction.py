@@ -41,7 +41,38 @@ class Construction(Component):
     ### Functions for Transfer Function Calculation
 
     def pre_simulation(self, n_time_steps, delta_t):
-        self._calc_coef_(delta_t)
+        self._calc_trans_fun_(delta_t)
+        q_in, q_out = self.get_T_step_fluxes()
+        print(q_in)
+        print(q_out)
+
+    def get_T_step_fluxes(self):
+        n_q = len(self._coef_Q_)
+        n_t = len(self._coef_T_[0])
+        Q_old_in = np.zeros(n_q)
+        Q_old_out = np.zeros(n_q)
+        T_old = np.ones(n_t)
+        q_in = 1
+        Q_in = []
+        Q_out = []
+        while q_in > 1e-15:
+            q_in = np.dot(
+                self._coef_T_[0] - self._coef_T_[1], T_old.transpose()
+            ) - np.dot(self._coef_Q_, Q_old_in.transpose())
+            q_out = np.dot(
+                self._coef_T_[1] - self._coef_T_[2], T_old.transpose()
+            ) - np.dot(self._coef_Q_, Q_old_out.transpose())
+            Q_in.append(q_in)
+            Q_out.append(q_out)
+            Q_old_in = np.roll(Q_old_in, 1)
+            Q_old_in[0] = 0
+            Q_old_in[1] = q_in
+            Q_old_out = np.roll(Q_old_out, 1)
+            Q_old_out[0] = 0
+            Q_old_out[1] = q_out
+            T_old = np.roll(T_old, 1)
+            T_old[0] = 0
+        return (Q_in, Q_out)
 
     def _resis_layer_(self, layer):
         material = self.parameter("materials").component[layer]
@@ -86,7 +117,7 @@ class Construction(Component):
             B = resis
             C = 0
         else:
-            B = resis * math.sin(aux)
+            B = resis / aux * math.sin(aux)
             C = -aux * math.sin(aux) / resis
         return np.matrix([[A, B], [C, A]])
 
@@ -130,7 +161,7 @@ class Construction(Component):
             B = self._H_Matrix_(s)[0, 1]
             return B
 
-        delta_s = 1e-5
+        delta_s = 1e-6
         a = 1e-15
         B_a = func(a)
         b = delta_s
@@ -148,7 +179,7 @@ class Construction(Component):
 
         return roots
 
-    def _calc_coef_(self, delta_t):
+    def _calc_trans_fun_(self, delta_t):
         min_coef = 1e-10
         dH_0 = self._dH_Matrix_(0)
         H_0 = self._H_Matrix_(0)
@@ -215,8 +246,7 @@ class Construction(Component):
                 b = b[0 : i + 1]
                 c = c[0 : i + 1]
                 break
-
-        print("a: ", a)
-        print("b: ", b)
-        print("c: ", c)
-        print("d: ", d)
+        self._coef_T_ = np.array([a, b, c])
+        print(self._coef_T_)
+        self._coef_Q_ = d
+        print(self._coef_Q_)
