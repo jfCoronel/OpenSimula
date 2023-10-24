@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "OpenSimula"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
   { name="Juan F. Coronel", email="jfc@us.es" },
 ]
@@ -20,6 +20,7 @@ classifiers = [
 dependencies = [
   "numpy>=1.25",
   "pandas>=2.0",
+  "scipy>=1.1"
 ]
 
 [project.optional-dependencies]

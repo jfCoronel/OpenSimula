@@ -35,7 +35,7 @@ docs:
 
 .PHONY : test
 test:
-	pytest
+	pytest test
 
 .PHONY : clean
 clean:

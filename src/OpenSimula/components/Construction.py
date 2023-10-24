@@ -42,9 +42,9 @@ class Construction(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         self._calc_trans_fun_(delta_t)
-        q_in, q_out = self.get_T_step_fluxes()
-        print(q_in)
-        print(q_out)
+        #q_in, q_out = self.get_T_step_fluxes()
+        #print(q_in)
+        #print(q_out)
 
     def get_T_step_fluxes(self):
         n_q = len(self._coef_Q_)
@@ -52,10 +52,11 @@ class Construction(Component):
         Q_old_in = np.zeros(n_q)
         Q_old_out = np.zeros(n_q)
         T_old = np.ones(n_t)
+        #T_old[0] = 0
         q_in = 1
         Q_in = []
         Q_out = []
-        while q_in > 1e-15:
+        while math.fabs(q_in) > 1e-15:
             q_in = np.dot(
                 self._coef_T_[0] - self._coef_T_[1], T_old.transpose()
             ) - np.dot(self._coef_Q_, Q_old_in.transpose())
@@ -119,7 +120,7 @@ class Construction(Component):
         else:
             B = resis / aux * math.sin(aux)
             C = -aux * math.sin(aux) / resis
-        return np.matrix([[A, B], [C, A]])
+        return np.array([[A, B], [C, A]])
 
     def _dH_Matrix_Layer_(self, s, layer):
         # Calculate dif H Matrix for one layer
@@ -135,7 +136,7 @@ class Construction(Component):
             A = (tau / 2) * math.sin(aux) / aux
             B = (resis / (2 * s)) * (math.sin(aux) / aux - math.cos(aux))
             C = (tau / (2 * resis)) * ((math.sin(aux) / aux) + math.cos(aux))
-        return np.matrix([[A, B], [C, A]])
+        return np.array([[A, B], [C, A]])
 
     def _H_Matrix_(self, s):
         H = np.eye(2)
@@ -247,6 +248,6 @@ class Construction(Component):
                 c = c[0 : i + 1]
                 break
         self._coef_T_ = np.array([a, b, c])
-        print(self._coef_T_)
+        #print(self._coef_T_)
         self._coef_Q_ = d
-        print(self._coef_Q_)
+        #print(self._coef_Q_)

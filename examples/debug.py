@@ -1,4 +1,5 @@
-import OpenSimula as oms
+import numpy as np
+import OpenSimula as osm
 
 muro_multicapa = {
     "name": "Muro Multicapa",
@@ -154,9 +155,10 @@ muro_1C_ligero = {
 }
 
 
-import OpenSimula as osm
-
 sim = osm.Simulation()
 pro = osm.Project(sim)
 pro.read_dict(muro_1C_pesado)
 pro.simulate()
+q_in, q_out = pro.component("Muro pesado").get_T_step_fluxes()
+print("Q_IN: ",np.sum(q_in))
+print("Q_OUT: ",np.sum(q_out))
