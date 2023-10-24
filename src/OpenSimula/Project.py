@@ -42,6 +42,8 @@ class Project(Parameter_container):
                     "Day_schedule",
                     "Week_schedule",
                     "Year_schedule",
+                    "Material",
+                    "Construction"
                 ],
             )
         )

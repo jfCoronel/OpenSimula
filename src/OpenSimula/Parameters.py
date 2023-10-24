@@ -148,7 +148,7 @@ class Parameter_int(Parameter):
         return self.key + ": " + str(self.value) + " [" + self._unit_ + "]"
 
     def check(self):
-        if self.value < self._min_ and self.value > self._max_:
+        if self.value < self._min_ or self.value > self._max_:
             return [f"Error: {self.value} is not at [{self._min_},{self._max_}]"]
         else:
             return []
@@ -212,7 +212,7 @@ class Parameter_float(Parameter_int):
             self._sim_.print("Error: " + str(error) + ", ", self.info())
 
     def check(self):
-        if self.value < self._min_ and self.value > self._max_:
+        if self.value < self._min_ or self.value > self._max_:
             return [f"Error: {self.value} is not at [{self._min_},{self._max_}]"]
         else:
             return []

@@ -14,7 +14,6 @@ bdd_json = {
             "conductivity": 1.4,
             "density": 2000,
             "specific_heat": 1050,
-            "thickness": 0.02,
         },
         {
             "type": "Material",
@@ -22,13 +21,13 @@ bdd_json = {
             "conductivity": 0.49,
             "density": 1200,
             "specific_heat": 920,
-            "thickness": 0.11,
         },
         {
             "type": "Construction",
             "name": "Muro Exterior",
             "solar_absortivity": [0.8, 0.8],
             "materials": ["Mortero cemento", "Ladrillo hueco"],
+            "thicknesses": [0.02,0.11]
         },
     ],
 }
