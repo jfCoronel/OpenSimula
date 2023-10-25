@@ -19,6 +19,9 @@ class Component(Parameter_container):
 
     def simulation(self):
         return self._sim_
+    
+    def print(self, msg):
+        self._sim_.print(msg)
 
     def add_variable(self, variable):
         """add new Variable"""

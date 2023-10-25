@@ -10,15 +10,9 @@ from OpenSimula.components import *
 class Project(Parameter_container):
     """Project has the following features:
 
-    - It is included in one Simulation environment
+    - It is included in the Simulation environment
     - Contain a list of components
-    - Contains the following parameters:
-        * name (string, "Project_X"): name of the project
-        * type (string, "Project"): "Project"
-        * description (string, "Description of the project"): Description of the project
-        * time_step (int, 600): Time step in seconds
-        * n_time_steps (int, 52560): Number of time steps to be simulated
-        * initial_time (string, "01/01/2001 00:00:00"): Initial time for the simulation
+    - Contains parameters for its definition
     """
 
     def __init__(self, sim):
@@ -47,7 +41,7 @@ class Project(Parameter_container):
                 ],
             )
         )
-        sim.add_project(self)
+        sim._add_project_(self)
         self._components_ = []
 
     def add_component(self, component):
@@ -116,6 +110,9 @@ class Project(Parameter_container):
         except KeyError:
             return None
 
+    def _get_error_header_ (self):
+        return f'Error: Project "{self.parameter("name").value}". '
+    
     def _load_from_dict_(self, dic):
         for key, value in dic.items():
             if key == "components":  # Lista de componentes
@@ -123,24 +120,19 @@ class Project(Parameter_container):
                     if "type" in component:
                         comp = self.new_component(component["type"])
                         if comp == None:
-                            self._sim_.print(
-                                "Error: Component type "
-                                + component["type"]
-                                + " does no exist"
-                            )
+                            msg = self._get_error_header_() + f'Component type {component["type"]} does not exist.'
+                            self._sim_.print(msg)
                         else:
                             comp.set_parameters(component)
                     else:
-                        self._sim_print(
-                            'Error: Component does not contain "type" ' + component
-                        )
+                        msg = self._get_error_header_() + f'Component does not contain "type" parameter {component}'
+                        self._sim_print(msg)
             else:
                 if key in self._parameters_:
                     self.parameter(key).value = value
                 else:
-                    self._sim_.print(
-                        "Error: Project parameter " + key + " does not exist"
-                    )
+                    msg = self._get_error_header_() + f'Parameter {key} does not exist.'
+                    self._sim_.print(msg)
 
     def read_dict(self, dict):
         """Load paramaters an components from dictionary
@@ -164,7 +156,8 @@ class Project(Parameter_container):
         try:
             f = open(json_file, "r")
         except OSError:
-            self._sim_.print("Error: Could not open/read file: " + json_file)
+            msg = self._get_error_header_() + f'Could not open/read file:  {json_file}.'
+            self._sim_.print(msg)
             return False
         with f:
             json_dict = json.load(f)
@@ -187,7 +180,8 @@ class Project(Parameter_container):
             self._sim_.print("Reading completed.")
             self.check()
         except Exception as e:
-            self._sim_.print("Error: reading file: " + excel_file + " -> " + e)
+            msg = self._get_error_header_() + f'Reading file:  {excel_file} -> {e}.'
+            self._sim_.print(msg)
             return False
 
     def _excel_to_json_(self, xls_file):
@@ -259,8 +253,7 @@ class Project(Parameter_container):
                 self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
             )
         except ValueError:
-            error = f"Error in project: {self.parameter('name').value},"
-            error += f" initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+            error = self._get_error_header_() + f"Initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
             errors.append(error)
 
         self._set_ordered_component_list_()
@@ -271,8 +264,7 @@ class Project(Parameter_container):
                 for e in error_comp:
                     errors.append(e)
             if comp.parameter("name").value in names:
-                error = f"Error in project: {self.parameter('name').value},"
-                error += f" '{comp.parameter('name').value}' is used by other component as name"
+                error =self._get_error_header_() +f"'{comp.parameter('name').value}' is used by two or more components as name"
                 errors.append(error)
             else:
                 names.append(comp.parameter("name").value)

@@ -42,6 +42,9 @@ class Parameter(Child):
 
     def check(self):
         return []
+    
+    def _get_error_header_ (self):
+        return f'Error: {self.parent.parameter("name").value}->{self.key}. '
 
 
 # _____________ Parameter_boolean ___________________________
@@ -60,7 +63,8 @@ class Parameter_boolean(Parameter):
         if isinstance(value, bool):
             self._value_ = value
         else:
-            self._sim_.print("Error: " + str(value) + " is not boolean, " + self.info())
+            msg = self._get_error_header_()+f"{str(value)} is not boolean."
+            self._sim_.print(msg)
 
 
 class Parameter_boolean_list(Parameter):
@@ -82,7 +86,8 @@ class Parameter_boolean_list(Parameter):
                     booleans.append(bool(n))
                 self._value_ = booleans
         except ValueError as error:
-            self._sim_.print("Error: " + str(error) + ", " + self.info())
+            msg = self._get_error_header_()+f"{str(error)}"
+            self._sim_.print(msg)
 
 
 # _____________ Parameter_string ___________________________
@@ -142,14 +147,16 @@ class Parameter_int(Parameter):
         if isinstance(value, (int)):
             self._value_ = value
         else:
-            self._sim_.print("Error: " + str(value) + " is not integer, " + self.info())
+            msg = self._get_error_header_()+f"{str(value)} is not integer."
+            self._sim_.print(msg)
 
     def info(self):
         return self.key + ": " + str(self.value) + " [" + self._unit_ + "]"
 
     def check(self):
         if self.value < self._min_ or self.value > self._max_:
-            return [f"Error: {self.value} is not at [{self._min_},{self._max_}]"]
+            msg = self._get_error_header_()+f"{self.value} is not at [{self._min_},{self._max_}]"
+            return [msg]
         else:
             return []
 
@@ -180,13 +187,15 @@ class Parameter_int_list(Parameter):
                     integers.append(int(n))
                 self._value_ = integers
         except ValueError as error:
-            self._sim_.print("Error: " + str(error) + ", " + self.info())
+            msg = self._get_error_header_()+f"{str(error)}"
+            self._sim_.print(msg)
 
     def check(self):
         errors = []
         for n in self.value:
             if n < self._min_ or n > self._max_:
-                errors.append(f"Error: {n} is not at [{self._min_},{self._max_}]")
+                msg = self._get_error_header_()+f"{n} is not at [{self._min_},{self._max_}]"
+                errors.append(msg)
         return errors
 
     def info(self):
@@ -209,11 +218,13 @@ class Parameter_float(Parameter_int):
         try:
             self._value_ = float(value)
         except ValueError as error:
-            self._sim_.print("Error: " + str(error) + ", ", self.info())
+            msg = self._get_error_header_()+f"{str(error)}"
+            self._sim_.print(msg)
 
     def check(self):
         if self.value < self._min_ or self.value > self._max_:
-            return [f"Error: {self.value} is not at [{self._min_},{self._max_}]"]
+            msg = self._get_error_header_()+f"{self.value} is not at [{self._min_},{self._max_}]"
+            return [msg]
         else:
             return []
 
@@ -237,13 +248,15 @@ class Parameter_float_list(Parameter_int_list):
                     flotante.append(float(n))
             self._value_ = flotante
         except ValueError as error:
-            self._sim_.print("Error: " + str(error) + ", " + self.info())
+            msg = self._get_error_header_()+f"{str(error)}"
+            self._sim_.print(msg)
 
     def check(self):
         errors = []
         for n in self.value:
             if n < self._min_ or n > self._max_:
-                errors.append(f"Error: {n} is not at [{self._min_},{self._max_}]")
+                msg = self._get_error_header_()+f"{n} is not at [{self._min_},{self._max_}]"
+                errors.append(msg)
         return errors
 
 
@@ -270,7 +283,8 @@ class Parameter_options(Parameter):
 
     def check(self):
         if self.value not in self.options:
-            return [f"Error: {self.value} is not in options."]
+            msg = self._get_error_header_()+f"{self.value} is not in options."
+            return [msg]
         else:
             return []
 
@@ -302,7 +316,8 @@ class Parameter_options_list(Parameter):
         errors = []
         for el in self.value:
             if el not in self.options:
-                errors.append(f"Error: {el} is not in options.")
+                msg = self._get_error_header_()+f"{el} is not in options."
+                errors.append(msg)
         return errors
 
 
@@ -352,11 +367,11 @@ class Parameter_component(Parameter):
         comp = self.component
         if len(self.allowed_types) > 0 and self.value != "not_defined":
             if type(comp).__name__ not in self.allowed_types:
-                errors.append(
-                    f"Error: {self.value} component is not one of the allowed types."
-                )
+                msg = self._get_error_header_()+f"{self.value} component is not of one of the allowed types."
+                errors.append(msg)
         if comp == None and self.value != "not_defined":
-            errors.append(f"Error: {self.value} component not found.")
+            msg = self._get_error_header_() + f"{self.value} component not found."
+            errors.append(msg)
         return errors
 
 
@@ -414,9 +429,9 @@ class Parameter_component_list(Parameter):
         for i in range(len(comps)):
             if len(self.allowed_types) > 0 and self.value[i] != "not_defined":
                 if type(comps[i]).__name__ not in self.allowed_types:
-                    errors.append(
-                        f"Error: {self.value[i]} component is not one of the allowed types."
-                    )
+                    msg = self._get_error_header_()+f"{self.value[i]} component is not of one of the allowed types."
+                    errors.append(msg)
             if comps[i] == None and self.value[i] != "not_defined":
-                errors.append(f"Error: {self.value[i]} component not found.")
+                msg = self._get_error_header_() + f"{self.value[i]} component not found."
+                errors.append(msg)
         return errors

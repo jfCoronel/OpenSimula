@@ -15,9 +15,8 @@ class Construction(Component):
         self.parameter("type").value = "Construction"
         self.parameter("name").value = "Construction_x"
         self.parameter("description").value = "Construction using layers of material"
-        self.add_parameter(
-            Parameter_float_list("solar_absortivity", [0.8, 0.8], "frac", min=0, max=1)
-        )
+
+        self.add_parameter(Parameter_float_list("solar_absortivity", [0.8, 0.8], "frac", min=0, max=1))
         self.add_parameter(Parameter_component_list("materials"))
         self.add_parameter(Parameter_float_list("thicknesses", [], "m", min=0))
         self.add_parameter(
@@ -35,7 +34,6 @@ class Construction(Component):
             errors.append(
                 f"Error: {self.parameter('name').value}, material and thicknesses parameters must have same length"
             )
-
         return errors
 
     ### Functions for Transfer Function Calculation

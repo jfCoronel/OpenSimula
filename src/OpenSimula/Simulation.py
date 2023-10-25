@@ -1,15 +1,13 @@
 class Simulation:
     """Simulation environment object for handling projects and print messages"""
 
-    version = "0.0.1"
-
     def __init__(self):
         self._projects_ = []
         self.console_print = True
         self._messages_ = []
         self._new_line_ = True
 
-    def add_project(self, project):
+    def _add_project_(self, project):
         """Add project to Simulation
 
         Args:
