@@ -69,18 +69,35 @@ pro.parameter("n_time_steps").value = 24*4*7
 pro.parameter("initial_time").value = "01/06/2001 00:00:00"
 </code></pre>
 
+Project and component parameters can be changed one by one or in bulk using a dictionary and the `set_parameter(dictonaty)` function.
+
+<pre><code class="python">
+import OpenSimula as osm
+
+sim = osm.Simulation()
+pro = osm.Project("Project one",sim)
+param = {
+    "description": "Project example",
+    "time_step": 60*15,
+    "n_time_steps": 24*4*7,
+    "initial_time": "01/06/2001 00:00:00"
+}
+pro.set_parameters(param)
+</code></pre>
+
 #### Project functions
 
-- **simulation()**: Returns de simulation enviroment.
-- **del_component(comp)**: Deletes the "comp" component.
-- **component(name)**: Returns the component with name parameter "name". Returns "None" if not found.
-- **component_list()**: Returns the list of components of the project.
-- **read_dic(dict)**: Read python dictonary "dict" with the parameters of the project and a list of component to create. See [Getting started](getting_started.md) for definition dictonary example. After reading the dictonary check() function is executed.
-- **read_json(file)**: Read json file to define the project. Json file must have the format used for dictionaries in the read_dic function. After reading the file check() function is executed.
-- **component_dataframe()**: Returns pandas DataFrame with the components of the project.
-- **check()**: Returns the list of errors after checking all the components. All the errors returned are also printed.
-- **simulate()**: Perform the time simulation of the project, calculating all the varibles of the components
-- **dates_array()**: Returns numpy array with the date of each simulation instant.
+- **simulation ()**: Returns de simulation enviroment.
+- **set_parameters (dict)**: Change project parameters using python dictonary.
+- **del_component (comp)**: Deletes the "comp" component.
+- **component (name)**: Returns the component with name parameter "name". Returns "None" if not found.
+- **component_list ()**: Returns the list of components of the project.
+- **read_dic (dict)**: Read python dictonary "dict" with the parameters of the project and a list of component to create. See [Getting started](getting_started.md) for definition dictonary example. After reading the dictonary check() function is executed.
+- **read_json (file)**: Read json file to define the project. Json file must have the format used for dictionaries in the read_dic function. After reading the file check() function is executed.
+- **component_dataframe ()**: Returns pandas DataFrame with the components of the project.
+- **check ()**: Returns the list of errors after checking all the components. All the errors returned are also printed.
+- **simulate ()**: Perform the time simulation of the project, calculating all the varibles of the components
+- **dates_array ()**: Returns numpy array with the date of each simulation instant.
 
 ## Components
 
@@ -92,19 +109,31 @@ As an example, we will see how to create three different types of components and
 ...
 
 working_day = osm.components.Day_schedule("working_day",pro)
-working_day.parameter("time_steps").value = [8*3600, 5*3600, 2*3600, 4*3600]
-working_day.parameter("values").value = [0, 100, 0, 80, 0]
+param = {
+    "time_steps": [8*3600, 5*3600, 2*3600, 4*3600],
+    "values": [0, 100, 0, 80, 0]
+}
+working_day.set_parameters(param)
 
 holiday_day = osm.components.Day_schedule("holiday_day",pro)
-holiday_day.parameter("time_steps").value = []
-holiday_day.parameter("values").value = [0]
+param = {
+    "time_steps": [],
+    "values": [0]
+}
+holiday_day.set_parameters(param)
 
 week = osm.components.Week_schedule("week",pro)
-week.parameter("days_schedules").value = ["working_day","working_day","working_day","working_day","working_day","holiday_day","holiday_day"]
+param = {
+    "days_schedules": ["working_day","working_day","working_day","working_day","working_day","holiday_day","holiday_day"]
+}
+week.set_parameters(param)
 
 year = osm.components.Year_schedule("year",pro)
-year.parameter("periods").value = []
-year.parameter("weeks_schedules").value = ["week"]
+param = {
+    "periods": [],
+    "weeks_schedules": ["week"]
+}
+year.set_parameters(param)
 </code></pre>
 
 To create the components we use the objects included in the OpenSimula.components package. For example, to create a Day_schedule we will use `osm.components.Day_schedule("name", pro)`. Where the first argument is the name of the component and the second the project where we want to create it.
