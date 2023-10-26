@@ -156,7 +156,7 @@ muro_1C_ligero = {
 
 
 sim = osm.Simulation()
-pro = osm.Project(sim)
+pro = osm.Project("pro",sim)
 pro.read_dict(muro_1C_pesado)
 pro.simulate()
 q_in, q_out = pro.component("Muro pesado").get_T_step_fluxes()

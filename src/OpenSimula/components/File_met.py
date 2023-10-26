@@ -6,10 +6,9 @@ from OpenSimula.Component import Component
 
 
 class File_met(Component):
-    def __init__(self, project):
-        Component.__init__(self, project)
+    def __init__(self, name, project):
+        Component.__init__(self, name, project)
         self.parameter("type").value = "File_met"
-        self.parameter("name").value = "File_met_x"
         self.parameter("description").value = "Meteo file in met format"
         self.add_parameter(Parameter_string("file_name", "name.met"))
         # Las variables leidas las guardamos en numpy arrays

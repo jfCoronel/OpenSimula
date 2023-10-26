@@ -4,10 +4,9 @@ from OpenSimula.Variable import Variable
 
 
 class Wall(Component):
-    def __init__(self, project):
-        Component.__init__(self, project)
+    def __init__(self, name, project):
+        Component.__init__(self, name, project)
         self.parameter("type").value = "Wall"
-        self.parameter("name").value = "Wall_x"
         self.parameter("description").value = "enclosure of the building's spaces"
 
         self.add_parameter(Parameter_component("construction", ""))

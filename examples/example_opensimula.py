@@ -78,11 +78,11 @@ proyecto_json = {
 
 
 sim = osm.Simulation()
-bdd = osm.Project(sim)
+bdd = osm.Project("bdd",sim)
 # bdd.read_json("test/examples/bdd_project.json")
 bdd.read_dict(bdd_json)
 
-proyecto = osm.Project(sim)
+proyecto = osm.Project("proyecto",sim)
 # proyecto.read_json("test/examples/example_project.json")
 proyecto.read_dict(proyecto_json)
 proyecto.simulate()

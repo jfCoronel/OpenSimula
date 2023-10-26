@@ -5,10 +5,9 @@ from OpenSimula.Variable import Variable
 
 
 class File_data(Component):
-    def __init__(self, project):
-        Component.__init__(self, project)
+    def __init__(self, name, project):
+        Component.__init__(self, name, project)
         self.parameter("type").value = "File_data"
-        self.parameter("name").value = "File_data_x"
         self.parameter("description").value = "Data file with varables"
         self.add_parameter(Parameter_string("file_name", "data.csv"))
         self.add_parameter(Parameter_options("file_type", "CSV", ["CSV", "EXCEL"]))

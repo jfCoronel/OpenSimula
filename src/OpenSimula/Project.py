@@ -15,14 +15,14 @@ class Project(Parameter_container):
     - Contains parameters for its definition
     """
 
-    def __init__(self, sim):
+    def __init__(self, name, sim):
         """Create new project
 
         Args:
             sim (Simulation): parent Simulation environment
         """
         Parameter_container.__init__(self, sim)
-        self.parameter("name").value = "Project_X"
+        self.parameter("name").value = name
         self.parameter("description").value = "Description of the project"
         self.add_parameter(Parameter_int("time_step", 3600, "s", min=1))
         self.add_parameter(Parameter_int("n_time_steps", 8760, min=1))
@@ -44,7 +44,7 @@ class Project(Parameter_container):
         sim._add_project_(self)
         self._components_ = []
 
-    def add_component(self, component):
+    def _add_component_(self, component):
         """Add component to Project
 
         Args:
@@ -101,11 +101,10 @@ class Project(Parameter_container):
         data = pd.DataFrame({"name": names, "type": types, "description": descriptions})
         return data
 
-    def new_component(self, type):
+    def _new_component_(self, type, name):
         try:
             clase = globals()[type]
-            comp = clase(self)
-            self.add_component(comp)
+            comp = clase(name, self)
             return comp
         except KeyError:
             return None
@@ -118,7 +117,10 @@ class Project(Parameter_container):
             if key == "components":  # Lista de componentes
                 for component in value:
                     if "type" in component:
-                        comp = self.new_component(component["type"])
+                        name = component["type"]+"_X"
+                        if "name" in component:
+                            name = component["name"]
+                        comp = self._new_component_(component["type"], name)
                         if comp == None:
                             msg = self._get_error_header_() + f'Component type {component["type"]} does not exist.'
                             self._sim_.print(msg)
@@ -286,46 +288,48 @@ class Project(Parameter_container):
         delta_t = self.parameter("time_step").value
 
         self._set_ordered_component_list_()
-        self.pre_simulation(n,delta_t)
+        self._pre_simulation_(n,delta_t)
 
         self._sim_.print(
             f"Simulating {self.parameter('name').value}: ", add_new_line=False
         )
 
-        for i in range(n):
-            if (10.0 * (i + 1) / n).is_integer():
-                self._sim_.print(str(int(100 * (i + 1) / n)) + "% ", add_new_line=False)
-            self.pre_iteration(i, date)
+        show_percent = 10.0
+        for i in range(n):    
+            if ((100.0*(i+1)/ n) >= show_percent):
+                self._sim_.print(str(int(show_percent)) + "% ", add_new_line=False)
+                show_percent = show_percent + 10.0
+            self._pre_iteration_(i, date)
             converge = False
             while not converge:
-                if self.iteration(i, date):
+                if self._iteration_(i, date):
                     converge = True
-            self.post_iteration(i, date)
+            self._post_iteration_(i, date)
             date = date + dt.timedelta(0, delta_t)
 
         self._sim_.print(" End")
-        self.post_simulation()
+        self._post_simulation_()
 
-    def pre_simulation(self, n_time_steps, delta_t):
+    def _pre_simulation_(self, n_time_steps, delta_t):
         for comp in self._ordered_component_list_:
             comp.pre_simulation(n_time_steps, delta_t)
 
-    def post_simulation(self):
+    def _post_simulation_(self):
         for comp in self._ordered_component_list_:
             comp.post_simulation()
 
-    def pre_iteration(self, time_index, date):
+    def _pre_iteration_(self, time_index, date):
         for comp in self._ordered_component_list_:
             comp.pre_iteration(time_index, date)
 
-    def iteration(self, time_index, date):
+    def _iteration_(self, time_index, date):
         converge = True
         for comp in self._ordered_component_list_:
             if not comp.iteration(time_index, date):
                 converge = False
         return converge
 
-    def post_iteration(self, time_index, date):
+    def _post_iteration_(self, time_index, date):
         for comp in self._ordered_component_list_:
             comp.post_iteration(time_index, date)
 
@@ -345,6 +349,8 @@ class Project(Parameter_container):
 
     def _repr_html_(self):
         html = f"<h3>Project: {self.parameter('name').value}</h3><p>{self.parameter('description').value}</p>"
-        html += "<strong>Components list:</strong>"
+        html += "<strong>Parameters:</strong>"
+        html += self.parameter_dataframe().to_html()
+        html += "<br/><strong>Components list:</strong>"
         html += self.component_dataframe().to_html()
         return html

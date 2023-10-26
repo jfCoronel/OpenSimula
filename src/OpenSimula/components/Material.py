@@ -3,10 +3,9 @@ from OpenSimula.Component import Component
 
 
 class Material(Component):
-    def __init__(self, project):
-        Component.__init__(self, project)
+    def __init__(self, name, project):
+        Component.__init__(self, name, project)
         self.parameter("type").value = "Material"
-        self.parameter("name").value = "Material_x"
         self.parameter("description").value = "Material layer properties"
         self.add_parameter(Parameter_float("conductivity", 1, "W/(m·K)", min=0))
         self.add_parameter(Parameter_float("density", 1000, "kg/m³", min=0))

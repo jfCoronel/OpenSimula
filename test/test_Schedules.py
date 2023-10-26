@@ -49,7 +49,7 @@ project_dic = {
 
 def test_schedule_step():
     sim = osm.Simulation()
-    p1 = osm.Project(sim)
+    p1 = osm.Project("p1",sim)
     p1.read_dict(project_dic)
     p1.simulate()
 
@@ -59,7 +59,7 @@ def test_schedule_step():
 
 def test_schedule_linear():
     sim = osm.Simulation()
-    p1 = osm.Project(sim)
+    p1 = osm.Project("p1",sim)
     p1.read_dict(project_dic)
     p1.component("working_day").parameter("interpolation").value = "LINEAR"
     p1.simulate()

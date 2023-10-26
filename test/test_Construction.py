@@ -93,6 +93,6 @@ multilayer_wall = {
 
 def test_light_wall():
     sim = osm.Simulation()
-    pro = osm.Project(sim)
+    pro = osm.Project("pro",sim)
     pro.read_dict(light_wall)
     pro.simulate()

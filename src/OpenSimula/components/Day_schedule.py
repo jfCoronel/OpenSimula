@@ -8,10 +8,9 @@ from OpenSimula.Component import Component
 
 
 class Day_schedule(Component):
-    def __init__(self, project):
-        Component.__init__(self, project)
+    def __init__(self, name, project):
+        Component.__init__(self, name, project)
         self.parameter("type").value = "Day_schedule"
-        self.parameter("name").value = "day_schedule_x"
         self.parameter("description").value = "Time schedule for a day"
         self.add_parameter(Parameter_int_list("time_steps", [3600], "s", min=1))
         self.add_parameter(Parameter_float_list("values", [0, 10]))

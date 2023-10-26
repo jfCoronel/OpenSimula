@@ -4,10 +4,9 @@ from OpenSimula.Variable import Variable
 
 
 class Space_type(Component):
-    def __init__(self, project):
-        Component.__init__(self, project)
+    def __init__(self, name, project):
+        Component.__init__(self, name, project)
         self.parameter("type").value = "Space_type"
-        self.parameter("name").value = "Space_type_x"
         self.parameter("description").value = "Type of space, internal gains definition"
         self.add_parameter(Parameter_float("people_density", 10, "m²/p", min=0.01))
         self.add_parameter(Parameter_float("people_sensible", 70, "W/p", min=0))

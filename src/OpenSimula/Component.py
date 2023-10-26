@@ -6,12 +6,13 @@ from OpenSimula.Parameters import Parameter_string
 class Component(Parameter_container):
     """Base Class for all the components"""
 
-    def __init__(self, proj):
+    def __init__(self, name, proj):
         Parameter_container.__init__(self, proj._sim_)
         self._variables_ = {}
         self.add_parameter(Parameter_string("type", "Component"))
-        self.parameter("name").value = "Component_X"
+        self.parameter("name").value = name
         self.parameter("description").value = "Description of the component"
+        proj._add_component_(self)
         self._project_ = proj
 
     def project(self):
@@ -103,3 +104,13 @@ class Component(Parameter_container):
 
     def post_iteration(self, time_index, date):
         pass
+
+    def _repr_html_(self):
+        html = f"<h3>Component: {self.parameter('name').value}</h3><p>{self.parameter('description').value}</p>"
+        html += "<strong>Parameters:</strong>"
+        html += self.parameter_dataframe().to_html()
+        if (len(self._variables_)>0):
+            html += "<br/><strong>Variables:</strong>"
+            html += self.variable_dataframe().head(10).to_html()
+        return html
+

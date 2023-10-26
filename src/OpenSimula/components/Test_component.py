@@ -19,10 +19,9 @@ from OpenSimula.Variable import Variable
 class Test_component(Component):
     """Component for development testing"""
 
-    def __init__(self, project):
-        Component.__init__(self, project)
+    def __init__(self, name, project):
+        Component.__init__(self, name, project)
         self.parameter("type").value = "Test_component"
-        self.parameter("name").value = "Test_component_x"
         self.parameter("description").value = "Dummy component for testing"
 
         self.add_parameter(Parameter_boolean("boolean", False))

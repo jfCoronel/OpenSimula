@@ -6,10 +6,9 @@ from OpenSimula.Variable import Variable
 
 
 class Outdoor(Component):
-    def __init__(self, project):
-        Component.__init__(self, project)
+    def __init__(self, name, project):
+        Component.__init__(self, name, project)
         self.parameter("type").value = "Outdoor"
-        self.parameter("name").value = "Outdoor_x"
         self.parameter("description").value = "Outdoor zone from a meteorological file"
         self.add_parameter(Parameter_component("meteo_file", "not_defined"))
         self._meteo_file_ = None

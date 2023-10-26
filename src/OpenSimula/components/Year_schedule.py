@@ -6,10 +6,9 @@ from OpenSimula.Variable import Variable
 
 
 class Year_schedule(Component):
-    def __init__(self, project):
-        Component.__init__(self, project)
+    def __init__(self, name, project):
+        Component.__init__(self, name, project)
         self.parameter("type").value = "Year_schedule"
-        self.parameter("name").value = "year_schedule_x"
         self.parameter("description").value = "Time schedule for a year"
         self.add_parameter(Parameter_string_list("periods", ["01/06"]))
         self.add_parameter(

@@ -17,7 +17,7 @@ project_dic = {
 
 def test_File_data_CSV():
     sim = osm.Simulation()
-    p1 = osm.Project(sim)
+    p1 = osm.Project("p1",sim)
     p1.read_dict(project_dic)
     p1.simulate()
     t = p1.component("datas").variable("temperature").array
@@ -29,7 +29,7 @@ def test_File_data_CSV():
 
 def test_File_data_EXCEL():
     sim = osm.Simulation()
-    p1 = osm.Project(sim)
+    p1 = osm.Project("p1",sim)
     p1.read_dict(project_dic)
     p1.component("datas").parameter("file_type").value = "EXCEL"
     p1.component("datas").parameter(
