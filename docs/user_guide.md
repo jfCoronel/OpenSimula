@@ -4,7 +4,7 @@ In this guide you will find information on how to use OpenSimula from an environ
 
 The best environment to start using OpenSimula is with [Jupyter notebooks](https://jupyter.org/) or [Google Colab](https://colab.research.google.com/).
 
-### Instalation
+### Installation
 
     pip install opensimula
 
@@ -37,7 +37,7 @@ pro = osm.Project("Project 1",sim)
 
 ### Projects
 
-Projects are objects that contain a set of components that define a case that can be temporarily simulated.
+Projects contain a set of components defining a case that can be temporarily simulated.
 
 #### Project parameters
 
@@ -151,7 +151,7 @@ pro.check()
 pro.simulate()
 </code></pre>
 
-Python shell:
+Python shell output:
 
 <pre><code class="shell">
 Checking project: Project one
@@ -159,9 +159,9 @@ ok
 Simulating Project one: 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%  End
 </code></pre>
 
-The list of parameters and components of a project can be obtained in pandas DataFrame format using the project functions `parameter_dataframe()` and `component_dataframe()`. For the components we can get parameters and variables list with  `parameter_dataframe()` and `variable_dataframe()`.
+The list of parameters and components of a project can be obtained in pandas DataFrame format using the project functions `parameter_dataframe()` and `component_dataframe()`. For the components we can get parameters and variables dataframes with  `parameter_dataframe()` and `variable_dataframe()`.
 
-With Jupyter notebooks or Google Collab, projects show the parameter and component dataframe, and components show parameter and variable dataframe, as shown in the next example:
+With Jupyter notebooks or Google Collab, writing the python variable of a project the parameter and component dataframe will be shown, and writing one component python variable parameter and variable dataframe will be shown. Next example shows the parameter and component dataframes of our project:
 
 <pre><code class="python">
 ...

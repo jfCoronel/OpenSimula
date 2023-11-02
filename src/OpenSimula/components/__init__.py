@@ -2,7 +2,6 @@ from OpenSimula.components.Material import Material
 from OpenSimula.components.Construction import Construction
 from OpenSimula.components.Test_component import Test_component
 from OpenSimula.components.File_met import File_met
-from OpenSimula.components.Outdoor import Outdoor
 from OpenSimula.components.Space import Space
 from OpenSimula.components.Wall import Wall
 from OpenSimula.components.File_data import File_data

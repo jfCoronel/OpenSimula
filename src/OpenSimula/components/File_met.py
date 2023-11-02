@@ -3,6 +3,7 @@ import datetime as dt
 import math
 from OpenSimula.Parameters import Parameter_string
 from OpenSimula.Component import Component
+from OpenSimula.Variable import Variable
 
 
 class File_met(Component):
@@ -55,13 +56,41 @@ class File_met(Component):
                 self.sol_azimut[t] = float(valores[11])
                 self.sol_cenit[t] = float(valores[12])
         return errors
+    
+    def pre_simulation(self, n_time_steps, delta_t):
+        self.del_all_variables()
+        self.add_variable(Variable("sol_hour", n_time_steps, unit="h"))
+        self.add_variable(Variable("temperature", n_time_steps, unit="°C"))
+        self.add_variable(Variable("sky_temperature", n_time_steps, unit="°C"))
+        self.add_variable(Variable("rel_humidity", n_time_steps, unit="%"))
+        self.add_variable(Variable("sol_direct", n_time_steps, unit="W/m²"))
+        self.add_variable(Variable("sol_diffuse", n_time_steps, unit="W/m²"))
+        self.add_variable(Variable("wind_speed", n_time_steps, unit="m/s"))
+        self.add_variable(Variable("wind_direction", n_time_steps, unit="°"))
+        self.add_variable(Variable("sol_azimut", n_time_steps, unit="°"))
+        self.add_variable(Variable("sol_altitude", n_time_steps, unit="°"))
+        
 
-    def get_instant_values(self, datetime):
-        """Dictonary with all the meteo values for the datatime"""
-        assert isinstance(datetime, dt.datetime)
-        # calcular al índice
+
+    def pre_iteration(self, time_index, date):
+        solar_hour = self._solar_hour_(date)
+        self.variable("sol_hour").array[time_index] = solar_hour
+        i, j, f = self._get_interpolation_tuple_(date, solar_hour)
+        self.variable("temperature").array[time_index] = self.temperature[i] * (1 - f) + self.temperature[j] * f
+        self.variable("sky_temperature").array[time_index] = self.sky_temperature[i] * (1 - f) + self.sky_temperature[j] * f
+        self.variable("rel_humidity").array[time_index] = self.rel_humidity[i] * (1 - f) + self.rel_humidity[j] * f
+        self.variable("sol_direct").array[time_index] = self.sol_direct[i] * (1 - f) + self.sol_direct[j] * f
+        self.variable("sol_diffuse").array[time_index] = self.sol_diffuse[i] * (1 - f) + self.sol_diffuse[j] * f
+        self.variable("wind_speed").array[time_index] = self.wind_speed[i] * (1 - f) + self.wind_speed[j] * f
+        self.variable("wind_direction").array[time_index] = self.wind_direction[i] * (1 - f) + self.wind_direction[j] * f
+        azi, alt = self.solar_pos(date,solar_hour)
+        self.variable("sol_azimut").array[time_index] = azi
+        self.variable("sol_altitude").array[time_index] = alt
+
+    def _get_interpolation_tuple_(self, datetime, solar_hour):
+        day = datetime.timetuple().tm_yday  # Día del año
         # El primer valor es a las 00:30
-        index = self._solar_hour_(datetime) - 0.5
+        index = solar_hour + (day-1)*24 - 0.5
         if index < 0:
             index = index + 8760
         elif index >= 8760:
@@ -71,38 +100,17 @@ class File_met(Component):
         if j >= 8760:
             j = 0
         f = index - i
-        temperature = self.temperature[i] * (1 - f) + self.temperature[j] * f
-        sky_temperature = (
-            self.sky_temperature[i] * (1 - f) + self.sky_temperature[j] * f
-        )
-        sol_direct = self.sol_direct[i] * (1 - f) + self.sol_direct[j] * f
-        sol_diffuse = self.sol_diffuse[i] * (1 - f) + self.sol_diffuse[j] * f
-        abs_humidity = self.abs_humidity[i] * (1 - f) + self.abs_humidity[j] * f
-        rel_humidity = self.rel_humidity[i] * (1 - f) + self.rel_humidity[j] * f
-        wind_speed = self.wind_speed[i] * (1 - f) + self.wind_speed[j] * f
-        wind_direction = self.wind_direction[i] * (1 - f) + self.wind_direction[j] * f
-        sol_azimut = self.sol_azimut[i] * (1 - f) + self.sol_azimut[j] * f
-        sol_cenit = self.sol_cenit[i] * (1 - f) + self.sol_cenit[j] * f
-        return {
-            "temperature": temperature,
-            "sky_temperature": sky_temperature,
-            "sol_direct": sol_direct,
-            "sol_diffuse": sol_diffuse,
-            "abs_humidity": abs_humidity,
-            "rel_humidity": rel_humidity,
-            "wind_speed": wind_speed,
-            "wind_direction": wind_direction,
-            "sol_azimut": sol_azimut,
-            "sol_cenit": sol_cenit,
-        }
-
-    def _solar_hour_(self, datetime):  # Hora solar desde el principio del año
+        return (i, j, f)
+    
+    def _solar_hour_(self, datetime):  # Hora solar
         day = datetime.timetuple().tm_yday  # Día del año
-        hours = (day - 1) * 24
-        hours += datetime.hour + datetime.minute / 60 + datetime.second / 3600
+        hours = (
+            datetime.hour + datetime.minute / 60 + datetime.second / 3600
+        )  # hora local
 
         daylight_saving = (
             hours
+            + (day - 1) * 24
             - (datetime.timestamp() - dt.datetime(datetime.year, 1, 1).timestamp())
             / 3600
         )
@@ -118,3 +126,91 @@ class File_met(Component):
         longitude_correction = (self.reference_time_longitude - self.longitude) * 1 / 15
         hours += ecuacion_tiempo / 60 - daylight_saving - longitude_correction
         return hours
+
+    
+    def solar_pos(self, datetime, solar_hour):
+        """Solar position
+
+        Args:
+            datetime (datetime): local time
+
+        Returns:
+            (number, number): (solar azimut, solar altitude)
+        """
+        sunrise, sunset = self.sunrise_sunset(datetime)
+        if solar_hour < sunrise or solar_hour > sunset:
+            return (0.0, 0.0)
+        else:
+            cs, cw, cz = self._solar_pos_cos_(datetime,solar_hour)
+            alt = math.atan(cz / math.sqrt(1.0 - cz**2))
+            aux = cw / math.cos(alt)
+            azi = 0.0
+            if aux == -1.0:  # justo Este
+                azi = -math.pi / 2
+            elif aux == 1.0:  # justo Oeste
+                azi = math.pi / 2
+            else:
+                azi = math.atan(aux / math.sqrt(1 - aux**2))
+                if azi < 0:
+                    if cs < 0:
+                        azi = -math.pi - azi
+                else:
+                    if cs < 0:
+                        azi = math.pi - azi
+            return (azi * 180 / math.pi, alt * 180 / math.pi)
+
+    def _solar_pos_cos_(self, datetime, solar_hour):
+        """Solar position cosines
+
+        Args:
+            datetime (datetime): local time
+
+        Returns:
+            (number, number, number): (cos south, cost west, cos z)
+        """
+        
+        day = datetime.timetuple().tm_yday  # Día del año
+        declina = math.radians(23.45 * math.sin(2 * math.pi * (284 + day) / 365))
+        solar_angle = math.radians(15 * (solar_hour - 12))
+        lat_radians = math.radians(self.latitude)
+
+        cz = math.sin(lat_radians) * math.sin(declina) + math.cos(lat_radians) * math.cos(declina) * math.cos(solar_angle)
+        cw = math.cos(declina) * math.sin(solar_angle)
+        aux = 1.0 - cw**2 - cz**2
+        if aux > 0:
+            cs = math.sqrt(aux)
+        else:
+            cs = 0
+
+        bbb = math.tan(declina) / math.tan(lat_radians)
+        if math.cos(solar_angle) < bbb:
+            cs = -cs
+        return (cs, cw, cz)
+
+    def sunrise_sunset(self, datetime):
+        """Sunrise and sunset solar hour
+
+        Args:
+            datetime (datetime): Local hour
+
+        Returns:
+            (number, number): (sunrise, sunset)
+        """
+        day = datetime.timetuple().tm_yday  # Día del año
+        declina = 23.45 * math.sin(2 * math.pi * (284 + day) / 365)
+        solar_angle_cos = -math.tan(math.radians(self.latitude)) * math.tan(
+            math.radians(declina)
+        )
+        if solar_angle_cos <= -1:  # Sun allways out
+            return (0.0, 24.0)
+        elif solar_angle_cos >= 1:  # Allways night
+            return (0.0, 0.0)
+        else:
+            solar_angle = math.acos(solar_angle_cos)
+            if solar_angle < 0:
+                solar_angle += math.pi
+            return (
+                (12 - (12 * solar_angle) / math.pi),
+                (12 + (12 * solar_angle) / math.pi),
+            )
+
