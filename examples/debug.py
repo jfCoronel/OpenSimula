@@ -1,16 +1,21 @@
 import OpenSimula as oms
 
 project_dic = {
-    "name": "Project_test_met",
+    "name": "Test project",
     "time_step": 3600,
     "n_time_steps": 8760,
-    "initial_time": "01/01/2001 00:00:00",
     "components": [
-        {"type": "File_met", "name": "sevilla", "file_name": "examples/met_files/sevilla.met"},
-        
-    ]
+        {
+            "type": "File_data",
+            "name": "datas",
+            "file_type": "CSV",
+            "file_name": "examples/input_files/data_example.csv",
+            "file_step": "OWN",
+            "initial_time": "01/01/2001 00:00:00",
+            "time_step":3600
+        }
+    ],
 }
-
 
 sim = oms.Simulation()
 proyecto = oms.Project("proyecto",sim)
