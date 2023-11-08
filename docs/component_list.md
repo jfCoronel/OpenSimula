@@ -144,5 +144,70 @@ datas.set_parameters(param)
 
 
 #### Variables
+The component will generate a variable for each of the columns of the data file, 
+using as name and unit for the variable the first row of the file. 
+The unit must be written after the name in square brackets.
+
+For example for the following CSV file:
+
+<pre><code class="Shell">
+n, temperature [ºC], humidity [kg/kg as]
+ 1, 15.1, 0.00792
+ 2, 14.6, 0.00788
+ 3, 14.1, 0.00783
+ 4, 13.5, 0.00772
+ 5, 13.0, 0.00766
+...
+</code></pre>
+
+Three variables will be created with names: n, temperature and humidity. And with the units indicated in square brackets.
+
+
+### Material
+
+Component to describe the thermal characteristics of the materials used in the enclosures (Construction component).
+
+#### Parameters
+- **conductivity** [_float_, unit = "W/(n·K)", default = 1, min = 0]: Material thermal conductivity. 
+- **density** [_float_, unit = "kg/m³", default = 1000, min = 0.001]: Material Density.
+- **specific_heat** [_float_, unit = "J/(kg·K)", default = 1000, min = 0.001]: Material specific heat.
+- **use_resistance** [_boolean_, default = False]: If the value is "False", conductivity, density and specific heat will be used. For "True" value, thermal resistance, density and specific heat will be used. 
+- **thermal_resistance** [_float_, unit = "(m²·K)/W", default = 1, min = 0]: Thermal resistance of material layer.
+
+**Example:**
+<pre><code class="python">
+...
+
+material = osm.components.Material("concrete",project)
+param = {
+    "conductivity": 1.95,
+    "density": 2240,
+    "specific_heat": 900,
+}
+material.set_parameters(param)
+</code></pre>
+
+
+### Construction
+
+Component to describe the composition of the different layers (Material component) of an enclosure.
+
+#### Parameters
+- **solar_absortivity** [_float-list_, unit = "frac", default = [0.8,0.8], min = 0, max = 1]: Solar absortivity for de surfaces 1 and 2.
+- **materials** [[_component-list_, default = [], component type = Material]]: Materials list for each of the layers, defined from surface 1 to 2.
+- **thicknesses** [_float-list_, unit = "m", default = [], min = 0]: Thicknesses of each of the layers defined in the "materials" parameter. Must have the same number of elements as the "materials" parameter.
+
+**Example:**
+<pre><code class="python">
+...
+
+construction = osm.components.Construction("Multilayer wall",project)
+param = {
+    "solar_absortivity": [0.8, 0.8],
+    "materials": ["Gypsum board","EPS board","Heavyweight concrete","EPS board","Stucco"],
+    "thicknesses": [0.016, 0.076, 0.203, 0.076, 0.025],
+}
+construction.set_parameters(param)
+</code></pre>
 
 

@@ -1,7 +1,8 @@
 import OpenSimula as osm
+import pytest
 
-light_wall = {
-    "name": "Light wall project",
+project_dic = {
+    "name": "Constructions test",
     "time_step": 3600,
     "components": [
         {
@@ -12,41 +13,13 @@ light_wall = {
             "specific_heat": 1210,
         },
         {
-            "type": "Construction",
-            "name": "Light wall",
-            "solar_absortivity": [0.8, 0.8],
-            "materials": ["Light material"],
-            "thicknesses": [0.076],
-        },
-    ],
-}
-
-heavy_wall = {
-    "name": "Heavy wall project",
-    "time_step": 3600,
-    "components": [
-        {
             "type": "Material",
             "name": "Heavy material",
             "conductivity": 1.95,
             "density": 2240,
             "specific_heat": 900,
         },
-        {
-            "type": "Construction",
-            "name": "Heavy wall",
-            "solar_absortivity": [0.8, 0.8],
-            "materials": ["Heavy material"],
-            "thicknesses": [0.203],
-        },
-    ],
-}
-
-multilayer_wall = {
-    "name": "Multilayer wall project",
-    "time_step": 3600,
-    "components": [
-        {
+         {
             "type": "Material",
             "name": "Gypsum board",
             "conductivity": 0.16,
@@ -76,6 +49,20 @@ multilayer_wall = {
         },
         {
             "type": "Construction",
+            "name": "Light wall",
+            "solar_absortivity": [0.8, 0.8],
+            "materials": ["Light material"],
+            "thicknesses": [0.076],
+        },
+         {
+            "type": "Construction",
+            "name": "Heavy wall",
+            "solar_absortivity": [0.8, 0.8],
+            "materials": ["Heavy material"],
+            "thicknesses": [0.25],
+        },
+         {
+            "type": "Construction",
             "name": "Multilayer wall",
             "solar_absortivity": [0.8, 0.8],
             "materials": [
@@ -91,8 +78,55 @@ multilayer_wall = {
 }
 
 
-def test_light_wall():
+
+
+def test_walls_1h():
     sim = osm.Simulation()
-    pro = osm.Project("pro",sim)
-    pro.read_dict(light_wall)
+    pro = osm.Project("Constructions test",sim)
+    pro.read_dict(project_dic)
     pro.simulate()
+
+    wall = pro.component("Light wall")
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
+    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert wall.get_U() == pytest.approx(U, 0.00001)
+
+    wall = pro.component("Heavy wall")
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
+    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert wall.get_U() == pytest.approx(U, 0.00001)
+
+    wall = pro.component("Multilayer wall")
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
+    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert wall.get_U() == pytest.approx(U, 0.00001)
+
+def test_walls_15min():
+    sim = osm.Simulation()
+    pro = osm.Project("Constructions test",sim)
+    pro.read_dict(project_dic)
+    pro.parameter("time_step").value = 60*15
+    pro.simulate()
+
+    wall = pro.component("Light wall")
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
+    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert wall.get_U() == pytest.approx(U, 0.00001)
+
+    wall = pro.component("Heavy wall")
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
+    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert wall.get_U() == pytest.approx(U, 0.00001)
+
+    wall = pro.component("Multilayer wall")
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
+    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
+    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert wall.get_U() == pytest.approx(U, 0.00001)
+
+    

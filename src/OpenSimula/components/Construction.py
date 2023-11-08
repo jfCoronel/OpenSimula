@@ -16,20 +16,13 @@ class Construction(Component):
         self.parameter("description").value = "Construction using layers of material"
 
         self.add_parameter(Parameter_float_list("solar_absortivity", [0.8, 0.8], "frac", min=0, max=1))
-        self.add_parameter(Parameter_component_list("materials"))
+        self.add_parameter(Parameter_component_list("materials", [],"Material"))
         self.add_parameter(Parameter_float_list("thicknesses", [], "m", min=0))
-        self.add_parameter(
-            Parameter_options(
-                "position", "exterior", ["exterior", "interior", "ground"]
-            )
-        )
 
     def check(self):
         errors = super().check()
         # Test if materials an thicknesses size are equals
-        if len(self.parameter("materials").value) != len(
-            self.parameter("thicknesses").value
-        ):
+        if len(self.parameter("materials").value) != len(self.parameter("thicknesses").value):
             errors.append(
                 f"Error: {self.parameter('name').value}, material and thicknesses parameters must have same length"
             )
@@ -39,38 +32,43 @@ class Construction(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         self._calc_trans_fun_(delta_t)
-        #q_in, q_out = self.get_T_step_fluxes()
-        #print(q_in)
-        #print(q_out)
 
     def get_T_step_fluxes(self):
         n_q = len(self._coef_Q_)
         n_t = len(self._coef_T_[0])
-        Q_old_in = np.zeros(n_q)
-        Q_old_out = np.zeros(n_q)
+        Q_old_1 = np.zeros(n_q)
+        Q_old_2 = np.zeros(n_q)
         T_old = np.ones(n_t)
         #T_old[0] = 0
-        q_in = 1
-        Q_in = []
-        Q_out = []
-        while math.fabs(q_in) > 1e-15:
-            q_in = np.dot(
+        q_2 = 1
+        Q_2 = []
+        Q_1 = []
+        n = 0
+        while n <= 1 or math.fabs(q_2) > 1e-15:
+            q_2 = np.dot(
                 self._coef_T_[0] - self._coef_T_[1], T_old.transpose()
-            ) - np.dot(self._coef_Q_, Q_old_in.transpose())
-            q_out = np.dot(
+            ) - np.dot(self._coef_Q_, Q_old_2.transpose())
+            q_1 = np.dot(
                 self._coef_T_[1] - self._coef_T_[2], T_old.transpose()
-            ) - np.dot(self._coef_Q_, Q_old_out.transpose())
-            Q_in.append(q_in)
-            Q_out.append(q_out)
-            Q_old_in = np.roll(Q_old_in, 1)
-            Q_old_in[0] = 0
-            Q_old_in[1] = q_in
-            Q_old_out = np.roll(Q_old_out, 1)
-            Q_old_out[0] = 0
-            Q_old_out[1] = q_out
+            ) - np.dot(self._coef_Q_, Q_old_1.transpose())
+            Q_2.append(q_2)
+            Q_1.append(q_1)
+            Q_old_2 = np.roll(Q_old_2, 1)
+            Q_old_2[0] = 0
+            Q_old_2[1] = q_2
+            Q_old_1 = np.roll(Q_old_1, 1)
+            Q_old_1[0] = 0
+            Q_old_1[1] = q_1
             T_old = np.roll(T_old, 1)
             T_old[0] = 0
-        return (Q_in, Q_out)
+            n = n + 1
+        return (Q_1, Q_2)
+    
+    def get_U(self):
+        resis_tot = 0
+        for i in range(len(self.parameter("materials").value)):
+            resis_tot = resis_tot + self._resis_layer_(i)
+        return 1/resis_tot
 
     def _resis_layer_(self, layer):
         material = self.parameter("materials").component[layer]
@@ -231,8 +229,12 @@ class Construction(Component):
         # Cut d coefficients
         for i in range(len(d)):
             if math.fabs(d[i]) < min_coef:
-                d = d[0 : i + 1]
+                d = d[0 : i+1]
                 break
+        # Cut number of coeficients, se producen coeficientes extraños para muros ligeros a partir del n. de roots
+        a = np.resize(a,n_coef-1)
+        b = np.resize(b,n_coef-1)
+        c = np.resize(c,n_coef-1)
         # Cut a, b, c coefficients
         for i in range(len(a)):
             if (
@@ -240,9 +242,9 @@ class Construction(Component):
                 and math.fabs(b[i]) < min_coef
                 and math.fabs(c[i]) < min_coef
             ):
-                a = a[0 : i + 1]
-                b = b[0 : i + 1]
-                c = c[0 : i + 1]
+                a = a[0 : i+1]
+                b = b[0 : i+1]
+                c = c[0 : i+1]
                 break
         self._coef_T_ = np.array([a, b, c])
         #print(self._coef_T_)

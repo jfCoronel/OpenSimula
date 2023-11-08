@@ -90,15 +90,26 @@ class Project(Parameter_container):
         """
         return self._sim_
 
-    def component_dataframe(self):
-        names = []
-        types = []
-        descriptions = []
+    def component_dataframe(self, type = "all"):
+        data = pd.DataFrame()
+        type_components = []
         for comp in self._components_:
-            names.append(comp.parameter("name").value)
-            types.append(comp.parameter("type").value)
-            descriptions.append(comp.parameter("description").value)
-        data = pd.DataFrame({"name": names, "type": types, "description": descriptions})
+            if type == "all":
+                type_components.append(comp)
+            else:
+                if comp.parameter("type").value == type:
+                    type_components.append(comp)
+        if len(type_components) > 0:
+            parameters = ["name","type","description"]
+            if type != "all":
+                for key, par in type_components[0]._parameters_.items():
+                    if key != "name" and key != "type" and key != "description":
+                        parameters.append(key)
+            for param in parameters:
+                param_array = []
+                for comp in type_components:
+                    param_array.append(comp.parameter(param).value)
+                data[param] = param_array
         return data
 
     def _new_component_(self, type, name):
