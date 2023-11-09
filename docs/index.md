@@ -35,8 +35,10 @@ The parameters will be defined as Python dictionary keys (or json format files),
 - Parameter_options_list: List of character strings included in a closed option list, e.g.: `"day_types": ["MONDAY", "TUESDAY"]`.
 - Parameter_component: Reference to another component, e.g.: `"meteo_file": "Sevilla"`.
 - Parameter_component_list: List of references to another components, e.g.: `"materials": ["Cement mortar", "Hollow brick"]`.
+- Parameter_variable: This parameter is used to create a variable in the component by copying it from another component. A new name is defined and the unit will be taken from the original variable. e.g.: `"aux_variable": "t_1 = meteo.temperature"`, a variable called "t_1" will be created which is a copy of the variable "temperature" of the component "meteo".  
+- Parameter_variable_list: List of parameters used to copy a list of variables. e.g.: `"aux_variables": ["t_1 = meteo.temperature","hr = meteo.relative_humidity"]`.
 
-The Parameter_component and Parameter_component_list can refer to a component of the project itself, in that case it is only necessary to put the name of the component, or a component of another project. In this last case we must write "project_name->component_name". e.g. `"meteo_file": "Project 1->Sevilla"`.
+The Parameter_component, Parameter_variable, Parameter_component_list and Parameter_variable_list can refer to a component of the same project, in that case it is only necessary to put the name of the component, or a component of another project. In this last case we must write "project_name->component_name". e.g. `"meteo_file": "Project 1->Sevilla"`.
 
 
 ### Variables

@@ -21,7 +21,7 @@ def test_File_data_CSV():
     p1 = osm.Project("p1",sim)
     p1.read_dict(project_dic)
     p1.simulate()
-    t = p1.component("datas").variable("temperature").array
+    t = p1.component("datas").variable("temperature").values
 
     assert len(t) == 48
     assert t[0] == 15.1
@@ -37,7 +37,7 @@ def test_File_data_EXCEL():
         "file_name"
     ).value = "examples/input_files/data_example.xlsx"
     p1.simulate()
-    t = p1.component("datas").variable("temperature").array
+    t = p1.component("datas").variable("temperature").values
 
     assert len(t) == 48
     assert t[0] == 15.1
@@ -49,8 +49,7 @@ def test_File_data_CSV_2h():
     p1.read_dict(project_dic)
     p1.component("datas").set_parameters({"file_step":"OWN", "initial_time": "01/01/2001 00:00:00","time_step":7200}) 
     p1.simulate()
-    t = p1.component("datas").variable("temperature").array
-
+    t = p1.component("datas").variable("temperature").values
     assert len(t) == 48
     assert t[0] == 15.1
     assert t[1] == (14.6+15.1)/2
@@ -61,7 +60,7 @@ def test_File_data_CSV_05h():
     p1.read_dict(project_dic)
     p1.component("datas").set_parameters({"file_step":"OWN", "initial_time": "01/01/2001 00:00:00","time_step":1800}) 
     p1.simulate()
-    t = p1.component("datas").variable("temperature").array
+    t = p1.component("datas").variable("temperature").values
 
     assert len(t) == 48
     assert t[0] == 15.1

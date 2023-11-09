@@ -34,6 +34,10 @@ class File_data(Component):
                 self._df_ = pd.read_csv(self.parameter("file_name").value)
             elif self.parameter("file_type").value == "EXCEL":
                 self._df_ = pd.read_excel(self.parameter("file_name").value)
+            # Create Variable
+            for col in self._df_.columns:
+                self.add_variable(Variable(self._extract_name_(col),unit=self._extract_unit_(col)))
+
         except Exception as ex:
             if type(ex).__name__ == "FileNotFoundError":
                 errors.append(
@@ -46,17 +50,9 @@ class File_data(Component):
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
-        self.del_all_variables()
-        # Create Variable
+        super().pre_simulation(n_time_steps,delta_t)
+        
         self.data_array = self._df_.to_numpy()
-        for col in self._df_.columns:
-            self.add_variable(
-                Variable(
-                    self._extract_name_(col),
-                    n_time_steps,
-                    unit=self._extract_unit_(col),
-                )
-            )
 
         if self.parameter("file_step").value == "SIMULATION":
             i = 0
@@ -64,7 +60,7 @@ class File_data(Component):
             n = len(self._df_)
             for key, var in self._variables_.items():
                 for j in range(n_time_steps):
-                    var.array[j] = self.data_array[k][i]
+                    var.values[j] = self.data_array[k][i]
                     k = k + 1
                     if k == n:
                         k = 0
@@ -84,7 +80,7 @@ class File_data(Component):
             i, j, f = self._get_interpolation_tuple_(date)
             k = 0
             for key, var in self._variables_.items():
-                var.array[time_index] =self.data_array[i][k] * (1 - f) + self.data_array[j][k] * f
+                var.values[time_index] =self.data_array[i][k] * (1 - f) + self.data_array[j][k] * f
                 k = k +1
 
     def _extract_name_(self, name):

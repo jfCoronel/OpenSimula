@@ -53,8 +53,8 @@ def test_schedule_step():
     p1.read_dict(project_dic)
     p1.simulate()
 
-    assert p1.component("year").variable("values").array[10] == 100
-    assert p1.component("year").variable("values").array[8759] == 0
+    assert p1.component("year").variable("values").values[10] == 100
+    assert p1.component("year").variable("values").values[8759] == 0
 
 
 def test_schedule_linear():
@@ -64,5 +64,5 @@ def test_schedule_linear():
     p1.component("working_day").parameter("interpolation").value = "LINEAR"
     p1.simulate()
 
-    assert p1.component("year").variable("values").array[10] == 60.0
-    assert p1.component("year").variable("values").array[8759] == 0
+    assert p1.component("year").variable("values").values[10] == 60.0
+    assert p1.component("year").variable("values").values[8759] == 0

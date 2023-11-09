@@ -16,6 +16,9 @@ class Year_schedule(Component):
                 "weeks_schedules", ["not_defined", "not_defined"], ["Week_schedule"]
             )
         )
+        # Create Variable
+        self.add_variable(Variable("values",""))
+
 
     def check(self):
         errors = super().check()
@@ -42,9 +45,8 @@ class Year_schedule(Component):
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
-        self.del_all_variables()
-        # Create Variable
-        self.add_variable(Variable("values", n_time_steps))
+        super().pre_simulation(n_time_steps,delta_t)
+        
         # Create array of periods_days
         self._periods_days_ = []
         for period in self.parameter("periods").value:
@@ -52,7 +54,7 @@ class Year_schedule(Component):
             self._periods_days_.append(datetime.timetuple().tm_yday)
 
     def pre_iteration(self, time_index, date):
-        self.variable("values").array[time_index] = self.get_value(date)
+        self.variable("values").values[time_index] = self.get_value(date)
 
     def get_value(self, date):
         year_day = date.timetuple().tm_yday

@@ -435,3 +435,149 @@ class Parameter_component_list(Parameter):
                 msg = self._get_error_header_() + f"{self.value[i]} component not found."
                 errors.append(msg)
         return errors
+
+
+# _____________ Parameter_variable ___________________________
+
+
+class Parameter_variable(Parameter):
+    def __init__(self, key, value="not_defined = component.variable"):
+        Parameter.__init__(self, key, value)
+        self.value = value
+
+    @property
+    def value(self):
+        return self._value_
+
+    @value.setter
+    def value(self, value):
+        format_error = False 
+        self._value_ = str(value)
+        if "=" in self._value_:
+            splits = self._value_.split("=")
+            self._symbol_ = splits[0].strip()
+            if "." in splits[1]:
+                splits2 =splits[1].split(".")
+                self._component_ = splits2[0].strip()
+                self._variable_ = splits2[1].strip()
+            else: 
+                format_error = True
+        else:
+            format_error = True
+
+        if "->" in self._component_:
+            self._external_ = True
+        else:
+            self._external_ = False
+        
+        if format_error:    
+            msg = self._get_error_header_()+'Incorrect format. Expected format "symbol = component.variable"'
+            self._sim_.print(msg)
+
+    @property
+    def external(self):
+        return self._external_
+    
+    @property
+    def symbol(self):
+        return self._symbol_
+
+    @property
+    def variable(self):
+        try:
+            if self.external:
+                splits = self._component_.split("->")
+                proj = self.parent.project().simulation().project(splits[0].strip())
+                var = proj.component(splits[1].strip()).variable(self._variable_)
+            else:
+                var = self.parent.project().component(self._component_).variable(self._variable_)
+        except Exception as error:
+            var = None
+        
+        return var
+
+    def check(self):
+        errors = []
+        var = self.variable
+        if var == None and self._symbol_ != "not_defined":
+            msg = self._get_error_header_() + f"{self.value} component or variable not found."
+            errors.append(msg)
+        return errors
+
+
+class Parameter_variable_list(Parameter):
+    def __init__(self, key, value=["not_defined = component.variable"]):
+        Parameter.__init__(self, key, value)
+        self.value = value
+
+    @property
+    def value(self):
+        return self._value_
+
+    @value.setter
+    def value(self, value):
+        if not isinstance(value, list):
+            self._value_ = [str(value)]
+        else:
+            for el in value:
+                el = str(el)
+            self._value_ = value
+        
+        format_error = False 
+        self._symbol_ = []
+        self._component_ = []
+        self._variable_ = []
+        self._external_ = []
+        for element in self._value_:
+            if "=" in element:
+                splits =element.split("=")
+                self._symbol_.append(splits[0].strip())
+                if "." in splits[1]:
+                    splits2 =splits[1].split(".")
+                    self._component_.append(splits2[0].strip())
+                    self._variable_.append(splits2[1].strip())
+                else: 
+                    format_error = True
+            else:
+                format_error = True
+            if "->" in element:
+                self._external_.append(True)
+            else:
+                self._external_.append(False)
+
+        if format_error:    
+            msg = self._get_error_header_()+'Incorrect format. Expected format "symbol = component.variable"'
+            self._sim_.print(msg)
+
+    @property
+    def external(self):
+        return self._external_
+
+    @property
+    def symbol(self):
+        return self._symbol_
+
+    @property
+    def variable(self):
+        variables = []
+        for i in range(len(self._value_)):
+            try:
+                if self.external[i]:
+                    splits = self._component_[i].split("->")
+                    proj = self.parent.project().simulation().project(splits[0].strip())
+                    variables.append(proj.component(splits[1].strip()).variable(self._variable_[i]))
+                else:
+                    variables.append(self.parent.project().component(self._component_[i]).variable(self._variable_[i]))
+            except Exception as error:
+                variables.append(None)
+
+        return variables
+
+    def check(self):
+        errors = []
+        for i in range(len(self._value_)):
+            var = self.variable[i]
+            if var == None and self.symbol[i] != "not_defined":
+                msg = self._get_error_header_() + f"{self.value} component or variable not found."
+                errors.append(msg)
+        return errors

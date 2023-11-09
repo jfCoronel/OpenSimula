@@ -8,9 +8,12 @@ class Space(Component):
         Component.__init__(self, name, project)
         self.parameter("type").value = "Space"
         self.parameter("description").value = "Indoor building space"
+        # Parameters
         self.add_parameter(Parameter_component_list("walls"))
 
+        # Variables
+        self.add_variable(Variable("temperature", unit="°C"))
+        self.add_variable(Variable("rel_humidity", unit="%"))
+
     def pre_simulation(self, n_time_steps, delta_t):
-        self.del_all_variables()
-        self.add_variable(Variable("temperature", n_time_steps, unit="°C"))
-        self.add_variable(Variable("rel_humidity", n_time_steps, unit="%"))
+       super().pre_simulation(n_time_steps,delta_t)

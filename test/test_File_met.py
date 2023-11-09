@@ -20,8 +20,8 @@ def test_File_met_1h():
     p1 = osm.Project("p1",sim)
     p1.read_dict(project)
     p1.simulate()
-    hs = p1.component("sevilla").variable("sol_hour").array
-    t = p1.component("sevilla").variable("temperature").array
+    hs = p1.component("sevilla").variable("sol_hour").values
+    t = p1.component("sevilla").variable("temperature").values
 
     assert len(hs) == 8760
     assert hs[10] == pytest.approx(8.5533, 0.001)
@@ -35,8 +35,8 @@ def test_File_met_15m():
     p1.parameter("time_step").value = 15*60
     p1.parameter("n_time_steps").value = 8760*4
     p1.simulate()
-    hs = p1.component("sevilla").variable("sol_hour").array
-    t = p1.component("sevilla").variable("temperature").array
+    hs = p1.component("sevilla").variable("sol_hour").values
+    t = p1.component("sevilla").variable("temperature").values
 
     assert len(hs) == 8760*4
     assert hs[40] == pytest.approx(8.5533, 0.001)

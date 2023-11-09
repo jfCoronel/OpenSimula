@@ -11,7 +11,19 @@ class File_met(Component):
         Component.__init__(self, name, project)
         self.parameter("type").value = "File_met"
         self.parameter("description").value = "Meteo file in met format"
+        # Parameters
         self.add_parameter(Parameter_string("file_name", "name.met"))
+        # Variables
+        self.add_variable(Variable("sol_hour", unit="h"))
+        self.add_variable(Variable("temperature", unit="°C"))
+        self.add_variable(Variable("sky_temperature", unit="°C"))
+        self.add_variable(Variable("rel_humidity", unit="%"))
+        self.add_variable(Variable("sol_direct", unit="W/m²"))
+        self.add_variable(Variable("sol_diffuse", unit="W/m²"))
+        self.add_variable(Variable("wind_speed", unit="m/s"))
+        self.add_variable(Variable("wind_direction", unit="°"))
+        self.add_variable(Variable("sol_azimut", unit="°"))
+        self.add_variable(Variable("sol_altitude", unit="°"))
         # Las variables leidas las guardamos en numpy arrays
         self.temperature = np.zeros(8760)
         self.sky_temperature = np.zeros(8760)
@@ -58,34 +70,23 @@ class File_met(Component):
         return errors
     
     def pre_simulation(self, n_time_steps, delta_t):
-        self.del_all_variables()
-        self.add_variable(Variable("sol_hour", n_time_steps, unit="h"))
-        self.add_variable(Variable("temperature", n_time_steps, unit="°C"))
-        self.add_variable(Variable("sky_temperature", n_time_steps, unit="°C"))
-        self.add_variable(Variable("rel_humidity", n_time_steps, unit="%"))
-        self.add_variable(Variable("sol_direct", n_time_steps, unit="W/m²"))
-        self.add_variable(Variable("sol_diffuse", n_time_steps, unit="W/m²"))
-        self.add_variable(Variable("wind_speed", n_time_steps, unit="m/s"))
-        self.add_variable(Variable("wind_direction", n_time_steps, unit="°"))
-        self.add_variable(Variable("sol_azimut", n_time_steps, unit="°"))
-        self.add_variable(Variable("sol_altitude", n_time_steps, unit="°"))
+        super().pre_simulation(n_time_steps,delta_t)
+       
         
-
-
     def pre_iteration(self, time_index, date):
         solar_hour = self._solar_hour_(date)
-        self.variable("sol_hour").array[time_index] = solar_hour
+        self.variable("sol_hour").values[time_index] = solar_hour
         i, j, f = self._get_interpolation_tuple_(date, solar_hour)
-        self.variable("temperature").array[time_index] = self.temperature[i] * (1 - f) + self.temperature[j] * f
-        self.variable("sky_temperature").array[time_index] = self.sky_temperature[i] * (1 - f) + self.sky_temperature[j] * f
-        self.variable("rel_humidity").array[time_index] = self.rel_humidity[i] * (1 - f) + self.rel_humidity[j] * f
-        self.variable("sol_direct").array[time_index] = self.sol_direct[i] * (1 - f) + self.sol_direct[j] * f
-        self.variable("sol_diffuse").array[time_index] = self.sol_diffuse[i] * (1 - f) + self.sol_diffuse[j] * f
-        self.variable("wind_speed").array[time_index] = self.wind_speed[i] * (1 - f) + self.wind_speed[j] * f
-        self.variable("wind_direction").array[time_index] = self.wind_direction[i] * (1 - f) + self.wind_direction[j] * f
+        self.variable("temperature").values[time_index] = self.temperature[i] * (1 - f) + self.temperature[j] * f
+        self.variable("sky_temperature").values[time_index] = self.sky_temperature[i] * (1 - f) + self.sky_temperature[j] * f
+        self.variable("rel_humidity").values[time_index] = self.rel_humidity[i] * (1 - f) + self.rel_humidity[j] * f
+        self.variable("sol_direct").values[time_index] = self.sol_direct[i] * (1 - f) + self.sol_direct[j] * f
+        self.variable("sol_diffuse").values[time_index] = self.sol_diffuse[i] * (1 - f) + self.sol_diffuse[j] * f
+        self.variable("wind_speed").values[time_index] = self.wind_speed[i] * (1 - f) + self.wind_speed[j] * f
+        self.variable("wind_direction").values[time_index] = self.wind_direction[i] * (1 - f) + self.wind_direction[j] * f
         azi, alt = self.solar_pos(date,solar_hour)
-        self.variable("sol_azimut").array[time_index] = azi
-        self.variable("sol_altitude").array[time_index] = alt
+        self.variable("sol_azimut").values[time_index] = azi
+        self.variable("sol_altitude").values[time_index] = alt
 
     def _get_interpolation_tuple_(self, datetime, solar_hour):
         day = datetime.timetuple().tm_yday  # Día del año

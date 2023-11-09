@@ -5,11 +5,11 @@ from OpenSimula.Child import Child
 
 
 class Variable(Child):
-    def __init__(self, key, n, unit="", default=0.0):
+    def __init__(self, key, unit=""):
         Child.__init__(self)
         self._key_ = key
         self._unit_ = unit
-        self._array_ = np.full(n, default)
+        self._values_ = None
         self._sim_ = None
 
     @property
@@ -21,9 +21,12 @@ class Variable(Child):
         self._key_ = key
 
     @property
-    def array(self):
-        return self._array_
+    def values(self):
+        return self._values_
 
     @property
     def unit(self):
         return self._unit_
+    
+    def initialise(self,n,default=0.0):
+        self._values_ = np.full(n, default)

@@ -1,7 +1,7 @@
 import pandas as pd
 from OpenSimula.Parameter_container import Parameter_container
 from OpenSimula.Parameters import Parameter_string
-
+from OpenSimula.Variable import Variable
 
 class Component(Parameter_container):
     """Base Class for all the components"""
@@ -26,15 +26,12 @@ class Component(Parameter_container):
 
     def add_variable(self, variable):
         """add new Variable"""
-        variable._parent = self
+        variable.parent = self
         variable._sim_ = self._sim_
         self._variables_[variable.key] = variable
 
     def del_variable(self, variable):
         self._variables_.remove(variable)
-
-    def del_all_variables(self):
-        self._variables_ = {}
 
     def variable(self, key):
         return self._variables_[key]
@@ -47,9 +44,9 @@ class Component(Parameter_container):
         series["date"] = self.project().dates_array()
         for key, var in self._variables_.items():
             if var.unit == "":
-                series[key] = var.array
+                series[key] = var.values
             else:
-                series[key + " [" + var.unit + "]"] = var.array
+                series[key + " [" + var.unit + "]"] = var.values
         data = pd.DataFrame(series)
         return data
 
@@ -61,19 +58,31 @@ class Component(Parameter_container):
         Returns:
             component_list (component[])
         """
-        comp_list = [self]
+        comp_list = []
         for key, value in self.parameter_dict().items():
             if value.type == "Parameter_component":
                 if value.component is not None:
                     sublist = value.component.get_all_referenced_components()
                     for subcomp in sublist:
                         comp_list.append(subcomp)
-            if value.type == "Parameter_component_list":
+            elif value.type == "Parameter_component_list":
                 for comp in value.component:
                     if comp is not None:
                         sublist = comp.get_all_referenced_components()
                         for subcomp in sublist:
                             comp_list.append(subcomp)
+            if value.type == "Parameter_variable":
+                if value.variable is not None:
+                    sublist = value.variable.parent.get_all_referenced_components()
+                    for subcomp in sublist:
+                        comp_list.append(subcomp)
+            elif value.type == "Parameter_variable_list":
+                for var in value.variable:
+                    if var is not None:
+                        sublist = var.parent.get_all_referenced_components()
+                        for subcomp in sublist:
+                            comp_list.append(subcomp)
+        comp_list.append(self)
         return comp_list
 
     def check(self):
@@ -88,16 +97,36 @@ class Component(Parameter_container):
             param_error = value.check()
             for e in param_error:
                 errors.append(e)
+            # Create variables in paramater_variable
+            if value.type == "Parameter_variable":
+                if value.variable is not None:
+                    self.add_variable(Variable(value.symbol,value.variable.unit))
+            if value.type == "Parameter_variable_list":
+                for i in range(len(value.variable)):
+                    if value.variable[i] is not None:
+                        self.add_variable(Variable(value.symbol[i],value.variable[i].unit))
+                    
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
-        pass
+        # Initilise all variables to 0
+        for key, var in self._variables_.items():
+            var.initialise(n_time_steps)
 
     def post_simulation(self):
         pass
 
     def pre_iteration(self, time_index, date):
-        pass
+        # Initilise all variables to 0
+       for key, value in self.parameter_dict().items():
+            # Copy variables in paramater_variable
+            if value.type == "Parameter_variable":
+                if value.variable is not None:
+                    self.variable(value.symbol).values[time_index] = value.variable.values[time_index]
+            if value.type == "Parameter_variable_list":
+                for i in range(len(value.variable)):
+                    if value.variable[i] is not None:
+                        self.variable(value.symbol[i]).values[time_index] = value.variable[i].values[time_index]
 
     def iteration(self, time_index, date):
         return True
