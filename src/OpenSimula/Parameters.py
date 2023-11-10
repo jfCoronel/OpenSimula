@@ -1,8 +1,8 @@
 import sys
+from py_expression_eval import Parser
 from OpenSimula.Child import Child
 
 # ___________________ Parameter _________________________
-
 
 class Parameter(Child):
     """Elements with key-value pair
@@ -580,4 +580,68 @@ class Parameter_variable_list(Parameter):
             if var == None and self.symbol[i] != "not_defined":
                 msg = self._get_error_header_() + f"{self.value} component or variable not found."
                 errors.append(msg)
+        return errors
+
+
+# _____________ Parameter_math_exp ___________________________
+
+
+class Parameter_math_exp(Parameter):
+    def __init__(self, key, value="0.0", unit=""):
+        Parameter.__init__(self, key, value)
+        self._unit_ = unit
+        self._parser_ = Parser()
+
+    @property
+    def unit(self):
+        return self._unit_
+    
+    @property
+    def value(self):
+        return self._value_
+
+    @value.setter
+    def value(self, value):
+        self._value_ = str(value)
+
+    def check(self):
+        try:
+            self._parser_.parse(self.value)
+        except Exception as error:
+            return [self._get_error_header_()+f"{str(error)}"]
+        return []
+    
+    def evaluate(self, values_dic):
+        return self._parser_.parse(self.value).evaluate(values_dic)
+              
+class Parameter_math_exp_list(Parameter):
+    def __init__(self, key, value=["0.0"], unit=""):
+        Parameter.__init__(self, key, value)
+        self._unit_ = unit
+
+    @property
+    def unit(self):
+        return self._unit_
+
+    @property
+    def value(self):
+        return self._value_
+
+    @value.setter
+    def value(self, value):
+        if not isinstance(value, list):
+            self._value_ = [str(value)]
+        else:
+            for el in value:
+                el = str(el)
+            self._value_ = value
+
+    def check(self):
+        errors = []
+        parser = Parser()
+        for n in self.value:
+            try:
+                parser.parse(n)
+            except Exception as error:
+                errors.append(self._get_error_header_()+f"{str(error)}")
         return errors
