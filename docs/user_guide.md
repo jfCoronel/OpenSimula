@@ -140,8 +140,6 @@ To create the components we use the objects included in the OpenSimula.component
 
 After creating the components we can modify any of their parameters.
 
-## Simulate, parameters and variables
-
 After defining a project with its components, changing the parameters one by one or using a dictionary to define it, we can check if there is any error using the `check()` function and perform the temporary simulation with the `simulate()` function.
 
 <pre><code class="python">
@@ -174,6 +172,40 @@ pro
 Jupyter shell:
 
 ![Project in jupyter](img/project_in_jupyter.png)
+
+### Parameters
+
+**Parameters** are used to define the characteristics that make up the projects and components. 
+
+![Paremeters](img/parameters.png)
+
+
+The parameters will be defined as Python dictionary keys (or json format files), that is the format we will use in the examples shown in the documentation. Parameters can be of different types depending on the type of information they contain:
+
+- Parameter_string: String of characters, e.g.: `"name": "Project 1"`.
+- Parameter_boolean: True or False value, e.g.: `"simplified_definition": False`.
+- Parameter_int: Integer value, e.g.: `"time_step": 3600`.
+- Parameter_float: Floating point value, e.g.: `"conducticity": 1.8`.
+- Parameter_options: character string included in a closed option list, e.g.: `"file_type": "EXCEL"`.
+- Parameter_component: Reference to another component, e.g.: `"meteo_file": "Sevilla"`.
+- Parameter_variable: This parameter is used to create a variable in the component by copying it from another component. A new name is defined and the unit will be taken from the original variable. e.g.: `"aux_variable": "t_1 = meteo.temperature"`, a variable called "t_1" will be created which is a copy of the variable "temperature" of the component "meteo".  
+- Parameter_math_exp: parameter defining a mathematical expression. Each of the components knows how to use that mathematical expression within its simulation process. e.g.: `"people_density": "0.1 * f"`, this parameter states that the people density shall be calculated by multiplying by 0.1 a variable called "f" that the component must include.
+
+All of the above types can also be defined as parameter lists, giving rise to the following types:
+
+- Parameter_string_list: List of String of characters, e.g.: ` "authors": ["Juan F.", "Luis", "Ismael"]`.
+- Parameter_boolean_list: List of True or False values, e.g.: `"operated": [True, True, False]`.
+- Parameter_int_list: List of integer values, e.g.: `"people": [24, 12, 18]`.
+- Parameter_float_list: List of floating point values, e.g.: `"solar_absortivity": [0.8, 0.75]`.
+- Parameter_options_list: List of character strings included in a closed option list, e.g.: `"day_types": ["MONDAY", "TUESDAY"]`.
+- Parameter_component_list: List of references to another components, e.g.: `"materials": ["Cement mortar", "Hollow brick"]`.
+- Parameter_variable_list: List of parameters used to copy a list of variables. e.g.: `"aux_variables": ["t_1 = meteo.temperature","hr = meteo.relative_humidity"]`.
+- Parameter_math_exp_list: List of mathematical expressions. e.g.: `"curves": ["0.3 * t + 20","0.04 * t^2 - 0.2 * t + 3 "]`.
+
+
+The Parameter_component, Parameter_variable, Parameter_component_list and Parameter_variable_list can refer to a component of the same project, in that case it is only necessary to put the name of the component, or a component of another project. In this last case we must write "project_name->component_name". e.g. `"meteo_file": "Project 1->Sevilla"`.
+
+
 
 
 

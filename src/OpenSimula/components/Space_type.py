@@ -26,6 +26,7 @@ class Space_type(Component):
             "other_gains_latent_fraction", 0.0, "", min=0, max=1))
         self.add_parameter(Parameter_float(
             "other_gains_radiant_fraction", 0.5, "", min=0, max=1))
+        self.add_parameter(Parameter_math_exp("infiltration", "1", "1/h"))
         # Variables
         self.add_variable(Variable("people_convective", unit="W/m²"))
         self.add_variable(Variable("people_radiant", unit="W/m²"))
@@ -35,6 +36,7 @@ class Space_type(Component):
         self.add_variable(Variable("other_gains_convective", unit="W/m²"))
         self.add_variable(Variable("other_gains_radiant", unit="W/m²"))
         self.add_variable(Variable("other_gains_latent", unit="W/m²"))
+        self.add_variable(Variable("infiltration_rate", unit="1/h"))
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
@@ -48,6 +50,7 @@ class Space_type(Component):
                 self.parameter("aux_variables").variable[i])
 
     def pre_iteration(self, time_index, date):
+        super().pre_iteration(time_index, date)
         # variables dictonary
         var_dic = {}
         for i in range(len(self.aux_var_symbol)):
@@ -80,3 +83,7 @@ class Space_type(Component):
 
         self.variable("other_gains_latent").values[time_index] = other * self.parameter(
             "other_gains_latent_fraction").value
+
+        # Infiltration
+        self.variable("infiltration_rate").values[time_index] = self.parameter(
+            "infiltration").evaluate(var_dic)

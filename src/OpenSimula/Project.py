@@ -26,7 +26,8 @@ class Project(Parameter_container):
         self.parameter("description").value = "Description of the project"
         self.add_parameter(Parameter_int("time_step", 3600, "s", min=1))
         self.add_parameter(Parameter_int("n_time_steps", 8760, min=1))
-        self.add_parameter(Parameter_string("initial_time", "01/01/2001 00:00:00"))
+        self.add_parameter(Parameter_string(
+            "initial_time", "01/01/2001 00:00:00"))
         self.add_parameter(
             Parameter_string_list(
                 "simulation_order",
@@ -37,7 +38,9 @@ class Project(Parameter_container):
                     "Week_schedule",
                     "Year_schedule",
                     "Material",
-                    "Construction"
+                    "Construction",
+                    "Space_type",
+                    "Space"
                 ],
             )
         )
@@ -75,13 +78,20 @@ class Project(Parameter_container):
                 return comp
         return None
 
-    def component_list(self):
+    def component_list(self, type="all"):
         """Components list in the project
 
         Returns:
             components (Components list): List of components.
         """
-        return self._components_
+        comp_list = []
+        for comp in self._components_:
+            if type == "all":
+                comp_list.append(comp)
+            else:
+                if comp.parameter("type").value == type:
+                    comp_list.append(comp)
+        return comp_list
 
     def simulation(self):
         """
@@ -90,24 +100,18 @@ class Project(Parameter_container):
         """
         return self._sim_
 
-    def component_dataframe(self, type = "all"):
+    def component_dataframe(self, type="all"):
         data = pd.DataFrame()
-        type_components = []
-        for comp in self._components_:
-            if type == "all":
-                type_components.append(comp)
-            else:
-                if comp.parameter("type").value == type:
-                    type_components.append(comp)
-        if len(type_components) > 0:
-            parameters = ["name","type","description"]
+        comp_list = self.component_list(type)
+        if len(comp_list) > 0:
+            parameters = ["name", "type", "description"]
             if type != "all":
-                for key, par in type_components[0]._parameters_.items():
+                for key, par in comp_list[0]._parameters_.items():
                     if key != "name" and key != "type" and key != "description":
                         parameters.append(key)
             for param in parameters:
                 param_array = []
-                for comp in type_components:
+                for comp in comp_list:
                     param_array.append(comp.parameter(param).value)
                 data[param] = param_array
         return data
@@ -120,9 +124,9 @@ class Project(Parameter_container):
         except KeyError:
             return None
 
-    def _get_error_header_ (self):
+    def _get_error_header_(self):
         return f'Error: Project "{self.parameter("name").value}". '
-    
+
     def _load_from_dict_(self, dic):
         for key, value in dic.items():
             if key == "components":  # Lista de componentes
@@ -133,18 +137,21 @@ class Project(Parameter_container):
                             name = component["name"]
                         comp = self._new_component_(component["type"], name)
                         if comp == None:
-                            msg = self._get_error_header_() + f'Component type {component["type"]} does not exist.'
+                            msg = self._get_error_header_(
+                            ) + f'Component type {component["type"]} does not exist.'
                             self._sim_.print(msg)
                         else:
                             comp.set_parameters(component)
                     else:
-                        msg = self._get_error_header_() + f'Component does not contain "type" parameter {component}'
+                        msg = self._get_error_header_(
+                        ) + f'Component does not contain "type" parameter {component}'
                         self._sim_print(msg)
             else:
                 if key in self._parameters_:
                     self.parameter(key).value = value
                 else:
-                    msg = self._get_error_header_() + f'Parameter {key} does not exist.'
+                    msg = self._get_error_header_(
+                    ) + f'Parameter {key} does not exist.'
                     self._sim_.print(msg)
 
     def read_dict(self, dict):
@@ -169,7 +176,8 @@ class Project(Parameter_container):
         try:
             f = open(json_file, "r")
         except OSError:
-            msg = self._get_error_header_() + f'Could not open/read file:  {json_file}.'
+            msg = self._get_error_header_(
+            ) + f'Could not open/read file:  {json_file}.'
             self._sim_.print(msg)
             return False
         with f:
@@ -193,7 +201,8 @@ class Project(Parameter_container):
             self._sim_.print("Reading completed.")
             self.check()
         except Exception as e:
-            msg = self._get_error_header_() + f'Reading file:  {excel_file} -> {e}.'
+            msg = self._get_error_header_(
+            ) + f'Reading file:  {excel_file} -> {e}.'
             self._sim_.print(msg)
             return False
 
@@ -266,7 +275,8 @@ class Project(Parameter_container):
                 self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
             )
         except ValueError:
-            error = self._get_error_header_() + f"Initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+            error = self._get_error_header_() + \
+                f"Initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
             errors.append(error)
 
         self._set_ordered_component_list_()
@@ -277,7 +287,8 @@ class Project(Parameter_container):
                 for e in error_comp:
                     errors.append(e)
             if comp.parameter("name").value in names:
-                error =self._get_error_header_() +f"'{comp.parameter('name').value}' is used by two or more components as name"
+                error = self._get_error_header_() + \
+                    f"'{comp.parameter('name').value}' is used by two or more components as name"
                 errors.append(error)
             else:
                 names.append(comp.parameter("name").value)
@@ -299,16 +310,17 @@ class Project(Parameter_container):
         delta_t = self.parameter("time_step").value
 
         self._set_ordered_component_list_()
-        self._pre_simulation_(n,delta_t)
+        self._pre_simulation_(n, delta_t)
 
         self._sim_.print(
             f"Simulating {self.parameter('name').value}: ", add_new_line=False
         )
 
         show_percent = 10.0
-        for i in range(n):    
-            if ((100.0*(i+1)/ n) >= show_percent):
-                self._sim_.print(str(int(show_percent)) + "% ", add_new_line=False)
+        for i in range(n):
+            if ((100.0*(i+1) / n) >= show_percent):
+                self._sim_.print(str(int(show_percent)) +
+                                 "% ", add_new_line=False)
                 show_percent = show_percent + 10.0
             self._pre_iteration_(i, date)
             converge = False

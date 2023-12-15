@@ -3,7 +3,7 @@ from OpenSimula.components.Construction import Construction
 from OpenSimula.components.Test_component import Test_component
 from OpenSimula.components.File_met import File_met
 from OpenSimula.components.Space import Space
-from OpenSimula.components.Wall import Wall
+from OpenSimula.components.Surface import Surface
 from OpenSimula.components.File_data import File_data
 from OpenSimula.components.Day_schedule import Day_schedule
 from OpenSimula.components.Week_schedule import Week_schedule
