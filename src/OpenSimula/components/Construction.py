@@ -1,11 +1,7 @@
 import math
 import numpy as np
 from scipy.optimize import brentq
-from OpenSimula.Parameters import (
-    Parameter_component_list,
-    Parameter_float_list,
-    Parameter_options,
-)
+from OpenSimula.Parameters import Parameter_component_list,Parameter_float_list
 from OpenSimula.Component import Component
 
 

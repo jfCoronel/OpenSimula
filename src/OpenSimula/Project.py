@@ -39,8 +39,12 @@ class Project(Parameter_container):
                     "Year_schedule",
                     "Material",
                     "Construction",
+                    "Window",
                     "Space_type",
-                    "Space"
+                    "Opening",
+                    "Surface",
+                    "Space",
+                    "Building"
                 ],
             )
         )

@@ -1,5 +1,5 @@
 from OpenSimula.Component import Component
-from OpenSimula.Parameters import Parameter_component, Parameter_component_list, Parameter_float, Parameter_options
+from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_options, Parameter_boolean
 from OpenSimula.Variable import Variable
 
 
@@ -9,10 +9,11 @@ class Surface(Component):
         # Parameters
         self.parameter("type").value = "Surface"
         self.parameter("description").value = "Building surface"
+        self.add_parameter(Parameter_boolean("virtual", False))
         self.add_parameter(Parameter_options("location", "EXTERNAL", [
                            "EXTERIOR", "INTERIOR", "UNDERGROUND", "ADIABATIC"]))
-        self.add_parameter(Parameter_component("construction", ""))
-        self.add_parameter(Parameter_component("space", ""))
+        self.add_parameter(Parameter_component("construction", "not_defined"))
+        self.add_parameter(Parameter_component("space", "not_defined"))
         self.add_parameter(Parameter_component(
             "adjacent_space", "not_defined"))
         self.add_parameter(Parameter_float("area", 1, "m²", min=0.0))
@@ -27,13 +28,42 @@ class Surface(Component):
 
     def check(self):
         errors = super().check()
+        # Test space defined
+        if self.parameter("space").value == "not_defined":
+            errors.append(f"Error: {self.parameter('name').value}, must define its space.")
+        # Test construction defined
+        if (not self.parameter("virtual").value) and self.parameter("construction").value == "not_defined":
+            errors.append(
+                f"Error: {self.parameter('name').value}, non virtual surfaces must define its construction."
+            )
         # Test interior sufaces include adjacent spaces
         if self.parameter("location").value == "INTERIOR" and self.parameter("adjacent_space").value == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, interior surfaces must define adjacent space"
             )
-
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
+        self._create_openings_list()
+    
+    def _create_openings_list(self):
+        project_openings_list = self.project().component_list(type="Opening")
+        self._openings = []
+        for opening in project_openings_list:
+            if opening.parameter("surface").component == self:
+                opening_dic = { "comp": opening,
+                                "area": opening.area,
+                                "virtual": opening.parameter("virtual").value
+                            }
+                self._openings.append(opening_dic)
+    
+    @property
+    def net_area(self):
+        area = self.parameter("area").value
+        for opening in self._openings:
+            area -= opening["area"]
+        return area
+
+        
+    
