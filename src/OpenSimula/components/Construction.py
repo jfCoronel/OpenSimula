@@ -1,7 +1,7 @@
 import math
 import numpy as np
 from scipy.optimize import brentq
-from OpenSimula.Parameters import Parameter_component_list,Parameter_float_list
+from OpenSimula.Parameters import Parameter_component_list, Parameter_float_list
 from OpenSimula.Component import Component
 
 
@@ -9,10 +9,15 @@ class Construction(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
         self.parameter("type").value = "Construction"
-        self.parameter("description").value = "Construction using layers of material"
+        self.parameter(
+            "description").value = "Construction using layers of material"
 
-        self.add_parameter(Parameter_float_list("solar_absortivity", [0.8, 0.8], "frac", min=0, max=1))
-        self.add_parameter(Parameter_component_list("materials", [],"Material"))
+        self.add_parameter(Parameter_float_list(
+            "solar_absortivity", [0.8, 0.8], "frac", min=0, max=1))
+        self.add_parameter(Parameter_float_list(
+            "lw_absortivity", [0.9, 0.9], "frac", min=0, max=1))
+        self.add_parameter(Parameter_component_list(
+            "materials", [], "Material"))
         self.add_parameter(Parameter_float_list("thicknesses", [], "m", min=0))
 
     def check(self):
@@ -24,7 +29,7 @@ class Construction(Component):
             )
         return errors
 
-    ### Functions for Transfer Function Calculation
+    # Functions for Transfer Function Calculation
 
     def pre_simulation(self, n_time_steps, delta_t):
         self._calc_trans_fun_(delta_t)
@@ -35,7 +40,7 @@ class Construction(Component):
         Q_old_1 = np.zeros(n_q)
         Q_old_2 = np.zeros(n_q)
         T_old = np.ones(n_t)
-        #T_old[0] = 0
+        # T_old[0] = 0
         q_2 = 1
         Q_2 = []
         Q_1 = []
@@ -59,7 +64,7 @@ class Construction(Component):
             T_old[0] = 0
             n = n + 1
         return (Q_1, Q_2)
-    
+
     def get_U(self):
         resis_tot = 0
         for i in range(len(self.parameter("materials").value)):
@@ -225,12 +230,12 @@ class Construction(Component):
         # Cut d coefficients
         for i in range(len(d)):
             if math.fabs(d[i]) < min_coef:
-                d = d[0 : i+1]
+                d = d[0: i+1]
                 break
         # Cut number of coeficients, se producen coeficientes extraños para muros ligeros a partir del n. de roots
-        a = np.resize(a,n_coef-1)
-        b = np.resize(b,n_coef-1)
-        c = np.resize(c,n_coef-1)
+        a = np.resize(a, n_coef-1)
+        b = np.resize(b, n_coef-1)
+        c = np.resize(c, n_coef-1)
         # Cut a, b, c coefficients
         for i in range(len(a)):
             if (
@@ -238,11 +243,11 @@ class Construction(Component):
                 and math.fabs(b[i]) < min_coef
                 and math.fabs(c[i]) < min_coef
             ):
-                a = a[0 : i+1]
-                b = b[0 : i+1]
-                c = c[0 : i+1]
+                a = a[0: i+1]
+                b = b[0: i+1]
+                c = c[0: i+1]
                 break
         self._coef_T_ = np.array([a, b, c])
-        #print(self._coef_T_)
+        # print(self._coef_T_)
         self._coef_Q_ = d
-        #print(self._coef_Q_)
+        # print(self._coef_Q_)

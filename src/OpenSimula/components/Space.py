@@ -4,6 +4,7 @@ from OpenSimula.Variable import Variable
 import numpy as np
 import math
 
+
 class Space(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
@@ -32,10 +33,12 @@ class Space(Component):
         errors = super().check()
         # Test building is defined
         if self.parameter("building").value == "not_defined":
-            errors.append(f"Error: {self.parameter('name').value}, must define its building.")
+            errors.append(
+                f"Error: {self.parameter('name').value}, must define its building.")
         # Test space_type defined
         if self.parameter("space_type").value == "not_defined":
-            errors.append(f"Error: {self.parameter('name').value}, must define its Space_type.")
+            errors.append(
+                f"Error: {self.parameter('name').value}, must define its Space_type.")
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -45,53 +48,69 @@ class Space(Component):
         self._volume = self.parameter("volume").value
         self._create_surfaces_list()
         self._create_ff_matrix()
+        self._create_dist_vectors()
 
     def _create_surfaces_list(self):
         project_surfaces_list = self.project().component_list(type="Surface")
         self._surfaces = []
         for surface in project_surfaces_list:
             if surface.parameter("space").component == self or surface.parameter("adjacent_space").component == self:
-                if surface.parameter("space").component == self:
-                    azimuth = surface.parameter("azimuth").value
-                    altitude = surface.parameter("altitude").value
-                elif surface.parameter("adjacent_space").component == self:
+                adjacent = surface.parameter(
+                    "adjacent_space").component == self
+                if adjacent:
                     azimuth = surface.parameter("azimuth").value - 180
                     if azimuth < -180:
                         azimuth = azimuth + 360
                     altitude = surface.parameter("altitude").value - 180
                     if altitude < -90:
                         altitude = altitude + 180
-                    
-                surface_dic = { "comp": surface,
-                                "type": "Surface",
-                                "area": surface.net_area,
-                                "virtual": surface.parameter("virtual").value,
-                                "azimuth": azimuth,
-                                "altitude": altitude,
-                            }
+                    rho_sw = surface.rho_sw(False)
+                    tau_sw = surface.tau_sw(False)
+                else:
+                    azimuth = surface.parameter("azimuth").value
+                    altitude = surface.parameter("altitude").value
+                    rho_sw = surface.rho_sw()
+                    tau_sw = surface.tau_sw()
+
+                surface_dic = {"comp": surface,
+                               "type": "Surface",
+                               "area": surface.net_area,
+                               "virtual": surface.parameter("virtual").value,
+                               "azimuth": azimuth,
+                               "altitude": altitude,
+                               "rho_sw": rho_sw,
+                               "tau_sw": tau_sw
+                               }
                 self._surfaces.append(surface_dic)
                 for opening in surface._openings:
-                    opening_dic = { "comp": opening["comp"],
-                                "type": "Opening",
-                                "area": opening["area"],
-                                "virtual": opening["virtual"],
-                                "azimuth": azimuth,
-                                "altitude": altitude,
-                            }
+                    if adjacent:
+                        rho_sw = opening["comp"].rho_sw(False)
+                        tau_sw = opening["comp"].tau_sw(False)
+                    else:
+                        rho_sw = opening["comp"].rho_sw(True)
+                        tau_sw = opening["comp"].tau_sw(True)
+                    opening_dic = {"comp": opening["comp"],
+                                   "type": "Opening",
+                                   "area": opening["area"],
+                                   "virtual": opening["virtual"],
+                                   "azimuth": azimuth,
+                                   "altitude": altitude,
+                                   "rho_sw": rho_sw,
+                                   "tau_sw": tau_sw
+                                   }
                     self._surfaces.append(opening_dic)
-                    
-                    
-    def _coplanar(self,surf1, surf2):
+
+    def _coplanar(self, surf1, surf2):
         if surf1["altitude"] == 90 and surf2["altitude"] == 90:
             return True
-        elif surf1["altitude"] == -90 and surf2["altitude"] == -90:                
+        elif surf1["altitude"] == -90 and surf2["altitude"] == -90:
             return True
         else:
             if surf1["altitude"] == surf2["altitude"] and surf1["azimuth"] == surf2["azimuth"]:
                 return True
             else:
                 return False
-        
+
     def _create_ff_matrix(self):
         n = len(self._surfaces)
         total_area = 0
@@ -101,11 +120,12 @@ class Space(Component):
         seven = np.zeros((n, n))
         for i in range(n):
             for j in range(n):
-                if self._coplanar(self._surfaces[i],self._surfaces[j]):
+                if self._coplanar(self._surfaces[i], self._surfaces[j]):
                     seven[i][j] = 0
                 else:
                     seven[i][j] = 1
-                self._ff_matrix[i][j] = seven[i][j]*self._surfaces[j]["area"]/total_area
+                self._ff_matrix[i][j] = seven[i][j] * \
+                    self._surfaces[j]["area"]/total_area
         # iteración
         EPSILON = 1.e-4
         N_MAX_ITER = 500
@@ -113,26 +133,48 @@ class Space(Component):
         residuos = np.ones(n)
         while True:
             n_iter += 1
-            residuo_tot=0
+            residuo_tot = 0
             corregir = False
             for i in range(n):
-                residuos[i]=1.
+                residuos[i] = 1.
                 for j in range(n):
                     residuos[i] -= self._ff_matrix[i][j]
-                if (residuos[i]==0):
-                    residuos[i]=EPSILON/100
-                if (math.fabs(residuos[i]) > EPSILON):                    
+                if (residuos[i] == 0):
+                    residuos[i] = EPSILON/100
+                if (math.fabs(residuos[i]) > EPSILON):
                     corregir = True
                     residuo_tot += math.fabs(residuos[i])
             if corregir:
                 for i in range(n):
                     for j in range(n):
-                        self._ff_matrix[i][j] *= 1 + residuos[i]*residuos[j]*seven[i][j] / (math.fabs(residuos[i])+math.fabs(residuos[j]))
+                        self._ff_matrix[i][j] *= 1 + residuos[i]*residuos[j] * \
+                            seven[i][j] / (math.fabs(residuos[i]) +
+                                           math.fabs(residuos[j]))
             else:
                 break
             if (n_iter > N_MAX_ITER):
                 break
-            
+
+    def _create_dist_vectors(self):
+        n = len(self._surfaces)
+        total_area = 0
+        floor_area = 0
+        for surf in self._surfaces:
+            total_area += surf["area"]
+            if surf["altitude"] == 90:  # Floor
+                floor_area += surf["area"]
+        self._dsr_dist_vector = np.zeros(n)
+        self._ig_dist_vector = np.zeros(n)
+        for i in range(n):
+            if floor_area > 0:
+                if self._surfaces[i]["altitude"] == 90:  # Floor
+                    self._dsr_dist_vector[i] = self._surfaces[i]["area"]/floor_area
+                else:
+                    0
+            else:
+                self._dsr_dist_vector[i] = self._surfaces[i]["area"]/total_area
+            self._ig_dist_vector[i] = self._surfaces[i]["area"]/total_area
+
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
 

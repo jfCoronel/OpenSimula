@@ -30,7 +30,8 @@ class Surface(Component):
         errors = super().check()
         # Test space defined
         if self.parameter("space").value == "not_defined":
-            errors.append(f"Error: {self.parameter('name').value}, must define its space.")
+            errors.append(
+                f"Error: {self.parameter('name').value}, must define its space.")
         # Test construction defined
         if (not self.parameter("virtual").value) and self.parameter("construction").value == "not_defined":
             errors.append(
@@ -46,18 +47,18 @@ class Surface(Component):
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         self._create_openings_list()
-    
+
     def _create_openings_list(self):
         project_openings_list = self.project().component_list(type="Opening")
         self._openings = []
         for opening in project_openings_list:
             if opening.parameter("surface").component == self:
-                opening_dic = { "comp": opening,
-                                "area": opening.area,
-                                "virtual": opening.parameter("virtual").value
-                            }
+                opening_dic = {"comp": opening,
+                               "area": opening.area,
+                               "virtual": opening.parameter("virtual").value
+                               }
                 self._openings.append(opening_dic)
-    
+
     @property
     def net_area(self):
         area = self.parameter("area").value
@@ -65,5 +66,17 @@ class Surface(Component):
             area -= opening["area"]
         return area
 
-        
-    
+    def rho_sw(self, face_0_to_1=True):
+        if (self.parameter("virtual").value):
+            return 0
+        else:
+            if face_0_to_1:
+                return 1-self.parameter("construction").component.parameter("solar_absortivity").value[0]
+            else:
+                return 1-self.parameter("construction").component.parameter("solar_absortivity").value[1]
+
+    def tau_sw(self, face_0_to_1=True):
+        if (self.parameter("virtual").value):
+            return 1
+        else:
+            return 0
