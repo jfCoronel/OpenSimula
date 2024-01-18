@@ -40,7 +40,7 @@ class Opening(Component):
     def area(self):
         return self.parameter("width").value * self.parameter("height").value
 
-    def rho_sw(self, face_0_to_1=True):
+    def rho_sw(self, face_number=0):
         if (self.parameter("virtual").value):
             return 0
         else:
@@ -48,18 +48,53 @@ class Opening(Component):
                 "window").component.parameter("solar_absortivity").value
             tau = self.parameter(
                 "window").component.parameter("solar_transmisivity").value
-            if face_0_to_1:
+            if face_number == 0:
                 return 1-alpha[0]-tau[0]
             else:
                 return 1-alpha[1]-tau[1]
 
-    def tau_sw(self, face_0_to_1=False):
+    def tau_sw(self, face_number=0):
         if (self.parameter("virtual").value):
             return 1
         else:
             tau = self.parameter(
                 "window").component.parameter("solar_transmisivity").value
-            if face_0_to_1:
-                return tau[1]
-            else:
+            if face_number == 0:
                 return tau[0]
+            else:
+                return tau[1]
+
+    def alpha_sw(self, face_number=0):
+        if (self.parameter("virtual").value):
+            return 0
+        else:
+            alpha = self.parameter("window").component.parameter(
+                "solar_absortivity").value
+            if face_number == 0:
+                return alpha[0]
+            else:
+                return alpha[1]
+
+    def rho_lw(self, face_number=0):
+        if (self.parameter("virtual").value):
+            return 0
+        else:
+            if face_number == 0:
+                return 1-self.parameter("window").component.parameter("lw_absortivity").value[0]
+            else:
+                return 1-self.parameter("window").component.parameter("lw_absortivity").value[1]
+
+    def tau_lw(self, face_number=0):
+        if (self.parameter("virtual").value):
+            return 1
+        else:
+            return 0
+
+    def alpha_lw(self, face_number=0):
+        if (self.parameter("virtual").value):
+            return 0
+        else:
+            if face_number == 0:
+                return self.parameter("window").component.parameter("lw_absortivity").value[0]
+            else:
+                return self.parameter("window").component.parameter("lw_absortivity").value[1]

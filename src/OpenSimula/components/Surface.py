@@ -66,17 +66,50 @@ class Surface(Component):
             area -= opening["area"]
         return area
 
-    def rho_sw(self, face_0_to_1=True):
+    def rho_sw(self, face_number=0):
         if (self.parameter("virtual").value):
             return 0
         else:
-            if face_0_to_1:
+            if face_number == 0:
                 return 1-self.parameter("construction").component.parameter("solar_absortivity").value[0]
             else:
                 return 1-self.parameter("construction").component.parameter("solar_absortivity").value[1]
 
-    def tau_sw(self, face_0_to_1=True):
+    def tau_sw(self, face_number=0):
         if (self.parameter("virtual").value):
             return 1
         else:
             return 0
+
+    def alpha_sw(self, face_number=0):
+        if (self.parameter("virtual").value):
+            return 0
+        else:
+            if face_number == 0:
+                return self.parameter("construction").component.parameter("solar_absortivity").value[0]
+            else:
+                return self.parameter("construction").component.parameter("solar_absortivity").value[1]
+
+    def rho_lw(self, face_number=0):
+        if (self.parameter("virtual").value):
+            return 0
+        else:
+            if face_number == 0:
+                return 1-self.parameter("construction").component.parameter("lw_absortivity").value[0]
+            else:
+                return 1-self.parameter("construction").component.parameter("lw_absortivity").value[1]
+
+    def tau_lw(self, face_number=0):
+        if (self.parameter("virtual").value):
+            return 1
+        else:
+            return 0
+
+    def alpha_lw(self, face_number=0):
+        if (self.parameter("virtual").value):
+            return 0
+        else:
+            if face_number == 0:
+                return self.parameter("construction").component.parameter("lw_absortivity").value[0]
+            else:
+                return self.parameter("construction").component.parameter("lw_absortivity").value[1]

@@ -64,13 +64,22 @@ class Space(Component):
                     altitude = surface.parameter("altitude").value - 180
                     if altitude < -90:
                         altitude = altitude + 180
-                    rho_sw = surface.rho_sw(False)
-                    tau_sw = surface.tau_sw(False)
+                    rho_sw = surface.rho_sw()
+                    tau_sw = surface.tau_sw()
+                    alpha_sw = surface.alpha_sw()
+                    rho_lw = surface.rho_lw()
+                    tau_lw = surface.tau_lw()
+                    alpha_lw = surface.alpha_lw()
+
                 else:
                     azimuth = surface.parameter("azimuth").value
                     altitude = surface.parameter("altitude").value
-                    rho_sw = surface.rho_sw()
-                    tau_sw = surface.tau_sw()
+                    rho_sw = surface.rho_sw(1)
+                    tau_sw = surface.tau_sw(1)
+                    alpha_sw = surface.alpha_sw(1)
+                    rho_lw = surface.rho_lw(1)
+                    tau_lw = surface.tau_lw(1)
+                    alpha_lw = surface.alpha_lw(1)
 
                 surface_dic = {"comp": surface,
                                "type": "Surface",
@@ -79,16 +88,28 @@ class Space(Component):
                                "azimuth": azimuth,
                                "altitude": altitude,
                                "rho_sw": rho_sw,
-                               "tau_sw": tau_sw
+                               "tau_sw": tau_sw,
+                               "alpha_sw": alpha_sw,
+                               "rho_lw": rho_lw,
+                               "tau_lw": tau_lw,
+                               "alpha_lw": alpha_lw
                                }
                 self._surfaces.append(surface_dic)
                 for opening in surface._openings:
                     if adjacent:
-                        rho_sw = opening["comp"].rho_sw(False)
-                        tau_sw = opening["comp"].tau_sw(False)
+                        rho_sw = opening["comp"].rho_sw()
+                        tau_sw = opening["comp"].tau_sw()
+                        alpha_sw = opening["comp"].alpha_sw()
+                        rho_lw = opening["comp"].rho_lw()
+                        tau_lw = opening["comp"].tau_lw()
+                        alpha_lw = opening["comp"].alpha_lw()
                     else:
-                        rho_sw = opening["comp"].rho_sw(True)
-                        tau_sw = opening["comp"].tau_sw(True)
+                        rho_sw = opening["comp"].rho_sw(1)
+                        tau_sw = opening["comp"].tau_sw(1)
+                        alpha_sw = opening["comp"].alpha_sw(1)
+                        rho_lw = opening["comp"].rho_lw(1)
+                        tau_lw = opening["comp"].tau_lw(1)
+                        alpha_lw = opening["comp"].alpha_lw(1)
                     opening_dic = {"comp": opening["comp"],
                                    "type": "Opening",
                                    "area": opening["area"],
@@ -96,7 +117,11 @@ class Space(Component):
                                    "azimuth": azimuth,
                                    "altitude": altitude,
                                    "rho_sw": rho_sw,
-                                   "tau_sw": tau_sw
+                                   "tau_sw": tau_sw,
+                                   "alpha_sw": alpha_sw,
+                                   "rho_lw": rho_lw,
+                                   "tau_lw": tau_lw,
+                                   "alpha_lw": alpha_lw
                                    }
                     self._surfaces.append(opening_dic)
 
@@ -155,7 +180,7 @@ class Space(Component):
             if (n_iter > N_MAX_ITER):
                 break
 
-    def _create_dist_vectors(self):
+    def _create_dist_vectors(self):  # W/m^2 for each surface
         n = len(self._surfaces)
         total_area = 0
         floor_area = 0
@@ -168,12 +193,12 @@ class Space(Component):
         for i in range(n):
             if floor_area > 0:
                 if self._surfaces[i]["altitude"] == 90:  # Floor
-                    self._dsr_dist_vector[i] = self._surfaces[i]["area"]/floor_area
+                    self._dsr_dist_vector[i] = 1/floor_area
                 else:
                     0
             else:
-                self._dsr_dist_vector[i] = self._surfaces[i]["area"]/total_area
-            self._ig_dist_vector[i] = self._surfaces[i]["area"]/total_area
+                self._dsr_dist_vector[i] = 1/total_area
+            self._ig_dist_vector[i] = 1/total_area
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
