@@ -22,7 +22,7 @@ class File_met(Component):
         self.add_variable(Variable("sol_diffuse", unit="W/m²"))
         self.add_variable(Variable("wind_speed", unit="m/s"))
         self.add_variable(Variable("wind_direction", unit="°"))
-        self.add_variable(Variable("sol_azimut", unit="°"))
+        self.add_variable(Variable("sol_azimuth", unit="°"))
         self.add_variable(Variable("sol_altitude", unit="°"))
         # Las variables leidas las guardamos en numpy arrays
         self.temperature = np.zeros(8760)
@@ -33,7 +33,7 @@ class File_met(Component):
         self.rel_humidity = np.zeros(8760)
         self.wind_speed = np.zeros(8760)
         self.wind_direction = np.zeros(8760)
-        self.sol_azimut = np.zeros(8760)
+        self.sol_azimuth = np.zeros(8760)
         self.sol_cenit = np.zeros(8760)
 
     def check(self):
@@ -65,27 +65,33 @@ class File_met(Component):
                 self.rel_humidity[t] = float(valores[8])
                 self.wind_speed[t] = float(valores[9])
                 self.wind_direction[t] = float(valores[10])
-                self.sol_azimut[t] = float(valores[11])
+                self.sol_azimuth[t] = float(valores[11])
                 self.sol_cenit[t] = float(valores[12])
         return errors
-    
+
     def pre_simulation(self, n_time_steps, delta_t):
-        super().pre_simulation(n_time_steps,delta_t)
-       
-        
+        super().pre_simulation(n_time_steps, delta_t)
+
     def pre_iteration(self, time_index, date):
         solar_hour = self._solar_hour_(date)
         self.variable("sol_hour").values[time_index] = solar_hour
         i, j, f = self._get_interpolation_tuple_(date, solar_hour)
-        self.variable("temperature").values[time_index] = self.temperature[i] * (1 - f) + self.temperature[j] * f
-        self.variable("sky_temperature").values[time_index] = self.sky_temperature[i] * (1 - f) + self.sky_temperature[j] * f
-        self.variable("rel_humidity").values[time_index] = self.rel_humidity[i] * (1 - f) + self.rel_humidity[j] * f
-        self.variable("sol_direct").values[time_index] = self.sol_direct[i] * (1 - f) + self.sol_direct[j] * f
-        self.variable("sol_diffuse").values[time_index] = self.sol_diffuse[i] * (1 - f) + self.sol_diffuse[j] * f
-        self.variable("wind_speed").values[time_index] = self.wind_speed[i] * (1 - f) + self.wind_speed[j] * f
-        self.variable("wind_direction").values[time_index] = self.wind_direction[i] * (1 - f) + self.wind_direction[j] * f
-        azi, alt = self.solar_pos(date,solar_hour)
-        self.variable("sol_azimut").values[time_index] = azi
+        self.variable(
+            "temperature").values[time_index] = self.temperature[i] * (1 - f) + self.temperature[j] * f
+        self.variable("sky_temperature").values[time_index] = self.sky_temperature[i] * (
+            1 - f) + self.sky_temperature[j] * f
+        self.variable("rel_humidity").values[time_index] = self.rel_humidity[i] * (
+            1 - f) + self.rel_humidity[j] * f
+        self.variable(
+            "sol_direct").values[time_index] = self.sol_direct[i] * (1 - f) + self.sol_direct[j] * f
+        self.variable(
+            "sol_diffuse").values[time_index] = self.sol_diffuse[i] * (1 - f) + self.sol_diffuse[j] * f
+        self.variable(
+            "wind_speed").values[time_index] = self.wind_speed[i] * (1 - f) + self.wind_speed[j] * f
+        self.variable("wind_direction").values[time_index] = self.wind_direction[i] * (
+            1 - f) + self.wind_direction[j] * f
+        azi, alt = self.solar_pos(date, solar_hour)
+        self.variable("sol_azimuth").values[time_index] = azi
         self.variable("sol_altitude").values[time_index] = alt
 
     def _get_interpolation_tuple_(self, datetime, solar_hour):
@@ -102,7 +108,7 @@ class File_met(Component):
             j = 0
         f = index - i
         return (i, j, f)
-    
+
     def _solar_hour_(self, datetime):  # Hora solar
         day = datetime.timetuple().tm_yday  # Día del año
         hours = (
@@ -124,11 +130,11 @@ class File_met(Component):
             - 0.014615 * math.cos(2 * B)
             - 0.04089 * math.sin(2 * B)
         )
-        longitude_correction = (self.reference_time_longitude - self.longitude) * 1 / 15
+        longitude_correction = (
+            self.reference_time_longitude - self.longitude) * 1 / 15
         hours += ecuacion_tiempo / 60 - daylight_saving - longitude_correction
         return hours
 
-    
     def solar_pos(self, datetime, solar_hour):
         """Solar position
 
@@ -136,22 +142,22 @@ class File_met(Component):
             datetime (datetime): local time
 
         Returns:
-            (number, number): (solar azimut, solar altitude)
+            (number, number): (solar azimuth, solar altitude)
         """
         sunrise, sunset = self.sunrise_sunset(datetime)
         if solar_hour < sunrise or solar_hour > sunset:
             return (0.0, 0.0)
         else:
-            cs, cw, cz = self._solar_pos_cos_(datetime,solar_hour)
+            cs, cw, cz = self._solar_pos_cos_(datetime, solar_hour)
             alt = math.atan(cz / math.sqrt(1.0 - cz**2))
             aux = cw / math.cos(alt)
             azi = 0.0
             if aux == -1.0:  # justo Este
-                azi = -math.pi / 2
-            elif aux == 1.0:  # justo Oeste
                 azi = math.pi / 2
+            elif aux == 1.0:  # justo Oeste
+                azi = -math.pi / 2
             else:
-                azi = math.atan(aux / math.sqrt(1 - aux**2))
+                azi = -math.atan(aux / math.sqrt(1 - aux**2))
                 if azi < 0:
                     if cs < 0:
                         azi = -math.pi - azi
@@ -169,13 +175,15 @@ class File_met(Component):
         Returns:
             (number, number, number): (cos south, cost west, cos z)
         """
-        
+
         day = datetime.timetuple().tm_yday  # Día del año
-        declina = math.radians(23.45 * math.sin(2 * math.pi * (284 + day) / 365))
+        declina = math.radians(
+            23.45 * math.sin(2 * math.pi * (284 + day) / 365))
         solar_angle = math.radians(15 * (solar_hour - 12))
         lat_radians = math.radians(self.latitude)
 
-        cz = math.sin(lat_radians) * math.sin(declina) + math.cos(lat_radians) * math.cos(declina) * math.cos(solar_angle)
+        cz = math.sin(lat_radians) * math.sin(declina) + \
+            math.cos(lat_radians) * math.cos(declina) * math.cos(solar_angle)
         cw = math.cos(declina) * math.sin(solar_angle)
         aux = 1.0 - cw**2 - cz**2
         if aux > 0:
@@ -215,3 +223,20 @@ class File_met(Component):
                 (12 + (12 * solar_angle) / math.pi),
             )
 
+    def solar_direct_rad(self, time_index, surf_azimuth, surf_altitude):
+        sol_direct = self.variable("sol_direct").values[time_index]
+        sol_azimuth = self.variable("sol_azimuth").values[time_index]
+        sol_altitude = self.variable("sol_altitude").values[time_index]
+        if sol_direct > 0:
+            cos = math.cos(math.radians(sol_azimuth))*math.cos(math.radians(sol_altitude)) * \
+                math.cos(math.radians(surf_azimuth)) * math.cos(math.radians(surf_altitude)) + \
+                math.sin(math.radians(sol_azimuth))*math.cos(math.radians(sol_altitude)) * \
+                math.sin(math.radians(surf_azimuth)) * math.cos(math.radians(surf_altitude)) + \
+                math.sin(math.radians(sol_altitude)) * \
+                math.sin(math.radians(surf_altitude))
+            if cos > 1E-10:
+                return sol_direct * cos / math.cos(math.radians(sol_altitude))
+            else:
+                return 0
+        else:
+            return 0

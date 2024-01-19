@@ -10,11 +10,15 @@ class Building(Component):
         self.parameter("type").value = "Building"
         self.parameter("description").value = "Building description"
         # Parameters
+        self.add_parameter(Parameter_component("file_met", "not_defined"))
+        self.add_parameter(Parameter_float(
+            "albedo", 0.3, "frac", min=0, max=1))
 
         # Variables
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
+        self._file_met = self.parameter("file_met").component
         self._create_spaces_surfaces_list()
         self._create_ff_matrix()
         self._create_B_matrix()

@@ -1,11 +1,19 @@
 import OpenSimula as osm
 
+alfa = 0.6
+
 bestest_building_600 = {
     "name": "Bestest Building",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
     "components": [
+        # MET_FILE
+        {
+            "type": "File_met",
+            "name": "drycold",
+            "file_name": "examples/met_files/DRYCOLD.met"
+        },
         # CONSTRUCTION
         {
             "type": "Material",
@@ -52,21 +60,21 @@ bestest_building_600 = {
         {
             "type": "Construction",
             "name": "Pared 600",
-            "solar_absortivity": [0.6, 0.6],
+            "solar_absortivity": [alfa, alfa],
             "materials": ["Enlucido", "Aislamiento", "Madera pared"],
             "thicknesses": [0.12, 0.066, 0.009],
         },
         {
             "type": "Construction",
             "name": "Suelo 600",
-            "solar_absortivity": [0.6, 0.6],
+            "solar_absortivity": [alfa, alfa],
             "materials": ["Aislamiento suelo", "Madera suelo"],
             "thicknesses": [1.003, 0.025],
         },
         {
             "type": "Construction",
             "name": "Techo 600",
-            "solar_absortivity": [0.6, 0.6],
+            "solar_absortivity": [alfa, alfa],
             "materials": ["Enlucido", "Aislamiento", "Madera pared"],
             "thicknesses": [0.010, 0.01118, 0.019],
         },
@@ -82,7 +90,8 @@ bestest_building_600 = {
         # BUILDING
         {
             "type": "Building",
-            "name": "Bestest 600"
+            "name": "Bestest 600",
+            "file_met": "drycold"
         },
         {
             "type": "Space_type",
@@ -107,6 +116,7 @@ bestest_building_600 = {
             "type": "Surface",
             "name": "north_wall",
             "location": "EXTERIOR",
+            "virtual": False,
             "construction": "Pared 600",
             "space": "space_1",
             "area": 8*2.7,

@@ -33,8 +33,16 @@ class Opening(Component):
             )
         return errors
 
+    def building(self):
+        return self.parameter("surface").component.building()
+
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
+        self._file_met = self.building().parameter("file_met").component
+
+    def pre_iteration(self, time_index, date):
+        super().pre_simulation(time_index, date)
+        self._T_ext = self._file_met.variable("temperature").values[time_index]
 
     @property
     def area(self):

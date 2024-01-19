@@ -29,6 +29,9 @@ class Space(Component):
         self.add_variable(Variable("other_gains_latent", unit="W"))
         self.add_variable(Variable("infiltration_flow", unit="m³/h"))
 
+    def building(self):
+        return self.parameter("building").component
+
     def check(self):
         errors = super().check()
         # Test building is defined
@@ -43,6 +46,7 @@ class Space(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
+        self._file_met = self.building().parameter("file_met").component
         self._space_type_comp = self.parameter("space_type").component
         self._area = self.parameter("floor_area").value
         self._volume = self.parameter("volume").value
