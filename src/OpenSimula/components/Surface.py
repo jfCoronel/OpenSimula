@@ -33,7 +33,7 @@ class Surface(Component):
 
     @property
     def net_area(self):
-        return = self.parameter("area").value
+        return self.parameter("area").value
 
     def radiant_property(self, prop, wave, side):
         if (self.parameter("virtual").value):
