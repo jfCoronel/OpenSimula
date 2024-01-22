@@ -44,6 +44,6 @@ class Underground_surface(Surface):
 
     def _calculate_K(self):
         a_0, a_1, a_01 = self.parameter("construction").component.get_A()
-        self._k_1 = self.net_area()*(a_1 - self.parameter("h_cv").value)
-        self._k_01 = self.net_area()*a_01
-        self._K = self._k_1
+        self.k_1 = self.net_area()*(a_1 - self.parameter("h_cv").value)
+        self.k_01 = self.net_area()*a_01
+        self.K = self._k_1

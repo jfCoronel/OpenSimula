@@ -43,24 +43,24 @@ class Building(Component):
 
     def _create_ff_matrix(self):
         n = len(self.surfaces)
-        self._ff_matrix = np.zeros((n, n))
+        self.ff_matrix = np.zeros((n, n))
         i = 0
         for space in self.spaces:
             n_i = len(space.surfaces)
-            self.ff_matrix[i:i+n_i, i:i + n_i] = space._ff_matrix
+            self.ff_matrix[i:i+n_i, i:i + n_i] = space.ff_matrix
             i += n_i
 
     def _create_B_matrix(self):
         n = len(self.surfaces)
-        self._B_matrix = np.zeros((n, n))
+        self.B_matrix = np.zeros((n, n))
         for i in range(n):
             for j in range(n):
                 if i != j and self.surfaces[i] == self.surfaces[j]:
-                    self._B_matrix[i][j] = 1
+                    self.B_matrix[i][j] = 1
 
     def _create_SW_matrices(self):
         n = len(self.surfaces)
-        self._SWRM_matrix = np.identity(n)
+        self.SWR_matrix = np.identity(n)
         rho_matrix = np.zeros((n, n))
         tau_matrix = np.zeros((n, n))
         alpha_matrix = np.zeros((n, n))
@@ -77,30 +77,30 @@ class Building(Component):
                     "alpha", "short", self.sides[i])
             area_matrix[i][i] = self.surfaces[i].net_area()
 
-        self._SWRM_matrix = self._SWRM_matrix - \
-            np.matmul(self._ff_matrix, rho_matrix) - \
-            np.matmul(self._ff_matrix, np.matmul(tau_matrix, self._B_matrix))
+        self.SWR_matrix = self.SWR_matrix - \
+            np.matmul(self.ff_matrix, rho_matrix) - \
+            np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix))
 
-        self._SWRM_matrix = np.linalg.inv(self._SWRM_matrix)
+        self.SWR_matrix = np.linalg.inv(self.SWR_matrix)
         aux_matrix = np.matmul(area_matrix, np.matmul(
-            alpha_matrix, self._SWRM_matrix))
-        self._SWDIF_matrix = np.matmul(aux_matrix, np.matmul(
-            self._ff_matrix, tau_matrix))  # SW Solar Diffuse
+            alpha_matrix, self.SWR_matrix))
+        self.SWDIF_matrix = np.matmul(aux_matrix, np.matmul(
+            self.ff_matrix, tau_matrix))  # SW Solar Diffuse
 
         m = len(self.spaces)
         dsr_dist_matrix = np.zeros((n, m))
         ig_dist_matrix = np.zeros((n, m))
         for i in range(n):
             for j in range(m):
-                dsr_dist_matrix[i][j] = self.spaces[j]._dsr_dist_vector[i]
-                ig_dist_matrix[i][j] = self.spaces[j]._ig_dist_vector[i]
+                dsr_dist_matrix[i][j] = self.spaces[j].dsr_dist_vector[i]
+                ig_dist_matrix[i][j] = self.spaces[j].ig_dist_vector[i]
 
-        self._SWDIR_matrix = np.matmul(aux_matrix, dsr_dist_matrix)
-        self._SWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
+        self.SWDIR_matrix = np.matmul(aux_matrix, dsr_dist_matrix)
+        self.SWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
 
     def _create_LW_matrices(self):
         n = len(self.surfaces)
-        self._LWRM_matrix = np.identity(n)
+        self.LWR_matrix = np.identity(n)
         rho_matrix = np.zeros((n, n))
         tau_matrix = np.zeros((n, n))
         alpha_matrix = np.zeros((n, n))
@@ -117,43 +117,56 @@ class Building(Component):
                     "alpha", "long", self.sides[i])
             area_matrix[i][i] = self.surfaces[i].net_area()
 
-        self._LWRM_matrix = self._LWRM_matrix - \
-            np.matmul(self._ff_matrix, rho_matrix) - \
-            np.matmul(self._ff_matrix, np.matmul(tau_matrix, self._B_matrix))
+        self.LWR_matrix = self.LWR_matrix - \
+            np.matmul(self.ff_matrix, rho_matrix) - \
+            np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix))
 
-        self._LWRM_matrix = np.linalg.inv(self._LWRM_matrix)
+        self.LWR_matrix = np.linalg.inv(self.LWR_matrix)
         aux_matrix = np.matmul(area_matrix, np.matmul(
-            alpha_matrix, self._LWRM_matrix))
-        self._LWEXT_matrix = np.matmul(aux_matrix, np.matmul(
-            self._ff_matrix, tau_matrix))  # Exterior irradiations
+            alpha_matrix, self.LWR_matrix))
+        self.LWEXT_matrix = np.matmul(aux_matrix, np.matmul(
+            self.ff_matrix, tau_matrix))  # Exterior irradiations
 
         m = len(self.spaces)
         ig_dist_matrix = np.zeros((n, m))
         for i in range(n):
             for j in range(m):
-                ig_dist_matrix[i][j] = self.spaces[j]._ig_dist_vector[i]
+                ig_dist_matrix[i][j] = self.spaces[j].ig_dist_vector[i]
 
-        self._LWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
+        self.LWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
 
         # Temperature matrix
-        self._KTEMP_matrix = np.matmul(area_matrix, -1 * alpha_matrix) - \
-            np.matmul(aux_matrix, np.matmul(self._ff_matrix, alpha_matrix))
+        self.KTEMP_matrix = np.matmul(area_matrix, -1 * alpha_matrix) - \
+            np.matmul(aux_matrix, np.matmul(self.ff_matrix, alpha_matrix))
 
-        LINEAR_CTE = 4 * 5.67E-8 * (293**3)
-        self._KTEMP_matrix = LINEAR_CTE * self._KTEMP_matrix
+        H_RD = 5.705  # 4*sigma*(293^3)
+        self.KTEMP_matrix = H_RD * self.KTEMP_matrix
 
     def _create_K_matrices(self):
         n = len(self.surfaces)
         m = len(self.spaces)
-        self._KS_matrix = np.copy(self._KTEMP_matrix)
-        self._KSZ_matriz = np.zeros((n, m))
+        self.KS_matrix = np.copy(self.KTEMP_matrix)
+        self.KSZ_matriz = np.zeros((n, m))
 
+        # Complete KS_matriz
         for i in range(n):
-            surface = self._surfaces[i]["comp"]
-            location = surface.parameter("location").value
-            if (location == "INTERIOR"):
-                self._KS_matrix[i][i] += surface._k_1
-                self._KS_matrix[i][self._surfaces[i]
-                                   ["i_adjacent"]] += surface._k_01
-            else:
-                self._KS_matrix[i][i] += surface._K
+            s_type = self.surfaces[i].parameter("type")
+            if s_type == "Exterior_surface":
+                self.KS_matrix[i][i] += self.surfaces[i].K
+                for j in range(m):
+                    if self.spaces[j] == self.surfaces[i].paremeter("space").component:
+                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area() *  self.surfaces[i].parameter("h_cv").value[self.sides[i]]
+            elif s_type == "Underground_surface":
+                self.KS_matrix[i][i] += self.surfaces[i].K 
+                for j in range(m):
+                    if self.spaces[j] == self.surfaces[i].paremeter("space").component:
+                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area() *  self.surfaces[i].parameter("h_cv").value
+            elif s_type == "Interior_surface":
+                self.KS_matrix[i][i] += self.surfaces[i].k[self.sides[i ]]
+                for j in range(n):
+                    if self.B_matrix[i][j] == 1:
+                        self.KS_matrix[i][j] += self.surfaces[i].k_01
+                for j in range(m):
+                    if self.spaces[j] == self.surfaces[i].paremeter("spaces").component[self.sides[i]]:
+                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area() *  self.surfaces[i].parameter("h_cv").value[self.sides[i]]
+                

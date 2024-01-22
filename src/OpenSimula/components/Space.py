@@ -87,13 +87,17 @@ class Space(Component):
                 self.surfaces.append(surface)
                 self.sides.append[1]
 
-    def _coplanar(self, surf1, surf2):
-        if surf1.parameter("altitude").value == 90 and surf2.parameter("altitude").value == 90:
+    def _coplanar(self, surf1, side1, surf2, side2):
+        azimuth_1 = surf1.orentation_angle("azimuth",side1)
+        azimuth_2 = surf2.orentation_angle("azimuth",side2)
+        altitude_1 = surf1.orentation_angle("altitude",side1)
+        altitude_2 = surf1.orentation_angle("altitude",side1)
+        if altitude_1 == 90 and altitude_2 == 90:
             return True
-        elif surf1.parameter("altitude").value == -90 and surf2.parameter("altitude").value == -90:
+        elif altitude_1 == -90 and altitude_2 == -90:
             return True
         else:
-            if surf1.parameter("altitude").value == surf2.parameter("altitude").value and surf1.parameter("azimuth").value == surf2.parameter("azimuth").value:
+            if altitude_1 == altitude_2 and azimuth_1 == azimuth_2:
                 return True
             else:
                 return False
@@ -103,15 +107,15 @@ class Space(Component):
         total_area = 0
         for surf in self.surfaces:
             total_area += surf.net_area()
-        self._ff_matrix = np.zeros((n, n))
+        self.ff_matrix = np.zeros((n, n))
         seven = np.zeros((n, n))
         for i in range(n):
             for j in range(n):
-                if self._coplanar(self.surfaces[i], self.surfaces[j]):
+                if self._coplanar(self.surfaces[i], self.side[i], self.surfaces[j],self.side[j]):
                     seven[i][j] = 0
                 else:
                     seven[i][j] = 1
-                self._ff_matrix[i][j] = seven[i][j] * \
+                self.ff_matrix[i][j] = seven[i][j] * \
                     self.surfaces[j].net_area()/total_area
         # iteración
         EPSILON = 1.e-4
@@ -125,7 +129,7 @@ class Space(Component):
             for i in range(n):
                 residuos[i] = 1.
                 for j in range(n):
-                    residuos[i] -= self._ff_matrix[i][j]
+                    residuos[i] -= self.ff_matrix[i][j]
                 if (residuos[i] == 0):
                     residuos[i] = EPSILON/100
                 if (math.fabs(residuos[i]) > EPSILON):
@@ -134,7 +138,7 @@ class Space(Component):
             if corregir:
                 for i in range(n):
                     for j in range(n):
-                        self._ff_matrix[i][j] *= 1 + residuos[i]*residuos[j] * \
+                        self.ff_matrix[i][j] *= 1 + residuos[i]*residuos[j] * \
                             seven[i][j] / (math.fabs(residuos[i]) +
                                            math.fabs(residuos[j]))
             else:
@@ -146,21 +150,21 @@ class Space(Component):
         n = len(self.surfaces)
         total_area = 0
         floor_area = 0
-        for surf in self.surfaces:
-            total_area += surf.net_area()
-            if surf.parameter("altitude").value == -90:  # Floor
-                floor_area += surf.net_area()
-        self._dsr_dist_vector = np.zeros(n)
-        self._ig_dist_vector = np.zeros(n)
+        for i in range(n):
+            total_area += self.surfaces[i].net_area()
+            if self.surfaces[i].orientation_angle("altitude",self.sides[i]) == 90:  # Floor
+                floor_area += self.surfaces[i].net_area()
+        self.dsr_dist_vector = np.zeros(n)
+        self.ig_dist_vector = np.zeros(n)
         for i in range(n):
             if floor_area > 0:
-                if self.surfaces[i].parameter("altitude").value == -90:  # Floor
-                    self._dsr_dist_vector[i] = 1/floor_area
+                if self.surfaces[i].orientation_angle("altitude",self.sides[i]) == 90:  # Floor
+                    self.dsr_dist_vector[i] = 1/floor_area
                 else:
                     0
             else:
-                self._dsr_dist_vector[i] = 1/total_area
-            self._ig_dist_vector[i] = 1/total_area
+                self.dsr_dist_vector[i] = 1/total_area
+            self.ig_dist_vector[i] = 1/total_area
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
