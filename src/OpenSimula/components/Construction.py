@@ -71,6 +71,44 @@ class Construction(Component):
             resis_tot = resis_tot + self._resis_layer_(i)
         return 1/resis_tot
 
+    def get_A(self):
+        """
+            Conduction actual time coefficients
+        Returns:
+            (a_00, a_11, a_01): 
+        """
+        return (-self._coef_T_[0][0], -self._coef_T_[2][0], self._coef_T_[1][0])
+
+    def get_P(self, time_i, T_s0, T_s1, q_cd0, q_cd1, T_ini):
+        """
+            Conduction P for one time instant
+        Returns:
+            (p_0, p_1): 
+        """
+        p0 = 0
+        p1 = 0
+        for i in range(1, len(self._coef_T_[0])):
+            j = time_i - i
+            if j < 0:
+                T_0 = T_ini
+                T_1 = T_ini
+            else:
+                T_0 = T_s0[j]
+                T_1 = T_s1[j]
+            p0 += -self._coef_T_[0][i] * T_0 + self._coef_T_[1][i] * T_1
+            p1 += -self._coef_T_[2][i] * T_1 + self._coef_T_[1][i] * T_0
+        for i in range(0, len(self._coef_Q_)):
+            j = time_i - i - 1
+            if j < 0:
+                q_0 = 0
+                q_1 = 0
+            else:
+                q_0 = q_cd0[j]
+                q_1 = q_cd1[j]
+            p0 += -self._coef_Q_[i] * q_0
+            p1 += -self._coef_Q_[i] * q_1
+        return (p0, p1)
+
     def _resis_layer_(self, layer):
         material = self.parameter("materials").component[layer]
         resis_def = material.parameter("use_resistance").value

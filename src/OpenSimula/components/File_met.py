@@ -17,6 +17,7 @@ class File_met(Component):
         self.add_variable(Variable("sol_hour", unit="h"))
         self.add_variable(Variable("temperature", unit="°C"))
         self.add_variable(Variable("sky_temperature", unit="°C"))
+        self.add_variable(Variable("underground_temperature", unit="°C"))
         self.add_variable(Variable("rel_humidity", unit="%"))
         self.add_variable(Variable("sol_direct", unit="W/m²"))
         self.add_variable(Variable("sol_diffuse", unit="W/m²"))
@@ -67,6 +68,7 @@ class File_met(Component):
                 self.wind_direction[t] = float(valores[10])
                 self.sol_azimuth[t] = float(valores[11])
                 self.sol_cenit[t] = float(valores[12])
+            self._T_average = np.average(self.temperature)
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -93,6 +95,8 @@ class File_met(Component):
         azi, alt = self.solar_pos(date, solar_hour)
         self.variable("sol_azimuth").values[time_index] = azi
         self.variable("sol_altitude").values[time_index] = alt
+        self.variable(
+            "underground_temperature").values[time_index] = self._T_average
 
     def _get_interpolation_tuple_(self, datetime, solar_hour):
         day = datetime.timetuple().tm_yday  # Día del año
