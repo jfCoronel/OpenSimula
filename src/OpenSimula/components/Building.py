@@ -75,7 +75,7 @@ class Building(Component):
             alpha_matrix[i][i] = -1 * \
                 self.surfaces[i].radiant_property(
                     "alpha", "short", self.sides[i])
-            area_matrix[i][i] = self.surfaces[i].net_area()
+            area_matrix[i][i] = self.surfaces[i].net_area
 
         self.SWR_matrix = self.SWR_matrix - \
             np.matmul(self.ff_matrix, rho_matrix) - \
@@ -115,7 +115,7 @@ class Building(Component):
             alpha_matrix[i][i] = -1 * \
                 self.surfaces[i].radiant_property(
                     "alpha", "long", self.sides[i])
-            area_matrix[i][i] = self.surfaces[i].net_area()
+            area_matrix[i][i] = self.surfaces[i].net_area
 
         self.LWR_matrix = self.LWR_matrix - \
             np.matmul(self.ff_matrix, rho_matrix) - \
@@ -155,18 +155,22 @@ class Building(Component):
                 self.KS_matrix[i][i] += self.surfaces[i].K
                 for j in range(m):
                     if self.spaces[j] == self.surfaces[i].paremeter("space").component:
-                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area() *  self.surfaces[i].parameter("h_cv").value[self.sides[i]]
+                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area * \
+                            self.surfaces[i].parameter(
+                                "h_cv").value[self.sides[i]]
             elif s_type == "Underground_surface":
-                self.KS_matrix[i][i] += self.surfaces[i].K 
+                self.KS_matrix[i][i] += self.surfaces[i].K
                 for j in range(m):
                     if self.spaces[j] == self.surfaces[i].paremeter("space").component:
-                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area() *  self.surfaces[i].parameter("h_cv").value
+                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area * \
+                            self.surfaces[i].parameter("h_cv").value
             elif s_type == "Interior_surface":
-                self.KS_matrix[i][i] += self.surfaces[i].k[self.sides[i ]]
+                self.KS_matrix[i][i] += self.surfaces[i].k[self.sides[i]]
                 for j in range(n):
                     if self.B_matrix[i][j] == 1:
                         self.KS_matrix[i][j] += self.surfaces[i].k_01
                 for j in range(m):
                     if self.spaces[j] == self.surfaces[i].paremeter("spaces").component[self.sides[i]]:
-                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area() *  self.surfaces[i].parameter("h_cv").value[self.sides[i]]
-                
+                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area * \
+                            self.surfaces[i].parameter(
+                                "h_cv").value[self.sides[i]]

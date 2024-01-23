@@ -11,6 +11,6 @@ from OpenSimula.components.Space_type import Space_type
 from OpenSimula.components.Building import Building
 from OpenSimula.components.Space import Space
 from OpenSimula.components.Exterior_surface import Exterior_surface
-from OpenSimula.components.Interior_surface import Exterior_surface
+from OpenSimula.components.Interior_surface import Interior_surface
 from OpenSimula.components.Underground_surface import Underground_surface
 from OpenSimula.components.Opening import Opening

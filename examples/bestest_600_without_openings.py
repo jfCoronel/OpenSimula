@@ -1,7 +1,5 @@
 import OpenSimula as osm
 
-alfa = 0.6
-
 bestest_building_600 = {
     "name": "Bestest Building",
     "time_step": 3600,
@@ -60,21 +58,21 @@ bestest_building_600 = {
         {
             "type": "Construction",
             "name": "Pared 600",
-            "solar_absortivity": [alfa, alfa],
+            "solar_absortivity": [0.6, 0.6],
             "materials": ["Enlucido", "Aislamiento", "Madera pared"],
             "thicknesses": [0.12, 0.066, 0.009],
         },
         {
             "type": "Construction",
             "name": "Suelo 600",
-            "solar_absortivity": [alfa, alfa],
+            "solar_absortivity": [0.6, 0.6],
             "materials": ["Aislamiento suelo", "Madera suelo"],
             "thicknesses": [1.003, 0.025],
         },
         {
             "type": "Construction",
             "name": "Techo 600",
-            "solar_absortivity": [alfa, alfa],
+            "solar_absortivity": [0.6, 0.6],
             "materials": ["Enlucido", "Aislamiento", "Madera pared"],
             "thicknesses": [0.010, 0.01118, 0.019],
         },
@@ -113,30 +111,9 @@ bestest_building_600 = {
         },
         # Surfaces
         {
-            "type": "Surface",
+            "type": "Exterior_surface",
             "name": "north_wall",
-            "location": "EXTERIOR",
             "virtual": False,
-            "construction": "Pared 600",
-            "space": "space_1",
-            "area": 8*2.7,
-            "azimuth": 0,
-            "altitude": 0
-        },
-        {
-            "type": "Surface",
-            "name": "east_wall",
-            "location": "EXTERIOR",
-            "construction": "Pared 600",
-            "space": "space_1",
-            "area": 6*2.7,
-            "azimuth": 90,
-            "altitude": 0
-        },
-        {
-            "type": "Surface",
-            "name": "south_wall",
-            "location": "EXTERIOR",
             "construction": "Pared 600",
             "space": "space_1",
             "area": 8*2.7,
@@ -144,25 +121,26 @@ bestest_building_600 = {
             "altitude": 0
         },
         {
-            "type": "Opening",
-            "name": "south_window_1",
-            "surface": "south_wall",
-            "window": "Vidrio doble",
-            "width": 3,
-            "height": 2,
+            "type": "Exterior_surface",
+            "name": "east_wall",
+            "construction": "Pared 600",
+            "space": "space_1",
+            "area": 6*2.7,
+            "azimuth": 90,
+            "altitude": 0
         },
         {
-            "type": "Opening",
-            "name": "south_window_2",
-            "surface": "south_wall",
-            "window": "Vidrio doble",
-            "width": 3,
-            "height": 2,
+            "type": "Exterior_surface",
+            "name": "south_wall",
+            "construction": "Pared 600",
+            "space": "space_1",
+            "area": 8*2.7,
+            "azimuth": 0,
+            "altitude": 0
         },
         {
-            "type": "Surface",
+            "type": "Exterior_surface",
             "name": "west_wall",
-            "location": "EXTERIOR",
             "construction": "Pared 600",
             "space": "space_1",
             "area": 6*2.7,
@@ -170,9 +148,8 @@ bestest_building_600 = {
             "altitude": 0
         },
         {
-            "type": "Surface",
+            "type": "Exterior_surface",
             "name": "roof",
-            "location": "EXTERIOR",
             "construction": "Techo 600",
             "space": "space_1",
             "area": 8*6,
@@ -180,9 +157,8 @@ bestest_building_600 = {
             "altitude": 90
         },
         {
-            "type": "Surface",
+            "type": "Underground_surface",
             "name": "floor",
-            "location": "UNDERGROUND",
             "construction": "Suelo 600",
             "space": "space_1",
             "area": 8*6,
@@ -191,9 +167,8 @@ bestest_building_600 = {
         },
     ],
 }
-
 sim = osm.Simulation()
 pro = osm.Project("pro", sim)
 pro.read_dict(bestest_building_600)
 pro.simulate()
-print(pro.component("Bestest 600")._SWDIR_matrix)
+print(pro.component("Bestest 600").SWDIR_matrix)

@@ -41,6 +41,7 @@ class Interior_surface(Surface):
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
         self._T_ext = self._file_met.variable("temperature").values[time_index]
+        """
         if (self.parameter("virtual").value):
             pass  # TODO
         else:
@@ -48,13 +49,15 @@ class Interior_surface(Surface):
                 time_index, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
             self.variable("p_0").values[time_index] = p_0
             self.variable("p_1").values[time_index] = p_1
-            self._f_0 = self.net_area() * (- p_0)
-            self._f_1 = self.net_area() * (- p_1)
+            self._f_0 = self.net_area * (- p_0)
+            self._f_1 = self.net_area * (- p_1)
+        """
 
     def _calculate_K(self):
         if (self.parameter("virtual").value):
-            self.k = [1,1]
+            self.k = [1, 1]
         else:
             a_0, a_1, a_01 = self.parameter("construction").component.get_A()
-            self.k = [self.net_area()*(a_0 - self.parameter("h_cv").value[0]),self.net_area()*(a_1 - self.parameter("h_cv").value[1])]
-            self.k_01 = self.net_area()*a_01
+            self.k = [self.net_area * (a_0 - self.parameter("h_cv").value[0]),
+                      self.net_area * (a_1 - self.parameter("h_cv").value[1])]
+            self.k_01 = self.net_area * a_01

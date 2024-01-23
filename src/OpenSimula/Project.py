@@ -42,7 +42,9 @@ class Project(Parameter_container):
                     "Window",
                     "Space_type",
                     "Opening",
-                    "Surface",
+                    "Exterior_surface",
+                    "Underground_surface",
+                    "Interior_surface",
                     "Space",
                     "Building"
                 ],

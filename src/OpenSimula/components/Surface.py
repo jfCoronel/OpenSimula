@@ -34,23 +34,23 @@ class Surface(Component):
     @property
     def net_area(self):
         return self.parameter("area").value
-    
-    def orientation_angle(self,angle,side):
+
+    def orientation_angle(self, angle, side):
         if angle == "azimuth":
             az = self.parameter("azimuth").value
             if side == 0:
                 return az
-            elif side == 1: 
-                if az > 0: 
+            elif side == 1:
+                if az > 0:
                     return az-90
                 else:
-                    return az+180 
+                    return az+180
         elif angle == "altitude":
             alt = self.parameter("altitude").value
             if side == 0:
                 return alt
-            elif side == 1: 
-                return -alt            
+            elif side == 1:
+                return -alt
 
     def radiant_property(self, prop, wave, side):
         if (self.parameter("virtual").value):
@@ -65,13 +65,11 @@ class Surface(Component):
                 elif (prop == "tau"):
                     return 0
                 elif (prop == "alpha"):
-                    self.parameter("construction").component.parameter(
-                        "solar_absortivity").value[side]
+                    return self.parameter("construction").component.parameter("solar_absortivity").value[side]
             elif (wave == "long"):
                 if (prop == "rho"):
                     return 1-self.parameter("construction").component.parameter("lw_absortivity").value[side]
                 elif (prop == "tau"):
                     return 0
                 elif (prop == "alpha"):
-                    self.parameter("construction").component.parameter(
-                        "lw_absortivity").value[side]
+                    return self.parameter("construction").component.parameter("lw_absortivity").value[side]

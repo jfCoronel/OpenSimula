@@ -88,10 +88,10 @@ class Space(Component):
                 self.sides.append[1]
 
     def _coplanar(self, surf1, side1, surf2, side2):
-        azimuth_1 = surf1.orentation_angle("azimuth",side1)
-        azimuth_2 = surf2.orentation_angle("azimuth",side2)
-        altitude_1 = surf1.orentation_angle("altitude",side1)
-        altitude_2 = surf1.orentation_angle("altitude",side1)
+        azimuth_1 = surf1.orientation_angle("azimuth", side1)
+        azimuth_2 = surf2.orientation_angle("azimuth", side2)
+        altitude_1 = surf1.orientation_angle("altitude", side1)
+        altitude_2 = surf1.orientation_angle("altitude", side1)
         if altitude_1 == 90 and altitude_2 == 90:
             return True
         elif altitude_1 == -90 and altitude_2 == -90:
@@ -106,17 +106,17 @@ class Space(Component):
         n = len(self.surfaces)
         total_area = 0
         for surf in self.surfaces:
-            total_area += surf.net_area()
+            total_area += surf.net_area
         self.ff_matrix = np.zeros((n, n))
         seven = np.zeros((n, n))
         for i in range(n):
             for j in range(n):
-                if self._coplanar(self.surfaces[i], self.side[i], self.surfaces[j],self.side[j]):
+                if self._coplanar(self.surfaces[i], self.sides[i], self.surfaces[j], self.sides[j]):
                     seven[i][j] = 0
                 else:
                     seven[i][j] = 1
                 self.ff_matrix[i][j] = seven[i][j] * \
-                    self.surfaces[j].net_area()/total_area
+                    self.surfaces[j].net_area / total_area
         # iteración
         EPSILON = 1.e-4
         N_MAX_ITER = 500
@@ -151,14 +151,16 @@ class Space(Component):
         total_area = 0
         floor_area = 0
         for i in range(n):
-            total_area += self.surfaces[i].net_area()
-            if self.surfaces[i].orientation_angle("altitude",self.sides[i]) == 90:  # Floor
-                floor_area += self.surfaces[i].net_area()
+            total_area += self.surfaces[i].net_area
+            # Floor
+            if self.surfaces[i].orientation_angle("altitude", self.sides[i]) == 90:
+                floor_area += self.surfaces[i].net_area
         self.dsr_dist_vector = np.zeros(n)
         self.ig_dist_vector = np.zeros(n)
         for i in range(n):
             if floor_area > 0:
-                if self.surfaces[i].orientation_angle("altitude",self.sides[i]) == 90:  # Floor
+                # Floor
+                if self.surfaces[i].orientation_angle("altitude", self.sides[i]) == 90:
                     self.dsr_dist_vector[i] = 1/floor_area
                 else:
                     0

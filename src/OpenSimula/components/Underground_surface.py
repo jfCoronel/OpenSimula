@@ -36,14 +36,14 @@ class Underground_surface(Surface):
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
-        p_0, p_1 = self.parameter("construction").component.get_P(
-            time_index, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
-        self.variable("p").values[time_index] = p_1
-        self._F = self.net_area() * (- p_1 - self._k_01 *
-                                     self._file_met.variable("underground_temperature").values[time_index])
+        # p_0, p_1 = self.parameter("construction").component.get_P(
+        #    time_index, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
+        # self.variable("p").values[time_index] = p_1
+        # self._F = self.net_area * (- p_1 - self._k_01 *
+        #                             self._file_met.variable("underground_temperature").values[time_index])
 
     def _calculate_K(self):
         a_0, a_1, a_01 = self.parameter("construction").component.get_A()
-        self.k_1 = self.net_area()*(a_1 - self.parameter("h_cv").value)
-        self.k_01 = self.net_area()*a_01
-        self.K = self._k_1
+        self.k_1 = self.net_area * (a_1 - self.parameter("h_cv").value)
+        self.k_01 = self.net_area * a_01
+        self.K = self.k_1

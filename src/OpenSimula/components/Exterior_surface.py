@@ -48,10 +48,7 @@ class Exterior_surface(Surface):
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
         self._T_ext = self._file_met.variable("temperature").values[time_index]
-        if (self.parameter("virtual").value):
-            pass  # TODO
-        else:
-            self._calculate_variables_pre(time_index)
+        # self._calculate_variables_pre(time_index)
 
     def _create_openings_list(self):
         project_openings_list = self.project().component_list(type="Opening")
@@ -65,10 +62,10 @@ class Exterior_surface(Surface):
             self.K = 1
         else:
             a_0, a_1, a_01 = self.parameter("construction").component.get_A()
-            self.k_0 = self.net_area()*(a_0 - self.parameter("h_cv").value[0] -
-                                         self._H_RD * self.radiant_property("alpha","long",0))
-            self.k_1 = self.net_area()*(a_1 - self.parameter("h_cv").value[1])
-            self.k_01 = self.net_area()*a_01
+            self.k_0 = self.net_area * (a_0 - self.parameter("h_cv").value[0] -
+                                        self._H_RD * self.radiant_property("alpha", "long", 0))
+            self.k_1 = self.net_area * (a_1 - self.parameter("h_cv").value[1])
+            self.k_01 = self.net_area * a_01
             self.K = self.k_1 - self.k_01 * self.k_01 / self.k_0
 
     def _calculate_variables_pre(self, time_i):
@@ -87,13 +84,13 @@ class Exterior_surface(Surface):
         self.variable("solar_direct_rad").values[time_i] = hor_sol_dir_sur
         T_rm = self._F_sky * T_sky + (1-self._F_sky)*self._T_ext
         self.variable("T_rm").values[time_i] = T_rm
-        self._f_0 = self.net_area() * (- p_0 - self.parameter("h_cv").value[0] * self._T_ext - self._H_RD *
-                                       self.alpha_lw(0) * T_rm - self.alpha_sw(0) * (hor_sol_dif_sur + hor_sol_dir_sur))
-        self._F = self.net_area() * (- p_1) - self._k_01/self._k_0 * self._f_0
+        self._f_0 = self.net_area * (- p_0 - self.parameter("h_cv").value[0] * self._T_ext - self._H_RD *
+                                     self.alpha_lw(0) * T_rm - self.alpha_sw(0) * (hor_sol_dif_sur + hor_sol_dir_sur))
+        self._F = self.net_area * (- p_1) - self._k_01/self._k_0 * self._f_0
 
     @property
     def net_area(self):
         area = self.parameter("area").value
-        for opening in self._openings:
+        for opening in self.openings:
             area -= opening["area"]
         return area
