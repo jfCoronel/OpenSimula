@@ -2,6 +2,7 @@ from OpenSimula.Component import Component
 from OpenSimula.Parameters import Parameter_component, Parameter_float
 from OpenSimula.Variable import Variable
 import numpy as np
+import math
 
 
 class Building(Component):
@@ -147,8 +148,9 @@ class Building(Component):
         m = len(self.spaces)
         self.KS_matrix = np.copy(self.KTEMP_matrix)
         self.KSZ_matriz = np.zeros((n, m))
+        self.KZ_matrix = np.zeros((m, m))
 
-        # Complete KS_matriz
+        # KS_matriz, KSZ_matrix
         for i in range(n):
             s_type = self.surfaces[i].parameter("type")
             if s_type == "Exterior_surface":
@@ -174,3 +176,81 @@ class Building(Component):
                         self.KSZ_matriz[i][j] = self.surfaces[i].net_area * \
                             self.surfaces[i].parameter(
                                 "h_cv").value[self.sides[i]]
+
+        self.KS_inv_matrix = np.linalg.inv(self.KS_matrix)
+
+        C_P = 1006  # J/kg·K
+        C_P_FURNITURE = 2300  # J/kg·K
+        h = self.parameter("file_met").component.altitude
+        rho = 1.205*math.exp(-1.1659E-4 * h)
+        # KZ_matrix without air movement
+        for i in range(m):
+            self.KZ_matrix[i][i] = (self.spaces[i].parameter("volume").value * rho * C_P + self.spaces[i].parameter(
+                "furniture_weight").value * C_P_FURNITURE) / self.project().parameter("time_step").value
+            for j in range(n):
+                self.KZ_matrix[i][i] += self.KSZ_matriz[i][j]
+        # KZS
+        self.KZS_matrix = -1 * self.KSZ_matriz.transpose()
+
+    def pre_iteration(self, time_index, date):
+        super().pre_iteration(time_index, date)
+        self._calculate_Q_dir(time_index)
+        self._calculate_Q_igsw(time_index)
+        self._calculate_Q_iglw(time_index)
+        self._calculate_Q_dif(time_index)
+        self._calculate_Q_extlw(time_index)
+        self._calculate_FS_vector(time_index)
+
+    def _calculate_Q_dir(self, time_i):
+        E_dir = np.zeros(len(self.spaces))
+        for i in range(len(self.spaces)):
+            E_dir[i] = self.spaces[i].variable(
+                "solar_direct_gains").values[time_i]
+        self.Q_dir = np.matmul(self.SWDIR_matrix, E_dir)
+
+    def _calculate_Q_igsw(self, time_i):
+        E_ig = np.zeros(len(self.spaces))
+        for i in range(len(self.spaces)):
+            E_ig[i] = self.spaces[i].variable("light_radiant").values[time_i]
+        self.Q_igsw = np.matmul(self.SWIG_matrix, E_ig)
+
+    def _calculate_Q_iglw(self, time_i):
+        E_ig = np.zeros(len(self.spaces))
+        for i in range(len(self.spaces)):
+            E_ig[i] = self.spaces[i].variable(
+                "people_radiant").values[time_i] + self.spaces[i].variable("other_gains_radiant").values[time_i]
+        self.Q_iglw = np.matmul(self.LWIG_matrix, E_ig)
+
+    def _calculate_Q_dif(self, time_i):
+        E_dif = np.zeros(len(self.surfaces))
+        for i in range(len(self.surfaces)):
+            s_type = self.surfaces[i].parameter("type")
+            if s_type == "Opening":
+                E_dif[i] = self.surfaces[i].variable("E_dif0").values[time_i]
+            elif s_type == "Exterior_surface":
+                E_dif[i] = self.surfaces[i].variable("E_dif0").values[time_i]
+        self.Q_dif = np.matmul(self.SWDIF_matrix_matrix, E_dif)
+
+    def _calculate_Q_extlw(self, time_i):
+        E_ext = np.zeros(len(self.surfaces))
+        for i in range(len(self.surfaces)):
+            s_type = self.surfaces[i].parameter("type")
+            if s_type == "Exterior_surface":
+                E_ext[i] = 5.56E-8 * \
+                    (self.surfaces[i].variable("T_rm").values[time_i]**4)
+        self.Q_extlw = np.matmul(self.SWDIF_matrix_matrix, E_ext)
+
+    def _calculate_FS_vector(self, time_i):
+        n = len(self.surfaces)
+        self.FS_vector = np.zeros(n)
+
+        for i in range(n):
+            Q_rad = self.Q_dir + self.Q_dif + self.Q_igsw + self.Q_iglw + self.Q_extlw
+            s_type = self.surfaces[i].parameter("type")
+            if s_type == "Exterior_surface":
+                self.FS_vector[i] = -self.surfaces[i].net_area * -self.surfaces[i].variable(
+                    "p_1").values[time_i] - Q_rad - self.surfaces[i].f_0 * self.surfaces[i].k_01 / self.surfaces[i].k_0
+            elif s_type == "Underground_surface":
+                pass
+            elif s_type == "Interior_surface":
+                pass

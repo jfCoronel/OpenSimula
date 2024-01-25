@@ -42,7 +42,7 @@ class Surface(Component):
                 return az
             elif side == 1:
                 if az > 0:
-                    return az-90
+                    return az-180
                 else:
                     return az+180
         elif angle == "altitude":

@@ -15,6 +15,8 @@ class Space(Component):
         self.add_parameter(Parameter_component("building", "not_defined"))
         self.add_parameter(Parameter_float("floor_area", 1, "m²", min=0.0))
         self.add_parameter(Parameter_float("volume", 1, "m³", min=0.0))
+        self.add_parameter(Parameter_float(
+            "furniture_weight", 10, "kg/m²", min=0.0))
 
         # Variables
         self.add_variable(Variable("temperature", unit="°C"))
@@ -27,6 +29,7 @@ class Space(Component):
         self.add_variable(Variable("other_gains_convective", unit="W"))
         self.add_variable(Variable("other_gains_radiant", unit="W"))
         self.add_variable(Variable("other_gains_latent", unit="W"))
+        self.add_variable(Variable("solar_direct_gains", unit="W"))
         self.add_variable(Variable("infiltration_flow", unit="m³/h"))
 
     def building(self):
@@ -88,16 +91,16 @@ class Space(Component):
                 self.sides.append[1]
 
     def _coplanar(self, surf1, side1, surf2, side2):
-        azimuth_1 = surf1.orientation_angle("azimuth", side1)
-        azimuth_2 = surf2.orientation_angle("azimuth", side2)
-        altitude_1 = surf1.orientation_angle("altitude", side1)
-        altitude_2 = surf1.orientation_angle("altitude", side1)
-        if altitude_1 == 90 and altitude_2 == 90:
+        az_1 = surf1.orientation_angle("azimuth", side1)
+        az_2 = surf2.orientation_angle("azimuth", side2)
+        alt_1 = surf1.orientation_angle("altitude", side1)
+        alt_2 = surf2.orientation_angle("altitude", side2)
+        if alt_1 == 90 and alt_2 == 90:  # Two Floors
             return True
-        elif altitude_1 == -90 and altitude_2 == -90:
+        elif alt_1 == -90 and alt_2 == -90:  # Two Roofs
             return True
         else:
-            if altitude_1 == altitude_2 and azimuth_1 == azimuth_2:
+            if alt_1 == alt_2 and az_1 == az_2:
                 return True
             else:
                 return False
@@ -170,6 +173,7 @@ class Space(Component):
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
+        self._calculate_solar_direct_gains(time_index)
 
         # People
         self.variable("people_convective").values[time_index] = self._area * \
@@ -203,3 +207,17 @@ class Space(Component):
         self.variable("infiltration_flow").values[time_index] = self._volume * \
             self._space_type_comp.variable(
                 "infiltration_rate").values[time_index]
+
+    def _calculate_solar_direct_gains(self, time_i):
+        solar_gain = 0
+        for i in range(len(self.surfaces)):
+            s_type = self.surfaces[i].parameter("type")
+            if s_type == "Opening":
+                solar_gain += self.surfaces[i].net_area * \
+                    self.surfaces[i].variable("E_dir_trans").values[time_i]
+            elif s_type == "Exterior_surface":
+                if self.surfaces[i].parameter("virtual").value:
+                    solar_gain += self.surfaces[i].net_area * \
+                        self.surfaces[i].variable("E_dir0").values[time_i]
+
+        self.variable("solar_direct_gains").values[time_i] = solar_gain
