@@ -147,24 +147,24 @@ class Building(Component):
         n = len(self.surfaces)
         m = len(self.spaces)
         self.KS_matrix = np.copy(self.KTEMP_matrix)
-        self.KSZ_matriz = np.zeros((n, m))
+        self.KSZ_matrix = np.zeros((n, m))
         self.KZ_matrix = np.zeros((m, m))
 
         # KS_matriz, KSZ_matrix
         for i in range(n):
-            s_type = self.surfaces[i].parameter("type")
+            s_type = self.surfaces[i].parameter("type").value
             if s_type == "Exterior_surface":
                 self.KS_matrix[i][i] += self.surfaces[i].K
                 for j in range(m):
-                    if self.spaces[j] == self.surfaces[i].paremeter("space").component:
-                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area * \
+                    if self.spaces[j] == self.surfaces[i].parameter("space").component:
+                        self.KSZ_matrix[i][j] = self.surfaces[i].net_area * \
                             self.surfaces[i].parameter(
                                 "h_cv").value[self.sides[i]]
             elif s_type == "Underground_surface":
                 self.KS_matrix[i][i] += self.surfaces[i].K
                 for j in range(m):
-                    if self.spaces[j] == self.surfaces[i].paremeter("space").component:
-                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area * \
+                    if self.spaces[j] == self.surfaces[i].parameter("space").component:
+                        self.KSZ_matrix[i][j] = self.surfaces[i].net_area * \
                             self.surfaces[i].parameter("h_cv").value
             elif s_type == "Interior_surface":
                 self.KS_matrix[i][i] += self.surfaces[i].k[self.sides[i]]
@@ -172,25 +172,25 @@ class Building(Component):
                     if self.B_matrix[i][j] == 1:
                         self.KS_matrix[i][j] += self.surfaces[i].k_01
                 for j in range(m):
-                    if self.spaces[j] == self.surfaces[i].paremeter("spaces").component[self.sides[i]]:
-                        self.KSZ_matriz[i][j] = self.surfaces[i].net_area * \
+                    if self.spaces[j] == self.surfaces[i].parameter("spaces").component[self.sides[i]]:
+                        self.KSZ_matrix[i][j] = self.surfaces[i].net_area * \
                             self.surfaces[i].parameter(
                                 "h_cv").value[self.sides[i]]
 
         self.KS_inv_matrix = np.linalg.inv(self.KS_matrix)
 
-        C_P = 1006  # J/kg·K
-        C_P_FURNITURE = 2300  # J/kg·K
-        h = self.parameter("file_met").component.altitude
-        rho = 1.205*math.exp(-1.1659E-4 * h)
+        self.C_P = 1006  # J/kg·K
+        self.C_P_FURNITURE = 2300  # J/kg·K
+        h = self._file_met.component.altitude
+        self.RHO = 1.205*math.exp(-1.1659E-4 * h)
         # KZ_matrix without air movement
         for i in range(m):
-            self.KZ_matrix[i][i] = (self.spaces[i].parameter("volume").value * rho * C_P + self.spaces[i].parameter(
-                "furniture_weight").value * C_P_FURNITURE) / self.project().parameter("time_step").value
+            self.KZ_matrix[i][i] = (self.spaces[i].parameter("volume").value * self.RHO * self.C_P + self.spaces[i].parameter(
+                "furniture_weight").value * self.C_P_FURNITURE) / self.project().parameter("time_step").value
             for j in range(n):
-                self.KZ_matrix[i][i] += self.KSZ_matriz[i][j]
+                self.KZ_matrix[i][i] += self.KSZ_matrix[j][i]
         # KZS
-        self.KZS_matrix = -1 * self.KSZ_matriz.transpose()
+        self.KZS_matrix = -1 * self.KSZ_matrix.transpose()
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
@@ -200,6 +200,7 @@ class Building(Component):
         self._calculate_Q_dif(time_index)
         self._calculate_Q_extlw(time_index)
         self._calculate_FS_vector(time_index)
+        self._calculate_FZ_vector(time_index)
 
     def _calculate_Q_dir(self, time_i):
         E_dir = np.zeros(len(self.spaces))
@@ -229,7 +230,7 @@ class Building(Component):
                 E_dif[i] = self.surfaces[i].variable("E_dif0").values[time_i]
             elif s_type == "Exterior_surface":
                 E_dif[i] = self.surfaces[i].variable("E_dif0").values[time_i]
-        self.Q_dif = np.matmul(self.SWDIF_matrix_matrix, E_dif)
+        self.Q_dif = np.matmul(self.SWDIF_matrix, E_dif)
 
     def _calculate_Q_extlw(self, time_i):
         E_ext = np.zeros(len(self.surfaces))
@@ -238,7 +239,7 @@ class Building(Component):
             if s_type == "Exterior_surface":
                 E_ext[i] = 5.56E-8 * \
                     (self.surfaces[i].variable("T_rm").values[time_i]**4)
-        self.Q_extlw = np.matmul(self.SWDIF_matrix_matrix, E_ext)
+        self.Q_extlw = np.matmul(self.LWEXT_matrix, E_ext)
 
     def _calculate_FS_vector(self, time_i):
         n = len(self.surfaces)
@@ -251,6 +252,21 @@ class Building(Component):
                 self.FS_vector[i] = -self.surfaces[i].net_area * -self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].f_0 * self.surfaces[i].k_01 / self.surfaces[i].k_0
             elif s_type == "Underground_surface":
-                pass
+                self.FS_vector[i] = -self.surfaces[i].net_area * -self.surfaces[i].variable(
+                    "p_1").values[time_i] - Q_rad - self.surfaces[i].k_01 * self.surfaces[i].variable("T_s0").values[time_i]
             elif s_type == "Interior_surface":
                 pass
+
+    def _calculate_FZ_vector(self, time_i):
+        m = len(self.spaces)
+        self.FZ_vector = np.zeros(m)
+
+        for i in range(m):
+            if time_i == 0:
+                T_pre = self.parameter("initial_temperature").value
+            else:
+                T_pre = self.spaces[i].variable("temperature").values[time_i-1]
+            self.FZ_vector[i] = self.spaces[i].variable("people_convective").values[time_i] + self.spaces[i].variable("other_gains_convective").values[time_i] + self.spaces[i].variable("light_convective").values[time_i] 
+            self.FZ_vector[i] += (self.spaces[i].parameter("volume").value * self.RHO * self.C_P + self.spaces[i].parameter(
+                "furniture_weight").value * self.C_P_FURNITURE) * T_pre/ self.project().parameter("time_step").value
+            self.FZ_vector[i] += self.spaces[i].variable("infiltration_flow").values[time_i]*self.RHO*self.C_P * self._file_met.variable("temperature").values[time_i]

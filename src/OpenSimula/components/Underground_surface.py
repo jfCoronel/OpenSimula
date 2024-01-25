@@ -13,9 +13,12 @@ class Underground_surface(Surface):
         self.add_parameter(Parameter_float("h_cv", 2, "W/m²K", min=0))
 
         # Variables
-        self.add_variable(Variable("T_s", "°C"))
-        self.add_variable(Variable("q_cd", "W/m²"))
-        self.add_variable(Variable("p", "W/m²"))
+        self.add_variable(Variable("T_s0", "°C"))
+        self.add_variable(Variable("T_s1", "°C"))
+        self.add_variable(Variable("q_cd0", "W/m²"))
+        self.add_variable(Variable("q_cd1", "W/m²"))
+        self.add_variable(Variable("p_0", "W/m²"))
+        self.add_variable(Variable("p_1", "W/m²"))
 
     def building(self):
         return self.parameter("space").component.building()
@@ -36,14 +39,18 @@ class Underground_surface(Surface):
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
-        # p_0, p_1 = self.parameter("construction").component.get_P(
-        #    time_index, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
-        # self.variable("p").values[time_index] = p_1
-        # self._F = self.net_area * (- p_1 - self._k_01 *
-        #                             self._file_met.variable("underground_temperature").values[time_index])
+        self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_K(self):
         a_0, a_1, a_01 = self.parameter("construction").component.get_A()
         self.k_1 = self.net_area * (a_1 - self.parameter("h_cv").value)
         self.k_01 = self.net_area * a_01
         self.K = self.k_1
+        
+    def _calculate_variables_pre_iteration(self, time_i):
+        self.variable("T_s0").values[time_i] = self._file_met.variable("underground_temperature").values[time_i]
+        p_0, p_1 = self.parameter("construction").component.get_P(
+            time_i, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
+        self.variable("p_0").values[time_i] = p_0
+        self.variable("p_1").values[time_i] = p_1
+

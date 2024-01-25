@@ -47,7 +47,6 @@ class Exterior_surface(Surface):
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
-
         self._calculate_variables_pre_iteration(time_index)
 
     def _create_openings_list(self):
