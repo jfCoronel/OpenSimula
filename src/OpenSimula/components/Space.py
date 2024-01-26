@@ -30,7 +30,7 @@ class Space(Component):
         self.add_variable(Variable("other_gains_radiant", unit="W"))
         self.add_variable(Variable("other_gains_latent", unit="W"))
         self.add_variable(Variable("solar_direct_gains", unit="W"))
-        self.add_variable(Variable("infiltration_flow", unit="m³/h"))
+        self.add_variable(Variable("infiltration_flow", unit="m³/s"))
 
     def building(self):
         return self.parameter("building").component
@@ -206,7 +206,7 @@ class Space(Component):
         # Infiltration
         self.variable("infiltration_flow").values[time_index] = self._volume * \
             self._space_type_comp.variable(
-                "infiltration_rate").values[time_index]
+                "infiltration_rate").values[time_index] / 3600
 
     def _calculate_solar_direct_gains(self, time_i):
         solar_gain = 0

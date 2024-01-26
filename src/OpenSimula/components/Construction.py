@@ -35,8 +35,8 @@ class Construction(Component):
         self._calc_trans_fun_(delta_t)
 
     def get_T_step_fluxes(self):
-        n_q = len(self._coef_Q_)
-        n_t = len(self._coef_T_[0])
+        n_q = len(self._coef_Q)
+        n_t = len(self._coef_T_a)
         Q_old_1 = np.zeros(n_q)
         Q_old_2 = np.zeros(n_q)
         T_old = np.ones(n_t)
@@ -47,11 +47,11 @@ class Construction(Component):
         n = 0
         while n <= 1 or math.fabs(q_2) > 1e-15:
             q_2 = np.dot(
-                self._coef_T_[0] - self._coef_T_[1], T_old.transpose()
-            ) - np.dot(self._coef_Q_, Q_old_2.transpose())
+                self._coef_T_a - self._coef_T_b, T_old.transpose()
+            ) - np.dot(self._coef_Q, Q_old_2.transpose())
             q_1 = np.dot(
-                self._coef_T_[1] - self._coef_T_[2], T_old.transpose()
-            ) - np.dot(self._coef_Q_, Q_old_1.transpose())
+                self._coef_T_b - self._coef_T_c, T_old.transpose()
+            ) - np.dot(self._coef_Q, Q_old_1.transpose())
             Q_2.append(q_2)
             Q_1.append(q_1)
             Q_old_2 = np.roll(Q_old_2, 1)
@@ -77,7 +77,7 @@ class Construction(Component):
         Returns:
             (a_00, a_11, a_01): 
         """
-        return (-self._coef_T_[0][0], -self._coef_T_[2][0], self._coef_T_[1][0])
+        return (-self._coef_T_a[0], -self._coef_T_c[0], self._coef_T_b[0])
 
     def get_P(self, time_i, T_s0, T_s1, q_cd0, q_cd1, T_ini):
         """
@@ -87,7 +87,7 @@ class Construction(Component):
         """
         p0 = 0
         p1 = 0
-        for i in range(1, len(self._coef_T_[0])):
+        for i in range(1, len(self._coef_T_a)):
             j = time_i - i
             if j < 0:
                 T_0 = T_ini
@@ -95,9 +95,9 @@ class Construction(Component):
             else:
                 T_0 = T_s0[j]
                 T_1 = T_s1[j]
-            p0 += -self._coef_T_[0][i] * T_0 + self._coef_T_[1][i] * T_1
-            p1 += -self._coef_T_[2][i] * T_1 + self._coef_T_[1][i] * T_0
-        for i in range(0, len(self._coef_Q_)):
+            p0 += -self._coef_T_a[i] * T_0 + self._coef_T_b[i] * T_1
+            p1 += -self._coef_T_c[i] * T_1 + self._coef_T_b[i] * T_0
+        for i in range(0, len(self._coef_Q)):
             j = time_i - i - 1
             if j < 0:
                 q_0 = 0
@@ -105,8 +105,8 @@ class Construction(Component):
             else:
                 q_0 = q_cd0[j]
                 q_1 = q_cd1[j]
-            p0 += -self._coef_Q_[i] * q_0
-            p1 += -self._coef_Q_[i] * q_1
+            p0 += -self._coef_Q[i] * q_0
+            p1 += -self._coef_Q[i] * q_1
         return (p0, p1)
 
     def _resis_layer_(self, layer):
@@ -285,7 +285,7 @@ class Construction(Component):
                 b = b[0: i+1]
                 c = c[0: i+1]
                 break
-        self._coef_T_ = np.array([a, b, c])
-        # print(self._coef_T_)
-        self._coef_Q_ = d
-        # print(self._coef_Q_)
+        self._coef_T_a = a
+        self._coef_T_b = b
+        self._coet_T_c = c
+        self._coef_Q = d

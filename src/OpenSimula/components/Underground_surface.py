@@ -40,11 +40,16 @@ class Underground_surface(Surface):
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
         self._calculate_variables_pre_iteration(time_index)
+    
+    def post_iteration(self, time_index, date):
+        super().post_iteration(time_index, date)
+        self.variable("q_cd0").values[time_index] = self.a_0 * self.variable("T_s0").values[time_index] + self.a_01 * self.variable("T_s1").values[time_index] + self.variable("p_0").values[time_index]
+        self.variable("q_cd1").values[time_index] = self.a_01 * self.variable("T_s0").values[time_index] + self.a_1 * self.variable("T_s1").values[time_index] + self.variable("p_1").values[time_index]       
 
     def _calculate_K(self):
-        a_0, a_1, a_01 = self.parameter("construction").component.get_A()
-        self.k_1 = self.net_area * (a_1 - self.parameter("h_cv").value)
-        self.k_01 = self.net_area * a_01
+        self.a_0, self.a_1, self.a_01 = self.parameter("construction").component.get_A()
+        self.k_1 = self.net_area * (self.a_1 - self.parameter("h_cv").value)
+        self.k_01 = self.net_area * self.a_01
         self.K = self.k_1
         
     def _calculate_variables_pre_iteration(self, time_i):

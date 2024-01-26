@@ -27,7 +27,7 @@ class Interior_surface(Surface):
 
     def check(self):
         errors = super().check()
-        # Test space defined
+        # Test spaces defined
         if self.parameter("spaces").value[0] == "not_defined" or self.parameter("spaces").value[1] == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, must define two spaces.")
@@ -40,24 +40,24 @@ class Interior_surface(Surface):
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
-        self._T_ext = self._file_met.variable("temperature").values[time_index]
-        """
-        if (self.parameter("virtual").value):
-            pass  # TODO
-        else:
-            p_0, p_1 = self.parameter("construction").component.get_P(
-                time_index, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
-            self.variable("p_0").values[time_index] = p_0
-            self.variable("p_1").values[time_index] = p_1
-            self._f_0 = self.net_area * (- p_0)
-            self._f_1 = self.net_area * (- p_1)
-        """
+        self._calculate_variables_pre_iteration(time_index)
+    
+    def post_iteration(self, time_index, date):
+        super().post_iteration(time_index, date)
+        self.variable("q_cd0").values[time_index] = self.a_0 * self.variable("T_s0").values[time_index] + self.a_01 * self.variable("T_s1").values[time_index] + self.variable("p_0").values[time_index]
+        self.variable("q_cd1").values[time_index] = self.a_01 * self.variable("T_s0").values[time_index] + self.a_1 * self.variable("T_s1").values[time_index] + self.variable("p_1").values[time_index]       
 
     def _calculate_K(self):
         if (self.parameter("virtual").value):
             self.k = [1, 1]
         else:
-            a_0, a_1, a_01 = self.parameter("construction").component.get_A()
-            self.k = [self.net_area * (a_0 - self.parameter("h_cv").value[0]),
-                      self.net_area * (a_1 - self.parameter("h_cv").value[1])]
-            self.k_01 = self.net_area * a_01
+            self.a_0, self.a_1, self.a_01 = self.parameter("construction").component.get_A()
+            self.k = [self.net_area * (self.a_0 - self.parameter("h_cv").value[0]),
+                      self.net_area * (self.a_1 - self.parameter("h_cv").value[1])]
+            self.k_01 = self.net_area * self.a_01
+    
+    def _calculate_variables_pre_iteration(self, time_i):
+        p_0, p_1 = self.parameter("construction").component.get_P(
+            time_i, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
+        self.variable("p_0").values[time_i] = p_0
+        self.variable("p_1").values[time_i] = p_1

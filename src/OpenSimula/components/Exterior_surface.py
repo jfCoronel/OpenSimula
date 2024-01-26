@@ -48,6 +48,12 @@ class Exterior_surface(Surface):
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
         self._calculate_variables_pre_iteration(time_index)
+        
+    def post_iteration(self, time_index, date):
+        super().post_iteration(time_index, date)
+        self._calculate_T_s0(time_index)
+        self.variable("q_cd0").values[time_index] = self.a_0 * self.variable("T_s0").values[time_index] + self.a_01 * self.variable("T_s1").values[time_index] + self.variable("p_0").values[time_index]
+        self.variable("q_cd1").values[time_index] = self.a_01 * self.variable("T_s0").values[time_index] + self.a_1 * self.variable("T_s1").values[time_index] + self.variable("p_1").values[time_index]       
 
     def _create_openings_list(self):
         project_openings_list = self.project().component_list(type="Opening")
@@ -60,11 +66,11 @@ class Exterior_surface(Surface):
         if (self.parameter("virtual").value):
             self.K = 1
         else:
-            a_0, a_1, a_01 = self.parameter("construction").component.get_A()
-            self.k_0 = self.net_area * (a_0 - self.parameter("h_cv").value[0] -
+            self.a_0, self.a_1, self.a_01 = self.parameter("construction").component.get_A()
+            self.k_0 = self.net_area * (self.a_0 - self.parameter("h_cv").value[0] -
                                         self.H_RD * self.radiant_property("alpha", "long", 0))
-            self.k_1 = self.net_area * (a_1 - self.parameter("h_cv").value[1])
-            self.k_01 = self.net_area * a_01
+            self.k_1 = self.net_area * (self.a_1 - self.parameter("h_cv").value[1])
+            self.k_01 = self.net_area * self.a_01
             self.K = self.k_1 - self.k_01 * self.k_01 / self.k_0
 
     def _calculate_variables_pre_iteration(self, time_i):
@@ -87,6 +93,10 @@ class Exterior_surface(Surface):
         h_rd = self.H_RD * self.radiant_property("alpha", "long", 0)
         self.f_0 = self.net_area * (- p_0 - self.parameter("h_cv").value[0] * self._T_ext - h_rd * T_rm - self.radiant_property(
             "alpha", "short", 0) * (E_dif0 + E_dir0))
+    
+    def _calculate_T_s0(self, time_i):
+        T_s0 = (self.f_0 - self.k_01 * self.variable("T_s1").values[time_i])/self.k_0
+        self.variable("T_s0").values[time_i] = T_s0
 
     @property
     def net_area(self):

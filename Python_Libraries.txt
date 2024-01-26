@@ -2,9 +2,11 @@ Python libraries needed for OpenSimula:
 In a clean python version:
 - numpy
 - pandas
-- notebook
 - scipy
 - py-expression-eval
+For juputer:
+- notebook
+- plotly
 
 
 With Anaconda you must add:
