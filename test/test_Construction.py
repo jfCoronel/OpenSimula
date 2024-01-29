@@ -19,7 +19,7 @@ project_dic = {
             "density": 2240,
             "specific_heat": 900,
         },
-         {
+        {
             "type": "Material",
             "name": "Gypsum board",
             "conductivity": 0.16,
@@ -54,14 +54,14 @@ project_dic = {
             "materials": ["Light material"],
             "thicknesses": [0.076],
         },
-         {
+        {
             "type": "Construction",
             "name": "Heavy wall",
             "solar_absortivity": [0.8, 0.8],
             "materials": ["Heavy material"],
             "thicknesses": [0.25],
         },
-         {
+        {
             "type": "Construction",
             "name": "Multilayer wall",
             "solar_absortivity": [0.8, 0.8],
@@ -78,55 +78,52 @@ project_dic = {
 }
 
 
-
-
 def test_walls_1h():
     sim = osm.Simulation()
-    pro = osm.Project("Constructions test",sim)
+    pro = osm.Project("Constructions test", sim)
     pro.read_dict(project_dic)
     pro.simulate()
 
     wall = pro.component("Light wall")
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
-    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
+    U = sum(wall._coef_T_a)/sum(wall._coef_Q)
     assert wall.get_U() == pytest.approx(U, 0.00001)
 
     wall = pro.component("Heavy wall")
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
-    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
+    U = sum(wall._coef_T_a)/sum(wall._coef_Q)
     assert wall.get_U() == pytest.approx(U, 0.00001)
 
     wall = pro.component("Multilayer wall")
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
-    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
+    U = sum(wall._coef_T_a)/sum(wall._coef_Q)
     assert wall.get_U() == pytest.approx(U, 0.00001)
+
 
 def test_walls_15min():
     sim = osm.Simulation()
-    pro = osm.Project("Constructions test",sim)
+    pro = osm.Project("Constructions test", sim)
     pro.read_dict(project_dic)
     pro.parameter("time_step").value = 60*15
     pro.simulate()
 
     wall = pro.component("Light wall")
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
-    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
+    U = sum(wall._coef_T_a)/sum(wall._coef_Q)
     assert wall.get_U() == pytest.approx(U, 0.00001)
 
     wall = pro.component("Heavy wall")
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
-    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
+    U = sum(wall._coef_T_a)/sum(wall._coef_Q)
     assert wall.get_U() == pytest.approx(U, 0.00001)
 
     wall = pro.component("Multilayer wall")
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[1]), 0.00001)
-    assert sum(wall._coef_T_[0]) == pytest.approx(sum(wall._coef_T_[2]), 0.00001)
-    U = sum(wall._coef_T_[0])/sum(wall._coef_Q_)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
+    U = sum(wall._coef_T_a)/sum(wall._coef_Q)
     assert wall.get_U() == pytest.approx(U, 0.00001)
-
-    

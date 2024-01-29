@@ -203,8 +203,8 @@ class Building(Component):
         self._calculate_FZ_vector(time_index)
         self._update_K_matrices(time_index)
         self._calculate_FINAL_matrices(time_index)
-        self.TZ_vector = np.matmul(self.KFIN_inv_matrix,self.FFIN_vector)
-        
+        self.TZ_vector = np.matmul(self.KFIN_inv_matrix, self.FFIN_vector)
+
     def _calculate_Q_dir(self, time_i):
         E_dir = np.zeros(len(self.spaces))
         for i in range(len(self.spaces)):
@@ -249,13 +249,14 @@ class Building(Component):
         self.FS_vector = np.zeros(n)
 
         for i in range(n):
-            Q_rad = self.Q_dir + self.Q_dif + self.Q_igsw + self.Q_iglw + self.Q_extlw
-            s_type = self.surfaces[i].parameter("type")
+            Q_rad = self.Q_dir[i] + self.Q_dif[i] + \
+                self.Q_igsw[i] + self.Q_iglw[i] + self.Q_extlw[i]
+            s_type = self.surfaces[i].parameter("type").value
             if s_type == "Exterior_surface":
-                self.FS_vector[i] = -self.surfaces[i].net_area * -self.surfaces[i].variable(
+                self.FS_vector[i] = -self.surfaces[i].net_area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].f_0 * self.surfaces[i].k_01 / self.surfaces[i].k_0
             elif s_type == "Underground_surface":
-                self.FS_vector[i] = -self.surfaces[i].net_area * -self.surfaces[i].variable(
+                self.FS_vector[i] = -self.surfaces[i].net_area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].k_01 * self.surfaces[i].variable("T_s0").values[time_i]
             elif s_type == "Interior_surface":
                 pass
@@ -269,36 +270,46 @@ class Building(Component):
                 T_pre = self.parameter("initial_temperature").value
             else:
                 T_pre = self.spaces[i].variable("temperature").values[time_i-1]
-            self.FZ_vector[i] = self.spaces[i].variable("people_convective").values[time_i] + self.spaces[i].variable("other_gains_convective").values[time_i] + self.spaces[i].variable("light_convective").values[time_i] 
+            self.FZ_vector[i] = self.spaces[i].variable("people_convective").values[time_i] + self.spaces[i].variable(
+                "other_gains_convective").values[time_i] + self.spaces[i].variable("light_convective").values[time_i]
             self.FZ_vector[i] += (self.spaces[i].parameter("volume").value * self.RHO * self.C_P + self.spaces[i].parameter(
-                "furniture_weight").value * self.C_P_FURNITURE) * T_pre/ self.project().parameter("time_step").value
-            self.FZ_vector[i] += self.spaces[i].variable("infiltration_flow").values[time_i]*self.RHO*self.C_P * self._file_met.variable("temperature").values[time_i]
-            
-    
+                "furniture_weight").value * self.C_P_FURNITURE) * T_pre / self.project().parameter("time_step").value
+            self.FZ_vector[i] += self.spaces[i].variable("infiltration_flow").values[time_i] * \
+                self.RHO*self.C_P * \
+                self._file_met.variable("temperature").values[time_i]
+
     def _update_K_matrices(self, time_i):
         m = len(self.spaces)
         self.KZFIN_matrix = self.KZ_matrix.copy()
 
         # Add infiltration
         for i in range(m):
-            self.KZFIN_matrix[i][i] += self.spaces[i].variable("infiltration_flow").values[time_i]*self.RHO*self.C_P
-            
+            self.KZFIN_matrix[i][i] += self.spaces[i].variable(
+                "infiltration_flow").values[time_i]*self.RHO*self.C_P
+
     def _calculate_FINAL_matrices(self, time_i):
-        self.KFIN_matrix = self.KZFIN_matrix - np.matmul(self.KZS_matrix,np.matmul(self.KS_inv_matrix,self.KSZ_matrix))
+        self.KFIN_matrix = self.KZFIN_matrix - \
+            np.matmul(self.KZS_matrix, np.matmul(
+                self.KS_inv_matrix, self.KSZ_matrix))
         self.KFIN_inv_matrix = np.linalg.inv(self.KFIN_matrix)
-        self.FFIN_vector = self.FZ_vector - np.matmul(self.KZS_matrix,np.matmul(self.KS_inv_matrix,self.FS_vector))
+        self.FFIN_vector = self.FZ_vector - \
+            np.matmul(self.KZS_matrix, np.matmul(
+                self.KS_inv_matrix, self.FS_vector))
 
     def iteration(self, time_index, date):
-        super().iteration(time_index,date)
-        #Store TZ
+        super().iteration(time_index, date)
+        # Store TZ
         for i in range(len(self.spaces)):
-            self.spaces[i].variable("temperature").values[time_index]=self.TZ_vector[i]
-        self.TS_vector =  np.matmul(self.KS_inv_matrix,self.FS_vector) - np.matmul(self.KS_inv_matrix,np.matmul(self.KSZ_matrix,self.TZ_vector))
-        #Store TS
+            self.spaces[i].variable(
+                "temperature").values[time_index] = self.TZ_vector[i]
+        self.TS_vector = np.matmul(self.KS_inv_matrix, self.FS_vector) - np.matmul(
+            self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.TZ_vector))
+        # Store TS
         for i in range(len(self.surfaces)):
             if (self.sides[i] == 0):
-                self.surfaces[i].variable("T_s0").values[time_index]=self.TS_vector[i]
+                self.surfaces[i].variable(
+                    "T_s0").values[time_index] = self.TS_vector[i]
             else:
-                self.surfaces[i].variable("T_s1").values[time_index]=self.TS_vector[i]
+                self.surfaces[i].variable(
+                    "T_s1").values[time_index] = self.TS_vector[i]
         return True
-             
