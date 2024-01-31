@@ -146,7 +146,7 @@ class Building(Component):
     def _create_K_matrices(self):
         n = len(self.surfaces)
         m = len(self.spaces)
-        self.KS_matrix = np.copy(self.KTEMP_matrix)
+        self.KS_matrix = np.copy(-self.KTEMP_matrix)
         self.KSZ_matrix = np.zeros((n, m))
         self.KZ_matrix = np.zeros((m, m))
 

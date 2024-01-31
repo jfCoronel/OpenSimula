@@ -77,7 +77,7 @@ class Construction(Component):
         Returns:
             (a_0, a_1, a_01): 
         """
-        return (self._coef_T_c[0], self._coef_T_a[0], -self._coef_T_b[0])
+        return (-self._coef_T_c[0], -self._coef_T_a[0], self._coef_T_b[0])
 
     def get_P(self, time_i, T_s0, T_s1, q_cd0, q_cd1, T_ini):
         """
@@ -95,8 +95,8 @@ class Construction(Component):
             else:
                 T_0 = T_s0[j]
                 T_1 = T_s1[j]
-            p0 += self._coef_T_c[i] * T_0 - self._coef_T_b[i] * T_1
-            p1 += self._coef_T_a[i] * T_1 - self._coef_T_b[i] * T_0
+            p0 += -self._coef_T_c[i] * T_0 + self._coef_T_b[i] * T_1
+            p1 += -self._coef_T_a[i] * T_1 + self._coef_T_b[i] * T_0
         for i in range(1, len(self._coef_Q)):
             j = time_i - i
             if j < 0:
@@ -105,7 +105,7 @@ class Construction(Component):
             else:
                 q_0 = q_cd0[j]
                 q_1 = q_cd1[j]
-            p0 += self._coef_Q[i] * q_0
+            p0 += -self._coef_Q[i] * q_0
             p1 += -self._coef_Q[i] * q_1
         return (p0, p1)
 

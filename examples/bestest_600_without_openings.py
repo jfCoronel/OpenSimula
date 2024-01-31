@@ -9,8 +9,8 @@ bestest_building_600 = {
         # MET_FILE
         {
             "type": "File_met",
-            "name": "drycold",
-            "file_name": "examples/met_files/DRYCOLD.met"
+            "name": "sevilla",
+            "file_name": "examples/met_files/sevilla.met"
         },
         # CONSTRUCTION
         {
@@ -89,7 +89,7 @@ bestest_building_600 = {
         {
             "type": "Building",
             "name": "Bestest 600",
-            "file_met": "drycold"
+            "file_met": "sevilla"
         },
         {
             "type": "Space_type",
