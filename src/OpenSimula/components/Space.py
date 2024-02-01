@@ -31,6 +31,9 @@ class Space(Component):
         self.add_variable(Variable("other_gains_latent", unit="W"))
         self.add_variable(Variable("solar_direct_gains", unit="W"))
         self.add_variable(Variable("infiltration_flow", unit="m³/s"))
+        self.add_variable(Variable("surfaces_convective", unit="W"))
+        self.add_variable(Variable("delta_int_energy", unit="W"))
+        self.add_variable(Variable("infiltration_heat", unit="W"))
 
     def building(self):
         return self.parameter("building").component
@@ -109,7 +112,7 @@ class Space(Component):
         n = len(self.surfaces)
         total_area = 0
         for surf in self.surfaces:
-            total_area += surf.net_area
+            total_area += surf.area
         self.ff_matrix = np.zeros((n, n))
         seven = np.zeros((n, n))
         for i in range(n):
@@ -119,7 +122,7 @@ class Space(Component):
                 else:
                     seven[i][j] = 1
                 self.ff_matrix[i][j] = seven[i][j] * \
-                    self.surfaces[j].net_area / total_area
+                    self.surfaces[j].area / total_area
         # iteración
         EPSILON = 1.e-4
         N_MAX_ITER = 500
@@ -154,10 +157,10 @@ class Space(Component):
         total_area = 0
         floor_area = 0
         for i in range(n):
-            total_area += self.surfaces[i].net_area
+            total_area += self.surfaces[i].area
             # Floor
             if self.surfaces[i].orientation_angle("altitude", self.sides[i]) == 90:
-                floor_area += self.surfaces[i].net_area
+                floor_area += self.surfaces[i].area
         self.dsr_dist_vector = np.zeros(n)
         self.ig_dist_vector = np.zeros(n)
         for i in range(n):
@@ -213,11 +216,33 @@ class Space(Component):
         for i in range(len(self.surfaces)):
             s_type = self.surfaces[i].parameter("type")
             if s_type == "Opening":
-                solar_gain += self.surfaces[i].net_area * \
+                solar_gain += self.surfaces[i].area * \
                     self.surfaces[i].variable("E_dir_trans").values[time_i]
             elif s_type == "Exterior_surface":
                 if self.surfaces[i].parameter("virtual").value:
-                    solar_gain += self.surfaces[i].net_area * \
+                    solar_gain += self.surfaces[i].area * \
                         self.surfaces[i].variable("E_dir0").values[time_i]
 
         self.variable("solar_direct_gains").values[time_i] = solar_gain
+
+    def post_iteration(self, time_index, date):
+        super().post_iteration(time_index, date)
+        self._calculate_heat_fluxes(time_index)
+
+    def _calculate_heat_fluxes(self, time_i):
+        building = self.parameter("building").component
+        rho = building.RHO
+        c_p = building.C_P
+        c_pf = building.C_P_FURNITURE
+        if time_i == 0:
+            T_pre = building.parameter("initial_temperature").value
+        else:
+            T_pre = self.variable("temperature").values[time_i-1]
+
+        self.variable("delta_int_energy").values[time_i] = (self.parameter("volume").value * rho * c_p + self.parameter(
+            "furniture_weight").value * c_pf) * (T_pre - self.variable("temperature").values[time_i]) / self.project().parameter("time_step").value
+        self.variable("infiltration_heat").values[time_i] = self.variable("infiltration_flow").values[time_i] * rho * c_p * \
+            (self._file_met.variable(
+                "temperature").values[time_i]-self.variable("temperature").values[time_i])
+        self.variable("surfaces_convective").values[time_i] = -self.variable("people_convective").values[time_i] - self.variable(
+            "light_convective").values[time_i] - self.variable("other_gains_convective").values[time_i] - self.variable("infiltration_heat").values[time_i] - self.variable("delta_int_energy").values[time_i]
