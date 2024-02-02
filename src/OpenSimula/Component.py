@@ -3,6 +3,7 @@ from OpenSimula.Parameter_container import Parameter_container
 from OpenSimula.Parameters import Parameter_string
 from OpenSimula.Variable import Variable
 
+
 class Component(Parameter_container):
     """Base Class for all the components"""
 
@@ -20,7 +21,7 @@ class Component(Parameter_container):
 
     def simulation(self):
         return self._sim_
-    
+
     def print(self, msg):
         self._sim_.print(msg)
 
@@ -39,16 +40,37 @@ class Component(Parameter_container):
     def variable_dict(self):
         return self._variables_
 
-    def variable_dataframe(self):
+    def variable_dataframe(self, with_unit=True, frequency=None, value="mean"):
+        """_summary_
+
+        Args:
+            with_unit (bool, optional): Includes unit in the name of the variable. Defaults to True.
+            frequency (None or str, optional): frequency of the values: None, "H" Hour, "D" Day, "M" Month, "Y" Year . Defaults to None.
+            value (str, optional): "mean", "max" or "min". Defaults to "mean".
+
+        Returns:
+            pandas DataFrame: Returns all the variables 
+        """
         series = {}
         series["date"] = self.project().dates_array()
         for key, var in self._variables_.items():
             if var.unit == "":
                 series[key] = var.values
             else:
-                series[key + " [" + var.unit + "]"] = var.values
+                if with_unit:
+                    series[key + " [" + var.unit + "]"] = var.values
+                else:
+                    series[key] = var.values
         data = pd.DataFrame(series)
-        return data
+        if frequency == None:
+            return data
+        else:
+            if value == "mean":
+                return data.resample(frequency, on='date').mean()
+            elif value == "max":
+                return data.resample(frequency, on='date').max()
+            elif value == "min":
+                return data.resample(frequency, on='date').min()
 
     # ____________ Functions that must be overwriten for time simulation _________________
 
@@ -100,12 +122,14 @@ class Component(Parameter_container):
             # Create variables in paramater_variable
             if value.type == "Parameter_variable":
                 if value.variable is not None:
-                    self.add_variable(Variable(value.symbol,value.variable.unit))
+                    self.add_variable(
+                        Variable(value.symbol, value.variable.unit))
             if value.type == "Parameter_variable_list":
                 for i in range(len(value.variable)):
                     if value.variable[i] is not None:
-                        self.add_variable(Variable(value.symbol[i],value.variable[i].unit))
-                    
+                        self.add_variable(
+                            Variable(value.symbol[i], value.variable[i].unit))
+
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -118,15 +142,17 @@ class Component(Parameter_container):
 
     def pre_iteration(self, time_index, date):
         # Initilise all variables to 0
-       for key, value in self.parameter_dict().items():
+        for key, value in self.parameter_dict().items():
             # Copy variables in paramater_variable
             if value.type == "Parameter_variable":
                 if value.variable is not None:
-                    self.variable(value.symbol).values[time_index] = value.variable.values[time_index]
+                    self.variable(
+                        value.symbol).values[time_index] = value.variable.values[time_index]
             if value.type == "Parameter_variable_list":
                 for i in range(len(value.variable)):
                     if value.variable[i] is not None:
-                        self.variable(value.symbol[i]).values[time_index] = value.variable[i].values[time_index]
+                        self.variable(
+                            value.symbol[i]).values[time_index] = value.variable[i].values[time_index]
 
     def iteration(self, time_index, date):
         return True
@@ -138,8 +164,7 @@ class Component(Parameter_container):
         html = f"<h3>Component: {self.parameter('name').value}</h3><p>{self.parameter('description').value}</p>"
         html += "<strong>Parameters:</strong>"
         html += self.parameter_dataframe().to_html()
-        if (len(self._variables_)>0):
+        if (len(self._variables_) > 0):
             html += "<br/><strong>Variables:</strong>"
             html += self.variable_dataframe().head(10).to_html()
         return html
-

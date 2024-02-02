@@ -25,6 +25,11 @@ class Interior_surface(Surface):
         if self.parameter("spaces").value[0] == "not_defined" or self.parameter("spaces").value[1] == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, must define two spaces.")
+        # Test virtual
+        if self.parameter("virtual").value == True and (self.parameter("h_cv").value != [0, 0]):
+            self.parameter("h_cv").value = [0, 0]
+            errors.append(
+                f"Warning : h_cv set to 0 for virtual surfaces.")
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

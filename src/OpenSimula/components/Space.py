@@ -214,7 +214,7 @@ class Space(Component):
     def _calculate_solar_direct_gains(self, time_i):
         solar_gain = 0
         for i in range(len(self.surfaces)):
-            s_type = self.surfaces[i].parameter("type")
+            s_type = self.surfaces[i].parameter("type").value
             if s_type == "Opening":
                 solar_gain += self.surfaces[i].area * \
                     self.surfaces[i].variable("E_dir_trans").values[time_i]

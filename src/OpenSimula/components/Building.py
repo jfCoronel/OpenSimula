@@ -230,7 +230,7 @@ class Building(Component):
     def _calculate_Q_dif(self, time_i):
         E_dif = np.zeros(len(self.surfaces))
         for i in range(len(self.surfaces)):
-            s_type = self.surfaces[i].parameter("type")
+            s_type = self.surfaces[i].parameter("type").value
             if s_type == "Opening":
                 E_dif[i] = self.surfaces[i].variable("E_dif0").values[time_i]
             elif s_type == "Exterior_surface":
@@ -240,7 +240,7 @@ class Building(Component):
     def _calculate_Q_extlw(self, time_i):
         E_ext = np.zeros(len(self.surfaces))
         for i in range(len(self.surfaces)):
-            s_type = self.surfaces[i].parameter("type")
+            s_type = self.surfaces[i].parameter("type").value
             if s_type == "Exterior_surface":
                 E_ext[i] = 5.56E-8 * \
                     (self.surfaces[i].variable("T_rm").values[time_i]**4)
@@ -251,26 +251,26 @@ class Building(Component):
         self.FS_vector = np.zeros(n)
 
         for i in range(n):
-            Q_rad = self.Q_dir[i] + self.Q_dif[i] + \
-                self.Q_igsw[i] + self.Q_iglw[i] + self.Q_extlw[i]
+            Q_rad = -(self.Q_dir[i] + self.Q_dif[i] +
+                      self.Q_igsw[i] + self.Q_iglw[i] + self.Q_extlw[i])  # positive surface incoming
             s_type = self.surfaces[i].parameter("type").value
             area = self.surfaces[i].area
             if s_type == "Exterior_surface":
-                self.surfaces[i].variable("q_sol1").values[time_i] = (
+                self.surfaces[i].variable("q_sol1").values[time_i] = - (
                     self.Q_dir[i] + self.Q_dif[i])/area
                 self.surfaces[i].variable(
-                    "q_swig1").values[time_i] = self.Q_igsw[i]/area
-                self.surfaces[i].variable("q_lwig1").values[time_i] = (
+                    "q_swig1").values[time_i] = - self.Q_igsw[i]/area
+                self.surfaces[i].variable("q_lwig1").values[time_i] = - (
                     self.Q_iglw[i] + self.Q_extlw[i])/area
 
                 self.FS_vector[i] = -self.surfaces[i].area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
             elif s_type == "Underground_surface":
-                self.surfaces[i].variable("q_sol1").values[time_i] = (
+                self.surfaces[i].variable("q_sol1").values[time_i] = - (
                     self.Q_dir[i] + self.Q_dif[i])/area
                 self.surfaces[i].variable(
-                    "q_swig1").values[time_i] = self.Q_igsw[i]/area
-                self.surfaces[i].variable("q_lwig1").values[time_i] = (
+                    "q_swig1").values[time_i] = - self.Q_igsw[i]/area
+                self.surfaces[i].variable("q_lwig1").values[time_i] = - (
                     self.Q_iglw[i] + self.Q_extlw[i])/area
 
                 self.FS_vector[i] = -self.surfaces[i].area * self.surfaces[i].variable(
