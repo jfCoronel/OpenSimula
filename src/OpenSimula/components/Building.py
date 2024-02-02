@@ -91,10 +91,12 @@ class Building(Component):
         m = len(self.spaces)
         dsr_dist_matrix = np.zeros((n, m))
         ig_dist_matrix = np.zeros((n, m))
-        for i in range(n):
-            for j in range(m):
-                dsr_dist_matrix[i][j] = self.spaces[j].dsr_dist_vector[i]
-                ig_dist_matrix[i][j] = self.spaces[j].ig_dist_vector[i]
+        i_glob = 0
+        for j in range(m):
+            for i in range(len(self.spaces[j].surfaces)):
+                dsr_dist_matrix[i_glob][j] = self.spaces[j].dsr_dist_vector[i]
+                ig_dist_matrix[i_glob][j] = self.spaces[j].ig_dist_vector[i]
+                i_glob += 1
 
         self.SWDIR_matrix = np.matmul(aux_matrix, dsr_dist_matrix)
         self.SWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
@@ -130,9 +132,11 @@ class Building(Component):
 
         m = len(self.spaces)
         ig_dist_matrix = np.zeros((n, m))
-        for i in range(n):
-            for j in range(m):
-                ig_dist_matrix[i][j] = self.spaces[j].ig_dist_vector[i]
+        i_glob = 0
+        for j in range(m):
+            for i in range(len(self.spaces[j].surfaces)):
+                ig_dist_matrix[i_glob][j] = self.spaces[j].ig_dist_vector[i]
+                i_glob += 1
 
         self.LWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
 
@@ -276,7 +280,24 @@ class Building(Component):
                 self.FS_vector[i] = -self.surfaces[i].area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].k_01 * self.surfaces[i].variable("T_s0").values[time_i]
             elif s_type == "Interior_surface":
-                pass
+                if self.sides[i] == 0:
+                    self.surfaces[i].variable("q_sol0").values[time_i] = - (
+                        self.Q_dir[i] + self.Q_dif[i])/area
+                    self.surfaces[i].variable(
+                        "q_swig0").values[time_i] = - self.Q_igsw[i]/area
+                    self.surfaces[i].variable("q_lwig0").values[time_i] = - (
+                        self.Q_iglw[i] + self.Q_extlw[i])/area
+                    self.FS_vector[i] = -self.surfaces[i].area * \
+                        self.surfaces[i].variable("p_0").values[time_i] - Q_rad
+                else:
+                    self.surfaces[i].variable("q_sol1").values[time_i] = - (
+                        self.Q_dir[i] + self.Q_dif[i])/area
+                    self.surfaces[i].variable(
+                        "q_swig1").values[time_i] = - self.Q_igsw[i]/area
+                    self.surfaces[i].variable("q_lwig1").values[time_i] = - (
+                        self.Q_iglw[i] + self.Q_extlw[i])/area
+                    self.FS_vector[i] = -self.surfaces[i].area * \
+                        self.surfaces[i].variable("p_1").values[time_i] - Q_rad
 
     def _calculate_FZ_vector(self, time_i):
         m = len(self.spaces)
