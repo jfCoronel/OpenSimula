@@ -1,6 +1,5 @@
 from OpenSimula.Component import Component
 from OpenSimula.Parameters import Parameter_component, Parameter_float
-from OpenSimula.Variable import Variable
 import numpy as np
 import math
 
@@ -157,9 +156,10 @@ class Building(Component):
         # KS_matriz, KSZ_matrix
         for i in range(n):
             s_type = self.surfaces[i].parameter("type").value
-            k = self.surfaces[i].k
-            k_01 = self.surfaces[i].k_01
+
             if s_type == "Exterior_surface":
+                k = self.surfaces[i].k
+                k_01 = self.surfaces[i].k_01
                 self.KS_matrix[i][i] += k[1] - (k_01**2)/k[0]
                 for j in range(m):
                     if self.spaces[j] == self.surfaces[i].parameter("space").component:
@@ -167,12 +167,16 @@ class Building(Component):
                             self.surfaces[i].parameter(
                                 "h_cv").value[self.sides[i]]
             elif s_type == "Underground_surface":
+                k = self.surfaces[i].k
+                k_01 = self.surfaces[i].k_01
                 self.KS_matrix[i][i] += k[1]
                 for j in range(m):
                     if self.spaces[j] == self.surfaces[i].parameter("space").component:
                         self.KSZ_matrix[i][j] = self.surfaces[i].area * \
                             self.surfaces[i].parameter("h_cv").value
             elif s_type == "Interior_surface":
+                k = self.surfaces[i].k
+                k_01 = self.surfaces[i].k_01
                 self.KS_matrix[i][i] += k[self.sides[i]]
                 for j in range(n):
                     if self.B_matrix[i][j] == 1:
@@ -182,6 +186,16 @@ class Building(Component):
                         self.KSZ_matrix[i][j] = self.surfaces[i].area * \
                             self.surfaces[i].parameter(
                                 "h_cv").value[self.sides[i]]
+            elif s_type == "Virtual_exterior_surface":
+                self.KS_matrix[i][i] += 1.0
+                for j in range(m):
+                    if self.spaces[j] == self.surfaces[i].parameter("space").component:
+                        self.KSZ_matrix[i][j] = 0
+            elif s_type == "Virtual_interior_surface":
+                self.KS_matrix[i][i] += 1.0
+                for j in range(m):
+                    if self.spaces[j] == self.surfaces[i].parameter("spaces").component[self.sides[i]]:
+                        self.KSZ_matrix[i][j] = 0
 
         self.KS_inv_matrix = np.linalg.inv(self.KS_matrix)
 
@@ -235,9 +249,7 @@ class Building(Component):
         E_dif = np.zeros(len(self.surfaces))
         for i in range(len(self.surfaces)):
             s_type = self.surfaces[i].parameter("type").value
-            if s_type == "Opening":
-                E_dif[i] = self.surfaces[i].variable("E_dif0").values[time_i]
-            elif s_type == "Exterior_surface":
+            if s_type == "Opening" or s_type == "Exterior_surface" or s_type == "Virtual_exterior_surface":
                 E_dif[i] = self.surfaces[i].variable("E_dif0").values[time_i]
         self.Q_dif = np.matmul(self.SWDIF_matrix, E_dif)
 
@@ -245,7 +257,7 @@ class Building(Component):
         E_ext = np.zeros(len(self.surfaces))
         for i in range(len(self.surfaces)):
             s_type = self.surfaces[i].parameter("type").value
-            if s_type == "Exterior_surface":
+            if s_type == "Virtual_exterior_surface":
                 E_ext[i] = 5.56E-8 * \
                     (self.surfaces[i].variable("T_rm").values[time_i]**4)
         self.Q_extlw = np.matmul(self.LWEXT_matrix, E_ext)
@@ -266,7 +278,6 @@ class Building(Component):
                     "q_swig1").values[time_i] = - self.Q_igsw[i]/area
                 self.surfaces[i].variable("q_lwig1").values[time_i] = - (
                     self.Q_iglw[i] + self.Q_extlw[i])/area
-
                 self.FS_vector[i] = -self.surfaces[i].area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
             elif s_type == "Underground_surface":
@@ -276,7 +287,6 @@ class Building(Component):
                     "q_swig1").values[time_i] = - self.Q_igsw[i]/area
                 self.surfaces[i].variable("q_lwig1").values[time_i] = - (
                     self.Q_iglw[i] + self.Q_extlw[i])/area
-
                 self.FS_vector[i] = -self.surfaces[i].area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].k_01 * self.surfaces[i].variable("T_s0").values[time_i]
             elif s_type == "Interior_surface":
@@ -298,6 +308,8 @@ class Building(Component):
                         self.Q_iglw[i] + self.Q_extlw[i])/area
                     self.FS_vector[i] = -self.surfaces[i].area * \
                         self.surfaces[i].variable("p_1").values[time_i] - Q_rad
+            elif s_type == "Virtual_exterior_surface" or s_type == "Virtual_interior_surface":
+                self.FS_vector[i] = 0.0
 
     def _calculate_FZ_vector(self, time_i):
         m = len(self.spaces)
@@ -344,10 +356,11 @@ class Building(Component):
             self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.TZ_vector))
         # Store TS
         for i in range(len(self.surfaces)):
-            if (self.sides[i] == 0):
-                self.surfaces[i].variable(
-                    "T_s0").values[time_index] = self.TS_vector[i]
-            else:
-                self.surfaces[i].variable(
-                    "T_s1").values[time_index] = self.TS_vector[i]
+            if not self.surfaces[i].isVirtual():
+                if (self.sides[i] == 0):
+                    self.surfaces[i].variable(
+                        "T_s0").values[time_index] = self.TS_vector[i]
+                else:
+                    self.surfaces[i].variable(
+                        "T_s1").values[time_index] = self.TS_vector[i]
         return True

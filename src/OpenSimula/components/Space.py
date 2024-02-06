@@ -64,28 +64,38 @@ class Space(Component):
         self.surfaces = []
         self.sides = []
         # Exterior
-        project_exterior_surfaces_list = self.project(
-        ).component_list(type="Exterior_surface")
-        for surface in project_exterior_surfaces_list:
+        surfaces_list = self.project().component_list(type="Exterior_surface")
+        for surface in surfaces_list:
             if surface.parameter("space").component == self:
                 self.surfaces.append(surface)
                 self.sides.append(1)
                 for opening in surface.openings:
                     self.surfaces.append(opening)
                     self.sides.append(1)
-
-        # Underground
-        project_underground_surfaces_list = self.project(
-        ).component_list(type="Underground_surface")
-        for surface in project_underground_surfaces_list:
+        # Virtual exterior
+        surfaces_list = self.project().component_list(type="Virtual_exterior_surface")
+        for surface in surfaces_list:
             if surface.parameter("space").component == self:
                 self.surfaces.append(surface)
                 self.sides.append(1)
-
+        # Underground
+        surfaces_list = self.project().component_list(type="Underground_surface")
+        for surface in surfaces_list:
+            if surface.parameter("space").component == self:
+                self.surfaces.append(surface)
+                self.sides.append(1)
         # Interior
-        project_interior_surfaces_list = self.project(
-        ).component_list(type="Interior_surface")
-        for surface in project_interior_surfaces_list:
+        surfaces_list = self.project().component_list(type="Interior_surface")
+        for surface in surfaces_list:
+            if surface.parameter("spaces").component[0] == self:
+                self.surfaces.append(surface)
+                self.sides.append(0)
+            elif surface.parameter("spaces").component[1] == self:
+                self.surfaces.append(surface)
+                self.sides.append(1)
+        # Virtual Interior
+        surfaces_list = self.project().component_list(type="Virtual_interior_surface")
+        for surface in surfaces_list:
             if surface.parameter("spaces").component[0] == self:
                 self.surfaces.append(surface)
                 self.sides.append(0)
@@ -218,10 +228,9 @@ class Space(Component):
             if s_type == "Opening":
                 solar_gain += self.surfaces[i].area * \
                     self.surfaces[i].variable("E_dir_trans").values[time_i]
-            elif s_type == "Exterior_surface":
-                if self.surfaces[i].parameter("virtual").value:
-                    solar_gain += self.surfaces[i].area * \
-                        self.surfaces[i].variable("E_dir0").values[time_i]
+            elif s_type == "Virtual_exterior_surface":
+                solar_gain += self.surfaces[i].area * \
+                    self.surfaces[i].variable("E_dir0").values[time_i]
 
         self.variable("solar_direct_gains").values[time_i] = solar_gain
 

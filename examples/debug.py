@@ -1,5 +1,4 @@
 import OpenSimula as osm
-import pandas as pd
 
 bestest_building_600 = {
     "name": "Bestest Building",
@@ -114,7 +113,6 @@ bestest_building_600 = {
         {
             "type": "Exterior_surface",
             "name": "north_wall",
-            "virtual": False,
             "construction": "Pared 600",
             "space": "space_1",
             "area": 8*2.7,
@@ -124,8 +122,7 @@ bestest_building_600 = {
         {
             "type": "Exterior_surface",
             "name": "east_wall",
-            "virtual": True,
-            "h_cv": [0, 0],
+            "construction": "Pared 600",
             "space": "space_1",
             "area": 6*2.7,
             "azimuth": 90,

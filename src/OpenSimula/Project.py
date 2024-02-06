@@ -43,8 +43,10 @@ class Project(Parameter_container):
                     "Space_type",
                     "Opening",
                     "Exterior_surface",
+                    "Virtual_exterior_surface",
                     "Underground_surface",
                     "Interior_surface",
+                    "Virtual_interior_surface",
                     "Space",
                     "Building"
                 ],

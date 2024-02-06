@@ -1,11 +1,11 @@
-from OpenSimula.components.Surface import Surface
+from OpenSimula.components.Real_surface import Real_surface
 from OpenSimula.Parameters import Parameter_component, Parameter_float_list
 from OpenSimula.Variable import Variable
 
 
-class Exterior_surface(Surface):
+class Exterior_surface(Real_surface):
     def __init__(self, name, project):
-        Surface.__init__(self, name, project)
+        Real_surface.__init__(self, name, project)
         # Parameters
         self.parameter("type").value = "Exterior_surface"
         self.parameter("description").value = "Building exterior surface"
@@ -28,11 +28,6 @@ class Exterior_surface(Surface):
         if self.parameter("space").value == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, must define its space.")
-        # Test virtual
-        if self.parameter("virtual").value == True and (self.parameter("h_cv").value != [0, 0]):
-            self.parameter("h_cv").value = [0, 0]
-            errors.append(
-                f"Warning : h_cv set to 0 for virtual surfaces.")
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -44,37 +39,6 @@ class Exterior_surface(Surface):
         self._create_openings_list()
         self._calculate_K()
 
-    def pre_iteration(self, time_index, date):
-        super().pre_iteration(time_index, date)
-        self._calculate_variables_pre_iteration(time_index)
-
-    def post_iteration(self, time_index, date):
-        super().post_iteration(time_index, date)
-        self._calculate_T_s0(time_index)
-        self._calculate_heat_fluxes(time_index)
-
-    def _calculate_heat_fluxes(self, time_i):
-        if (not self.parameter("virtual").value):
-            self.variable("q_cd0").values[time_i] = self.a_0 * self.variable("T_s0").values[time_i] + \
-                self.a_01 * \
-                self.variable("T_s1").values[time_i] + \
-                self.variable("p_0").values[time_i]
-            self.variable("q_cd1").values[time_i] = self.a_01 * self.variable("T_s0").values[time_i] + \
-                self.a_1 * \
-                self.variable("T_s1").values[time_i] + \
-                self.variable("p_1").values[time_i]
-            self.variable("q_cv0").values[time_i] = self.parameter(
-                "h_cv").value[0] * (self._T_ext - self.variable("T_s0").values[time_i])
-            self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[1] * (self.parameter(
-                "space").component.variable("temperature").values[time_i] - self.variable("T_s1").values[time_i])
-
-            h_rd = self.H_RD * self.radiant_property("alpha", "long", 0)
-            self.variable("q_lwt0").values[time_i] = h_rd * (self.variable(
-                "T_rm").values[time_i] - self.variable("T_s0").values[time_i])
-            self.variable("q_lwt1").values[time_i] = - self.variable("q_cd1").values[time_i] - self.variable("q_cv1").values[time_i] - \
-                self.variable("q_sol1").values[time_i] - self.variable(
-                "q_swig1").values[time_i] - self.variable("q_lwig1").values[time_i]
-
     def _create_openings_list(self):
         project_openings_list = self.project().component_list(type="Opening")
         self.openings = []
@@ -83,17 +47,16 @@ class Exterior_surface(Surface):
                 self.openings.append(opening)
 
     def _calculate_K(self):
-        if (self.parameter("virtual").value):
-            self.k = [1.0, 2.0]
-            self.k_01 = -1
-        else:
-            self.a_0, self.a_1, self.a_01 = self.parameter(
-                "construction").component.get_A()
-            self.k[0] = self.area * (self.a_0 - self.parameter("h_cv").value[0] -
-                                     self.H_RD * self.radiant_property("alpha", "long", 0))
-            self.k[1] = self.area * \
-                (self.a_1 - self.parameter("h_cv").value[1])
-            self.k_01 = self.area * self.a_01
+        self.a_0, self.a_1, self.a_01 = self.parameter(
+            "construction").component.get_A()
+        self.k[0] = self.area * (self.a_0 - self.parameter("h_cv").value[0] -
+                                 self.H_RD * self.radiant_property("alpha", "long", 0))
+        self.k[1] = self.area * (self.a_1 - self.parameter("h_cv").value[1])
+        self.k_01 = self.area * self.a_01
+
+    def pre_iteration(self, time_index, date):
+        super().pre_iteration(time_index, date)
+        self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_variables_pre_iteration(self, time_i):
         self._T_ext = self._file_met.variable("temperature").values[time_i]
@@ -111,23 +74,43 @@ class Exterior_surface(Surface):
         h_rd = self.H_RD * self.radiant_property("alpha", "long", 0)
         q_sol = self.radiant_property("alpha", "short", 0) * (E_dif0 + E_dir0)
         self.variable("q_sol0").values[time_i] = q_sol
-        if (self.parameter("virtual").value):
-            self.f_0 = self.area * \
-                (- self.parameter("h_cv").value[0]
-                 * self._T_ext - h_rd * T_rm - q_sol)
-        else:
-            p_0, p_1 = self.parameter("construction").component.get_P(
-                time_i, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
-            self.variable("p_0").values[time_i] = p_0
-            self.variable("p_1").values[time_i] = p_1
-            self.f_0 = self.area * \
-                (- p_0 - self.parameter("h_cv").value[0]
-                 * self._T_ext - h_rd * T_rm - q_sol)
+        p_0, p_1 = self.parameter("construction").component.get_P(
+            time_i, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
+        self.variable("p_0").values[time_i] = p_0
+        self.variable("p_1").values[time_i] = p_1
+        self.f_0 = self.area * \
+            (- p_0 - self.parameter("h_cv").value[0]
+             * self._T_ext - h_rd * T_rm - q_sol)
+
+    def post_iteration(self, time_index, date):
+        super().post_iteration(time_index, date)
+        self._calculate_T_s0(time_index)
+        self._calculate_heat_fluxes(time_index)
 
     def _calculate_T_s0(self, time_i):
         T_s0 = (self.f_0 - self.k_01 *
                 self.variable("T_s1").values[time_i])/self.k[0]
         self.variable("T_s0").values[time_i] = T_s0
+
+    def _calculate_heat_fluxes(self, time_i):
+        self.variable("q_cd0").values[time_i] = self.a_0 * self.variable("T_s0").values[time_i] + \
+            self.a_01 * \
+            self.variable("T_s1").values[time_i] + \
+            self.variable("p_0").values[time_i]
+        self.variable("q_cd1").values[time_i] = self.a_01 * self.variable("T_s0").values[time_i] + \
+            self.a_1 * \
+            self.variable("T_s1").values[time_i] + \
+            self.variable("p_1").values[time_i]
+        self.variable("q_cv0").values[time_i] = self.parameter(
+            "h_cv").value[0] * (self._T_ext - self.variable("T_s0").values[time_i])
+        self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[1] * (self.parameter(
+            "space").component.variable("temperature").values[time_i] - self.variable("T_s1").values[time_i])
+        h_rd = self.H_RD * self.radiant_property("alpha", "long", 0)
+        self.variable("q_lwt0").values[time_i] = h_rd * (self.variable(
+            "T_rm").values[time_i] - self.variable("T_s0").values[time_i])
+        self.variable("q_lwt1").values[time_i] = - self.variable("q_cd1").values[time_i] - self.variable("q_cv1").values[time_i] - \
+            self.variable("q_sol1").values[time_i] - self.variable(
+            "q_swig1").values[time_i] - self.variable("q_lwig1").values[time_i]
 
     @property
     def area(self):
