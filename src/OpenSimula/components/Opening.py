@@ -10,7 +10,6 @@ class Opening(Component):
         self.parameter("type").value = "Opening"
         self.parameter(
             "description").value = "Rectangular opening in building surfaces"
-        self.add_parameter(Parameter_boolean("virtual", False))
         self.add_parameter(Parameter_component("surface", "not_defined"))
         self.add_parameter(Parameter_component("window", "not_defined"))
         self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
@@ -27,9 +26,9 @@ class Opening(Component):
             errors.append(
                 f"Error: {self.parameter('name').value}, its surface must be defined.")
         # Test window defined
-        if (not self.parameter("virtual").value) and self.parameter("window").value == "not_defined":
+        if self.parameter("window").value == "not_defined":
             errors.append(
-                f"Error: {self.parameter('name').value}, none virtual opening must define its window."
+                f"Error: {self.parameter('name').value}, opening must define its window."
             )
         return errors
 

@@ -2,7 +2,7 @@ from OpenSimula.components.Virtual_surface import Virtual_surface
 from OpenSimula.Parameters import Parameter_component_list
 
 
-class Virtual_Interior_surface(Virtual_surface):
+class Virtual_interior_surface(Virtual_surface):
     def __init__(self, name, project):
         Virtual_surface.__init__(self, name, project)
         # Parameters

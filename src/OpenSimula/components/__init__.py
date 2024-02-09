@@ -13,6 +13,6 @@ from OpenSimula.components.Space import Space
 from OpenSimula.components.Exterior_surface import Exterior_surface
 from OpenSimula.components.Virtual_exterior_surface import Virtual_exterior_surface
 from OpenSimula.components.Interior_surface import Interior_surface
-from OpenSimula.components.Virtual_interior_surface import Virtual_Interior_surface
+from OpenSimula.components.Virtual_interior_surface import Virtual_interior_surface
 from OpenSimula.components.Underground_surface import Underground_surface
 from OpenSimula.components.Opening import Opening
