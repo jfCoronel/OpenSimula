@@ -196,7 +196,7 @@ All of the above types can also be defined as parameter lists, giving rise to th
 - Parameter_string_list: List of String of characters, e.g.: ` "authors": ["Juan F.", "Luis", "Ismael"]`.
 - Parameter_boolean_list: List of True or False values, e.g.: `"operated": [True, True, False]`.
 - Parameter_int_list: List of integer values, e.g.: `"people": [24, 12, 18]`.
-- Parameter_float_list: List of floating point values, e.g.: `"solar_absortivity": [0.8, 0.75]`.
+- Parameter_float_list: List of floating point values, e.g.: `"solar_alpha": [0.8, 0.75]`.
 - Parameter_options_list: List of character strings included in a closed option list, e.g.: `"day_types": ["MONDAY", "TUESDAY"]`.
 - Parameter_component_list: List of references to another components, e.g.: `"materials": ["Cement mortar", "Hollow brick"]`.
 - Parameter_variable_list: List of parameters used to copy a list of variables. e.g.: `"aux_variables": ["t_1 = meteo.temperature","hr = meteo.relative_humidity"]`.

@@ -52,9 +52,9 @@ class Opening(Component):
             return 0
         else:
             alpha = self.parameter(
-                "window").component.parameter("solar_absortivity").value
+                "window").component.parameter("solar_alpha").value
             tau = self.parameter(
-                "window").component.parameter("solar_transmisivity").value
+                "window").component.parameter("solar_tau").value
             if face_number == 0:
                 return 1-alpha[0]-tau[0]
             else:
@@ -76,7 +76,7 @@ class Opening(Component):
             return 0
         else:
             alpha = self.parameter("window").component.parameter(
-                "solar_absortivity").value
+                "solar_alpha").value
             if face_number == 0:
                 return alpha[0]
             else:
@@ -87,9 +87,9 @@ class Opening(Component):
             return 0
         else:
             if face_number == 0:
-                return 1-self.parameter("window").component.parameter("lw_absortivity").value[0]
+                return 1-self.parameter("window").component.parameter("lw_alpha").value[0]
             else:
-                return 1-self.parameter("window").component.parameter("lw_absortivity").value[1]
+                return 1-self.parameter("window").component.parameter("lw_alpha").value[1]
 
     def tau_lw(self, face_number=0):
         if (self.parameter("virtual").value):
@@ -102,6 +102,6 @@ class Opening(Component):
             return 0
         else:
             if face_number == 0:
-                return self.parameter("window").component.parameter("lw_absortivity").value[0]
+                return self.parameter("window").component.parameter("lw_alpha").value[0]
             else:
-                return self.parameter("window").component.parameter("lw_absortivity").value[1]
+                return self.parameter("window").component.parameter("lw_alpha").value[1]

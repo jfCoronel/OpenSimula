@@ -25,7 +25,7 @@
         {
             "type": "Construction",
             "name": "Muro exterior",
-            "solar_absortivity": [
+            "solar_alpha": [
                 0.8,
                 0.8
             ],

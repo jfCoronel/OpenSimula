@@ -13,9 +13,9 @@ class Construction(Component):
             "description").value = "Construction using layers of material"
 
         self.add_parameter(Parameter_float_list(
-            "solar_absortivity", [0.8, 0.8], "frac", min=0, max=1))
+            "solar_alpha", [0.8, 0.8], "frac", min=0, max=1))
         self.add_parameter(Parameter_float_list(
-            "lw_absortivity", [0.9, 0.9], "frac", min=0, max=1))
+            "lw_alpha", [0.9, 0.9], "frac", min=0, max=1))
         self.add_parameter(Parameter_component_list(
             "materials", [], "Material"))
         self.add_parameter(Parameter_float_list("thicknesses", [], "m", min=0))

@@ -50,21 +50,21 @@ project_dic = {
         {
             "type": "Construction",
             "name": "Light wall",
-            "solar_absortivity": [0.8, 0.8],
+            "solar_alpha": [0.8, 0.8],
             "materials": ["Light material"],
             "thicknesses": [0.076],
         },
         {
             "type": "Construction",
             "name": "Heavy wall",
-            "solar_absortivity": [0.8, 0.8],
+            "solar_alpha": [0.8, 0.8],
             "materials": ["Heavy material"],
             "thicknesses": [0.25],
         },
         {
             "type": "Construction",
             "name": "Multilayer wall",
-            "solar_absortivity": [0.8, 0.8],
+            "solar_alpha": [0.8, 0.8],
             "materials": [
                 "Gypsum board",
                 "EPS board",

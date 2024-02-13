@@ -193,7 +193,7 @@ material.set_parameters(param)
 Component to describe the composition of the different layers (Material component) of an enclosure.
 
 #### Parameters
-- **solar_absortivity** [_float-list_, unit = "frac", default = [0.8,0.8], min = 0, max = 1]: Solar absortivity for de surfaces 1 and 2.
+- **solar_alpha** [_float-list_, unit = "frac", default = [0.8,0.8], min = 0, max = 1]: Solar absortance for de surfaces 1 and 2.
 - **materials** [[_component-list_, default = [], component type = Material]]: Materials list for each of the layers, defined from surface 1 to 2.
 - **thicknesses** [_float-list_, unit = "m", default = [], min = 0]: Thicknesses of each of the layers defined in the "materials" parameter. Must have the same number of elements as the "materials" parameter.
 
@@ -203,7 +203,7 @@ Component to describe the composition of the different layers (Material componen
 
 construction = osm.components.Construction("Multilayer wall",project)
 param = {
-    "solar_absortivity": [0.8, 0.8],
+    "solar_alpha": [0.8, 0.8],
     "materials": ["Gypsum board","EPS board","Heavyweight concrete","EPS board","Stucco"],
     "thicknesses": [0.016, 0.076, 0.203, 0.076, 0.025],
 }

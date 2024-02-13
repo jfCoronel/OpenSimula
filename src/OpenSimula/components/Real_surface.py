@@ -45,15 +45,15 @@ class Real_surface(Surface):
     def radiant_property(self, prop, wave, side):
         if (wave == "short"):
             if (prop == "rho"):
-                return 1-self.parameter("construction").component.parameter("solar_absortivity").value[side]
+                return 1-self.parameter("construction").component.parameter("solar_alpha").value[side]
             elif (prop == "tau"):
                 return 0
             elif (prop == "alpha"):
-                return self.parameter("construction").component.parameter("solar_absortivity").value[side]
+                return self.parameter("construction").component.parameter("solar_alpha").value[side]
         elif (wave == "long"):
             if (prop == "rho"):
-                return 1-self.parameter("construction").component.parameter("lw_absortivity").value[side]
+                return 1-self.parameter("construction").component.parameter("lw_alpha").value[side]
             elif (prop == "tau"):
                 return 0
             elif (prop == "alpha"):
-                return self.parameter("construction").component.parameter("lw_absortivity").value[side]
+                return self.parameter("construction").component.parameter("lw_alpha").value[side]
