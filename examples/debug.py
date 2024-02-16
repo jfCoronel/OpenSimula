@@ -1,5 +1,4 @@
 import OpenSimula as osm
-
 bestest_building_600 = {
     "name": "Bestest Building",
     "time_step": 3600,
@@ -77,13 +76,21 @@ bestest_building_600 = {
             "thicknesses": [0.010, 0.01118, 0.019],
         },
         {
+            "type": "Glazing",
+            "name": "Vidrio simple",
+        },
+        {
+            "type": "Frame",
+            "name": "Marco",
+            "thermal_resistance": 0.2
+        },
+        {
             "type": "Window",
-            "name": "Vidrio doble",
-            "solar_alpha": [0.13, 0.13],
-            "solar_transmisivity": [0.66, 0.66],
-            "R_glazing": 0.921,
-            "R_frame": 0.921,
-            "frame_fraction": 0
+            "name": "Ventana",
+            "glazing": "Vidrio simple",
+            "frame": "Marco",
+            "frame_fraction": 0.1,
+            "glazing_fraction": 0.9
         },
         # BUILDING
         {
@@ -138,6 +145,22 @@ bestest_building_600 = {
             "altitude": 0
         },
         {
+            "type": "Opening",
+            "name": "south_window_1",
+            "surface": "south_wall",
+            "window": "Ventana",
+            "width": 3,
+            "height": 2
+        },
+        {
+            "type": "Opening",
+            "name": "south_window_2",
+            "surface": "south_wall",
+            "window": "Ventana",
+            "width": 3,
+            "height": 2
+        },
+        {
             "type": "Exterior_surface",
             "name": "west_wall",
             "construction": "Pared 600",
@@ -166,7 +189,6 @@ bestest_building_600 = {
         },
     ],
 }
-
 sim = osm.Simulation()
 pro = osm.Project("pro", sim)
 pro.read_dict(bestest_building_600)

@@ -88,19 +88,19 @@ def test_walls_1h():
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
     U = sum(wall._coef_T_a)/sum(wall._coef_Q)
-    assert wall.get_U() == pytest.approx(U, 0.00001)
+    assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)
 
     wall = pro.component("Heavy wall")
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
     U = sum(wall._coef_T_a)/sum(wall._coef_Q)
-    assert wall.get_U() == pytest.approx(U, 0.00001)
+    assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)
 
     wall = pro.component("Multilayer wall")
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
     U = sum(wall._coef_T_a)/sum(wall._coef_Q)
-    assert wall.get_U() == pytest.approx(U, 0.00001)
+    assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)
 
 
 def test_walls_15min():
@@ -114,16 +114,16 @@ def test_walls_15min():
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
     U = sum(wall._coef_T_a)/sum(wall._coef_Q)
-    assert wall.get_U() == pytest.approx(U, 0.00001)
+    assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)
 
     wall = pro.component("Heavy wall")
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
     U = sum(wall._coef_T_a)/sum(wall._coef_Q)
-    assert wall.get_U() == pytest.approx(U, 0.00001)
+    assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)
 
     wall = pro.component("Multilayer wall")
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
     U = sum(wall._coef_T_a)/sum(wall._coef_Q)
-    assert wall.get_U() == pytest.approx(U, 0.00001)
+    assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)

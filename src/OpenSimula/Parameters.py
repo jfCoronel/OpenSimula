@@ -4,6 +4,7 @@ from OpenSimula.Child import Child
 
 # ___________________ Parameter _________________________
 
+
 class Parameter(Child):
     """Elements with key-value pair
 
@@ -42,8 +43,8 @@ class Parameter(Child):
 
     def check(self):
         return []
-    
-    def _get_error_header_ (self):
+
+    def _get_error_header_(self):
         return f'Error: {self.parent.parameter("name").value}->{self.key}. '
 
 
@@ -155,7 +156,8 @@ class Parameter_int(Parameter):
 
     def check(self):
         if self.value < self._min_ or self.value > self._max_:
-            msg = self._get_error_header_()+f"{self.value} is not at [{self._min_},{self._max_}]"
+            msg = self._get_error_header_(
+            )+f"{self.value} is not at [{self._min_},{self._max_}]"
             return [msg]
         else:
             return []
@@ -194,7 +196,8 @@ class Parameter_int_list(Parameter):
         errors = []
         for n in self.value:
             if n < self._min_ or n > self._max_:
-                msg = self._get_error_header_()+f"{n} is not at [{self._min_},{self._max_}]"
+                msg = self._get_error_header_(
+                )+f"{n} is not at [{self._min_},{self._max_}]"
                 errors.append(msg)
         return errors
 
@@ -207,7 +210,8 @@ class Parameter_int_list(Parameter):
 
 class Parameter_float(Parameter_int):
     def __init__(self, key, value=0.0, unit="", min=0.0, max=float("inf")):
-        Parameter_int.__init__(self, key, float(value), unit, float(min), float(max))
+        Parameter_int.__init__(self, key, float(
+            value), unit, float(min), float(max))
 
     @property
     def value(self):
@@ -223,7 +227,8 @@ class Parameter_float(Parameter_int):
 
     def check(self):
         if self.value < self._min_ or self.value > self._max_:
-            msg = self._get_error_header_()+f"{self.value} is not at [{self._min_},{self._max_}]"
+            msg = self._get_error_header_(
+            )+f"{self.value} is not at [{self._min_},{self._max_}]"
             return [msg]
         else:
             return []
@@ -231,7 +236,8 @@ class Parameter_float(Parameter_int):
 
 class Parameter_float_list(Parameter_int_list):
     def __init__(self, key, value=[0.0], unit="", min=0.0, max=float("inf")):
-        Parameter_int_list.__init__(self, key, value, unit, float(min), float(max))
+        Parameter_int_list.__init__(
+            self, key, value, unit, float(min), float(max))
 
     @property
     def value(self):
@@ -255,7 +261,8 @@ class Parameter_float_list(Parameter_int_list):
         errors = []
         for n in self.value:
             if n < self._min_ or n > self._max_:
-                msg = self._get_error_header_()+f"{n} is not at [{self._min_},{self._max_}]"
+                msg = self._get_error_header_(
+                )+f"{n} is not at [{self._min_},{self._max_}]"
                 errors.append(msg)
         return errors
 
@@ -367,10 +374,12 @@ class Parameter_component(Parameter):
         comp = self.component
         if len(self.allowed_types) > 0 and self.value != "not_defined":
             if type(comp).__name__ not in self.allowed_types:
-                msg = self._get_error_header_()+f"{self.value} component is not of one of the allowed types."
+                msg = self._get_error_header_(
+                )+f"{self.value} component is not of one of the allowed types."
                 errors.append(msg)
         if comp == None and self.value != "not_defined":
-            msg = self._get_error_header_() + f"{self.value} component not found."
+            msg = self._get_error_header_(
+            ) + f"{self.value} component not found."
             errors.append(msg)
         return errors
 
@@ -429,10 +438,12 @@ class Parameter_component_list(Parameter):
         for i in range(len(comps)):
             if len(self.allowed_types) > 0 and self.value[i] != "not_defined":
                 if type(comps[i]).__name__ not in self.allowed_types:
-                    msg = self._get_error_header_()+f"{self.value[i]} component is not of one of the allowed types."
+                    msg = self._get_error_header_(
+                    )+f"{self.value[i]} component is not of one of the allowed types."
                     errors.append(msg)
             if comps[i] == None and self.value[i] != "not_defined":
-                msg = self._get_error_header_() + f"{self.value[i]} component not found."
+                msg = self._get_error_header_(
+                ) + f"{self.value[i]} component not found."
                 errors.append(msg)
         return errors
 
@@ -451,16 +462,16 @@ class Parameter_variable(Parameter):
 
     @value.setter
     def value(self, value):
-        format_error = False 
+        format_error = False
         self._value_ = str(value)
         if "=" in self._value_:
             splits = self._value_.split("=")
             self._symbol_ = splits[0].strip()
             if "." in splits[1]:
-                splits2 =splits[1].split(".")
+                splits2 = splits[1].split(".")
                 self._component_ = splits2[0].strip()
                 self._variable_ = splits2[1].strip()
-            else: 
+            else:
                 format_error = True
         else:
             format_error = True
@@ -469,15 +480,16 @@ class Parameter_variable(Parameter):
             self._external_ = True
         else:
             self._external_ = False
-        
-        if format_error:    
-            msg = self._get_error_header_()+'Incorrect format. Expected format "symbol = component.variable"'
+
+        if format_error:
+            msg = self._get_error_header_(
+            )+'Incorrect format. Expected format "symbol = component.variable"'
             self._sim_.print(msg)
 
     @property
     def external(self):
         return self._external_
-    
+
     @property
     def symbol(self):
         return self._symbol_
@@ -487,20 +499,23 @@ class Parameter_variable(Parameter):
         try:
             if self.external:
                 splits = self._component_.split("->")
-                proj = self.parent.project().simulation().project(splits[0].strip())
-                var = proj.component(splits[1].strip()).variable(self._variable_)
+                proj = self.parent.project().simulation().project(
+                    splits[0].strip())
+                var = proj.component(
+                    splits[1].strip()).variable(self._variable_)
             else:
                 var = self.parent.project().component(self._component_).variable(self._variable_)
         except Exception as error:
             var = None
-        
+
         return var
 
     def check(self):
         errors = []
         var = self.variable
         if var == None and self._symbol_ != "not_defined":
-            msg = self._get_error_header_() + f"{self.value} component or variable not found."
+            msg = self._get_error_header_(
+            ) + f"{self.value} component or variable not found."
             errors.append(msg)
         return errors
 
@@ -522,21 +537,21 @@ class Parameter_variable_list(Parameter):
             for el in value:
                 el = str(el)
             self._value_ = value
-        
-        format_error = False 
+
+        format_error = False
         self._symbol_ = []
         self._component_ = []
         self._variable_ = []
         self._external_ = []
         for element in self._value_:
             if "=" in element:
-                splits =element.split("=")
+                splits = element.split("=")
                 self._symbol_.append(splits[0].strip())
                 if "." in splits[1]:
-                    splits2 =splits[1].split(".")
+                    splits2 = splits[1].split(".")
                     self._component_.append(splits2[0].strip())
                     self._variable_.append(splits2[1].strip())
-                else: 
+                else:
                     format_error = True
             else:
                 format_error = True
@@ -545,8 +560,9 @@ class Parameter_variable_list(Parameter):
             else:
                 self._external_.append(False)
 
-        if format_error:    
-            msg = self._get_error_header_()+'Incorrect format. Expected format "symbol = component.variable"'
+        if format_error:
+            msg = self._get_error_header_(
+            )+'Incorrect format. Expected format "symbol = component.variable"'
             self._sim_.print(msg)
 
     @property
@@ -564,10 +580,13 @@ class Parameter_variable_list(Parameter):
             try:
                 if self.external[i]:
                     splits = self._component_[i].split("->")
-                    proj = self.parent.project().simulation().project(splits[0].strip())
-                    variables.append(proj.component(splits[1].strip()).variable(self._variable_[i]))
+                    proj = self.parent.project().simulation().project(
+                        splits[0].strip())
+                    variables.append(proj.component(
+                        splits[1].strip()).variable(self._variable_[i]))
                 else:
-                    variables.append(self.parent.project().component(self._component_[i]).variable(self._variable_[i]))
+                    variables.append(self.parent.project().component(
+                        self._component_[i]).variable(self._variable_[i]))
             except Exception as error:
                 variables.append(None)
 
@@ -578,7 +597,8 @@ class Parameter_variable_list(Parameter):
         for i in range(len(self._value_)):
             var = self.variable[i]
             if var == None and self.symbol[i] != "not_defined":
-                msg = self._get_error_header_() + f"{self.value} component or variable not found."
+                msg = self._get_error_header_(
+                ) + f"{self.value} component or variable not found."
                 errors.append(msg)
         return errors
 
@@ -595,7 +615,7 @@ class Parameter_math_exp(Parameter):
     @property
     def unit(self):
         return self._unit_
-    
+
     @property
     def value(self):
         return self._value_
@@ -610,14 +630,16 @@ class Parameter_math_exp(Parameter):
         except Exception as error:
             return [self._get_error_header_()+f"{str(error)}"]
         return []
-    
+
     def evaluate(self, values_dic):
         return self._parser_.parse(self.value).evaluate(values_dic)
-              
+
+
 class Parameter_math_exp_list(Parameter):
     def __init__(self, key, value=["0.0"], unit=""):
         Parameter.__init__(self, key, value)
         self._unit_ = unit
+        self._parser_ = Parser()
 
     @property
     def unit(self):
@@ -638,10 +660,12 @@ class Parameter_math_exp_list(Parameter):
 
     def check(self):
         errors = []
-        parser = Parser()
         for n in self.value:
             try:
-                parser.parse(n)
+                self._parser_.parse(n)
             except Exception as error:
                 errors.append(self._get_error_header_()+f"{str(error)}")
         return errors
+
+    def evaluate(self, i, values_dic):
+        return self._parser_.parse(self.value[i]).evaluate(values_dic)

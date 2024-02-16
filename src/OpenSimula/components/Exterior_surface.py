@@ -50,7 +50,7 @@ class Exterior_surface(Real_surface):
         self.a_0, self.a_1, self.a_01 = self.parameter(
             "construction").component.get_A()
         self.k[0] = self.area * (self.a_0 - self.parameter("h_cv").value[0] -
-                                 self.H_RD * self.radiant_property("alpha", "long", 0))
+                                 self.H_RD * self.radiant_property("alpha", "long_wave", 0))
         self.k[1] = self.area * (self.a_1 - self.parameter("h_cv").value[1])
         self.k_01 = self.area * self.a_01
 
@@ -71,8 +71,9 @@ class Exterior_surface(Real_surface):
         self.variable("E_dir0").values[time_i] = E_dir0
         T_rm = self._F_sky * T_sky + (1-self._F_sky)*self._T_ext
         self.variable("T_rm").values[time_i] = T_rm
-        h_rd = self.H_RD * self.radiant_property("alpha", "long", 0)
-        q_sol = self.radiant_property("alpha", "short", 0) * (E_dif0 + E_dir0)
+        h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+        q_sol = self.radiant_property(
+            "alpha", "solar_diffuse", 0) * (E_dif0 + E_dir0)
         self.variable("q_sol0").values[time_i] = q_sol
         p_0, p_1 = self.parameter("construction").component.get_P(
             time_i, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
@@ -105,7 +106,7 @@ class Exterior_surface(Real_surface):
             "h_cv").value[0] * (self._T_ext - self.variable("T_s0").values[time_i])
         self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[1] * (self.parameter(
             "space").component.variable("temperature").values[time_i] - self.variable("T_s1").values[time_i])
-        h_rd = self.H_RD * self.radiant_property("alpha", "long", 0)
+        h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
         self.variable("q_lwt0").values[time_i] = h_rd * (self.variable(
             "T_rm").values[time_i] - self.variable("T_s0").values[time_i])
         self.variable("q_lwt1").values[time_i] = - self.variable("q_cd1").values[time_i] - self.variable("q_cv1").values[time_i] - \
@@ -116,5 +117,5 @@ class Exterior_surface(Real_surface):
     def area(self):
         area = self.parameter("area").value
         for opening in self.openings:
-            area -= opening["area"]
+            area -= opening.area
         return area

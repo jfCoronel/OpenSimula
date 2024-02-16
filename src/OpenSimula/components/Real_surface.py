@@ -9,7 +9,8 @@ class Real_surface(Surface):
         # Parameters
         self.parameter("type").value = "Real_surface"
         self.parameter("description").value = "Buildingn real surface"
-        self.add_parameter(Parameter_component("construction", "not_defined"))
+        self.add_parameter(Parameter_component(
+            "construction", "not_defined", "Construction"))
 
         # Variables
         self.add_variable(Variable("T_s0", "°C"))
@@ -42,18 +43,5 @@ class Real_surface(Surface):
             )
         return errors
 
-    def radiant_property(self, prop, wave, side):
-        if (wave == "short"):
-            if (prop == "rho"):
-                return 1-self.parameter("construction").component.parameter("solar_alpha").value[side]
-            elif (prop == "tau"):
-                return 0
-            elif (prop == "alpha"):
-                return self.parameter("construction").component.parameter("solar_alpha").value[side]
-        elif (wave == "long"):
-            if (prop == "rho"):
-                return 1-self.parameter("construction").component.parameter("lw_alpha").value[side]
-            elif (prop == "tau"):
-                return 0
-            elif (prop == "alpha"):
-                return self.parameter("construction").component.parameter("lw_alpha").value[side]
+    def radiant_property(self, prop, radiation_type, side, theta=0):
+        return self.parameter("construction").component.radiant_property(prop, radiation_type, side, theta)

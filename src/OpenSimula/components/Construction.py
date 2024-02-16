@@ -32,6 +32,7 @@ class Construction(Component):
     # Functions for Transfer Function Calculation
 
     def pre_simulation(self, n_time_steps, delta_t):
+        super().pre_simulation(n_time_steps, delta_t)
         self._calc_trans_fun_(delta_t)
 
     def get_T_step_fluxes(self):
@@ -65,11 +66,29 @@ class Construction(Component):
             n = n + 1
         return (Q_1, Q_2)
 
-    def get_U(self):
+    def thermal_resistance(self):
         resis_tot = 0
         for i in range(len(self.parameter("materials").value)):
             resis_tot = resis_tot + self._resis_layer_(i)
-        return 1/resis_tot
+        return resis_tot
+
+    def radiant_property(self, prop, radiation_type, side, theta=0):
+        if (radiation_type == "solar_diffuse" or radiation_type == "solar_direct"):
+            if (prop == "rho"):
+                return 1-self.parameter("solar_alpha").value[side]
+            elif (prop == "tau"):
+                return 0
+            elif (prop == "alpha"):
+                return self.parameter("solar_alpha").value[side]
+            elif (prop == "alpha_other_side"):
+                return 0
+        elif (radiation_type == "long_wave"):
+            if (prop == "rho"):
+                return 1-self.parameter("lw_alpha").value[side]
+            elif (prop == "tau"):
+                return 0
+            elif (prop == "alpha"):
+                return self.parameter("lw_alpha").value[side]
 
     def get_A(self):
         """

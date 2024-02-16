@@ -1,5 +1,5 @@
 from OpenSimula.Component import Component
-from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_options, Parameter_boolean
+from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_float_list
 from OpenSimula.Variable import Variable
 
 
@@ -14,10 +14,28 @@ class Opening(Component):
         self.add_parameter(Parameter_component("window", "not_defined"))
         self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
         self.add_parameter(Parameter_float("height", 1, "m", min=0.0))
+        self.add_parameter(Parameter_float_list(
+            "h_cv", [19.3, 2], "W/m²K", min=0))
 
+        self.H_RD = 5.705  # 4*sigma*(293^3)
         # Variables
+        self.add_variable(Variable("T_s0", "°C"))
         self.add_variable(Variable("T_s1", "°C"))
-        self.add_variable(Variable("T_s2", "°C"))
+        self.add_variable(Variable("T_rm", "°C"))
+        self.add_variable(Variable("E_dir0", "W/m²"))
+        self.add_variable(Variable("E_dif0", "W/m²"))
+        self.add_variable(Variable("q_sol_dir_trans", "W/m²"))
+        self.add_variable(Variable("q_sol_01", "W/m²"))
+        self.add_variable(Variable("q_cv0", "W/m²"))
+        self.add_variable(Variable("q_cv1", "W/m²"))
+        self.add_variable(Variable("q_sol0", "W/m²"))
+        self.add_variable(Variable("q_sol1", "W/m²"))
+        self.add_variable(Variable("q_swig0", "W/m²"))
+        self.add_variable(Variable("q_swig1", "W/m²"))
+        self.add_variable(Variable("q_lwig0", "W/m²"))
+        self.add_variable(Variable("q_lwig1", "W/m²"))
+        self.add_variable(Variable("q_lwt0", "W/m²"))
+        self.add_variable(Variable("q_lwt1", "W/m²"))
 
     def check(self):
         errors = super().check()
@@ -38,70 +56,59 @@ class Opening(Component):
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         self._file_met = self.building().parameter("file_met").component
+        self._calculate_K()
+
+    def _calculate_K(self):
+        self.k = [0, 0]
+        self.k[0] = self.area * (- self.parameter("h_cv").value[0] - self.H_RD * self.radiant_property(
+            "alpha", "long_wave", 0) - 1/self.parameter("window").component.thermal_resistance())
+        self.k[1] = self.area * (1/self.parameter(
+            "window").component.thermal_resistance() - self.parameter("h_cv").value[1])
+        self.k_01 = self.area / \
+            self.parameter("window").component.thermal_resistance()
 
     def pre_iteration(self, time_index, date):
         super().pre_simulation(time_index, date)
-        self._T_ext = self._file_met.variable("temperature").values[time_index]
+        self._calculate_variables_pre_iteration(time_index)
+
+    def _calculate_variables_pre_iteration(self, time_i):
+        self._T_ext = self._file_met.variable("temperature").values[time_i]
+        surface = self.parameter("surface").component
+        self.variable("E_dif0").values[time_i] = surface.variable(
+            "E_dif0").values[time_i]
+        self.variable("E_dir0").values[time_i] = surface.variable(
+            "E_dir0").values[time_i]
+        self.variable("T_rm").values[time_i] = surface.variable(
+            "T_rm").values[time_i]
+        theta = self._file_met.solar_surface_angle(time_i, surface.parameter(
+            "azimuth").value, surface.parameter("altitude").value)
+        q_sol = self.radiant_property(
+            "alpha", "solar_diffuse", 0) * self.variable("E_dif0").values[time_i]
+        q_sol_01 = self.radiant_property(
+            "alpha_other_side", "solar_diffuse", 0, theta) * self.variable("E_dif0").values[time_i]
+        if theta is not None:
+            self.variable("q_sol_dir_trans").values[time_i] = self.variable(
+                "E_dir0").values[time_i]*self.radiant_property("tau", "solar_direct", 0, theta)
+            q_sol += self.radiant_property("alpha", "solar_direct",
+                                           0, theta) * self.variable("E_dir0").values[time_i]
+            q_sol_01 += self.radiant_property("alpha_other_side", "solar_direct",
+                                              0, theta) * self.variable("E_dir0").values[time_i]
+            self.variable("q_sol_01").values[time_i] = q_sol_01
+        else:
+            self.variable("q_sol_dir_trans").values[time_i] = 0
+            self.variable("q_sol_01").values[time_i] = 0
+        h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+        T_rm = self.variable("T_rm").values[time_i]
+        self.f_0 = self.area * \
+            (- self.parameter("h_cv").value[0]
+             * self._T_ext - h_rd * T_rm - q_sol)
 
     @property
     def area(self):
         return self.parameter("width").value * self.parameter("height").value
 
-    def rho_sw(self, face_number=0):
-        if (self.parameter("virtual").value):
-            return 0
-        else:
-            alpha = self.parameter(
-                "window").component.parameter("solar_alpha").value
-            tau = self.parameter(
-                "window").component.parameter("solar_tau").value
-            if face_number == 0:
-                return 1-alpha[0]-tau[0]
-            else:
-                return 1-alpha[1]-tau[1]
+    def radiant_property(self, prop, radiation_type, side, theta=0):
+        return self.parameter("window").component.radiant_property(prop, radiation_type, side, theta)
 
-    def tau_sw(self, face_number=0):
-        if (self.parameter("virtual").value):
-            return 1
-        else:
-            tau = self.parameter(
-                "window").component.parameter("solar_transmisivity").value
-            if face_number == 0:
-                return tau[0]
-            else:
-                return tau[1]
-
-    def alpha_sw(self, face_number=0):
-        if (self.parameter("virtual").value):
-            return 0
-        else:
-            alpha = self.parameter("window").component.parameter(
-                "solar_alpha").value
-            if face_number == 0:
-                return alpha[0]
-            else:
-                return alpha[1]
-
-    def rho_lw(self, face_number=0):
-        if (self.parameter("virtual").value):
-            return 0
-        else:
-            if face_number == 0:
-                return 1-self.parameter("window").component.parameter("lw_alpha").value[0]
-            else:
-                return 1-self.parameter("window").component.parameter("lw_alpha").value[1]
-
-    def tau_lw(self, face_number=0):
-        if (self.parameter("virtual").value):
-            return 1
-        else:
-            return 0
-
-    def alpha_lw(self, face_number=0):
-        if (self.parameter("virtual").value):
-            return 0
-        else:
-            if face_number == 0:
-                return self.parameter("window").component.parameter("lw_alpha").value[0]
-            else:
-                return self.parameter("window").component.parameter("lw_alpha").value[1]
+    def orientation_angle(self, angle, side):
+        return self.parameter("surface").component.orientation_angle(angle, side)

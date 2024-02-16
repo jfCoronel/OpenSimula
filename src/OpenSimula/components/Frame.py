@@ -15,3 +15,21 @@ class Frame(Component):
             "lw_alpha", [0.9, 0.9], "frac", min=0, max=1))
         self.add_parameter(Parameter_float(
             "thermal_resistance", 0.2, "m²K/W", min=0))
+
+    def radiant_property(self, prop, radiation_type, side, theta=0):
+        if (radiation_type == "solar_diffuse" or radiation_type == "solar_direct"):
+            if (prop == "rho"):
+                return 1-self.parameter("solar_alpha").value[side]
+            elif (prop == "tau"):
+                return 0
+            elif (prop == "alpha"):
+                return self.parameter("solar_alpha").value[side]
+            elif (prop == "alpha_other_side"):
+                return 0
+        elif (radiation_type == "long_wave"):
+            if (prop == "rho"):
+                return 1-self.parameter("lw_alpha").value[side]
+            elif (prop == "tau"):
+                return 0
+            elif (prop == "alpha"):
+                return self.parameter("lw_alpha").value[side]

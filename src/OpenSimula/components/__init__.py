@@ -1,5 +1,7 @@
 from OpenSimula.components.Test_component import Test_component
 from OpenSimula.components.Material import Material
+from OpenSimula.components.Glazing import Glazing
+from OpenSimula.components.Frame import Frame
 from OpenSimula.components.Construction import Construction
 from OpenSimula.components.Window import Window
 from OpenSimula.components.File_data import File_data

@@ -36,12 +36,12 @@ class Surface(Component):
             elif side == 1:
                 return -alt
 
-    def radiant_property(self, prop, wave, side):
+    def radiant_property(self, prop, radiation_type, side, theta=0):
         """It maus be redefined by child classes
 
         Args:
             prop (_type_): _description_
-            wave (_type_): _description_
+            radiation_type (_type_): _description_
             side (_type_): _description_
 
         Returns:

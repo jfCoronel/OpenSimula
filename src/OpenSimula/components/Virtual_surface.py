@@ -11,7 +11,7 @@ class Virtual_surface(Surface):
 
         # Variables
 
-    def radiant_property(self, prop, wave, side):
+    def radiant_property(self, prop, radiation_type, side, theta=0):
         if (prop == "tau"):
             return 1
         else:

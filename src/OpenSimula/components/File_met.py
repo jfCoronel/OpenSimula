@@ -228,6 +228,26 @@ class File_met(Component):
             )
 
     def solar_direct_rad(self, time_index, surf_azimuth, surf_altitude):
+        theta = self.solar_surface_angle(
+            time_index, surf_azimuth, surf_altitude)
+        sol_direct = self.variable("sol_direct").values[time_index]
+        sol_altitude = self.variable("sol_altitude").values[time_index]
+        if theta is not None:
+            return sol_direct * math.cos(theta) / math.cos(math.radians(sol_altitude))
+        else:
+            return 0
+
+    def solar_surface_angle(self, time_index, surf_azimuth, surf_altitude):
+        """Relative angle between surface exterior normal and the sum
+
+        Args:
+            time_index (int): _description_
+            surf_azimuth (float): _description_
+            surf_altitude (float): _description_
+
+        Returns:
+            float: Angle in radians
+        """
         sol_direct = self.variable("sol_direct").values[time_index]
         sol_azimuth = self.variable("sol_azimuth").values[time_index]
         sol_altitude = self.variable("sol_altitude").values[time_index]
@@ -239,8 +259,8 @@ class File_met(Component):
                 math.sin(math.radians(sol_altitude)) * \
                 math.sin(math.radians(surf_altitude))
             if cos > 1E-10:
-                return sol_direct * cos / math.cos(math.radians(sol_altitude))
+                return math.acos(cos)
             else:
-                return 0
+                return None
         else:
-            return 0
+            return None
