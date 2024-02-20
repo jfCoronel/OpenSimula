@@ -321,22 +321,27 @@ class Building(Component):
                 self.FS_vector[i] = 0.0
             elif s_type == "Opening":
                 self.surfaces[i].variable("q_sol1").values[time_i] = - (
-                    self.Q_dir[i] + self.Q_dif[i])/area - self.surfaces[i].variable("q_sol_01").values[time_i]
+                    self.Q_dir[i] + self.Q_dif[i])/area
                 self.surfaces[i].variable(
                     "q_swig1").values[time_i] = - self.Q_igsw[i]/area
                 self.surfaces[i].variable("q_lwig1").values[time_i] = - (
                     self.Q_iglw[i] + self.Q_extlw[i])/area
                 # add effect of internal radiation
                 E_sol_int = (self.Q_dir[i] + self.Q_dif[i])/self.surfaces[i].radiant_property(
-                    "alpha", "diffuse", 1)/self.surfaces[i].area
-                E_sw_int = (self.Q_igsw[i])/self.surfaces[i].radiant_property(
-                    "alpha", "diffuse", 1)/self.surfaces[i].area
-                self.surfaces[i].variable(
-                    "q_swig0").values[time_i] = - (E_sw_int)*self.surfaces[i].radiant_property("alpha_other_side", "diffuse", 1)
-                f_0 = self.surfaces[i].f_0 - (E_sol_int + E_sw_int)*self.surfaces[i].radiant_property(
-                    "alpha_other_side", "diffuse", 1)*self.surfaces[i].area
+                    "alpha", "solar_diffuse", 1)/area
+                E_sw_int = (
+                    self.Q_igsw[i])/self.surfaces[i].radiant_property("alpha", "solar_diffuse", 1)/area
+                q_swig0 = - \
+                    (E_sw_int)*self.surfaces[i].radiant_property(
+                        "alpha_other_side", "solar_diffuse", 1)
+                q_sol10 = - \
+                    (E_sol_int)*self.surfaces[i].radiant_property(
+                        "alpha_other_side", "solar_diffuse", 1)
+                self.surfaces[i].variable("q_swig0").values[time_i] = q_swig0
+                self.surfaces[i].variable("q_sol_10").values[time_i] = q_sol10
+                f_0 = self.surfaces[i].f_0 - (q_sol10 + q_swig0) * area
                 self.FS_vector[i] = - Q_rad - self.surfaces[i].variable(
-                    "q_sol_01").values[time_i] * self.surfaces[i].area - f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
+                    "q_sol_01").values[time_i] * area - f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
 
     def _calculate_FZ_vector(self, time_i):
         m = len(self.spaces)
@@ -383,7 +388,7 @@ class Building(Component):
             self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.TZ_vector))
         # Store TS
         for i in range(len(self.surfaces)):
-            if not self.surfaces[i].isVirtual():
+            if not self.surfaces[i].is_virtual():
                 if (self.sides[i] == 0):
                     self.surfaces[i].variable(
                         "T_s0").values[time_index] = self.TS_vector[i]

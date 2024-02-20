@@ -49,5 +49,5 @@ class Surface(Component):
         """
         return 0
 
-    def isVirtual(self):
+    def is_virtual(self):
         return False

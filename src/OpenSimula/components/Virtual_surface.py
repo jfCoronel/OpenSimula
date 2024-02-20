@@ -17,5 +17,5 @@ class Virtual_surface(Surface):
         else:
             return 0
 
-    def isVirtual(self):
+    def is_virtual(self):
         return True

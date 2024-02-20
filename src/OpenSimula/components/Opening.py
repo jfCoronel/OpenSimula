@@ -26,8 +26,10 @@ class Opening(Component):
         self.add_variable(Variable("E_dif0", "W/m²"))
         self.add_variable(Variable("q_sol_dir_trans", "W/m²"))
         self.add_variable(Variable("q_sol_01", "W/m²"))
+        self.add_variable(Variable("q_sol_10", "W/m²"))
         self.add_variable(Variable("q_cv0", "W/m²"))
         self.add_variable(Variable("q_cv1", "W/m²"))
+        self.add_variable(Variable("q_cd", "W/m²"))
         self.add_variable(Variable("q_sol0", "W/m²"))
         self.add_variable(Variable("q_sol1", "W/m²"))
         self.add_variable(Variable("q_swig0", "W/m²"))
@@ -62,13 +64,13 @@ class Opening(Component):
         self.k = [0, 0]
         self.k[0] = self.area * (- self.parameter("h_cv").value[0] - self.H_RD * self.radiant_property(
             "alpha", "long_wave", 0) - 1/self.parameter("window").component.thermal_resistance())
-        self.k[1] = self.area * (1/self.parameter(
+        self.k[1] = self.area * (-1/self.parameter(
             "window").component.thermal_resistance() - self.parameter("h_cv").value[1])
         self.k_01 = self.area / \
             self.parameter("window").component.thermal_resistance()
 
     def pre_iteration(self, time_index, date):
-        super().pre_simulation(time_index, date)
+        super().pre_iteration(time_index, date)
         self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_variables_pre_iteration(self, time_i):
@@ -94,6 +96,7 @@ class Opening(Component):
             q_sol_01 += self.radiant_property("alpha_other_side", "solar_direct",
                                               0, theta) * self.variable("E_dir0").values[time_i]
             self.variable("q_sol_01").values[time_i] = q_sol_01
+            self.variable("q_sol0").values[time_i] = q_sol
         else:
             self.variable("q_sol_dir_trans").values[time_i] = 0
             self.variable("q_sol_01").values[time_i] = 0
@@ -102,6 +105,34 @@ class Opening(Component):
         self.f_0 = self.area * \
             (- self.parameter("h_cv").value[0]
              * self._T_ext - h_rd * T_rm - q_sol)
+
+    def post_iteration(self, time_index, date):
+        super().post_iteration(time_index, date)
+        self._calculate_T_s0(time_index)
+        self._calculate_heat_fluxes(time_index)
+
+    def _calculate_T_s0(self, time_i):
+        T_s0 = (self.f_0 - (self.variable("q_sol_10").values[time_i] + self.variable("q_swig0").values[time_i])*self.area - self.k_01 *
+                self.variable("T_s1").values[time_i])/self.k[0]
+        self.variable("T_s0").values[time_i] = T_s0
+
+    def _calculate_heat_fluxes(self, time_i):
+        q_cd0 = (self.variable("T_s1").values[time_i] - self.variable(
+            "T_s0").values[time_i]) / self.parameter("window").component.thermal_resistance()
+        self.variable("q_cd").values[time_i] = q_cd0
+        self.variable("q_cv0").values[time_i] = self.parameter(
+            "h_cv").value[0] * (self._T_ext - self.variable("T_s0").values[time_i])
+        T_z = self.parameter("surface").component.parameter(
+            "space").component.variable("temperature").values[time_i]
+        self.variable("q_cv1").values[time_i] = self.parameter(
+            "h_cv").value[1] * (T_z - self.variable("T_s1").values[time_i])
+        h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+        self.variable("q_lwt0").values[time_i] = h_rd * (self.variable(
+            "T_rm").values[time_i] - self.variable("T_s0").values[time_i])
+
+        self.variable("q_lwt1").values[time_i] = self.variable("q_cd").values[time_i] - self.variable("q_cv1").values[time_i] - \
+            self.variable("q_sol1").values[time_i] - self.variable("q_sol_01").values[time_i] - self.variable(
+            "q_swig1").values[time_i] - self.variable("q_lwig1").values[time_i]
 
     @property
     def area(self):
@@ -112,3 +143,6 @@ class Opening(Component):
 
     def orientation_angle(self, angle, side):
         return self.parameter("surface").component.orientation_angle(angle, side)
+
+    def is_virtual(self):
+        return False

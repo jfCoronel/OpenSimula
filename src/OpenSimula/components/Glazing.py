@@ -10,14 +10,15 @@ class Glazing(Component):
         self.parameter("type").value = "Glazing"
         self.parameter("description").value = "Glazing material."
         self.add_parameter(Parameter_float(
-            "solar_tau", 0.85, "frac", min=0, max=1))
+            "solar_tau", 0.849, "frac", min=0, max=1))
         self.add_parameter(Parameter_float_list(
-            "solar_rho", [0.07, 0.07], "frac", min=0, max=1))
+            "solar_rho", [0.077, 0.077], "frac", min=0, max=1))
         self.add_parameter(Parameter_float_list(
-            "g", [0.87, 0.87], "frac", min=0, max=1))
+            "g", [0.867093, 0.867093], "frac", min=0, max=1))
         self.add_parameter(Parameter_float_list(
-            "lw_alpha", [0.84, 0.84], "frac", min=0, max=1))
-        self.add_parameter(Parameter_float("U", 5.7, "W/m²K", min=0))
+            "lw_alpha", [0.837, 0.837], "frac", min=0, max=1))
+        self.add_parameter(Parameter_float(
+            "U", 5.686, "W/m²K", min=0))
         self.add_parameter(Parameter_math_exp(
             "f_tau_nor", "1.3186 * cos_theta^3 - 3.5251 * cos_theta^2 + 3.2065 * cos_theta", "frac"))
         f_rho = "1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta"
@@ -28,9 +29,6 @@ class Glazing(Component):
         super().pre_simulation(n_time_steps, delta_t)
         self._calc_diffuse_properties()
         self._calc_alpha_fractions()
-
-    def thermal_resistance(self):
-        return (1/self.parameter("U").value-0.17)
 
     def _calc_diffuse_properties(self):
         def tau_integrand(theta):
@@ -65,20 +63,25 @@ class Glazing(Component):
         self.alpha_solar_diffuse = [1-rho_0-tau, 1-rho_1-tau]
 
     def _calc_alpha_fractions(self):
-        h_CR1 = 1/0.04
-        h_CR2 = 1/0.13
+        h_CR0 = 25
+        h_CR1 = 3.6 + 4.1/0.837 * \
+            self.parameter("lw_alpha").value[1]  # UNE-EN 410:2011
         tau = self.parameter("solar_tau").value
         U = self.parameter("U").value
 
         alpha_1 = 1 - tau - self.parameter("solar_rho").value[0]
         g_1 = self.parameter("g").value[0]
-        alpha_11 = (g_1+alpha_1*U/h_CR2-alpha_1-tau)/(U/h_CR1+U/h_CR2-1)
+        alpha_11 = (g_1+alpha_1*U/h_CR1-alpha_1-tau)/(U/h_CR0+U/h_CR1-1)
 
         alpha_2 = 1 - tau - self.parameter("solar_rho").value[1]
         g_2 = self.parameter("g").value[1]
-        alpha_22 = (g_2+alpha_2*U/h_CR2-alpha_2-tau)/(U/h_CR1+U/h_CR2-1)
+        alpha_22 = (g_2+alpha_2*U/h_CR1-alpha_2-tau)/(U/h_CR0+U/h_CR1-1)
 
         self.alpha_own_side_fraction = [alpha_11/alpha_1, alpha_22/alpha_2]
+
+    def thermal_resistance(self):
+        return (1/self.parameter("U").value - 1/25 - 1/(3.6 + 4.1/0.837 *
+                                                        self.parameter("lw_alpha").value[1]))  # UNE-EN 673:2011
 
     def radiant_property(self, prop, radiation_type, side, theta=0):
         if (radiation_type == "solar_diffuse"):
@@ -115,3 +118,5 @@ class Glazing(Component):
                 return 0
             elif (prop == "alpha"):
                 return self.parameter("lw_alpha").value[side]
+        else:
+            pass
