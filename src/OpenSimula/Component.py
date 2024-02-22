@@ -46,7 +46,7 @@ class Component(Parameter_container):
         Args:
             with_unit (bool, optional): Includes unit in the name of the variable. Defaults to True.
             frequency (None or str, optional): frequency of the values: None, "H" Hour, "D" Day, "M" Month, "Y" Year . Defaults to None.
-            value (str, optional): "mean", "max" or "min". Defaults to "mean".
+            value (str, optional): "mean", "sum", "max" or "min". Defaults to "mean".
 
         Returns:
             pandas DataFrame: Returns all the variables 
@@ -67,6 +67,8 @@ class Component(Parameter_container):
         else:
             if value == "mean":
                 return data.resample(frequency, on='date').mean()
+            elif value == "sum":
+                return data.resample(frequency, on='date').sum()
             elif value == "max":
                 return data.resample(frequency, on='date').max()
             elif value == "min":

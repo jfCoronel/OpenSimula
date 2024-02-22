@@ -205,6 +205,94 @@ All of the above types can also be defined as parameter lists, giving rise to th
 
 The Parameter_component, Parameter_variable, Parameter_component_list and Parameter_variable_list can refer to a component of the same project, in that case it is only necessary to put the name of the component, or a component of another project. In this last case we must write "project_name->component_name". e.g. `"meteo_file": "Project 1->Sevilla"`.
 
+To get or set the value of a parameter we must use the attribute "value" of the parameter. If the parameter contain a list we can set/get each value using index, for example: `pro.component("week").parameter("days_schedules").value[0]` will return "working_day"
+<pre><code class="python">
+...
+
+pro.component("year").parameter("description").value = "Example of year schedule"
+pro.component("year").parameter("description").value
+</code></pre>
+Jupyter output:
+<pre><code class="shell">
+'Example of year schedule'
+</code></pre>
+
+### Variables
+
+**Variables** are elements included in the components to store the temporal information generated during the simulation.
+
+![Variables](img/variables.png)
+
+Variables are lists of floating values, one for each instant of simulated time.
+
+To access the values of a variable we use the `values` attribute which returns a numpy.array object (NumPy library array object).
+
+<pre><code class="python">
+...
+
+pro.component("year").variable("values").values 
+</code></pre>
+Jupyter output:
+<pre><code class="shell">
+array([  0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0., 100.,
+       100., 100., 100., 100., 100., 100., 100., 100., 100., 100., 100.,
+       100., 100., 100., 100., 100., 100., 100., 100.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,  80.,  80.,  80.,  80.,  80.,  80.,
+        80.,  80.,  80.,  80.,  80.,  80.,  80.,  80.,  80.,  80.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+...
+       100.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,  80.,  80.,
+        80.,  80.,  80.,  80.,  80.,  80.,  80.,  80.,  80.,  80.,  80.,
+        80.,  80.,  80.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.])
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
+</code></pre>
+
+The `variable_dataframe(with_unit, frequency, value)` method of the components returns a pandas dataframe with all the variables of the component.
+
+with the following possible arguments (In bold the default values):
+
+- with_unit [__True__/False]: Include de units in the name of the variable.
+- frequency [__None__, "H", "D", "M", "Y"]: Frequency of the data, that of the simulation (None), hourly ("H"), daily ("D"), monthly ("M") or yearly ("Y").
+- value [__"mean"__,"max","min","sum"]: If we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each row (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min") or the sum ("sum").
+
+As an example we can see how to obtain the monthly average values of the variables of a meteorological file (File_met component):
+
+<pre><code class="python">
+...
+
+pro.component("met_file").variable_dataframe(frequency="M",value="mean")
+</code></pre>
+Jupyter shell:
+
+![variable_dataframe](img/variable_dataframe.png)
+
+
+
+
+
+
+
 
 
 
