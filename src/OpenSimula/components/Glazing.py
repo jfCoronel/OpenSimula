@@ -68,16 +68,16 @@ class Glazing(Component):
             self.parameter("lw_alpha").value[1]  # UNE-EN 410:2011
         tau = self.parameter("solar_tau").value
         U = self.parameter("U").value
-
-        alpha_1 = 1 - tau - self.parameter("solar_rho").value[0]
-        g_1 = self.parameter("g").value[0]
-        alpha_11 = (g_1+alpha_1*U/h_CR1-alpha_1-tau)/(U/h_CR0+U/h_CR1-1)
-
-        alpha_2 = 1 - tau - self.parameter("solar_rho").value[1]
-        g_2 = self.parameter("g").value[1]
-        alpha_22 = (g_2+alpha_2*U/h_CR1-alpha_2-tau)/(U/h_CR0+U/h_CR1-1)
-
-        self.alpha_own_side_fraction = [alpha_11/alpha_1, alpha_22/alpha_2]
+        if (U > 5):  # simple glazing calculations are inestable
+            self.alpha_own_side_fraction = [0.5, 0.5]
+        else:
+            alpha_1 = 1 - tau - self.parameter("solar_rho").value[0]
+            g_1 = self.parameter("g").value[0]
+            alpha_11 = (g_1+alpha_1*U/h_CR1-alpha_1-tau)/(U/h_CR0+U/h_CR1-1)
+            alpha_2 = 1 - tau - self.parameter("solar_rho").value[1]
+            g_2 = self.parameter("g").value[1]
+            alpha_22 = (g_2+alpha_2*U/h_CR1-alpha_2-tau)/(U/h_CR0+U/h_CR1-1)
+            self.alpha_own_side_fraction = [alpha_11/alpha_1, alpha_22/alpha_2]
 
     def thermal_resistance(self):
         return (1/self.parameter("U").value - 1/25 - 1/(3.6 + 4.1/0.837 *

@@ -61,6 +61,21 @@ Component to describe the glazings. Default values are those of a clear single p
 - **f_tau_nor** [[_math-exp_, default = "1.3186 * cos_theta^3 - 3.5251 * cos_theta^2 + 3.2065 * cos_theta"]: Normalised curve of the variation of solar transmittance, depending on the cosine of the angle of incidence (0º, at normal incidence).
 - **f_1_minus_rho_nor** [[_math-exp-list_, default = ["1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta", "1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta"]]: Normalised curve of the variation for (1 - solar reflectance), depending on the cosine of the angle of incidence (0º, at normal incidence).
 
+To obtain the solar transmittance at an angle of incidence theta, the component shall multiply the value at normal incidence _solar_tau_ by the value of the curve _f_tau_nor_.
+
+The following pictures show the solar transmittance of a single glazing as a function of the angle of incidence, and the normalised curve as a function of the cosine of the angle of incidence.
+![simple glazing solar tau](img/simple glazing tau.png)
+![simple glazing solar tau norm](img/simple glazing tau norm.png)
+
+To obtain the angular reflectance for each side, multiply the normal incidence value _solar_rho_ by the value of the expression: (1 - _f_1_minus_rho_nor_). 
+
+We use the normalisation of (1 - reflectance) since the reflectance tends to 1 when the angle of incidence tends to 90º and the value we use to normalise is the reflectance at normal incidence (0º).
+
+The following pictures show the solar reflectance and (1- solar reflectance) of a single glazing as a function of the angle of incidence, and the normalised curve as a function of the cosine of the angle of incidence.
+![simple glazing solar rho](img/simple glazing rho.png)
+![simple glazing solar rho norm](img/simple glazing rho norm.png)
+
+
 **Example:**
 <pre><code class="python">
 ...
@@ -76,12 +91,6 @@ param = {
 }
 glazing.set_parameters(param)
 </code></pre>
-
-To obtain the solar transmittance at an angle of incidence theta, the component shall multiply the value at normal incidence _solar_tau_ by the value of the curve _f_tau_nor_.
-
-To obtain the angular reflectance for each side, multiply the normal incidence value _solar_rho_ by the value of the expression: (1 - _f_1_minus_rho_nor_). 
-
-We use the normalisation of (1 - refelctance) since the reflectance tends to 1 when the angle of incidence tends to 90º and the value we use to normalise is the refelctance at normal incidence (0º).
 
 ### Frame
 
