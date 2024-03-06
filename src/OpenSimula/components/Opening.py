@@ -11,7 +11,7 @@ class Opening(Component):
         self.parameter(
             "description").value = "Rectangular opening in building surfaces"
         self.add_parameter(Parameter_component("surface", "not_defined"))
-        self.add_parameter(Parameter_component("window", "not_defined"))
+        self.add_parameter(Parameter_component("opening_type", "not_defined"))
         self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
         self.add_parameter(Parameter_float("height", 1, "m", min=0.0))
         self.add_parameter(Parameter_float_list(
@@ -45,10 +45,10 @@ class Opening(Component):
         if self.parameter("surface").value == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, its surface must be defined.")
-        # Test window defined
-        if self.parameter("window").value == "not_defined":
+        # Test opening_type defined
+        if self.parameter("opening_type").value == "not_defined":
             errors.append(
-                f"Error: {self.parameter('name').value}, opening must define its window."
+                f"Error: {self.parameter('name').value}, opening must define its Opening_type."
             )
         return errors
 
@@ -63,11 +63,11 @@ class Opening(Component):
     def _calculate_K(self):
         self.k = [0, 0]
         self.k[0] = self.area * (- self.parameter("h_cv").value[0] - self.H_RD * self.radiant_property(
-            "alpha", "long_wave", 0) - 1/self.parameter("window").component.thermal_resistance())
+            "alpha", "long_wave", 0) - 1/self.parameter("opening_type").component.thermal_resistance())
         self.k[1] = self.area * (-1/self.parameter(
-            "window").component.thermal_resistance() - self.parameter("h_cv").value[1])
+            "opening_type").component.thermal_resistance() - self.parameter("h_cv").value[1])
         self.k_01 = self.area / \
-            self.parameter("window").component.thermal_resistance()
+            self.parameter("opening_type").component.thermal_resistance()
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)
@@ -118,7 +118,7 @@ class Opening(Component):
 
     def _calculate_heat_fluxes(self, time_i):
         q_cd0 = (self.variable("T_s1").values[time_i] - self.variable(
-            "T_s0").values[time_i]) / self.parameter("window").component.thermal_resistance()
+            "T_s0").values[time_i]) / self.parameter("opening_type").component.thermal_resistance()
         self.variable("q_cd").values[time_i] = q_cd0
         self.variable("q_cv0").values[time_i] = self.parameter(
             "h_cv").value[0] * (self._T_ext - self.variable("T_s0").values[time_i])
@@ -139,7 +139,7 @@ class Opening(Component):
         return self.parameter("width").value * self.parameter("height").value
 
     def radiant_property(self, prop, radiation_type, side, theta=0):
-        return self.parameter("window").component.radiant_property(prop, radiation_type, side, theta)
+        return self.parameter("opening_type").component.radiant_property(prop, radiation_type, side, theta)
 
     def orientation_angle(self, angle, side):
         return self.parameter("surface").component.orientation_angle(angle, side)

@@ -7,12 +7,12 @@ class Frame(Component):
         Component.__init__(self, name, project)
         self.parameter("type").value = "Frame"
         self.parameter(
-            "description").value = "Window frame"
+            "description").value = "Opening frame"
 
         self.add_parameter(Parameter_float_list(
             "solar_alpha", [0.85, 0.85], "frac", min=0, max=1))
         self.add_parameter(Parameter_float_list(
-            "lw_alpha", [0.9, 0.9], "frac", min=0, max=1))
+            "lw_epsilon", [0.9, 0.9], "frac", min=0, max=1))
         self.add_parameter(Parameter_float(
             "thermal_resistance", 0.2, "m²K/W", min=0))
 
@@ -28,8 +28,8 @@ class Frame(Component):
                 return 0
         elif (radiation_type == "long_wave"):
             if (prop == "rho"):
-                return 1-self.parameter("lw_alpha").value[side]
+                return 1-self.parameter("lw_epsilon").value[side]
             elif (prop == "tau"):
                 return 0
             elif (prop == "alpha"):
-                return self.parameter("lw_alpha").value[side]
+                return self.parameter("lw_epsilon").value[side]

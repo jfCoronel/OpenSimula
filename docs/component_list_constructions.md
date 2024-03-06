@@ -31,7 +31,7 @@ Component to describe the composition of the different layers (Material componen
 
 #### Parameters
 - **solar_alpha** [_float-list_, unit = "frac", default = [0.8,0.8], min = 0, max = 1]: Solar absortance for surfaces 1 and 2.
-- **lw_alpha** [_float-list_, unit = "frac", default = [0.9,0.9], min = 0, max = 1]: Long wave absortance (thermal emmitance) for surfaces 1 and 2.
+- **lw_epsilon** [_float-list_, unit = "frac", default = [0.9,0.9], min = 0, max = 1]: Long wave emissivity for surfaces 1 and 2.
 - **materials** [[_component-list_, default = [], component type = Material]]: Materials list for each of the layers, defined from surface 1 to 2.
 - **thicknesses** [_float-list_, unit = "m", default = [], min = 0]: Thicknesses of each of the layers defined in the "materials" parameter. Must have the same number of elements as the "materials" parameter.
 
@@ -55,7 +55,7 @@ Component to describe the glazings. Default values are those of a clear single p
 #### Parameters
 - **solar_tau** [_float_, unit = "frac", default = 0.849, min = 0, max = 1]: Solar transmittance of glass at normal incidence.
 - **solar_rho** [_float-list_, unit = "frac", default = [0.077,0.077], min = 0, max = 1]: Solar reflectance of glass at normal incidence, for ∫surfaces 1 and 2.
-- **lw_alpha** [_float-list_, unit = "frac", default = [0.837,0.837], min = 0, max = 1]: Long wave absortance (thermal emmitance), for surfaces 1 and 2.
+- **lw_epsilon** [_float-list_, unit = "frac", default = [0.837,0.837], min = 0, max = 1]: Long wave emissivity, for surfaces 1 and 2.
 - **g** [_float-list_, unit = "frac", default = [0.867093,0.867093], min = 0, max = 1]: Solar factor at normal incidence, calculated according to EN 410:2011, for surfaces 1 and 2.
 - **U** [_float_, unit = "W/m²K", default = 5.686, min = 0]: Thermal transmittance of glazing calculated according to EN 673:2011.
 - **f_tau_nor** [[_math-exp_, default = "1.3186 * cos_theta^3 - 3.5251 * cos_theta^2 + 3.2065 * cos_theta"]: Normalised curve of the variation of solar transmittance, depending on the cosine of the angle of incidence (0º, at normal incidence).
@@ -94,11 +94,11 @@ glazing.set_parameters(param)
 
 ### Frame
 
-Component to describe the thermal properties of frames used in doors and windows.
+Component to describe the thermal properties of frames used in Opening_types.
 
 #### Parameters
 - **solar_alpha** [_float-list_, unit = "frac", default = [0.8,0.8], min = 0, max = 1]: Solar absortance for surfaces 1 and 2.
-- **lw_alpha** [_float-list_, unit = "frac", default = [0.9,0.9], min = 0, max = 1]: Long wave absortance (thermal emmitance) for surfaces 1 and 2.
+- **lw_epsilon** [_float-list_, unit = "frac", default = [0.9,0.9], min = 0, max = 1]: Long wave emissivity, for surfaces 1 and 2.
 - **thermal_resistance** [_float_, unit = "m²K/W", default = 0.2, min = 0]: Average surface-to-surface thermal resistance of the frame.
 
 **Example:**

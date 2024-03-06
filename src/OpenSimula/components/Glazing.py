@@ -16,7 +16,7 @@ class Glazing(Component):
         self.add_parameter(Parameter_float_list(
             "g", [0.867093, 0.867093], "frac", min=0, max=1))
         self.add_parameter(Parameter_float_list(
-            "lw_alpha", [0.837, 0.837], "frac", min=0, max=1))
+            "lw_epsilon", [0.837, 0.837], "frac", min=0, max=1))
         self.add_parameter(Parameter_float(
             "U", 5.686, "W/m²K", min=0))
         self.add_parameter(Parameter_math_exp(
@@ -65,7 +65,7 @@ class Glazing(Component):
     def _calc_alpha_fractions(self):
         h_CR0 = 25
         h_CR1 = 3.6 + 4.1/0.837 * \
-            self.parameter("lw_alpha").value[1]  # UNE-EN 410:2011
+            self.parameter("lw_epsilon").value[1]  # UNE-EN 410:2011
         tau = self.parameter("solar_tau").value
         U = self.parameter("U").value
         if (U > 5):  # simple glazing calculations are inestable
@@ -81,7 +81,7 @@ class Glazing(Component):
 
     def thermal_resistance(self):
         return (1/self.parameter("U").value - 1/25 - 1/(3.6 + 4.1/0.837 *
-                                                        self.parameter("lw_alpha").value[1]))  # UNE-EN 673:2011
+                                                        self.parameter("lw_epsilon").value[1]))  # UNE-EN 673:2011
 
     def radiant_property(self, prop, radiation_type, side, theta=0):
         if (radiation_type == "solar_diffuse"):
@@ -113,10 +113,10 @@ class Glazing(Component):
                 return alpha * (1-self.alpha_own_side_fraction[side])
         elif (radiation_type == "long_wave"):
             if (prop == "rho"):
-                return 1-self.parameter("lw_alpha").value[side]
+                return 1-self.parameter("lw_epsilon").value[side]
             elif (prop == "tau"):
                 return 0
             elif (prop == "alpha"):
-                return self.parameter("lw_alpha").value[side]
+                return self.parameter("lw_epsilon").value[side]
         else:
             pass

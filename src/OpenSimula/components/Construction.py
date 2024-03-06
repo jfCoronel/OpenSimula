@@ -15,7 +15,7 @@ class Construction(Component):
         self.add_parameter(Parameter_float_list(
             "solar_alpha", [0.8, 0.8], "frac", min=0, max=1))
         self.add_parameter(Parameter_float_list(
-            "lw_alpha", [0.9, 0.9], "frac", min=0, max=1))
+            "lw_epsilon", [0.9, 0.9], "frac", min=0, max=1))
         self.add_parameter(Parameter_component_list(
             "materials", [], "Material"))
         self.add_parameter(Parameter_float_list("thicknesses", [], "m", min=0))
@@ -84,11 +84,11 @@ class Construction(Component):
                 return 0
         elif (radiation_type == "long_wave"):
             if (prop == "rho"):
-                return 1-self.parameter("lw_alpha").value[side]
+                return 1-self.parameter("lw_epsilon").value[side]
             elif (prop == "tau"):
                 return 0
             elif (prop == "alpha"):
-                return self.parameter("lw_alpha").value[side]
+                return self.parameter("lw_epsilon").value[side]
 
     def get_A(self):
         """

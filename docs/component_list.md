@@ -11,5 +11,5 @@ We have divided the list of all components into several groups of related compon
 
 - [Components to define shedules](component_list_schedules.md): Day_schedule, Week_schedule, Year_schedule.
 - [Components for reading files](component_list_files.md): File_met, File_data.
-- [Constructive components](component_list_constructions.md): Material, Construction, Glazing, Frame, Window.
+- [Constructive components](component_list_constructions.md): Material, Construction, Glazing, Frame, Opening_type.
 - Building definition components

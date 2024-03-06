@@ -41,7 +41,7 @@ class Project(Parameter_container):
                     "Glazing",
                     "Frame",
                     "Construction",
-                    "Window",
+                    "Opening_type",
                     "Space_type",
                     "Exterior_surface",
                     "Virtual_exterior_surface",

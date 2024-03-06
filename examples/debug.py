@@ -85,7 +85,7 @@ bestest_building_600 = {
             "thermal_resistance": 0.2
         },
         {
-            "type": "Window",
+            "type": "Opening_type",
             "name": "Ventana",
             "glazing": "Vidrio simple",
             "frame": "Marco",
@@ -148,7 +148,7 @@ bestest_building_600 = {
             "type": "Opening",
             "name": "south_window_1",
             "surface": "south_wall",
-            "window": "Ventana",
+            "opening_type": "Ventana",
             "width": 3,
             "height": 2
         },
@@ -156,7 +156,7 @@ bestest_building_600 = {
             "type": "Opening",
             "name": "south_window_2",
             "surface": "south_wall",
-            "window": "Ventana",
+            "opening_type": "Ventana",
             "width": 3,
             "height": 2
         },

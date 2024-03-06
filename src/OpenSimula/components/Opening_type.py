@@ -2,12 +2,12 @@ from OpenSimula.Component import Component
 from OpenSimula.Parameters import Parameter_float, Parameter_component
 
 
-class Window(Component):
+class Opening_type(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "Window"
+        self.parameter("type").value = "Opening_type"
         self.parameter(
-            "description").value = "Window or doors with glazing and frame and shading."
+            "description").value = "Window or doors with glazing, construction, frame and shading."
 
         self.add_parameter(Parameter_component(
             "glazing", "not_defined", "Glazing"))
