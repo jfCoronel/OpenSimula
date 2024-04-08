@@ -10,22 +10,22 @@ class Space_type(Component):
         self.parameter(
             "description").value = "Type of space, internal gains definition"
         # Parameters
-        self.add_parameter(Parameter_variable_list("aux_variables", []))
+        self.add_parameter(Parameter_variable_list("definition_variables", []))
         self.add_parameter(Parameter_math_exp("people_density", "0.1", "p/m²"))
         self.add_parameter(Parameter_float(
             "people_sensible", 70, "W/p", min=0))
         self.add_parameter(Parameter_float("people_latent", 35, "W/p", min=0))
         self.add_parameter(Parameter_float(
-            "people_radiant_fraction", 0.6, "", min=0, max=1))
+            "people_radiant_fraction", 0.6, "frac", min=0, max=1))
         self.add_parameter(Parameter_math_exp("light_density", "10", "W/m²"))
         self.add_parameter(Parameter_float(
-            "light_radiant_fraction", 0.6, "", min=0, max=1))
+            "light_radiant_fraction", 0.6, "frac", min=0, max=1))
         self.add_parameter(Parameter_math_exp(
             "other_gains_density", "10", "W/m²"))
         self.add_parameter(Parameter_float(
-            "other_gains_latent_fraction", 0.0, "", min=0, max=1))
+            "other_gains_latent_fraction", 0.0, "frac", min=0, max=1))
         self.add_parameter(Parameter_float(
-            "other_gains_radiant_fraction", 0.5, "", min=0, max=1))
+            "other_gains_radiant_fraction", 0.5, "frac", min=0, max=1))
         self.add_parameter(Parameter_math_exp("infiltration", "1", "1/h"))
         # Variables
         self.add_variable(Variable("people_convective", unit="W/m²"))
@@ -43,11 +43,11 @@ class Space_type(Component):
         # aux_varibles symbol and variable
         self.aux_var_symbol = []
         self.aux_var_variable = []
-        for i in range(len(self.parameter("aux_variables").variable)):
+        for i in range(len(self.parameter("definition_variables").variable)):
             self.aux_var_symbol.append(
-                self.parameter("aux_variables").symbol[i])
+                self.parameter("definition_variables").symbol[i])
             self.aux_var_variable.append(
-                self.parameter("aux_variables").variable[i])
+                self.parameter("definition_variables").variable[i])
 
     def pre_iteration(self, time_index, date):
         super().pre_iteration(time_index, date)

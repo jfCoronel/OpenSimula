@@ -101,7 +101,6 @@ bestest_building_600 = {
         {
             "type": "Space_type",
             "name": "bestest space",
-            "aux_variables": [],
             "people_density": "0",
             "light_density": "0",
             "other_gains_density": "4.1667",

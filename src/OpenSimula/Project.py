@@ -176,6 +176,24 @@ class Project(Parameter_container):
         self._sim_.print("Reading completed.")
         self.check()
 
+    def write_dict(self):
+        """Write dictionary with the definition of the project
+
+        Return:
+            dic (dictionary): dictonary with the parameters and componenets that define the project
+
+        """
+        dict = {"components": []}
+        for key, param in self.parameter_dict().items():
+            dict[key] = param.value
+        for comp in self._components_:
+            comp_dict = {}
+            for key, param in comp.parameter_dict().items():
+                comp_dict[key] = param.value
+            dict["components"].append(comp_dict)
+
+        return dict
+
     def read_json(self, json_file):
         """Read paramaters an components from dictionary in a json file
 
@@ -196,6 +214,26 @@ class Project(Parameter_container):
             self._load_from_dict_(json_dict)
             self._sim_.print("Reading completed.")
             self.check()
+
+    def write_json(self, json_file):
+        """Write project definition to json file
+
+        Args:
+            json_file (string): file name
+
+        """
+        try:
+            f = open(json_file, "w")
+        except OSError:
+            msg = self._get_error_header_(
+            ) + f'Could not write file:  {json_file}.'
+            self._sim_.print(msg)
+            return False
+        with f:
+            self._sim_.print("Writing project data to file: " + json_file)
+            dict = self.write_dict()
+            json.dump(dict, f)
+            self._sim_.print("Writing completed.")
 
     def _read_excel_(self, excel_file):
         """Read paramaters an components from excel file
