@@ -66,8 +66,8 @@ class Exterior_surface(Real_surface):
         E_dif0 = self._F_sky * hor_sol_dif + \
             (1-self._F_sky)*self._albedo*(hor_sol_dif+hor_sol_dir)
         self.variable("E_dif0").values[time_i] = E_dif0
-        E_dir0 = self._file_met.solar_direct_rad(time_i, self.parameter(
-            "azimuth").value, self.parameter("altitude").value)
+        E_dir0 = self._file_met.solar_direct_rad(time_i, self.orientation_angle(
+            "azimuth", 0),  self.orientation_angle("altitude", 0))
         self.variable("E_dir0").values[time_i] = E_dir0
         T_rm = self._F_sky * T_sky + (1-self._F_sky)*self._T_ext
         self.variable("T_rm").values[time_i] = T_rm
@@ -115,7 +115,7 @@ class Exterior_surface(Real_surface):
 
     @property
     def area(self):
-        area = self.parameter("area").value
+        area = super().area
         for opening in self.openings:
             area -= opening.area
         return area

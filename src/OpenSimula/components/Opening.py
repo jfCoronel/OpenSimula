@@ -12,6 +12,7 @@ class Opening(Component):
             "description").value = "Rectangular opening in building surfaces"
         self.add_parameter(Parameter_component("surface", "not_defined"))
         self.add_parameter(Parameter_component("opening_type", "not_defined"))
+        self.add_parameter(Parameter_float_list("ref_point", [0, 0], "m"))
         self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
         self.add_parameter(Parameter_float("height", 1, "m", min=0.0))
         self.add_parameter(Parameter_float_list(
@@ -82,8 +83,8 @@ class Opening(Component):
             "E_dir0").values[time_i]
         self.variable("T_rm").values[time_i] = surface.variable(
             "T_rm").values[time_i]
-        theta = self._file_met.solar_surface_angle(time_i, surface.parameter(
-            "azimuth").value, surface.parameter("altitude").value)
+        theta = self._file_met.solar_surface_angle(time_i, surface.orientation_angle(
+            "azimuth", 0), surface.orientation_angle("altitude", 0))
         q_sol = self.radiant_property(
             "alpha", "solar_diffuse", 0) * self.variable("E_dif0").values[time_i]
         q_sol_01 = self.radiant_property(

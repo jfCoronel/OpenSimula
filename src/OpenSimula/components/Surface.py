@@ -1,6 +1,6 @@
 from OpenSimula.Component import Component
-from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_boolean
-from OpenSimula.Variable import Variable
+from OpenSimula.Parameters import Parameter_options, Parameter_float, Parameter_float_list
+from shapely.geometry import Polygon
 
 
 class Surface(Component):
@@ -9,19 +9,37 @@ class Surface(Component):
         # Parameters
         self.parameter("type").value = "Surface"
         self.parameter("description").value = "Building surface"
-        self.add_parameter(Parameter_float("area", 1, "m²", min=0.0))
+        self.add_parameter(Parameter_options(
+            "shape", "RECTANGLE", ["RECTANGLE", "POLYGON"]))
+        self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
+        self.add_parameter(Parameter_float("height", 1, "m", min=0.0))
+        # Building Coordinate system
+        self.add_parameter(Parameter_float_list("ref_point", [0, 0, 0], "m"))
+        self.add_parameter(Parameter_float_list(
+            "x_polygon", [0, 10, 10, 0], "m"))
+        self.add_parameter(Parameter_float_list(
+            "y_polygon", [0, 0, 10, 10], "m"))
         self.add_parameter(Parameter_float(
-            "azimuth", 0, "°", min=-180, max=180))  # S: 0º, E: 90º, W: -90º, N: 180º
+            "azimuth", 0, "°", min=-180, max=180))  # Surface x vs Building x -> S: 0º, E: 90º, W: -90º, N: 180º
         self.add_parameter(Parameter_float(
-            "altitude", 0, "°", min=-90, max=90))  # vertical: 0º, facing up: 90º, facing down: -90º
+            "altitude", 0, "°", min=-90, max=90))  # Surface y vs Building y -> vertical: 0º, facing up: 90º, facing down: -90º
 
     @property
     def area(self):
-        return self.parameter("area").value
+        if (self.parameter("shape").value == "RECTANGLE"):
+            return self.parameter("width").value * self.parameter("height").value
+        elif (self.parameter("shape").value == "POLYGON"):
+            polygon = []
+            n = len(self.parameter("x_polygon").value)
+            for i in range(0, n):
+                polygon.append([self.parameter("x_polygon").value[i],
+                               self.parameter("y_polygon").value[i]])
+            return Polygon(polygon).area
 
     def orientation_angle(self, angle, side):
         if angle == "azimuth":
-            az = self.parameter("azimuth").value
+            azi_building = self.building().parameter("azimuth").value
+            az = self.parameter("azimuth").value + azi_building
             if side == 0:
                 return az
             elif side == 1:

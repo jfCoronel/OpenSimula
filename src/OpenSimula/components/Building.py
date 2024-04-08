@@ -11,6 +11,9 @@ class Building(Component):
         self.parameter("description").value = "Building description"
         # Parameters
         self.add_parameter(Parameter_component("file_met", "not_defined"))
+        # X-axe vs East angle (0: X->East, 90: x->North)
+        self.add_parameter(Parameter_float(
+            "azimuth", 0, "°", min=-180, max=180))
         self.add_parameter(Parameter_float(
             "albedo", 0.3, "frac", min=0, max=1))
         self.add_parameter(Parameter_float(

@@ -21,7 +21,8 @@ dependencies = [
   "numpy>1.25",
   "pandas>1.5",
   "scipy>=1.1",
-  "py-expression-eval>=0.3.14"
+  "py-expression-eval>=0.3.14",
+  "shapely>=2.0.3"
 ]
 
 [project.optional-dependencies]

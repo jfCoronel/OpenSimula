@@ -4,6 +4,8 @@ In a clean python version:
 - pandas
 - scipy
 - py-expression-eval
+- shapely
+
 For juputer:
 - notebook
 - plotly
