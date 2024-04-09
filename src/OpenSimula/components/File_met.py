@@ -19,6 +19,7 @@ class File_met(Component):
         self.add_variable(Variable("sky_temperature", unit="°C"))
         self.add_variable(Variable("underground_temperature", unit="°C"))
         self.add_variable(Variable("rel_humidity", unit="%"))
+        self.add_variable(Variable("abs_humidity", unit="g/kg"))
         self.add_variable(Variable("sol_direct", unit="W/m²"))
         self.add_variable(Variable("sol_diffuse", unit="W/m²"))
         self.add_variable(Variable("wind_speed", unit="m/s"))
@@ -62,7 +63,7 @@ class File_met(Component):
                 self.sky_temperature[t] = float(valores[4])
                 self.sol_direct[t] = float(valores[5])
                 self.sol_diffuse[t] = float(valores[6])
-                self.abs_humidity[t] = float(valores[7])
+                self.abs_humidity[t] = float(valores[7])*1000
                 self.rel_humidity[t] = float(valores[8])
                 self.wind_speed[t] = float(valores[9])
                 self.wind_direction[t] = float(valores[10])
@@ -84,6 +85,8 @@ class File_met(Component):
             1 - f) + self.sky_temperature[j] * f
         self.variable("rel_humidity").values[time_index] = self.rel_humidity[i] * (
             1 - f) + self.rel_humidity[j] * f
+        self.variable("abs_humidity").values[time_index] = self.abs_humidity[i] * (
+            1 - f) + self.abs_humidity[j] * f
         self.variable(
             "sol_direct").values[time_index] = self.sol_direct[i] * (1 - f) + self.sol_direct[j] * f
         self.variable(

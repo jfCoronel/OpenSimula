@@ -2,6 +2,7 @@ from OpenSimula.Component import Component
 from OpenSimula.Parameters import Parameter_component, Parameter_float
 from OpenSimula.Variable import Variable
 import numpy as np
+import psychrolib as sicro
 import math
 
 
@@ -11,8 +12,10 @@ class Space(Component):
         self.parameter("type").value = "Space"
         self.parameter("description").value = "Indoor building space"
         # Parameters
-        self.add_parameter(Parameter_component("space_type", "not_defined"))
-        self.add_parameter(Parameter_component("building", "not_defined"))
+        self.add_parameter(Parameter_component(
+            "space_type", "not_defined", ["Space_type"]))
+        self.add_parameter(Parameter_component(
+            "building", "not_defined", ["Building"]))
         self.add_parameter(Parameter_float("floor_area", 1, "m²", min=0.0))
         self.add_parameter(Parameter_float("volume", 1, "m³", min=0.0))
         self.add_parameter(Parameter_float(
@@ -20,7 +23,8 @@ class Space(Component):
 
         # Variables
         self.add_variable(Variable("temperature", unit="°C"))
-        self.add_variable(Variable("humidity", unit="g/kg"))
+        self.add_variable(Variable("abs_humidity", unit="g/kg"))
+        self.add_variable(Variable("rel_humidity", unit="%"))
         self.add_variable(Variable("people_convective", unit="W"))
         self.add_variable(Variable("people_radiant", unit="W"))
         self.add_variable(Variable("people_latent", unit="W"))
@@ -33,7 +37,11 @@ class Space(Component):
         self.add_variable(Variable("infiltration_flow", unit="m³/s"))
         self.add_variable(Variable("surfaces_convective", unit="W"))
         self.add_variable(Variable("delta_int_energy", unit="W"))
-        self.add_variable(Variable("infiltration_heat", unit="W"))
+        self.add_variable(Variable("infiltration_sensible_heat", unit="W"))
+        self.add_variable(Variable("infiltration_latent_heat", unit="W"))
+
+        # Sicro
+        sicro.SetUnitSystem(sicro.SI)
 
     def building(self):
         return self.parameter("building").component
@@ -237,6 +245,7 @@ class Space(Component):
     def post_iteration(self, time_index, date):
         super().post_iteration(time_index, date)
         self._calculate_heat_fluxes(time_index)
+        self._humidity_balance(time_index)
 
     def _calculate_heat_fluxes(self, time_i):
         building = self.parameter("building").component
@@ -250,8 +259,46 @@ class Space(Component):
 
         self.variable("delta_int_energy").values[time_i] = (self.parameter("volume").value * rho * c_p + self.parameter(
             "furniture_weight").value * c_pf) * (T_pre - self.variable("temperature").values[time_i]) / self.project().parameter("time_step").value
-        self.variable("infiltration_heat").values[time_i] = self.variable("infiltration_flow").values[time_i] * rho * c_p * \
+        self.variable("infiltration_sensible_heat").values[time_i] = self.variable("infiltration_flow").values[time_i] * rho * c_p * \
             (self._file_met.variable(
                 "temperature").values[time_i]-self.variable("temperature").values[time_i])
         self.variable("surfaces_convective").values[time_i] = -self.variable("people_convective").values[time_i] - self.variable(
-            "light_convective").values[time_i] - self.variable("other_gains_convective").values[time_i] - self.variable("infiltration_heat").values[time_i] - self.variable("delta_int_energy").values[time_i]
+            "light_convective").values[time_i] - self.variable("other_gains_convective").values[time_i] - self.variable("infiltration_sensible_heat").values[time_i] - self.variable("delta_int_energy").values[time_i]
+
+    def _humidity_balance(self, time_i):
+        building = self.parameter("building").component
+        if time_i == 0:
+            w_pre = building.parameter("initial_humidity").value
+            T_pre = building.parameter("initial_temperature").value
+        else:
+            w_pre = self.variable("abs_humidity").values[time_i-1]
+            T_pre = self.variable("temperature").values[time_i-1]
+
+        m_inf = self.variable(
+            "infiltration_flow").values[time_i] * building.RHO
+
+        ro_int = sicro.GetMoistAirDensity(
+            T_pre, w_pre/1000, building.ATM_PRESSURE)
+        vol = self.parameter("volume").value
+        Dt = self.project().parameter("time_step").value
+        Q_lat = self.variable(
+            "people_latent").values[time_i] + self.variable("other_gains_latent").values[time_i]
+
+        new_humidity = (vol * ro_int * w_pre + m_inf * self._file_met.variable(
+            "abs_humidity").values[time_i] * Dt + (Q_lat * Dt)/building.LAMBDA) / (vol * ro_int + m_inf * Dt)
+
+        max_hum = sicro.GetHumRatioFromRelHum(self.variable(
+            "temperature").values[time_i], 1, building.ATM_PRESSURE)*1000
+
+        if (new_humidity > max_hum):
+            self.variable("abs_humidity").values[time_i] = max_hum
+            self.variable("rel_humidity").values[time_i] = 100
+            new_humidity = max_hum
+        else:
+            self.variable("abs_humidity").values[time_i] = new_humidity
+            self.variable("rel_humidity").values[time_i] = sicro.GetRelHumFromHumRatio(self.variable(
+                "temperature").values[time_i], new_humidity/1000, building.ATM_PRESSURE)*100
+
+        # infiltration latent
+        self.variable(
+            "infiltration_latent_heat").values[time_i] = m_inf * building.LAMBDA * (new_humidity - w_pre)

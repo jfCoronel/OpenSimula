@@ -8,6 +8,7 @@ Base component for the definition of a building. The building is made up of a se
 - **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the east. The coordinates of all building elements refer to the building coordinate system. 
 - **albedo** [_float_, unit = "frac", default = 0.3, min = 0, max = 1]: Solar reflectivity of the ground surrounding the building. Used to calculate the solar radiation reflected to the exterior surfaces of the building.
 - **initial_temperature** [_float_, unit = "°C", default = 20]: Initial temperature of all building components at the beginning of the simulation.
+- **initial_humidity** [_float_, unit = "g/kg", default = 7.3]: Initial absolute humidity of all building spaces at the beginning of the simulation.
 
 The following figure shows the building's coordinate system:
 
@@ -63,4 +64,66 @@ param = {
 office_space.set_parameters(param)
 </code></pre>
 
+#### Variables
 
+After the simulation we will have the following variables of this component:
+
+- __people_convective__ [W/m²]: Convective heat due to occupancy.
+- __people_radiant__ [W/m²]: Radiant heat (long wave) due to occupancy.
+- __people_latent__ [W/m²]: Latent heat due to occupancy.
+- __light_convective__ [W/m²]: Convective heat due to lighting.
+- __light_radiant__ [W/m²]: Radiant heat (short wave) due to lighting.
+- __other_gains_convective__ [W/m²]: Convective heat due to other gains.
+- __other_gains_radiant__ [W/m²]: Radiant heat (long wave) due to other gains.
+- __other_gains_latent__ [W/m²]: Latent heat due to other gains.
+- __infiltration_rate__ [1/h]: Air flow rate infiltrated into the space from outside, expressed in volumes of the space per hour.
+
+### Space
+
+Component used to define each of the building's spaces. The spaces of a building are each of the volumes of the building where we can find a different temperatures. The spaces will be referenced by the different surfaces that comprise them.
+
+#### Parameters
+
+- **building** [_component_, default = "not_defined", component type = Building]: Reference to the "Building" component of which it is a part.
+- **space_type** [_component_, default = "not_defined", component type = Space_type]: Reference to the "Space_type" component that defines its occupational and functional characteristics.
+- **floor_area** [_float_, unit = "m²", default = 1, min = 0]: Floor area of the space.
+- **volume** [_float_, unit = "m³", default = 1, min = 0]: Volume of the space.
+- **furniture_weight** [_float_, unit = "kg/m²", default = 10, min = 0]: Weight of the furniture in the space. Used to increase the thermal inertia of the space which will be added to that of the air (for the furniture a specific heat of 1000 J/kg·K will be used).
+
+**Example:**
+<pre><code class="python">
+...
+
+space_1 = osm.components.Space("space_1",project)
+param = {
+        "building": "building",
+        "space_type": "office_space",
+        "floor_area": 30,
+        "volume": 90
+}
+space_1.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component:
+
+- __temperatura__ [°C]: Space dry air temperatura.
+- __abs_humidity__ [g/kg]: Absolute space air humidity.
+- __rel_humidity__ [%]: Relative space air humidity.
+- __people_convective__ [W]: Convective heat due to occupancy.
+- __people_radiant__ [W]: Radiant heat (long wave) due to occupancy.
+- __people_latent__ [W]: Latent heat due to occupancy.
+- __light_convective__ [W]: Convective heat due to lighting.
+- __light_radiant__ [W]: Radiant heat (short wave) due to lighting.
+- __other_gains_convective__ [W]: Convective heat due to other gains.
+- __other_gains_radiant__ [W]: Radiant heat (long wave) due to other gains.
+- __other_gains_latent__ [W]: Latent heat due to other gains.
+- __solar_direct_gains__ [W]: Direct solar radiation gains.
+- __infiltration_flow__ [m³/s]: Air flow rate infiltrated into the space from outside.
+- __infiltration_sensible_heat__ [W]: Sensible heat due to air infiltration from outdoor.
+- __infiltration_latent_heat__ [W]: Latent heat due to air infiltration from outdoor.
+
+### Exterior_surface
+
+Component used to ...

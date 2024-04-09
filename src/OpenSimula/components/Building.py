@@ -2,6 +2,7 @@ from OpenSimula.Component import Component
 from OpenSimula.Parameters import Parameter_component, Parameter_float
 import numpy as np
 import math
+import psychrolib as sicro
 
 
 class Building(Component):
@@ -19,12 +20,24 @@ class Building(Component):
             "albedo", 0.3, "frac", min=0, max=1))
         self.add_parameter(Parameter_float(
             "initial_temperature", 20, "°C"))
+        self.add_parameter(Parameter_float(
+            "initial_humidity", 7.3, "g/kg"))
+
+        # Constant values
+        self.C_P = 1006  # J/kg·K
+        self.C_P_FURNITURE = 1000  # J/kg·K
+        self.LAMBDA = 2501  # J/g Latent heat of water at 0ºC
 
         # Variables
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         self._file_met = self.parameter("file_met").component
+        sicro.SetUnitSystem(sicro.SI)
+        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(
+            self._file_met.altitude)
+        # Density for convert volumetric to mass flows
+        self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
         self._create_spaces_surfaces_list()
         self._create_ff_matrix()
         self._create_B_matrix()
@@ -212,10 +225,6 @@ class Building(Component):
 
         self.KS_inv_matrix = np.linalg.inv(self.KS_matrix)
 
-        self.C_P = 1006  # J/kg·K
-        self.C_P_FURNITURE = 1000  # J/kg·K
-        h = self._file_met.altitude
-        self.RHO = 1.205*math.exp(-1.1659E-4 * h)
         # KZ_matrix without air movement
         for i in range(m):
             self.KZ_matrix[i][i] = (self.spaces[i].parameter("volume").value * self.RHO * self.C_P + self.spaces[i].parameter(

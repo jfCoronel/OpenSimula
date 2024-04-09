@@ -18,17 +18,18 @@ met.parameter("file_name").value = "examples/met_files/sevilla.met"
 To generate the variables in the simulation time step, the values are obtained by linear interpolation of the data available in the meteorological file. The variables associated with the solar position are calculated, not obtained from the values stored in the file.
 
 #### Variables
-- **temperature** [unit = "°C"]: Dry bulb temperature.
-- **sky_temperature** [unit = "°C"]: Sky temperature, for radiant heat exchange.
-- **underground_temperature** [unit = "°C"]: Ground temperature, to be used as the temperature imposed on the outer surface of the enclosures in contact with the ground (currently not read from the file, it is calculated as the annual average air temperature).
-- **rel_humidity** [unit = "%"]: Air relative hunidity.
-- **sol_hour** [unit = "h"]: Solar hour of the day.
-- **sol_direct** [unit = "W/m²"]: Direct solar irradiance over horizontal surface.
-- **sol_diffuse** [unit = "W/m²"]: Diffuse solar irradiance over horizontal surface.
-- **sol_azimut** [unit = "°"]: Solar azimut (degrees from south: E-, W+).
-- **sol_altitude** [unit = "°"]: Solar altitude (degrees).
-- **wind_speed** [unit = "m/s"]: Wind speed.
-- **wind_direction** [unit = "W/m²"]: Wind direction (degrees from north: E+, W-).
+- **temperature** [°C]: Dry bulb temperature.
+- **sky_temperature** [°C]: Sky temperature, for radiant heat exchange.
+- **underground_temperature** [°C]: Ground temperature, to be used as the temperature imposed on the outer surface of the enclosures in contact with the ground (currently not read from the file, it is calculated as the annual average air temperature).
+- **abs_humidity** [g/kg]: Air relative hunidity.
+- **rel_humidity** [%]: Air relative hunidity.
+- **sol_hour** [h]: Solar hour of the day.
+- **sol_direct** [W/m²]: Direct solar irradiance over horizontal surface.
+- **sol_diffuse** [W/m²]: Diffuse solar irradiance over horizontal surface.
+- **sol_azimut** [°]: Solar azimut (degrees from south: E-, W+).
+- **sol_altitude** [°]: Solar altitude (degrees).
+- **wind_speed** [m/s]: Wind speed.
+- **wind_direction** [W/m²]: Wind direction (degrees from north: E+, W-).
 
 ### File_data
 

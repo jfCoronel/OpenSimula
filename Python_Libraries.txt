@@ -5,6 +5,7 @@ In a clean python version:
 - scipy
 - py-expression-eval
 - shapely
+- psychrolib
 
 For juputer:
 - notebook
@@ -13,3 +14,4 @@ For juputer:
 
 With Anaconda you must add:
 - py_expression_eval
+- psychrolib ?

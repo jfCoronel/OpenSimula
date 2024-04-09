@@ -45,7 +45,7 @@ nest-asyncio==1.5.8
 nh3==0.2.14
 numpy==1.26.1
 openpyxl==3.1.2
--e git+https://github.com/jfCoronel/OpenSimula.git@8bcfccf6d7cff046f2d380b44d3c52cc6c167c7b#egg=OpenSimula
+-e git+https://github.com/jfCoronel/OpenSimula.git@74ba22ae9cbf2dc0220ed7941b19885c96e8f84a#egg=OpenSimula
 packaging==23.2
 pandas==2.0.3
 parso==0.8.3
@@ -59,6 +59,7 @@ plotly==5.17.0
 pluggy==1.3.0
 prompt-toolkit==3.0.39
 psutil==5.9.6
+PsychroLib==2.5.0
 ptyprocess==0.7.0
 pure-eval==0.2.2
 py-expression-eval==0.3.14
