@@ -10,8 +10,10 @@ class Opening(Component):
         self.parameter("type").value = "Opening"
         self.parameter(
             "description").value = "Rectangular opening in building surfaces"
-        self.add_parameter(Parameter_component("surface", "not_defined"))
-        self.add_parameter(Parameter_component("opening_type", "not_defined"))
+        self.add_parameter(Parameter_component(
+            "surface", "not_defined", ["Exterior_surface"]))
+        self.add_parameter(Parameter_component(
+            "opening_type", "not_defined", ["Opening_type"]))
         self.add_parameter(Parameter_float_list("ref_point", [0, 0], "m"))
         self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
         self.add_parameter(Parameter_float("height", 1, "m", min=0.0))

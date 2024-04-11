@@ -126,4 +126,286 @@ After the simulation we will have the following variables of this component:
 
 ### Exterior_surface
 
-Component used to ...
+Component to define the exterior surfaces of the building: vertical or inclined walls and horizontal or inclined roofs.
+
+#### Parameters
+
+- **shape** [_option_, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". 
+- **width** [_float_, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **height** [_float_, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **ref_point** [_float-list_, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.
+- **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
+- **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
+- **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **construction** [_component_, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition.
+- **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.
+- **h_cv** [_float-list_, unit = "W/m²K", default = [19.3,2], min = 0]: Convective film coefficients of the exterior and interior surfaces, respectively.
+
+The following figures show the surface coordinate system versus the building coordinate system for rectangular or polygonal surfaces.
+
+![Rectangular surface coordinate system](img/rectangular_surface_coordinate_system.png)
+
+![Polygon surface coordinate system](img/polygon_surface_coordinate_system.png)
+
+**Example:**
+<pre><code class="python">
+...
+
+north_wall = osm.components.Exterior_surface("north_wall",project)
+param = {
+        "ref_point": [8,0,-6],
+        "width": 8,
+        "height": 2.7,
+        "azimuth": 180,
+        "altitude": 0,
+        "construction": "Multilayer_wall",
+        "space": "space_1"
+}
+north_wall.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component, all variables ending in 0 refer to the outer surface and those ending in 1 to the inner surface:
+
+- __T_s0, T_s1__ [°C]: Surface temperatures
+- __q_cd0, q_cd1__ [W/m²]: Conductive heat flux at the surfaces.
+- __q_cv0, q_cv1__ [W/m²]: Convective heat flux at the surfaces.
+- __q_sol0, q_sol1__ [W/m²]: Solar heat flux at the surfaces.
+- __q_swig0, q_swig1__ [W/m²]: Radiant short wave heat flux at the surfaces due to internal gains.
+- __q_lwig0, q_lwig1__ [W/m²]: Radiant long wave heat flux at the surfaces due to internal gains.
+- __q_lwt0, q_lwt1__ [W/m²]: Radiant long wave heat flux at the surfaces due other surfaces temperatures.
+- __p_0, p_1__ [W/m²]: Conductive heat flux at the surfaces due to previous time steps.
+- __T_rm__ [°C]: Exterior radiant mean temperature.
+- __E_dir0__ [W/m²]: Direct solar radiation incident on the exterior surface.
+- __E_dif0__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
+
+### Interior_surface
+
+Component to define the interior surfaces of the building: vertical or inclined interior walls and slabs between floors.
+
+#### Parameters
+
+- **shape** [_option_, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". 
+- **width** [_float_, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **height** [_float_, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **ref_point** [_float-list_, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed the "0" side, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.
+- **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
+- **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
+- **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **construction** [_component_, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition.
+- **spaces** [_component-list_, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.
+- **h_cv** [_float-list_, unit = "W/m²K", default = [2,2], min = 0]: Convective film coefficients of the 0 an 1 side, respectively.
+
+See figures of the coordinate systems in the "Exterior_surface" component.
+
+**Example:**
+<pre><code class="python">
+...
+
+interior_wall = osm.components.Interior_surface("interior_wall",project)
+param = {
+        "ref_point": [8,0,-3],
+        "width": 8,
+        "height": 2.7,
+        "azimuth": 0,
+        "altitude": 0,
+        "construction": "Multilayer_wall",
+        "spaces": ["space_0", "space_1"]
+}
+interior_wall.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component, all variables ending in 0 refer "0" surface and those ending in 1 to the "1" surface:
+
+- __T_s0, T_s1__ [°C]: Surface temperatures
+- __q_cd0, q_cd1__ [W/m²]: Conductive heat flux at the surfaces.
+- __q_cv0, q_cv1__ [W/m²]: Convective heat flux at the surfaces.
+- __q_sol0, q_sol1__ [W/m²]: Solar heat flux at the surfaces.
+- __q_swig0, q_swig1__ [W/m²]: Radiant short wave heat flux at the surfaces due to internal gains.
+- __q_lwig0, q_lwig1__ [W/m²]: Radiant long wave heat flux at the surfaces due to internal gains.
+- __q_lwt0, q_lwt1__ [W/m²]: Radiant long wave heat flux at the surfaces due other surfaces temperatures.
+- __p_0, p_1__ [W/m²]: Conductive heat flux at the surfaces due to previous time steps.
+
+
+### Underground_surface
+
+Component define the surfaces in contact with the ground. Floors or vertical undergorund enclosures.
+
+#### Parameters
+
+- **shape** [_option_, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". 
+- **width** [_float_, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **height** [_float_, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **ref_point** [_float-list_, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed the "0" side, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.
+- **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
+- **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
+- **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **construction** [_component_, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition.
+- **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.
+- **h_cv** [_float_, unit = "W/m²K", default = 2, min = 0]: Convective film coefficient of interior surface.
+
+See figures of the coordinate systems in the "Exterior_surface" component.
+
+**Example:**
+<pre><code class="python">
+...
+
+floor = osm.components.Underground_surface("floor",project)
+param = {
+        "shape": "POLYGON",
+        "ref_point": [0,0,0],
+        "x_polygon": [0,8,8,0],
+        "y_polygon": [0,0,6,6],
+        "azimuth": 0,
+        "altitude": -90,
+        "construction": "Multilayer wall",
+        "space": "space_1"
+}
+floor.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component, all variables ending in 0 refer to the underground surface and those ending in 1 to the interior surface:
+
+- __T_s0, T_s1__ [°C]: Surface temperatures
+- __q_cd0, q_cd1__ [W/m²]: Conductive heat flux at the surfaces.
+- __q_cv1__ [W/m²]: Convective heat flux at the ineterior surface.
+- __q_sol1__ [W/m²]: Solar heat flux at the surfaces.
+- __q_swig1__ [W/m²]: Radiant short wave heat flux at the interior surface due to internal gains.
+- __q_lwig1__ [W/m²]: Radiant long wave heat flux at the interior surface due to internal gains.
+- __q_lwt1__ [W/m²]: Radiant long wave heat flux at the interior surface due other surfaces temperatures.
+- __p_0, p_1__ [W/m²]: Conductive heat flux at the surfaces due to previous time steps.
+
+
+### Virtual_exterior_surface
+
+Virtual surfaces are used to define gaps between a space and the outside "Virtual_exterior_surface" or between two spaces "Virtual_interior_surface". Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.
+
+#### Parameters
+
+- **shape** [_option_, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". 
+- **width** [_float_, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **height** [_float_, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **ref_point** [_float-list_, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.
+- **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
+- **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
+- **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.
+
+See figures of the coordinate systems in the "Exterior_surface" component.
+
+**Example:**
+<pre><code class="python">
+...
+
+north_hole = osm.components.Virtual_exterior_surface("north_hole",project)
+param = {
+            "ref_point": [8,0,-6],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 180,
+            "altitude": 0,
+            "space": "space_1"
+}
+north_hole.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component:
+
+- __T_rm__ [°C]: Exterior radiant mean temperature.
+- __E_dir0__ [W/m²]: Direct solar radiation incident on the exterior surface.
+- __E_dif0__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
+
+### Virtual_interior_surface
+
+Virtual surfaces are used to define gaps between a space and the outside "Virtual_exterior_surface" or between two spaces "Virtual_interior_surface". Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.
+
+#### Parameters
+
+- **shape** [_option_, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". 
+- **width** [_float_, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **height** [_float_, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
+- **ref_point** [_float-list_, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.
+- **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
+- **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
+- **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **spaces** [_component-list_, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.
+
+See figures of the coordinate systems in the "Exterior_surface" component.
+
+**Example:**
+<pre><code class="python">
+...
+
+interior_hole = osm.components.Virtual_interior_surface("interior_hole",project)
+param = {
+            "ref_point": [8,0,-3],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 0,
+            "altitude": 0,
+            "spaces": ["space_0","space_1"]
+}
+interior_hole.set_parameters(param)
+</code></pre>
+
+### Opening
+
+Component for defining openings in exterior surfaces, e.g. windows or doors. These elements must be rectangular.
+
+#### Parameters
+
+- **surface** [_component_, default = "not_defined", component type = Exterior_surface]: Reference to the "Exterior_surface" in which it is located.
+- **width** [_float_, unit = "m", default = 1, min = 0]: Width of the opening.
+- **height** [_float_, unit = "m", default = 1, min = 0]: Height of the opening.
+- **ref_point** [_float-list_, unit = "m", default = [0,0]]: Two-dimensional coordinate of the opening reference point in the exterior wall coordinate system. The reference point is the lower left corner of the opening viewed from the outside.
+- **opening_type** [_component_, default = "not_defined", component type = Opening_type]: Reference to the "Opening_type" component that defines its composition.
+- **h_cv** [_float-list_, unit = "W/m²K", default = [19.3,2], min = 0]: Convective film coefficients of the exterior and interior surfaces, respectively.
+
+The following figure show geometrical definition of the opening in the surface coordinate system.
+
+![Opening gemetrical definition](img/opening_definition.png)
+
+**Example:**
+<pre><code class="python">
+...
+
+south_window = osm.components.Opening("south_window",project)
+param = {
+        "surface": "south_wall"
+        "ref_point": [2,1],
+        "width": 3,
+        "height": 1.3,
+        "opening_type": "double_glazed_window"
+}
+south_window.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component, all variables ending in 0 refer to the outer surface and those ending in 1 to the inner surface:
+
+- __T_s0, T_s1__ [°C]: Surface temperatures
+- __q_cd__ [W/m²]: Conductive heat flux.
+- __q_sol_dir_trans__ [W/m²]: Direct solar radiation passing through into space.
+- __q_cv0, q_cv1__ [W/m²]: Convective heat flux at the surfaces.
+- __q_sol0, q_sol1__ [W/m²]: Solar heat flux at the surfaces.
+- __q_sol01, q_sol10__ [W/m²]: Solar heat flux appearing on surface "i" due to the absorption of solar radiation on surface "j". 
+- __q_swig0, q_swig1__ [W/m²]: Radiant short wave heat flux at the surfaces due to internal gains.
+- __q_lwig0, q_lwig1__ [W/m²]: Radiant long wave heat flux at the surfaces due to internal gains.
+- __q_lwt0, q_lwt1__ [W/m²]: Radiant long wave heat flux at the surfaces due other surfaces temperatures.
+- __T_rm__ [°C]: Exterior radiant mean temperature.
+- __E_dir0__ [W/m²]: Direct solar radiation incident on the exterior surface.
+- __E_dif0__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
+

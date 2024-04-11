@@ -10,7 +10,7 @@ class Real_surface(Surface):
         self.parameter("type").value = "Real_surface"
         self.parameter("description").value = "Buildingn real surface"
         self.add_parameter(Parameter_component(
-            "construction", "not_defined", "Construction"))
+            "construction", "not_defined", ["Construction"]))
 
         # Variables
         self.add_variable(Variable("T_s0", "°C"))

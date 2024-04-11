@@ -24,6 +24,16 @@ class Surface(Component):
         self.add_parameter(Parameter_float(
             "altitude", 0, "°", min=-90, max=90))  # Surface y vs Building y -> vertical: 0º, facing up: 90º, facing down: -90º
 
+    def check(self):
+        errors = super().check()
+        # Test if Polygon shape that x_polygon and y_polygon has the same size
+        if self.parameter("shape").value == "POLYGON":
+            if len(self.parameter("x_polygon").value) != len(self.parameter("y_polygon").value):
+                errors.append(
+                    f"Error: {self.parameter('name').value}, x_polygo and y_polygon must have the same size."
+                )
+        return errors
+
     @property
     def area(self):
         if (self.parameter("shape").value == "RECTANGLE"):

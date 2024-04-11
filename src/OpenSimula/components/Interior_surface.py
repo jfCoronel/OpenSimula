@@ -9,7 +9,7 @@ class Interior_surface(Real_surface):
         self.parameter("type").value = "Interior_surface"
         self.parameter("description").value = "Building interior surface"
         self.add_parameter(Parameter_component_list(
-            "spaces", ["not_defined", "not_defined"]))
+            "spaces", ["not_defined", "not_defined"], ["Spaces"]))
         self.add_parameter(Parameter_float_list(
             "h_cv", [2, 2], "W/m²K", min=0))
 

@@ -9,7 +9,8 @@ class Exterior_surface(Real_surface):
         # Parameters
         self.parameter("type").value = "Exterior_surface"
         self.parameter("description").value = "Building exterior surface"
-        self.add_parameter(Parameter_component("space", "not_defined"))
+        self.add_parameter(Parameter_component(
+            "space", "not_defined", ["Space"]))
         self.add_parameter(Parameter_float_list(
             "h_cv", [19.3, 2], "W/m²K", min=0))
 
