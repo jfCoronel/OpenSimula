@@ -113,6 +113,34 @@ param = {
 frame.set_parameters(param)
 </code></pre>
 
+### Opening_type
+
+Component for defining the composition of façade openings in buildings. For example windows or doors. 
+
+#### Parameters
+- **glazing** [[_component_, default = "not_defined", component type = Glazing]]: Reference to the "Glazing" component used.
+- **frame** [[_component_, default = "not_defined", component type = Frame]]: Reference to the "Frame" component used.
+- **construction** [[_component_, default = "not_defined", component type = Glazing]]: Reference to the "Construction" component used. If the opaque part of an opening is defined by a constraction, it will always be assumed to be in steady state for thermal calculations.
+- **glazing_fraction** [_float_, unit = "frac", default = 0.9, min = 0, max = 1]: Fraction of the opening made up of a glazing.
+- **frame_fraction** [_float_, unit = "frac", default = 0.1, min = 0, max = 1]: Fraction of the opening made up of a frame.
+
+if the glazing_fraction plus the frame_fraction is less than 1 the rest of the area is assumed to be opaque and formed by the defined cosntruction.
+
+**Example:**
+<pre><code class="python">
+...
+
+double_glazed_window = osm.components.Opening_type("double_glazed_window",project)
+param = {
+    "glazing": "double_glazing",
+    "frame": "wood_frame",
+    "glazing_fraction": 0.8,
+    "frame_fraction": 0.2
+}
+double_glazed_window.set_parameters(param)
+</code></pre>
+
+
 
 
 
