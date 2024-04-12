@@ -1,7 +1,8 @@
 import numpy as np
 import datetime as dt
 import math
-from OpenSimula.Parameters import Parameter_string
+import psychrolib as sicro
+from OpenSimula.Parameters import Parameter_string, Parameter_options
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
 
@@ -10,9 +11,12 @@ class File_met(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
         self.parameter("type").value = "File_met"
-        self.parameter("description").value = "Meteo file in met format"
+        self.parameter("description").value = "Meteorological file"
         # Parameters
         self.add_parameter(Parameter_string("file_name", "name.met"))
+        self.add_parameter(Parameter_options(
+            "file_type", "MET", ["MET", "TMY3"]))
+
         # Variables
         self.add_variable(Variable("sol_hour", unit="h"))
         self.add_variable(Variable("temperature", unit="°C"))
@@ -35,73 +39,120 @@ class File_met(Component):
         self.rel_humidity = np.zeros(8760)
         self.wind_speed = np.zeros(8760)
         self.wind_direction = np.zeros(8760)
-        self.sol_azimuth = np.zeros(8760)
-        self.sol_cenit = np.zeros(8760)
 
     def check(self):
         errors = super().check()
         # Read the file
         try:
             f = open(self.parameter("file_name").value, "r")
-        except OSError:
+        except OSError as error:
             errors.append(
                 f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
             )
             return errors
         with f:
-            f.readline()
+            if self.parameter("file_type").value == "MET":
+                self._read_met_file(f)
+            elif self.parameter("file_type").value == "TMY3":
+                self._read_tmy3_file(f)
+        return errors
+
+    def _read_met_file(self, f):
+        f.readline()
+        line = f.readline()
+        valores = line.split()
+        self.latitude = float(valores[0])
+        self.longitude = float(valores[1])
+        self.altitude = float(valores[2])
+        self.reference_time_longitude = float(valores[3])
+        for t in range(8760):
             line = f.readline()
             valores = line.split()
-            self.latitude = float(valores[0])
-            self.longitude = float(valores[1])
-            self.altitude = float(valores[2])
-            self.reference_time_longitude = float(valores[3])
-            for t in range(8760):
-                line = f.readline()
-                valores = line.split()
-                self.temperature[t] = float(valores[3])
-                self.sky_temperature[t] = float(valores[4])
-                self.sol_direct[t] = float(valores[5])
-                self.sol_diffuse[t] = float(valores[6])
-                self.abs_humidity[t] = float(valores[7])*1000
-                self.rel_humidity[t] = float(valores[8])
-                self.wind_speed[t] = float(valores[9])
-                self.wind_direction[t] = float(valores[10])
-                self.sol_azimuth[t] = float(valores[11])
-                self.sol_cenit[t] = float(valores[12])
-            self._T_average = np.average(self.temperature)
-        return errors
+            self.temperature[t] = float(valores[3])
+            self.sky_temperature[t] = float(valores[4])
+            self.sol_direct[t] = float(valores[5])
+            self.sol_diffuse[t] = float(valores[6])
+            self.abs_humidity[t] = float(valores[7])*1000
+            self.rel_humidity[t] = float(valores[8])
+            self.wind_speed[t] = float(valores[9])
+            self.wind_direction[t] = float(valores[10])
+
+        self._T_average = np.average(self.temperature)
+
+    def _read_tmy3_file(self, f):
+        sicro.SetUnitSystem(sicro.SI)
+        line = f.readline()
+        valores = line.split(",")
+        self.latitude = float(valores[4])
+        self.longitude = float(valores[5])
+        self.altitude = float(valores[6])
+        self.reference_time_longitude = float(valores[3])*15
+        f.readline()  # Header line
+        for t in range(8760):
+            line = f.readline()
+            valores = line.split(",")
+            self.temperature[t] = float(valores[31])
+            self.sol_direct[t] = float(valores[4]) - float(valores[10])
+            self.sol_diffuse[t] = float(valores[10])
+            self.rel_humidity[t] = float(valores[37])
+            self.wind_speed[t] = float(valores[46])
+            self.wind_direction[t] = float(valores[43])
+            p = float(valores[40]) * 100  # milibar to Pa
+            self.abs_humidity[t] = sicro.GetHumRatioFromRelHum(
+                self.temperature[t], self.rel_humidity[t]/100, p)*1000
+            if float(valores[2]) > 0:
+                k_t = float(valores[4])/float(valores[2])
+            else:
+                k_t = 0
+            p_v = sicro.GetVapPresFromRelHum(
+                self.temperature[t], self.rel_humidity[t]/100)
+            # Aubinet, 1994
+            self.sky_temperature[t] = 94 - 273.15 + 12.6 * \
+                math.log(p_v)-13*k_t+0.341*(self.temperature[t]+273.15)
+
+        self._T_average = np.average(self.temperature)
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
 
     def pre_iteration(self, time_index, date):
         solar_hour = self._solar_hour_(date)
-        self.variable("sol_hour").values[time_index] = solar_hour
-        i, j, f = self._get_interpolation_tuple_(date, solar_hour)
-        self.variable(
-            "temperature").values[time_index] = self.temperature[i] * (1 - f) + self.temperature[j] * f
-        self.variable("sky_temperature").values[time_index] = self.sky_temperature[i] * (
-            1 - f) + self.sky_temperature[j] * f
-        self.variable("rel_humidity").values[time_index] = self.rel_humidity[i] * (
-            1 - f) + self.rel_humidity[j] * f
-        self.variable("abs_humidity").values[time_index] = self.abs_humidity[i] * (
-            1 - f) + self.abs_humidity[j] * f
-        self.variable(
-            "sol_direct").values[time_index] = self.sol_direct[i] * (1 - f) + self.sol_direct[j] * f
-        self.variable(
-            "sol_diffuse").values[time_index] = self.sol_diffuse[i] * (1 - f) + self.sol_diffuse[j] * f
-        self.variable(
-            "wind_speed").values[time_index] = self.wind_speed[i] * (1 - f) + self.wind_speed[j] * f
-        self.variable("wind_direction").values[time_index] = self.wind_direction[i] * (
-            1 - f) + self.wind_direction[j] * f
         azi, alt = self.solar_pos(date, solar_hour)
+        self.variable("sol_hour").values[time_index] = solar_hour
         self.variable("sol_azimuth").values[time_index] = azi
         self.variable("sol_altitude").values[time_index] = alt
         self.variable(
             "underground_temperature").values[time_index] = self._T_average
+        if self.parameter("file_type").value == "MET":
+            i, j, f = self._get_solar_interpolation_tuple_(date, solar_hour)
+        elif self.parameter("file_type").value == "TMY3":
+            i, j, f = self._get_local_interpolation_tuple_(date)
 
-    def _get_interpolation_tuple_(self, datetime, solar_hour):
+        self._interpolate("temperature", self.temperature, time_index, i, j, f)
+        self._interpolate("rel_humidity", self.rel_humidity,
+                          time_index, i, j, f)
+        self._interpolate("abs_humidity", self.abs_humidity,
+                          time_index, i, j, f)
+        self._interpolate("sol_direct", self.sol_direct, time_index, i, j, f)
+        self._interpolate("sol_diffuse", self.sol_diffuse,
+                          time_index, i, j, f)
+        self._interpolate("wind_speed", self.wind_speed,
+                          time_index, i, j, f)
+        self._interpolate("wind_direction", self.wind_direction,
+                          time_index, i, j, f)
+        self._interpolate("sky_temperature", self.sky_temperature,
+                          time_index, i, j, f)
+        # Corregir la directa si el sol no ha salido
+        if (alt <= 0 and self.variable("sol_direct").values[time_index] > 0):
+            self.variable(
+                "sol_diffuse").values[time_index] += self.variable("sol_direct").values[time_index]
+            self.variable("sol_direct").values[time_index] = 0
+
+    def _interpolate(self, variable, array, time_i, i, j, f):
+        self.variable(
+            variable).values[time_i] = array[i] * (1 - f) + array[j] * f
+
+    def _get_solar_interpolation_tuple_(self, datetime, solar_hour):
         day = datetime.timetuple().tm_yday  # Día del año
         # El primer valor es a las 00:30
         index = solar_hour + (day-1)*24 - 0.5
@@ -113,6 +164,22 @@ class File_met(Component):
         j = i + 1
         if j >= 8760:
             j = 0
+        f = index - i
+        return (i, j, f)
+
+    def _get_local_interpolation_tuple_(self, date):
+        # a las 0:30 del primer día
+        initial_date = dt.datetime(date.year, 1, 1, 0, 0)
+        seconds = (date-initial_date).total_seconds()
+        index = seconds / 3600
+        if index < 0:
+            index = 0
+        elif index >= 8760:
+            index = index - 8760
+        i = math.floor(index)
+        j = i + 1
+        if j >= 8760:
+            j = j - 8760
         f = index - i
         return (i, j, f)
 

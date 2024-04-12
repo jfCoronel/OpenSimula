@@ -10,14 +10,20 @@ project = {
             "type": "File_met",
             "name": "sevilla",
             "file_name": "examples/met_files/sevilla.met"
+        },
+        {
+            "type": "File_met",
+            "name": "denver",
+            "file_type": "TMY3",
+            "file_name": "examples/met_files/WD100.tmy3"
         }
-    ],
+    ]
 }
 
 
 def test_File_met_1h():
     sim = osm.Simulation()
-    p1 = osm.Project("p1",sim)
+    p1 = osm.Project("p1", sim)
     p1.read_dict(project)
     p1.simulate()
     hs = p1.component("sevilla").variable("sol_hour").values
@@ -28,9 +34,10 @@ def test_File_met_1h():
     assert t[10] == pytest.approx(13.591, 0.001)
     assert hs[-1] == pytest.approx(21.5609, 0.001)
 
+
 def test_File_met_15m():
     sim = osm.Simulation()
-    p1 = osm.Project("p1",sim)
+    p1 = osm.Project("p1", sim)
     p1.read_dict(project)
     p1.parameter("time_step").value = 15*60
     p1.parameter("n_time_steps").value = 8760*4
@@ -42,6 +49,3 @@ def test_File_met_15m():
     assert hs[40] == pytest.approx(8.5533, 0.001)
     assert t[40] == pytest.approx(13.591, 0.001)
     assert hs[-4] == pytest.approx(21.5609, 0.001)
-
-
-
