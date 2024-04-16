@@ -23,12 +23,16 @@ class Exterior_surface(Real_surface):
     def building(self):
         return self.parameter("space").component.building()
 
+    def space(self):
+        return self.parameter("space").component
+
     def check(self):
         errors = super().check()
         # Test space defined
         if self.parameter("space").value == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, must define its space.")
+        self._create_openings_list()
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

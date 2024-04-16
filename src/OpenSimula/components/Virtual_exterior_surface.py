@@ -22,6 +22,9 @@ class Virtual_exterior_surface(Virtual_surface):
     def building(self):
         return self.parameter("space").component.building()
 
+    def space(self):
+        return self.parameter("space").component
+
     def check(self):
         errors = super().check()
         # Test space defined

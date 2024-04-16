@@ -56,6 +56,7 @@ class Space(Component):
         if self.parameter("space_type").value == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, must define its Space_type.")
+        self._create_surfaces_list()
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

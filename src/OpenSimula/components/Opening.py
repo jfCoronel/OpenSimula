@@ -1,3 +1,4 @@
+import math
 from OpenSimula.Component import Component
 from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_float_list
 from OpenSimula.Variable import Variable
@@ -57,6 +58,9 @@ class Opening(Component):
 
     def building(self):
         return self.parameter("surface").component.building()
+
+    def space(self):
+        return self.parameter("surface").component.space()
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
@@ -149,3 +153,31 @@ class Opening(Component):
 
     def is_virtual(self):
         return False
+
+    def get_pyvista_polygon(self, coordinate_system="building"):
+        sur_component = self.parameter("surface").component
+        v1 = sur_component.parameter("ref_point").value
+        az = math.radians(sur_component.parameter("azimuth").value)
+        alt = math.radians(sur_component.parameter("altitude").value)
+        v1 = [v1[0]+0.01*math.sin(az)*math.cos(alt),
+              v1[1]-0.01*math.cos(az)*math.cos(alt),
+              v1[2]+0.01*math.sin(alt),]
+        w = self.parameter("width").value
+        h = self.parameter("height").value
+        ref = self.parameter("ref_point").value
+        polygon2D = [[ref[0], ref[1]], [ref[0]+w, ref[1]],
+                     [ref[0]+w, ref[1]+h], [ref[0], ref[1]+h]]
+        polygon3D = []
+        for vertex in polygon2D:
+            v_loc = [v1[0]+vertex[0]*math.cos(az)-vertex[1]*math.sin(alt)*math.sin(az),
+                     v1[1]+vertex[0] *
+                     math.sin(az)+vertex[1] *
+                     math.sin(alt)*math.cos(az),
+                     v1[2]+vertex[1]*math.cos(alt)]
+            if (coordinate_system == "global"):
+                az_b = math.radians(self.building().parameter("azimuth").value)
+                v_loc = [v_loc[0]*math.cos(az_b)-v_loc[1]*math.sin(az_b),
+                         v_loc[0]*math.sin(az_b)+v_loc[1]*math.cos(az_b),
+                         v_loc[2]]
+            polygon3D.append(v_loc)
+        return polygon3D

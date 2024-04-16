@@ -5,7 +5,7 @@ Base component for the definition of a building. The building is made up of a se
 
 #### Parameters
 - **file_met** [_component_, default = "not_defined", component type = File_met]: Reference to the component where the weather file is defined.
-- **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the east. The coordinates of all building elements refer to the building coordinate system. 
+- **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the east (Global x-axis). The coordinates of all building elements refer to the building coordinate system. 
 - **albedo** [_float_, unit = "frac", default = 0.3, min = 0, max = 1]: Solar reflectivity of the ground surrounding the building. Used to calculate the solar radiation reflected to the exterior surfaces of the building.
 - **initial_temperature** [_float_, unit = "°C", default = 20]: Initial temperature of all building components at the beginning of the simulation.
 - **initial_humidity** [_float_, unit = "g/kg", default = 7.3]: Initial absolute humidity of all building spaces at the beginning of the simulation.
@@ -137,7 +137,7 @@ Component to define the exterior surfaces of the building: vertical or inclined 
 - **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
 - **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
 - **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
-- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.
 - **construction** [_component_, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition.
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.
 - **h_cv** [_float-list_, unit = "W/m²K", default = [19.3,2], min = 0]: Convective film coefficients of the exterior and interior surfaces, respectively.
@@ -194,7 +194,7 @@ Component to define the interior surfaces of the building: vertical or inclined 
 - **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
 - **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
 - **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
-- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.
 - **construction** [_component_, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition.
 - **spaces** [_component-list_, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.
 - **h_cv** [_float-list_, unit = "W/m²K", default = [2,2], min = 0]: Convective film coefficients of the 0 an 1 side, respectively.
@@ -245,7 +245,7 @@ Component define the surfaces in contact with the ground. Floors or vertical und
 - **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
 - **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
 - **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
-- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.
 - **construction** [_component_, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition.
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.
 - **h_cv** [_float_, unit = "W/m²K", default = 2, min = 0]: Convective film coefficient of interior surface.
@@ -297,7 +297,7 @@ Virtual surfaces are used to define gaps between a space and the outside "Virtua
 - **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
 - **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
 - **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
-- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.
 
 See figures of the coordinate systems in the "Exterior_surface" component.
@@ -339,7 +339,7 @@ Virtual surfaces are used to define gaps between a space and the outside "Virtua
 - **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
 - **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
 - **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
-- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the y-axis of the building and the y-axis of the surface.
+- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.
 - **spaces** [_component-list_, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.
 
 See figures of the coordinate systems in the "Exterior_surface" component.

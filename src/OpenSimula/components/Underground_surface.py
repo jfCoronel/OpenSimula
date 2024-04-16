@@ -16,6 +16,9 @@ class Underground_surface(Real_surface):
     def building(self):
         return self.parameter("space").component.building()
 
+    def space(self):
+        return self.parameter("space").component
+
     def check(self):
         errors = super().check()
         # Test space defined

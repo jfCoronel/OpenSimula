@@ -3,6 +3,7 @@ from OpenSimula.Parameters import Parameter_component, Parameter_float
 import numpy as np
 import math
 import psychrolib as sicro
+import pyvista as pv
 
 
 class Building(Component):
@@ -29,6 +30,14 @@ class Building(Component):
         self.LAMBDA = 2501  # J/g Latent heat of water at 0ºC
 
         # Variables
+
+    def check(self):
+        errors = super().check()
+        if self.parameter("file_met").value == "not_defined":
+            errors.append(
+                f"Error: {self.parameter('name').value}, file_met must be defined.")
+        self._create_spaces_surfaces_list()
+        return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
@@ -409,3 +418,42 @@ class Building(Component):
                     self.surfaces[i].variable(
                         "T_s1").values[time_index] = self.TS_vector[i]
         return True
+
+    def draw_pyvista(self, opacity=1, coordinate_system="building", space="all"):
+        self._create_spaces_surfaces_list()
+        plot = pv.Plotter()
+        plot.add_axes_at_origin()
+        for surface in self.surfaces:
+            if space != "all":
+                if surface.parameter("type").value == "Interior_surface" or surface.parameter("type").value == "Virtual_interior_surface":
+                    is_my_space = surface.space(0).parameter(
+                        "name").value == space or surface.space(1).parameter("name").value == space
+                else:
+                    is_my_space = surface.space().parameter("name").value == space
+
+                if is_my_space:
+                    opa = opacity
+                else:
+                    opa = opacity * 0.25
+            else:
+                opa = opacity
+            polygon = surface.get_pyvista_polygon(coordinate_system)
+            faces = [len(polygon), *range(0, len(polygon))]
+            polygon_pyvista = pv.PolyData(polygon, faces)
+            if surface.parameter("type").value == "Opening":
+                plot.add_mesh(polygon_pyvista, color="blue",
+                              show_edges=True, opacity=opa)
+            elif surface.parameter("type").value == "Virtual_exterior_surface" or surface.parameter("type").value == "Virtual_interior_surface":
+                plot.add_mesh(polygon_pyvista, color="red",
+                              show_edges=True, opacity=opa*0.4)
+            elif surface.parameter("type").value == "Interior_surface":
+                plot.add_mesh(polygon_pyvista, color="gray",
+                              show_edges=True, opacity=opa)
+            elif surface.parameter("type").value == "Underground_surface":
+                plot.add_mesh(polygon_pyvista, color="brown",
+                              show_edges=True, opacity=opa)
+            else:
+                plot.add_mesh(polygon_pyvista,
+                              show_edges=True, opacity=opa)
+
+        plot.show(jupyter_backend="client")

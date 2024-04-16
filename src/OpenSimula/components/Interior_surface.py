@@ -9,12 +9,15 @@ class Interior_surface(Real_surface):
         self.parameter("type").value = "Interior_surface"
         self.parameter("description").value = "Building interior surface"
         self.add_parameter(Parameter_component_list(
-            "spaces", ["not_defined", "not_defined"], ["Spaces"]))
+            "spaces", ["not_defined", "not_defined"], ["Space"]))
         self.add_parameter(Parameter_float_list(
             "h_cv", [2, 2], "W/m²K", min=0))
 
     def building(self):
         return self.parameter("spaces").component[0].building()
+
+    def space(self, side=0):
+        return self.parameter("spaces").component[side]
 
     def check(self):
         errors = super().check()

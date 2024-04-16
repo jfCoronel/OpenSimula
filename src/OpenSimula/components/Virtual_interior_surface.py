@@ -15,6 +15,9 @@ class Virtual_interior_surface(Virtual_surface):
     def building(self):
         return self.parameter("spaces").component[0].building()
 
+    def space(self, side=0):
+        return self.parameter("spaces").component[side]
+
     def check(self):
         errors = super().check()
         # Test spaces defined

@@ -23,7 +23,12 @@ dependencies = [
   "scipy>=1.1",
   "py-expression-eval>=0.3.14",
   "shapely>=2.0.3",
-  "psychrolib>=2.5.0"
+  "psychrolib>=2.5.0",
+  "pyvista>=0.43.5",
+  "ipywidgets>=8.1.2",
+  "trame>=3.6.0",
+  "trame-vtk>=2.8.5",
+  "trame-vuetify>=2.4.3"
 ]
 
 [project.optional-dependencies]

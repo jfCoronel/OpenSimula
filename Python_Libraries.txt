@@ -6,6 +6,13 @@ In a clean python version:
 - py-expression-eval
 - shapely
 - psychrolib
+- pyvista
+- pyvista
+- ipywidgets
+- trame
+- trame-vtk
+- trame-vuetify
+
 
 For juputer:
 - notebook
@@ -14,4 +21,9 @@ For juputer:
 
 With Anaconda you must add:
 - py_expression_eval
-- psychrolib ?
+- psychrolib
+- pyvista
+- ipywidgets
+- trame
+- trame-vtk
+- trame-vuetify
