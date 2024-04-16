@@ -441,19 +441,18 @@ class Building(Component):
             faces = [len(polygon), *range(0, len(polygon))]
             polygon_pyvista = pv.PolyData(polygon, faces)
             if surface.parameter("type").value == "Opening":
-                plot.add_mesh(polygon_pyvista, color="blue",
-                              show_edges=True, opacity=opa)
+                color = "blue"
             elif surface.parameter("type").value == "Virtual_exterior_surface" or surface.parameter("type").value == "Virtual_interior_surface":
-                plot.add_mesh(polygon_pyvista, color="red",
-                              show_edges=True, opacity=opa*0.4)
+                color = "red"
+                opa = opa*0.4
             elif surface.parameter("type").value == "Interior_surface":
-                plot.add_mesh(polygon_pyvista, color="gray",
-                              show_edges=True, opacity=opa)
+                color = "green"
             elif surface.parameter("type").value == "Underground_surface":
-                plot.add_mesh(polygon_pyvista, color="brown",
-                              show_edges=True, opacity=opa)
+                color = "brown"
             else:
-                plot.add_mesh(polygon_pyvista,
-                              show_edges=True, opacity=opa)
+                color = None
+
+            plot.add_mesh(polygon_pyvista, color=color,
+                          show_edges=True, opacity=opa)
 
         plot.show(jupyter_backend="client")
