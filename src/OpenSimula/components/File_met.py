@@ -30,6 +30,10 @@ class File_met(Component):
         self.add_variable(Variable("wind_direction", unit="°"))
         self.add_variable(Variable("sol_azimuth", unit="°"))
         self.add_variable(Variable("sol_altitude", unit="°"))
+        self.add_variable(Variable("pressure", unit="Pa"))
+        self.add_variable(Variable("total_cloud_cover", unit="%"))
+        self.add_variable(Variable("opaque_cloud_cover", unit="%"))
+
         # Las variables leidas las guardamos en numpy arrays
         self.temperature = np.zeros(8760)
         self.sky_temperature = np.zeros(8760)
@@ -39,6 +43,9 @@ class File_met(Component):
         self.rel_humidity = np.zeros(8760)
         self.wind_speed = np.zeros(8760)
         self.wind_direction = np.zeros(8760)
+        self.pressure = np.zeros(8760)
+        self.total_cloud_cover = np.zeros(8760)
+        self.opaque_cloud_cover = np.zeros(8760)
 
     def check(self):
         errors = super().check()
@@ -76,6 +83,8 @@ class File_met(Component):
             self.rel_humidity[t] = float(valores[8])
             self.wind_speed[t] = float(valores[9])
             self.wind_direction[t] = float(valores[10])
+            # Atmosfera estándar con T = 20ºC
+            self.pressure[t] = 101325 * math.exp(-1.1654*self.altitude)
 
         self._T_average = np.average(self.temperature)
 
@@ -97,7 +106,10 @@ class File_met(Component):
             self.rel_humidity[t] = float(valores[37])
             self.wind_speed[t] = float(valores[46])
             self.wind_direction[t] = float(valores[43])
-            p = float(valores[40]) * 100  # milibar to Pa
+            self.pressure[t] = float(valores[40]) * 100  # milibar to Pa
+            self.total_cloud_cover[t] = float(valores[25])*10  # tenth to %
+            self.opaque_cloud_cover[t] = float(valores[28])*10  # tenth to %
+            p = self.pressure[t]
             self.abs_humidity[t] = sicro.GetHumRatioFromRelHum(
                 self.temperature[t], self.rel_humidity[t]/100, p)*1000
             if float(valores[2]) > 0:
@@ -141,6 +153,12 @@ class File_met(Component):
         self._interpolate("wind_direction", self.wind_direction,
                           time_index, i, j, f)
         self._interpolate("sky_temperature", self.sky_temperature,
+                          time_index, i, j, f)
+        self._interpolate("pressure", self.pressure,
+                          time_index, i, j, f)
+        self._interpolate("total_cloud_cover", self.total_cloud_cover,
+                          time_index, i, j, f)
+        self._interpolate("opaque_cloud_cover", self.opaque_cloud_cover,
                           time_index, i, j, f)
         # Corregir la directa si el sol no ha salido
         if (alt <= 0 and self.variable("sol_direct").values[time_index] > 0):
