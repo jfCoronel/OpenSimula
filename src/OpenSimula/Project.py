@@ -356,6 +356,7 @@ class Project(Parameter_container):
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
         )
         delta_t = self.parameter("time_step").value
+        date = date + + dt.timedelta(0, delta_t/2)  # Centered in the interval
 
         self._set_ordered_component_list_()
         self._pre_simulation_(n, delta_t)
@@ -410,6 +411,7 @@ class Project(Parameter_container):
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
         )
         delta_t = self.parameter("time_step").value
+        date = date + + dt.timedelta(0, delta_t/2)  # Centered in the interval
         array = np.empty(n, dtype=object)
 
         for i in range(n):

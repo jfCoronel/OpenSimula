@@ -24,6 +24,8 @@ class File_met(Component):
         self.add_variable(Variable("underground_temperature", unit="°C"))
         self.add_variable(Variable("rel_humidity", unit="%"))
         self.add_variable(Variable("abs_humidity", unit="g/kg"))
+        self.add_variable(Variable("dew_point_temp", unit="°C"))
+        self.add_variable(Variable("wet_bulb_temp", unit="°C"))
         self.add_variable(Variable("sol_direct", unit="W/m²"))
         self.add_variable(Variable("sol_diffuse", unit="W/m²"))
         self.add_variable(Variable("wind_speed", unit="m/s"))
@@ -39,7 +41,6 @@ class File_met(Component):
         self.sky_temperature = np.zeros(8760)
         self.sol_direct = np.zeros(8760)
         self.sol_diffuse = np.zeros(8760)
-        self.abs_humidity = np.zeros(8760)
         self.rel_humidity = np.zeros(8760)
         self.wind_speed = np.zeros(8760)
         self.wind_direction = np.zeros(8760)
@@ -79,7 +80,6 @@ class File_met(Component):
             self.sky_temperature[t] = float(valores[4])
             self.sol_direct[t] = float(valores[5])
             self.sol_diffuse[t] = float(valores[6])
-            self.abs_humidity[t] = float(valores[7])*1000
             self.rel_humidity[t] = float(valores[8])
             self.wind_speed[t] = float(valores[9])
             self.wind_direction[t] = float(valores[10])
@@ -110,8 +110,6 @@ class File_met(Component):
             self.total_cloud_cover[t] = float(valores[25])*10  # tenth to %
             self.opaque_cloud_cover[t] = float(valores[28])*10  # tenth to %
             p = self.pressure[t]
-            self.abs_humidity[t] = sicro.GetHumRatioFromRelHum(
-                self.temperature[t], self.rel_humidity[t]/100, p)*1000
             if float(valores[2]) > 0:
                 k_t = float(valores[4])/float(valores[2])
             else:
@@ -143,8 +141,6 @@ class File_met(Component):
         self._interpolate("temperature", self.temperature, time_index, i, j, f)
         self._interpolate("rel_humidity", self.rel_humidity,
                           time_index, i, j, f)
-        self._interpolate("abs_humidity", self.abs_humidity,
-                          time_index, i, j, f)
         self._interpolate("sol_direct", self.sol_direct, time_index, i, j, f)
         self._interpolate("sol_diffuse", self.sol_diffuse,
                           time_index, i, j, f)
@@ -165,6 +161,16 @@ class File_met(Component):
             self.variable(
                 "sol_diffuse").values[time_index] += self.variable("sol_direct").values[time_index]
             self.variable("sol_direct").values[time_index] = 0
+        # calculate the rest of the psychrometric variables with T, HR and p
+        T = self.variable("temperature").values[time_index]
+        HR = self.variable("rel_humidity").values[time_index]/100
+        p = self.variable("pressure").values[time_index]
+        self.variable("abs_humidity").values[time_index] = sicro.GetHumRatioFromRelHum(
+            T, HR, p)*1000
+        self.variable("dew_point_temp").values[time_index] = sicro.GetTDewPointFromRelHum(
+            T, HR)
+        self.variable("wet_bulb_temp").values[time_index] = sicro.GetTWetBulbFromRelHum(
+            T, HR, p)
 
     def _interpolate(self, variable, array, time_i, i, j, f):
         self.variable(
@@ -173,7 +179,7 @@ class File_met(Component):
     def _get_solar_interpolation_tuple_(self, datetime, solar_hour):
         day = datetime.timetuple().tm_yday  # Día del año
         # El primer valor es a las 00:30
-        index = solar_hour + (day-1)*24 - 0.5
+        index = solar_hour + (day-1)*24
         if index < 0:
             index = index + 8760
         elif index >= 8760:
@@ -187,7 +193,7 @@ class File_met(Component):
 
     def _get_local_interpolation_tuple_(self, date):
         # a las 0:30 del primer día
-        initial_date = dt.datetime(date.year, 1, 1, 0, 0)
+        initial_date = dt.datetime(date.year, 1, 1, 0, 30)
         seconds = (date-initial_date).total_seconds()
         index = seconds / 3600
         if index < 0:
@@ -321,7 +327,7 @@ class File_met(Component):
         sol_direct = self.variable("sol_direct").values[time_index]
         sol_altitude = self.variable("sol_altitude").values[time_index]
         if theta is not None:
-            return sol_direct * math.cos(theta) / math.cos(math.radians(sol_altitude))
+            return sol_direct * math.cos(theta) / math.sin(math.radians(sol_altitude))
         else:
             return 0
 

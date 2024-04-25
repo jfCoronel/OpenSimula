@@ -47,7 +47,7 @@ class Surface(Component):
                                self.parameter("y_polygon").value[i]])
             return Polygon(polygon).area
 
-    def orientation_angle(self, angle, side):
+    def orientation_angle(self, angle, side):  # exterior normal vector
         if angle == "azimuth":
             azi_building = self.building().parameter("azimuth").value
             az = self.parameter("azimuth").value + azi_building
