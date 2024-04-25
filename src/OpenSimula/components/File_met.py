@@ -156,8 +156,8 @@ class File_met(Component):
                           time_index, i, j, f)
         self._interpolate("opaque_cloud_cover", self.opaque_cloud_cover,
                           time_index, i, j, f)
-        # Corregir la directa si el sol no ha salido
-        if (alt <= 0 and self.variable("sol_direct").values[time_index] > 0):
+        # Corregir la directa si el sol no ha salido, y con alturas solares pequeñas
+        if (alt <= 1 and self.variable("sol_direct").values[time_index] > 0):
             self.variable(
                 "sol_diffuse").values[time_index] += self.variable("sol_direct").values[time_index]
             self.variable("sol_direct").values[time_index] = 0
@@ -213,12 +213,13 @@ class File_met(Component):
             datetime.hour + datetime.minute / 60 + datetime.second / 3600
         )  # hora local
 
-        daylight_saving = (
-            hours
-            + (day - 1) * 24
-            - (datetime.timestamp() - dt.datetime(datetime.year, 1, 1).timestamp())
-            / 3600
-        )
+        # daylight_saving = (
+        #    hours
+        #    + (day - 1) * 24
+        #    - (datetime.timestamp() - dt.datetime(datetime.year, 1, 1).timestamp())
+        #    / 3600
+        # )
+        daylight_saving = 0
         # Ecuación del tiempo en minutos Duffie and Beckmann
         B = math.radians((day - 1) * 360 / 365)
         ecuacion_tiempo = 229.2 * (
@@ -352,7 +353,7 @@ class File_met(Component):
                 math.sin(math.radians(surf_azimuth)) * math.cos(math.radians(surf_altitude)) + \
                 math.sin(math.radians(sol_altitude)) * \
                 math.sin(math.radians(surf_altitude))
-            if cos > 1E-10:
+            if cos > 1E-5:
                 return math.acos(cos)
             else:
                 return None
