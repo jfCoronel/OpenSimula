@@ -109,16 +109,8 @@ class File_met(Component):
             self.pressure[t] = float(valores[40]) * 100  # milibar to Pa
             self.total_cloud_cover[t] = float(valores[25])*10  # tenth to %
             self.opaque_cloud_cover[t] = float(valores[28])*10  # tenth to %
-            p = self.pressure[t]
-            if float(valores[2]) > 0:
-                k_t = float(valores[4])/float(valores[2])
-            else:
-                k_t = 0
-            p_v = sicro.GetVapPresFromRelHum(
-                self.temperature[t], self.rel_humidity[t]/100)
-            # Aubinet, 1994
-            self.sky_temperature[t] = 94 - 273.15 + 12.6 * \
-                math.log(p_v)-13*k_t+0.341*(self.temperature[t]+273.15)
+            self.sky_temperature[t] = self._t_sky_calculation(
+                self.temperature[t], self.rel_humidity[t], self.opaque_cloud_cover[t])
 
         self._T_average = np.average(self.temperature)
 
@@ -294,6 +286,24 @@ class File_met(Component):
         if math.cos(solar_angle) < bbb:
             cs = -cs
         return (cs, cw, cz)
+
+    def _t_sky_calculation(self, temp, rel_hum, opaque_cover):
+        """Caclulation of Sky Temperature using the Clark & Allen correlaton (1978) and the correlation of Walton (1983)
+
+        Args:
+            temp (_type_): _description_
+            rel_hum (_type_): _description_
+            opaque_cover (_type_): _description_
+        """
+        dp_temp = sicro.GetTDewPointFromRelHum(temp, rel_hum/100)
+        epsilon_clear = 0.787 + 0.764 * \
+            math.log((dp_temp+273.15)/273)  # Clark & Allen
+        N = opaque_cover/10  # opaque cover sky in tenths
+        epsilon = epsilon_clear*(1+0.0224*N-0.0035*N**2+0.00028*N**3)  # Walton
+        SIGMA = 5.6697E-8
+        ir = SIGMA * epsilon * (temp + 273.15)**4
+        t_sky = (ir/SIGMA)**0.25 - 273.15
+        return t_sky
 
     def sunrise_sunset(self, datetime):
         """Sunrise and sunset solar hour
