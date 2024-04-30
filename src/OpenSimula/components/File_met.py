@@ -333,6 +333,16 @@ class File_met(Component):
             )
 
     def solar_direct_rad(self, time_index, surf_azimuth, surf_altitude):
+        """Solar Direct radiation over surface
+
+        Args:
+            time_index (int): Simulation time index
+            surf_azimuth (float): Surface azimuth
+            surf_altitude (_type_): Surface altitude
+
+        Returns:
+            float: Solar direct radiation over surface (W/m^2)
+        """
         theta = self.solar_surface_angle(
             time_index, surf_azimuth, surf_altitude)
         sol_direct = self.variable("sol_direct").values[time_index]
@@ -341,6 +351,21 @@ class File_met(Component):
             return sol_direct * math.cos(theta) / math.sin(math.radians(sol_altitude))
         else:
             return 0
+
+    def solar_diffuse_rad(self, time_index, surf_azimuth, surf_altitude):
+        """Solar Diffuse radiation over surface
+        Isotropic diffuse Model
+
+        Args:
+            time_index (int): Simulation time index
+            surf_azimuth (float): Surface azimuth
+            surf_altitude (_type_): Surface altitude
+
+        Returns:
+            float: Solar diffuse radiation over surface (W/m^2)
+        """
+        sol_diffuse = self.variable("sol_diffuse").values[time_index]
+        return sol_diffuse * (1 + math.sin(math.radians(surf_altitude)))/2
 
     def solar_surface_angle(self, time_index, surf_azimuth, surf_altitude):
         """Relative angle between surface exterior normal and the sum

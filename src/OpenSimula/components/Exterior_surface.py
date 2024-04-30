@@ -1,6 +1,7 @@
 from OpenSimula.components.Real_surface import Real_surface
 from OpenSimula.Parameters import Parameter_component, Parameter_float_list
 from OpenSimula.Variable import Variable
+import math
 
 
 class Exterior_surface(Real_surface):
@@ -40,7 +41,8 @@ class Exterior_surface(Real_surface):
         self._file_met = self.building().parameter("file_met").component
         self._albedo = self.building().parameter("albedo").value
         self._T_ini = self.building().parameter("initial_temperature").value
-        self._F_sky = 0.5 + 0.5/90 * self.parameter("altitude").value
+        self._F_sky = (
+            1 + math.sin(math.radians(self.parameter("altitude").value)))/2
         self._create_openings_list()
         self._calculate_K()
 
@@ -68,8 +70,10 @@ class Exterior_surface(Real_surface):
         hor_sol_dif = self._file_met.variable("sol_diffuse").values[time_i]
         hor_sol_dir = self._file_met.variable("sol_direct").values[time_i]
         T_sky = self._file_met.variable("sky_temperature").values[time_i]
-        E_dif0 = self._F_sky * hor_sol_dif + \
-            (1-self._F_sky)*self._albedo*(hor_sol_dif+hor_sol_dir)
+        E_dif0 = self._file_met.solar_diffuse_rad(time_i, self.orientation_angle(
+            "azimuth", 0),  self.orientation_angle("altitude", 0))
+        E_dif0 = E_dif0 + (1-self._F_sky)*self._albedo * \
+            (hor_sol_dif+hor_sol_dir)
         self.variable("E_dif0").values[time_i] = E_dif0
         E_dir0 = self._file_met.solar_direct_rad(time_i, self.orientation_angle(
             "azimuth", 0),  self.orientation_angle("altitude", 0))
