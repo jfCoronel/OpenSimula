@@ -193,8 +193,8 @@ class Space(Component):
                 self.dsr_dist_vector[i] = 1/total_area
             self.ig_dist_vector[i] = 1/total_area
 
-    def pre_iteration(self, time_index, date):
-        super().pre_iteration(time_index, date)
+    def pre_iteration(self, time_index, date, daylight_saving):
+        super().pre_iteration(time_index, date, daylight_saving)
         self._calculate_solar_direct_gains(time_index)
 
         # People
@@ -243,8 +243,8 @@ class Space(Component):
 
         self.variable("solar_direct_gains").values[time_i] = solar_gain
 
-    def post_iteration(self, time_index, date):
-        super().post_iteration(time_index, date)
+    def post_iteration(self, time_index, date, daylight_saving, converged):
+        super().post_iteration(time_index, date, daylight_saving, converged)
         self._calculate_heat_fluxes(time_index)
         self._humidity_balance(time_index)
 

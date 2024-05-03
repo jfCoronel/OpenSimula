@@ -3,7 +3,7 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 from OpenSimula.Parameter_container import Parameter_container
-from OpenSimula.Parameters import Parameter_int, Parameter_string, Parameter_string_list
+from OpenSimula.Parameters import Parameter_int, Parameter_string, Parameter_string_list, Parameter_boolean
 from OpenSimula.components import *
 
 
@@ -28,6 +28,13 @@ class Project(Parameter_container):
         self.add_parameter(Parameter_int("n_time_steps", 8760, min=1))
         self.add_parameter(Parameter_string(
             "initial_time", "01/01/2001 00:00:00"))
+        self.add_parameter(Parameter_boolean("daylight_saving", False))
+        self.add_parameter(Parameter_string(
+            "daylight_saving_start_time", "25/03/2001 02:00:00"))
+        self.add_parameter(Parameter_string(
+            "daylight_saving_end_time", "28/10/2001 02:00:00"))
+        self.add_parameter(Parameter_int("n_max_iteration", 1000, min=1))
+
         self.add_parameter(
             Parameter_string_list(
                 "simulation_order",
@@ -326,6 +333,26 @@ class Project(Parameter_container):
             error = self._get_error_header_() + \
                 f"Initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
             errors.append(error)
+        # Check daylight saving dates
+        if (self.parameter("daylight_saving").value):
+            try:
+                dt.datetime.strptime(
+                    self.parameter(
+                        "daylight_saving_start_time").value, "%d/%m/%Y %H:%M:%S"
+                )
+            except ValueError:
+                error = self._get_error_header_() + \
+                    f"Initial_time: {self.parameter('daylight_saving_start_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+                errors.append(error)
+            try:
+                dt.datetime.strptime(
+                    self.parameter(
+                        "daylight_saving_end_time").value, "%d/%m/%Y %H:%M:%S"
+                )
+            except ValueError:
+                error = self._get_error_header_() + \
+                    f"Initial_time: {self.parameter('daylight_saving_end_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+                errors.append(error)
 
         self._set_ordered_component_list_()
         list = self._ordered_component_list_
@@ -356,7 +383,12 @@ class Project(Parameter_container):
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
         )
         delta_t = self.parameter("time_step").value
-        date = date + + dt.timedelta(0, delta_t/2)  # Centered in the interval
+        date = date + dt.timedelta(0, delta_t/2)  # Centered in the interval
+        if (self.parameter("daylight_saving").value):
+            date_dls_start = dt.datetime.strptime(self.parameter(
+                "daylight_saving_start_time").value, "%d/%m/%Y %H:%M:%S")
+            date_dls_end = dt.datetime.strptime(self.parameter(
+                "daylight_saving_end_time").value, "%d/%m/%Y %H:%M:%S")
 
         self._set_ordered_component_list_()
         self._pre_simulation_(n, delta_t)
@@ -371,12 +403,19 @@ class Project(Parameter_container):
                 self._sim_.print(str(int(show_percent)) +
                                  "% ", add_new_line=False)
                 show_percent = show_percent + 10.0
-            self._pre_iteration_(i, date)
+            daylight_saving = False
+            if (self.parameter("daylight_saving").value):
+                if (date > date_dls_start and date < date_dls_end):
+                    daylight_saving = True
+
+            self._pre_iteration_(i, date, daylight_saving)
             converge = False
-            while not converge:
-                if self._iteration_(i, date):
+            n_iter = 0
+            while (not converge and n_iter < self.parameter("n_max_iteration").value):
+                n_iter += 1
+                if self._iteration_(i, date, daylight_saving):
                     converge = True
-            self._post_iteration_(i, date)
+            self._post_iteration_(i, date, daylight_saving, converge)
             date = date + dt.timedelta(0, delta_t)
 
         self._sim_.print(" End")
@@ -390,20 +429,20 @@ class Project(Parameter_container):
         for comp in self._ordered_component_list_:
             comp.post_simulation()
 
-    def _pre_iteration_(self, time_index, date):
+    def _pre_iteration_(self, time_index, date, dayligth_saving):
         for comp in self._ordered_component_list_:
-            comp.pre_iteration(time_index, date)
+            comp.pre_iteration(time_index, date, dayligth_saving)
 
-    def _iteration_(self, time_index, date):
+    def _iteration_(self, time_index, date, dayligth_saving):
         converge = True
         for comp in self._ordered_component_list_:
-            if not comp.iteration(time_index, date):
+            if not comp.iteration(time_index, date, dayligth_saving):
                 converge = False
         return converge
 
-    def _post_iteration_(self, time_index, date):
+    def _post_iteration_(self, time_index, date, dayligth_saving, converged):
         for comp in self._ordered_component_list_:
-            comp.post_iteration(time_index, date)
+            comp.post_iteration(time_index, date, dayligth_saving, converged)
 
     def dates_array(self):
         n = self.parameter("n_time_steps").value

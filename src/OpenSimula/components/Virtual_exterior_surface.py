@@ -42,8 +42,8 @@ class Virtual_exterior_surface(Virtual_surface):
         self._F_sky = (
             1 + math.sin(math.radians(self.parameter("altitude").value)))/2
 
-    def pre_iteration(self, time_index, date):
-        super().pre_iteration(time_index, date)
+    def pre_iteration(self, time_index, date, daylight_saving):
+        super().pre_iteration(time_index, date, daylight_saving)
         self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_variables_pre_iteration(self, time_i):

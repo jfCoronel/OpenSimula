@@ -15,7 +15,7 @@ project = {
             "type": "File_met",
             "name": "denver",
             "file_type": "TMY3",
-            "file_name": "ashrae_140/WD100.tmy3"
+            "file_name": "examples/ashrae_140/WD100.tmy3"
         }
     ]
 }
@@ -30,9 +30,9 @@ def test_File_met_1h():
     t = p1.component("sevilla").variable("temperature").values
 
     assert len(hs) == 8760
-    assert hs[10] == pytest.approx(8.5533, 0.001)
-    assert t[10] == pytest.approx(13.591, 0.001)
-    assert hs[-1] == pytest.approx(21.5609, 0.001)
+    assert hs[10] == pytest.approx(9.053381, 0.001)
+    assert t[10] == pytest.approx(15.269, 0.001)
+    assert hs[-1] == pytest.approx(22.06089, 0.001)
 
 
 def test_File_met_15m():
@@ -46,6 +46,6 @@ def test_File_met_15m():
     t = p1.component("sevilla").variable("temperature").values
 
     assert len(hs) == 8760*4
-    assert hs[40] == pytest.approx(8.5533, 0.001)
-    assert t[40] == pytest.approx(13.591, 0.001)
-    assert hs[-4] == pytest.approx(21.5609, 0.001)
+    assert hs[40] == pytest.approx(8.67838, 0.001)
+    assert t[40] == pytest.approx(14.653, 0.001)
+    assert hs[-4] == pytest.approx(21.68589, 0.001)

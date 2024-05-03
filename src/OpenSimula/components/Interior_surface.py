@@ -39,8 +39,8 @@ class Interior_surface(Real_surface):
                   self.area * (self.a_1 - self.parameter("h_cv").value[1])]
         self.k_01 = self.area * self.a_01
 
-    def pre_iteration(self, time_index, date):
-        super().pre_iteration(time_index, date)
+    def pre_iteration(self, time_index, date, daylight_saving):
+        super().pre_iteration(time_index, date, daylight_saving)
         self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_variables_pre_iteration(self, time_i):
@@ -49,8 +49,8 @@ class Interior_surface(Real_surface):
         self.variable("p_0").values[time_i] = p_0
         self.variable("p_1").values[time_i] = p_1
 
-    def post_iteration(self, time_index, date):
-        super().post_iteration(time_index, date)
+    def post_iteration(self, time_index, date, daylight_saving, converged):
+        super().post_iteration(time_index, date, daylight_saving, converged)
         self._calculate_heat_fluxes(time_index)
 
     def _calculate_heat_fluxes(self, time_i):

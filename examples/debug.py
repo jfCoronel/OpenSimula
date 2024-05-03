@@ -15,7 +15,7 @@ project = {
             "type": "File_met",
             "name": "denver",
             "file_type": "TMY3",
-            "file_name": "examples/met_files/WD100.tmy3"
+            "file_name": "examples/ashrae_140/WD100.tmy3"
         }
     ]
 }

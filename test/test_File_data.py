@@ -18,7 +18,7 @@ project_dic = {
 
 def test_File_data_CSV():
     sim = osm.Simulation()
-    p1 = osm.Project("p1",sim)
+    p1 = osm.Project("p1", sim)
     p1.read_dict(project_dic)
     p1.simulate()
     t = p1.component("datas").variable("temperature").values
@@ -30,7 +30,7 @@ def test_File_data_CSV():
 
 def test_File_data_EXCEL():
     sim = osm.Simulation()
-    p1 = osm.Project("p1",sim)
+    p1 = osm.Project("p1", sim)
     p1.read_dict(project_dic)
     p1.component("datas").parameter("file_type").value = "EXCEL"
     p1.component("datas").parameter(
@@ -43,22 +43,26 @@ def test_File_data_EXCEL():
     assert t[0] == 15.1
     assert t[-1] == 13.6
 
+
 def test_File_data_CSV_2h():
     sim = osm.Simulation()
-    p1 = osm.Project("p1",sim)
+    p1 = osm.Project("p1", sim)
     p1.read_dict(project_dic)
-    p1.component("datas").set_parameters({"file_step":"OWN", "initial_time": "01/01/2001 00:00:00","time_step":7200}) 
+    p1.component("datas").set_parameters(
+        {"file_step": "OWN", "initial_time": "01/01/2001 00:30:00", "time_step": 7200})
     p1.simulate()
     t = p1.component("datas").variable("temperature").values
     assert len(t) == 48
     assert t[0] == 15.1
     assert t[1] == (14.6+15.1)/2
 
+
 def test_File_data_CSV_05h():
     sim = osm.Simulation()
-    p1 = osm.Project("p1",sim)
+    p1 = osm.Project("p1", sim)
     p1.read_dict(project_dic)
-    p1.component("datas").set_parameters({"file_step":"OWN", "initial_time": "01/01/2001 00:00:00","time_step":1800}) 
+    p1.component("datas").set_parameters(
+        {"file_step": "OWN", "initial_time": "01/01/2001 00:30:00", "time_step": 1800})
     p1.simulate()
     t = p1.component("datas").variable("temperature").values
 

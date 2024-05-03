@@ -142,7 +142,7 @@ class Component(Parameter_container):
     def post_simulation(self):
         pass
 
-    def pre_iteration(self, time_index, date):
+    def pre_iteration(self, time_index, date, daylight_saving):
         # Initilise all variables to 0
         for key, value in self.parameter_dict().items():
             # Copy variables in paramater_variable
@@ -156,10 +156,10 @@ class Component(Parameter_container):
                         self.variable(
                             value.symbol[i]).values[time_index] = value.variable[i].values[time_index]
 
-    def iteration(self, time_index, date):
+    def iteration(self, time_index, date, daylight_saving):
         return True
 
-    def post_iteration(self, time_index, date):
+    def post_iteration(self, time_index, date, daylight_saving, converged):
         pass
 
     def _repr_html_(self):

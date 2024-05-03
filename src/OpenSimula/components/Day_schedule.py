@@ -12,7 +12,8 @@ class Day_schedule(Component):
         Component.__init__(self, name, project)
         self.parameter("type").value = "Day_schedule"
         self.parameter("description").value = "Time schedule for a day"
-        self.add_parameter(Parameter_int_list("time_steps", [3600], "s", min=1))
+        self.add_parameter(Parameter_int_list(
+            "time_steps", [3600], "s", min=1))
         self.add_parameter(Parameter_float_list("values", [0, 10]))
         self.add_parameter(
             Parameter_options("interpolation", "STEP", ["STEP", "LINEAR"])
@@ -39,7 +40,7 @@ class Day_schedule(Component):
             )
         return errors
 
-    def pre_simulation(self, n_time_steps,delta_t):
+    def pre_simulation(self, n_time_steps, delta_t):
         # Create array of periods
         self._periods_ = [0]
         acumulated = 0

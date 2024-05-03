@@ -49,8 +49,8 @@ class Space_type(Component):
             self.aux_var_variable.append(
                 self.parameter("definition_variables").variable[i])
 
-    def pre_iteration(self, time_index, date):
-        super().pre_iteration(time_index, date)
+    def pre_iteration(self, time_index, date, daylight_saving):
+        super().pre_iteration(time_index, date, daylight_saving)
         # variables dictonary
         var_dic = {}
         for i in range(len(self.aux_var_symbol)):

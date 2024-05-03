@@ -49,7 +49,7 @@ project_dic = {
 
 def test_schedule_step():
     sim = osm.Simulation()
-    p1 = osm.Project("p1",sim)
+    p1 = osm.Project("p1", sim)
     p1.read_dict(project_dic)
     p1.simulate()
 
@@ -59,10 +59,23 @@ def test_schedule_step():
 
 def test_schedule_linear():
     sim = osm.Simulation()
-    p1 = osm.Project("p1",sim)
+    p1 = osm.Project("p1", sim)
     p1.read_dict(project_dic)
     p1.component("working_day").parameter("interpolation").value = "LINEAR"
     p1.simulate()
 
-    assert p1.component("year").variable("values").values[10] == 60.0
+    assert p1.component("year").variable("values").values[10] == 50.0
+    assert p1.component("year").variable("values").values[8759] == 0
+
+
+def test_daylight_savings():
+    sim = osm.Simulation()
+    p1 = osm.Project("p1", sim)
+    p1.read_dict(project_dic)
+    p1.parameter("daylight_saving").value = True
+    p1.simulate()
+
+    assert p1.component("year").variable("values").values[10] == 100
+    assert p1.component("year").variable(
+        "values").values[2095] == 100  # 29 marzo 7:30
     assert p1.component("year").variable("values").values[8759] == 0

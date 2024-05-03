@@ -76,8 +76,8 @@ class Opening(Component):
         self.k_01 = self.area / \
             self.parameter("opening_type").component.thermal_resistance()
 
-    def pre_iteration(self, time_index, date):
-        super().pre_iteration(time_index, date)
+    def pre_iteration(self, time_index, date, daylight_saving):
+        super().pre_iteration(time_index, date, daylight_saving)
         self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_variables_pre_iteration(self, time_i):
@@ -113,8 +113,8 @@ class Opening(Component):
             (- self.parameter("h_cv").value[0]
              * self._T_ext - h_rd * T_rm - q_sol)
 
-    def post_iteration(self, time_index, date):
-        super().post_iteration(time_index, date)
+    def post_iteration(self, time_index, date, daylight_saving, converged):
+        super().post_iteration(time_index, date, daylight_saving, converged)
         self._calculate_T_s0(time_index)
         self._calculate_heat_fluxes(time_index)
 

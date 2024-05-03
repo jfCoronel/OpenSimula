@@ -13,12 +13,12 @@ class Year_schedule(Component):
         self.add_parameter(Parameter_string_list("periods", ["01/06"]))
         self.add_parameter(
             Parameter_component_list(
-                "weeks_schedules", ["not_defined", "not_defined"], ["Week_schedule"]
+                "weeks_schedules", ["not_defined",
+                                    "not_defined"], ["Week_schedule"]
             )
         )
         # Create Variable
-        self.add_variable(Variable("values",""))
-
+        self.add_variable(Variable("values", ""))
 
     def check(self):
         errors = super().check()
@@ -45,15 +45,18 @@ class Year_schedule(Component):
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
-        super().pre_simulation(n_time_steps,delta_t)
-        
+        super().pre_simulation(n_time_steps, delta_t)
+
         # Create array of periods_days
         self._periods_days_ = []
         for period in self.parameter("periods").value:
             datetime = dt.datetime.strptime(period, "%d/%m")
             self._periods_days_.append(datetime.timetuple().tm_yday)
 
-    def pre_iteration(self, time_index, date):
+    def pre_iteration(self, time_index, date, daylight_saving):
+        super().pre_iteration(time_index, date, daylight_saving)
+        if daylight_saving:  # adding 1 h
+            date = date + dt.timedelta(0, 3600)
         self.variable("values").values[time_index] = self.get_value(date)
 
     def get_value(self, date):

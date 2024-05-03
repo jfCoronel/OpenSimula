@@ -243,8 +243,8 @@ class Building(Component):
         # KZS
         self.KZS_matrix = -1 * self.KSZ_matrix.transpose()
 
-    def pre_iteration(self, time_index, date):
-        super().pre_iteration(time_index, date)
+    def pre_iteration(self, time_index, date, daylight_saving):
+        super().pre_iteration(time_index, date, daylight_saving)
         self._calculate_Q_dir(time_index)
         self._calculate_Q_igsw(time_index)
         self._calculate_Q_iglw(time_index)
@@ -400,8 +400,8 @@ class Building(Component):
             np.matmul(self.KZS_matrix, np.matmul(
                 self.KS_inv_matrix, self.FS_vector))
 
-    def iteration(self, time_index, date):
-        super().iteration(time_index, date)
+    def iteration(self, time_index, date, daylight_saving):
+        super().iteration(time_index, date, daylight_saving)
         # Store TZ
         for i in range(len(self.spaces)):
             self.spaces[i].variable(
@@ -418,6 +418,10 @@ class Building(Component):
                     self.surfaces[i].variable(
                         "T_s1").values[time_index] = self.TS_vector[i]
         return True
+
+    def post_iteration(self, time_index, date, daylight_saving, converged):
+        super().post_iteration(time_index, date, daylight_saving, converged)
+        # When not converged .... ?
 
     def draw_pyvista(self, opacity=1, coordinate_system="building", space="all"):
         self._create_spaces_surfaces_list()

@@ -59,6 +59,7 @@ class File_met(Component):
             )
             return errors
         with f:
+            sicro.SetUnitSystem(sicro.SI)
             if self.parameter("file_type").value == "MET":
                 self._read_met_file(f)
             elif self.parameter("file_type").value == "TMY3":
@@ -84,12 +85,11 @@ class File_met(Component):
             self.wind_speed[t] = float(valores[9])
             self.wind_direction[t] = float(valores[10])
             # Atmosfera estándar con T = 20ºC
-            self.pressure[t] = 101325 * math.exp(-1.1654*self.altitude)
+            self.pressure[t] = 101325 * math.exp(-1.1654e-4*self.altitude)
 
         self._T_average = np.average(self.temperature)
 
     def _read_tmy3_file(self, f):
-        sicro.SetUnitSystem(sicro.SI)
         line = f.readline()
         valores = line.split(",")
         self.latitude = float(valores[4])
@@ -117,7 +117,8 @@ class File_met(Component):
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
 
-    def pre_iteration(self, time_index, date):
+    def pre_iteration(self, time_index, date, daylight_saving):
+        super().pre_iteration(time_index, date, daylight_saving)
         solar_hour = self._solar_hour_(date)
         azi, alt = self.solar_pos(date, solar_hour)
         self.variable("sol_hour").values[time_index] = solar_hour
