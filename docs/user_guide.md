@@ -20,20 +20,22 @@ import OpenSimula as osm
 sim = osm.Simulation()
 </code></pre>
 
-The simulation object will be used to create and manage the different projects. To create a new project in our simulation environment we will use the `Project(name, sim)` function. the project name is stored in a parameter that can be changed later.
+The simulation object will be used to create and manage the different projects. To create a new project in our simulation environment we will use the `new_project(name)` function. the project name is stored in a parameter of the project that can be changed later.
 
 <pre><code class="python">
 import OpenSimula as osm
 
 sim = osm.Simulation()
-pro = osm.Project("Project 1",sim)
+pro = sim.new_project("Project 1")
 </code></pre>
 
 #### Simulation functions
 
+- **new_project(name)**: Create a new project in our simulation environment, with name parameter "name".
 - **del_project(pro)**: Deletes the "pro" project.
 - **project(name)**: Returns the project with name parameter "name". Returns "None" if not found.
 - **project_list()**: Returns the list of projects in simulation environment.
+- **project_dataframe ()**: Returns pandas DataFrame with all the projects and its parameters as columns.
 
 ### Projects
 
@@ -46,6 +48,10 @@ Projects contain a set of components defining a case that can be temporarily sim
 - **time_step** [_int_, unit = "s", default = 3600, min = 1]: Time step in seconds used for simulation. 
 - **n_time_steps** [_int_, default = 8760, min = 1]: Number of time steps to simulate. 
 - **initial_time** [_string_, default = "01/01/2001 00:00:00"]: Initial simulation time with format "DD/MM/YYYY hh:mm:ss".
+- **daylight_saving** [_boolean_, default = False]: Taking into account daylight saving time in the simulation. If its value is False, the whole simulation is performed in winter time without daylight saving. If True, the daylight saving time change will be taken into account, mainly in the components that define schedules.
+- **daylight_saving_start_time** [_string_, default = "25/03/2001 02:00:00"]: daylight saving start time, with format "DD/MM/YYYY hh:mm:ss". It will only be used if the daylight_saving parameter is set to True.
+- **daylight_saving_end_time** [_string_, default = "28/10/2001 02:00:00"]: daylight saving start time, time with format "DD/MM/YYYY hh:mm:ss". It will only be used if the daylight_saving parameter is set to True.
+- **n_max_iteration** [_int_, default = 1000, min = 1]: Maximum number of iterations in each time step. If after this number of iterations the instant has not converged, it is passed to the next time instant. 
 - **simulation_order** [_string-list_, default = [
                     "File_data",
                     "File_met",
@@ -53,7 +59,19 @@ Projects contain a set of components defining a case that can be temporarily sim
                     "Week_schedule",
                     "Year_schedule",
                     "Material",
-                    "Construction"
+                    "Glazing",
+                    "Frame",
+                    "Construction",
+                    "Opening_type",
+                    "Space_type",
+                    "Exterior_surface",
+                    "Virtual_exterior_surface",
+                    "Underground_surface",
+                    "Interior_surface",
+                    "Virtual_interior_surface",
+                    "Opening",
+                    "Space",
+                    "Building"
                 ]]: Order used for the types of components in the simulation loops.
 
 Example of project for the simulation of the first week of june with 15 min time step.
@@ -62,7 +80,7 @@ Example of project for the simulation of the first week of june with 15 min time
 import OpenSimula as osm
 
 sim = osm.Simulation()
-pro = osm.Project("Project one", sim)
+pro = sim.new_project("Project one")
 pro.parameter("description").value = "Project example"
 pro.parameter("time_step").value = 60*15
 pro.parameter("n_time_steps").value = 24*4*7
@@ -75,7 +93,7 @@ Project and component parameters can be changed one by one or in bulk using a di
 import OpenSimula as osm
 
 sim = osm.Simulation()
-pro = osm.Project("Project one",sim)
+pro = sim.new_project("Project one")
 param = {
     "description": "Project example",
     "time_step": 60*15,
@@ -87,19 +105,23 @@ pro.set_parameters(param)
 
 #### Project functions
 
-- **simulation ()**: Returns de simulation enviroment.
-- **set_parameters (dict)**: Change project parameters using python dictonary.
-- **del_component (comp)**: Deletes the "comp" component.
-- **component (name)**: Returns the component with name parameter "name". Returns "None" if not found.
-- **component_list ()**: Returns the list of components of the project.
-- **read_dict (dict)**: Read python dictonary "dict" with the parameters of the project and a list of component to create. See [Getting started](getting_started.md) for definition dictonary example. After reading the dictonary check() function is executed.
-- **read_json (file)**: Read json file to define the project. Json file must have the format used for dictionaries in the read_dic function. After reading the file check() function is executed.
-- **write_dict ()**: Return python dictonary with the definition of the project. The default values of the parameters are written explicitly. 
-- **write_json (file)**: Write json file that define the project. The written json file is exactly the same as the dictionary generated by the "write_dict" function.
-- **component_dataframe ()**: Returns pandas DataFrame with the components of the project.
-- **check ()**: Returns the list of errors after checking all the components. All the errors returned are also printed.
-- **simulate ()**: Perform the time simulation of the project, calculating all the varibles of the components
-- **dates_array ()**: Returns numpy array with the date of each simulation instant.
+- **simulation()**: Returns de simulation enviroment.
+- **set_parameters(dict)**: Change project parameters using python dictonary.
+- **new_component(type, name)**: Creates a new component of the type specified in the first argument and with the name of the second argument.
+- **del_component(comp)**: Deletes the "comp" component.
+- **component(name)**: Returns the component with name parameter "name". Returns "None" if not found.
+- **component_list()**: Returns the list of components of the project.
+- **read_dict(dict)**: Read python dictonary "dict" with the parameters of the project and a list of component to create. See [Getting started](getting_started.md) for definition dictonary example. After reading the dictonary check() function is executed.
+- **read_json(file)**: Read json file to define the project. Json file must have the format used for dictionaries in the read_dic function. After reading the file check() function is executed.
+- **write_dict()**: Return python dictonary with the definition of the project. The default values of the parameters are written explicitly. 
+- **write_json(file)**: Write json file that define the project. The written json file is exactly the same as the dictionary generated by the "write_dict" function.
+- **component_dataframe()**: Returns pandas DataFrame with the components of the project.
+- **check()**: Returns the list of errors after checking all the components. All the errors returned are also printed.
+- **simulate()**: Perform the time simulation of the project, calculating all the varibles of the components
+- **dates_array()**: Returns numpy array with the date of each simulation instant, using winter time without daylight saving.
+
+the first simulation instant is the initial_time plus 1/2 of the time_step. For example, if initial_time = “01/01/2001 00:00:00” and time_step = 3600, then the first simulation instant is: “01/01/2001 00:30:00”, the second: “01/01/2001 01:30:00”, and so on. 
+
 
 ## Components
 
@@ -110,27 +132,27 @@ As an example, we will see how to create three different types of components and
 <pre><code class="python">
 ...
 
-working_day = osm.components.Day_schedule("working_day",pro)
+working_day = pro.new_component("Day_schedule","working_day")
 param = {
     "time_steps": [8*3600, 5*3600, 2*3600, 4*3600],
     "values": [0, 100, 0, 80, 0]
 }
 working_day.set_parameters(param)
 
-holiday_day = osm.components.Day_schedule("holiday_day",pro)
+holiday_day = pro.new_component("Day_schedule","holiday_day")
 param = {
     "time_steps": [],
     "values": [0]
 }
 holiday_day.set_parameters(param)
 
-week = osm.components.Week_schedule("week",pro)
+week = pro.new_component("Week_schedule","week")
 param = {
     "days_schedules": ["working_day","working_day","working_day","working_day","working_day","holiday_day","holiday_day"]
 }
 week.set_parameters(param)
 
-year = osm.components.Year_schedule("year",pro)
+year = pro.new_component("Year_schedule","year")
 param = {
     "periods": [],
     "weeks_schedules": ["week"]
@@ -138,7 +160,7 @@ param = {
 year.set_parameters(param)
 </code></pre>
 
-To create the components we use the objects included in the OpenSimula.components package. For example, to create a Day_schedule we will use `osm.components.Day_schedule("name", pro)`. Where the first argument is the name of the component and the second the project where we want to create it.
+To create the components we use project "new_component" function. For example, to create a Day_schedule we will use `pro.new_component("Day_schedule","name")`. Where the first argument is the type of component and the second the name of the component.
 
 After creating the components we can modify any of their parameters.
 

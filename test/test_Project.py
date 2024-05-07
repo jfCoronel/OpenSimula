@@ -45,7 +45,7 @@ p2_dic = {
 
 def test_project_parameters():
     sim = osm.Simulation()
-    p1 = osm.Project("Project 1", sim)
+    p1 = sim.new_project("Project 1")
     p1.parameter("description").value = "Project 1 description"
 
     assert p1.simulation() == sim
@@ -55,9 +55,9 @@ def test_project_parameters():
 
 def test_managing_components():
     sim = osm.Simulation()
-    p1 = osm.Project("Project 1", sim)
+    p1 = sim.new_project("Project 1")
 
-    m1 = osm.components.Material("Material 1", p1)
+    m1 = p1.new_component("Material", "Material 1")
     m1.parameter("density").value = 900
     assert p1.component("Material 1") == m1
     assert p1.component("Material 1").parameter("density").value == 900
@@ -65,7 +65,7 @@ def test_managing_components():
 
 def test_load_from_dict():
     sim = osm.Simulation()
-    p1 = osm.Project("p1", sim)
+    p1 = sim.new_project("p1")
     p1.read_dict(p1_dic)
 
     assert len(p1.component_list()) == 2
@@ -83,9 +83,9 @@ def test_load_from_dict():
 
 def test_load_from_dic_two_projects():
     sim = osm.Simulation()
-    p1 = osm.Project("p1", sim)
+    p1 = sim.new_project("p1")
     p1.read_dict(p1_dic)
-    p2 = osm.Project("p2", sim)
+    p2 = sim.new_project("p2")
     p2.read_dict(p2_dic)
 
     comp_ref = p2.component("comp 3").parameter("component").component
@@ -96,9 +96,9 @@ def test_load_from_dic_two_projects():
 
 def test_load_from_json_files():
     sim = osm.Simulation()
-    p1 = osm.Project("p1", sim)
+    p1 = sim.new_project("p1")
     p1.read_json("examples/input_files/test_project_1.json")
-    p2 = osm.Project("p2", sim)
+    p2 = sim.new_project("p2")
     p2.read_json("examples/input_files/test_project_2.json")
 
     comp_ref = p2.component("comp 3").parameter("component").component
@@ -109,7 +109,7 @@ def test_load_from_json_files():
 
 def test_write_to_dict_json_file():
     sim = osm.Simulation()
-    p1 = osm.Project("p1", sim)
+    p1 = sim.new_project("p1")
     p1.read_dict(p1_dic)
     dic_p1 = p1.write_dict()
     assert dic_p1["name"] == "project 1"
@@ -117,6 +117,6 @@ def test_write_to_dict_json_file():
     assert dic_p1["components"][0]["name"] == "comp 1"
     p1.write_json("examples/input_files/test_project_1_written.json")
 
-    p2 = osm.Project("p2", sim)
+    p2 = sim.new_project("p2")
     p2.read_dict(p2_dic)
     p2.write_json("examples/input_files/test_project_2_written.json")

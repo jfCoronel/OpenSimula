@@ -5,13 +5,14 @@
 component used to read and manage weather files. Creating the necessary weather variables to be used by other components.
 
 #### Parameters
-- **file_name** [_string_, default = "name.met"]: Name of the weather file containing the data. The file must be in MET format. [.MET format (CTE documentation)](https://www.codigotecnico.org/pdf/Documentos/HE/20170202-DOC-DB-HE-0-Climas%20de%20referencia.pdf)
+- **file_type** [_option_, default = "MET", options = ["MET","TMY3"]]: Weather file type. "MET": MET format. [.MET format (CTE documentation)](https://www.codigotecnico.org/pdf/Documentos/HE/20170202-DOC-DB-HE-0-Climas%20de%20referencia.pdf). "TMY3" TMY3 format [TMY format description](https://www.nrel.gov/docs/fy08osti/43156.pdf)
+- **file_name** [_string_, default = "name.met"]: Name of the weather file containing the data. 
 
 **Example:**
 <pre><code class="python">
 ...
 
-met = osm.components.File_met("met",pro)
+met = pro.new_component("File_met","met")
 met.parameter("file_name").value = "examples/met_files/sevilla.met"
 </code></pre>
 
@@ -19,17 +20,23 @@ To generate the variables in the simulation time step, the values are obtained b
 
 #### Variables
 - **temperature** [°C]: Dry bulb temperature.
-- **sky_temperature** [°C]: Sky temperature, for radiant heat exchange.
+- **sky_temperature** [°C]: Sky temperature, for radiant heat exchange (read from MET files, calculated in TMY3 files).
 - **underground_temperature** [°C]: Ground temperature, to be used as the temperature imposed on the outer surface of the enclosures in contact with the ground (currently not read from the file, it is calculated as the annual average air temperature).
-- **abs_humidity** [g/kg]: Air relative hunidity.
-- **rel_humidity** [%]: Air relative hunidity.
-- **sol_hour** [h]: Solar hour of the day.
+- **abs_humidity** [g/kg]: Air relative humidity (calculated).
+- **rel_humidity** [%]: Air relative humidity.
+- **dew_point_temp** [°C]: Dew point air temperature (calculated).
+- **wet_bulb_temp** [°C]: Wet bulb air temperature (calculated).
+- **sol_hour** [h]: Solar hour of the day (calculated).
 - **sol_direct** [W/m²]: Direct solar irradiance over horizontal surface.
 - **sol_diffuse** [W/m²]: Diffuse solar irradiance over horizontal surface.
-- **sol_azimut** [°]: Solar azimut (degrees from south: E-, W+).
-- **sol_altitude** [°]: Solar altitude (degrees).
+- **sol_azimut** [°]: Solar azimut (degrees from south: E-, W+) (calculated).
+- **sol_altitude** [°]: Solar altitude (degrees) (calculated).
 - **wind_speed** [m/s]: Wind speed.
 - **wind_direction** [W/m²]: Wind direction (degrees from north: E+, W-).
+- **pressure** [Pa]: Ambient absolute pressure (read from TMY3 files, calculated using sstandard atmosphere for MET files).
+- **total_cloud_cover** [%]:  Percentage of the sky covered by all the visible clouds (read from TMY3 files, 0 for MET files).
+- **opaque_cloud_cover** [%]: Percentage of the sky covered, used for infrared radiation an sky temperature estimation (read from TMY3 files, 0 for MET files).
+
 
 ### File_data
 
@@ -44,13 +51,15 @@ Component to read temporary data files and use them as simulation variables.
 
 If we use the "SIMULATION" option of the "file_step" parameter and the number of data in the file is less than the number of time steps during the simulation, to obtain the variables we will go back to the beginning of the data file each time the end of the file is reached.
 
+the first simulation instant is the initial_time plus 1/2 of the time_step. For example, if initial_time = “01/01/2001 00:00:00” and time_step = 3600, then the first simulation instant is: “01/01/2001 00:30:00”, the second: “01/01/2001 01:30:00”, and so on. 
+
 If we use the "OWN" option of the "file_step" parameter and the simulated time instant is before or after the time instants collected in the file, the first value will be taken if it is before and the last one if it is after. Otherwise a linear interpolation will be performed to obtain the values of each of the simulation steps.
 
 **Example:**
 <pre><code class="python">
 ...
 
-datas = osm.components.File_dat("datas",pro)
+datas = osm.new_component("File_dat","datas")
 param = {
     "file_name": "examples/input_files/data_example.csv",
     "file_type": "CSV",

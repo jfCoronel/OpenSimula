@@ -86,7 +86,7 @@ To simulate this project that we have defined, we first import the OpenSimula pa
 import OpenSimula as osm
 
 sim = osm.Simulation()
-pro = osm.Project("pro",sim)
+pro = sim.new_project("pro")
 pro.read_dict(project_dic)
 pro.simulate()
 </code></pre>

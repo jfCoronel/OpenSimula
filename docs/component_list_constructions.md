@@ -15,7 +15,7 @@ Component to describe the thermal characteristics of the materials used in the e
 <pre><code class="python">
 ...
 
-material = osm.components.Material("concrete",project)
+material = pro.new_component("Material","concrete")
 param = {
     "conductivity": 1.95,
     "density": 2240,
@@ -39,7 +39,7 @@ Component to describe the composition of the different layers (Material componen
 <pre><code class="python">
 ...
 
-construction = osm.components.Construction("Multilayer wall",project)
+construction = pro.new_component("Construction","Multilayer wall")
 param = {
     "solar_alpha": [0.8, 0.8],
     "materials": ["Gypsum board","EPS board","Heavyweight concrete","EPS board","Stucco"],
@@ -80,7 +80,7 @@ The following pictures show the solar reflectance and (1- solar reflectance) of 
 <pre><code class="python">
 ...
 
-glazing = osm.components.Glazing("Double_glazing",project)
+glazing = pro.new_component("Glazing","Double_glazing")
 param = {
     "solar_tau": 0.731,
     "solar_rho": [0.133,0.133],
@@ -105,7 +105,7 @@ Component to describe the thermal properties of frames used in Opening_types.
 <pre><code class="python">
 ...
 
-frame = osm.components.Frame("metal_frame",project)
+frame = pro.new_component("Frame","metal_frame")
 param = {
     "solar_alpha": [0.6, 0.6],
     "thermal_resistance": 0.35
@@ -130,7 +130,7 @@ if the glazing_fraction plus the frame_fraction is less than 1 the rest of the a
 <pre><code class="python">
 ...
 
-double_glazed_window = osm.components.Opening_type("double_glazed_window",project)
+double_glazed_window = pro.new_component("Opening_type","double_glazed_window")
 param = {
     "glazing": "double_glazing",
     "frame": "wood_frame",

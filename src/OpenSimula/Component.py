@@ -13,7 +13,6 @@ class Component(Parameter_container):
         self.add_parameter(Parameter_string("type", "Component"))
         self.parameter("name").value = name
         self.parameter("description").value = "Description of the component"
-        proj._add_component_(self)
         self._project_ = proj
 
     def project(self):

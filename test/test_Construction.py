@@ -80,7 +80,7 @@ project_dic = {
 
 def test_walls_1h():
     sim = osm.Simulation()
-    pro = osm.Project("Constructions test", sim)
+    pro = sim.new_project("Constructions test")
     pro.read_dict(project_dic)
     pro.simulate()
 
@@ -105,7 +105,7 @@ def test_walls_1h():
 
 def test_walls_15min():
     sim = osm.Simulation()
-    pro = osm.Project("Constructions test", sim)
+    pro = sim.new_project("Constructions test")
     pro.read_dict(project_dic)
     pro.parameter("time_step").value = 60*15
     pro.simulate()

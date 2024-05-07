@@ -13,7 +13,7 @@ Component used for simple definition of daily variation of a value.
 <pre><code class="python">
 ...
 
-day = osm.components.Day_schedule("day",project)
+day = pro.new_component("Day_schedule","day")
 param = {
     "time_steps": [7200,3600],
     "values": [10,20,15],
@@ -42,7 +42,7 @@ Component used for simple definition of week variation of a value. It uses to Da
 <pre><code class="python">
 ...
 
-week = osm.components.Week_schedule("week",project)
+week = pro.new_component("Week_schedule","week")
 param = {
     "days_schedules": ["working_day","working_day","working_day","working_day","working_day","holiday_day","holiday_day"]
 }
@@ -64,7 +64,7 @@ The begining of the first period is "01/01" and the end of the last period "31/1
 <pre><code class="python">
 ...
 
-year = osm.components.Year_schedule("year",pro)
+year = pro.new_component("Year_schedule","year")
 param = {
     "periods": ["31/07","31/08"],
     "weeks_schedules": ["working_week","holiday_week","working_week"]
@@ -76,4 +76,6 @@ The Week_schedule called "holiday_week" will be used for August and "working_wee
 
 #### Variables
 - **values**: values obtained using year, weeks and days schedules for each of the simulation time steps.
+
+If the project to be simulated has the daylight_saving parameter activated, summer time will be taken into account when obtaining the hourly values by shifting the values by one hour during the daylight saving period.
 

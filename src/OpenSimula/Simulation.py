@@ -1,3 +1,7 @@
+from OpenSimula.Project import Project
+import pandas as pd
+
+
 class Simulation:
     """Simulation environment object for handling projects and print messages"""
 
@@ -7,14 +11,19 @@ class Simulation:
         self._messages_ = []
         self._new_line_ = True
 
-    def _add_project_(self, project):
-        """Add project to Simulation
+    def new_project(self, project_name):
+        """Create new project in the Simulation
 
         Args:
-            project (Project): Project to be added to the simulation environment
+            project_name (string): Name of the project to be added to the simulation environment
         """
-        project._simulation_ = self
-        self._projects_.append(project)
+        if self.project(project_name) == None:
+            pro = Project(project_name, self)
+            self._projects_.append(pro)
+            return pro
+        else:
+            self.print("Error: There is already a project named: "+project_name)
+            return None
 
     def del_project(self, project):
         """Delete project from Simulation
@@ -46,11 +55,22 @@ class Simulation:
         """
         return self._projects_
 
+    def project_dataframe(self):
+        data = pd.DataFrame()
+        pro_list = self.project_list()
+        parameters = []
+        if len(pro_list) > 0:
+            for key, par in pro_list[0]._parameters_.items():
+                parameters.append(key)
+                param_array = []
+                for pro in pro_list:
+                    param_array.append(pro.parameter(key).value)
+                data[key] = param_array
+        return data
+
     def _repr_html_(self):
         html = "<h3>Simulation projects:</h3><ul>"
-        for p in self._projects_:
-            html += f"<li>{p.parameter('name').value}</li>"
-        html += "</ul>"
+        html += self.project_dataframe().to_html()
         return html
 
     def print(self, message, add_new_line=True):

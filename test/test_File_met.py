@@ -23,7 +23,7 @@ project = {
 
 def test_File_met_1h():
     sim = osm.Simulation()
-    p1 = osm.Project("p1", sim)
+    p1 = sim.new_project("p1")
     p1.read_dict(project)
     p1.simulate()
     hs = p1.component("sevilla").variable("sol_hour").values
@@ -37,7 +37,7 @@ def test_File_met_1h():
 
 def test_File_met_15m():
     sim = osm.Simulation()
-    p1 = osm.Project("p1", sim)
+    p1 = sim.new_project("p1")
     p1.read_dict(project)
     p1.parameter("time_step").value = 15*60
     p1.parameter("n_time_steps").value = 8760*4

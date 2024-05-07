@@ -61,17 +61,8 @@ class Project(Parameter_container):
                 ],
             )
         )
-        sim._add_project_(self)
+        self._sim_ = sim
         self._components_ = []
-
-    def _add_component_(self, component):
-        """Add component to Project
-
-        Args:
-            component (Component): Component to be added to the project
-        """
-        component._project_ = self
-        self._components_.append(component)
 
     def del_component(self, component):
         """Delete component from Project
@@ -133,10 +124,11 @@ class Project(Parameter_container):
                 data[param] = param_array
         return data
 
-    def _new_component_(self, type, name):
+    def new_component(self, type, name):
         try:
             clase = globals()[type]
             comp = clase(name, self)
+            self._components_.append(comp)
             return comp
         except KeyError:
             return None
@@ -152,7 +144,7 @@ class Project(Parameter_container):
                         name = component["type"]+"_X"
                         if "name" in component:
                             name = component["name"]
-                        comp = self._new_component_(component["type"], name)
+                        comp = self.new_component(component["type"], name)
                         if comp == None:
                             msg = self._get_error_header_(
                             ) + f'Component type {component["type"]} does not exist.'
