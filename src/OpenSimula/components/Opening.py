@@ -18,6 +18,7 @@ class Opening(Component):
         self.add_parameter(Parameter_float_list("ref_point", [0, 0], "m"))
         self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
         self.add_parameter(Parameter_float("height", 1, "m", min=0.0))
+        self.add_parameter(Parameter_float("setback", 0, "m", min=0.0))
         self.add_parameter(Parameter_float_list(
             "h_cv", [19.3, 2], "W/m²K", min=0))
 
@@ -28,6 +29,7 @@ class Opening(Component):
         self.add_variable(Variable("T_rm", "°C"))
         self.add_variable(Variable("E_dir0", "W/m²"))
         self.add_variable(Variable("E_dif0", "W/m²"))
+        self.add_variable(Variable("f_setback", "ratio"))
         self.add_variable(Variable("q_sol_dir_trans", "W/m²"))
         self.add_variable(Variable("q_sol_01", "W/m²"))
         self.add_variable(Variable("q_sol_10", "W/m²"))
@@ -85,12 +87,20 @@ class Opening(Component):
         surface = self.parameter("surface").component
         self.variable("E_dif0").values[time_i] = surface.variable(
             "E_dif0").values[time_i]
-        self.variable("E_dir0").values[time_i] = surface.variable(
-            "E_dir0").values[time_i]
         self.variable("T_rm").values[time_i] = surface.variable(
             "T_rm").values[time_i]
         theta = self._file_met.solar_surface_angle(time_i, surface.orientation_angle(
             "azimuth", 0), surface.orientation_angle("altitude", 0))
+        # Setback shadow
+        if (theta is not None and self.parameter("setback").value > 0):
+            f_setback = self._f_setback_(time_i, surface.orientation_angle(
+                "azimuth", 0), surface.orientation_angle(
+                "altitude", 0))
+        else:
+            f_setback = 1
+        self.variable("f_setback").values[time_i] = f_setback
+        self.variable("E_dir0").values[time_i] = surface.variable(
+            "E_dir0").values[time_i] * f_setback
         q_sol = self.radiant_property(
             "alpha", "solar_diffuse", 0) * self.variable("E_dif0").values[time_i]
         q_sol_01 = self.radiant_property(
@@ -112,6 +122,21 @@ class Opening(Component):
         self.f_0 = self.area * \
             (- self.parameter("h_cv").value[0]
              * self._T_ext - h_rd * T_rm - q_sol)
+
+    def _f_setback_(self, time_i, azimuth_sur, altitude_sur):
+        theta_h = math.fabs(self._file_met.variable(
+            "sol_azimuth").values[time_i] - azimuth_sur)
+        f_shadow_h = self.parameter(
+            "setback").value*math.tan(math.radians(theta_h)) / self.parameter("width").value
+        if f_shadow_h > 1:
+            f_shadow_h = 1
+        theta_v = math.fabs(self._file_met.variable(
+            "sol_altitude").values[time_i] - altitude_sur)
+        f_shadow_v = self.parameter(
+            "setback").value*math.tan(math.radians(theta_v))/self.parameter("height").value
+        if f_shadow_v > 1:
+            f_shadow_v = 1
+        return (1-f_shadow_h)*(1-f_shadow_v)
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
