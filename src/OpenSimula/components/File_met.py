@@ -119,8 +119,10 @@ class File_met(Component):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        solar_hour = self._solar_hour_(date)
-        azi, alt = self.solar_pos(date, solar_hour)
+        # solar_hour = self._solar_hour_(date)
+        # azi, alt = self.solar_pos(date, solar_hour)
+        azi, alt, solar_hour = self.sunpos(
+            date, self.latitude, self.longitude, self.reference_time_longitude/15)
         self.variable("sol_hour").values[time_index] = solar_hour
         self.variable("sol_azimuth").values[time_index] = azi
         self.variable("sol_altitude").values[time_index] = alt
@@ -200,94 +202,6 @@ class File_met(Component):
         f = index - i
         return (i, j, f)
 
-    def _solar_hour_(self, datetime):  # Hora solar
-        day = datetime.timetuple().tm_yday  # Día del año
-        hours = (
-            datetime.hour + datetime.minute / 60 + datetime.second / 3600
-        )  # hora local
-
-        # daylight_saving = (
-        #    hours
-        #    + (day - 1) * 24
-        #    - (datetime.timestamp() - dt.datetime(datetime.year, 1, 1).timestamp())
-        #    / 3600
-        # )
-        daylight_saving = 0
-        # Ecuación del tiempo en minutos Duffie and Beckmann
-        B = math.radians((day - 1) * 360 / 365)
-        ecuacion_tiempo = 229.2 * (
-            0.000075
-            + 0.001868 * math.cos(B)
-            - 0.032077 * math.sin(B)
-            - 0.014615 * math.cos(2 * B)
-            - 0.04089 * math.sin(2 * B)
-        )
-        longitude_correction = (
-            self.reference_time_longitude - self.longitude) * 1 / 15
-        hours += ecuacion_tiempo / 60 - daylight_saving - longitude_correction
-        return hours
-
-    def solar_pos(self, datetime, solar_hour):
-        """Solar position
-
-        Args:
-            datetime (datetime): local time
-
-        Returns:
-            (number, number): (solar azimuth, solar altitude)
-        """
-        sunrise, sunset = self.sunrise_sunset(datetime)
-        if solar_hour < sunrise or solar_hour > sunset:
-            return (0.0, 0.0)
-        else:
-            cs, cw, cz = self._solar_pos_cos_(datetime, solar_hour)
-            alt = math.atan(cz / math.sqrt(1.0 - cz**2))
-            aux = cw / math.cos(alt)
-            azi = 0.0
-            if aux == -1.0:  # justo Este
-                azi = math.pi / 2
-            elif aux == 1.0:  # justo Oeste
-                azi = -math.pi / 2
-            else:
-                azi = -math.atan(aux / math.sqrt(1 - aux**2))
-                if azi < 0:
-                    if cs < 0:
-                        azi = -math.pi - azi
-                else:
-                    if cs < 0:
-                        azi = math.pi - azi
-            return (azi * 180 / math.pi, alt * 180 / math.pi)
-
-    def _solar_pos_cos_(self, datetime, solar_hour):
-        """Solar position cosines
-
-        Args:
-            datetime (datetime): local time
-
-        Returns:
-            (number, number, number): (cos south, cost west, cos z)
-        """
-
-        day = datetime.timetuple().tm_yday  # Día del año
-        declina = math.radians(
-            23.45 * math.sin(2 * math.pi * (284 + day) / 365))
-        solar_angle = math.radians(15 * (solar_hour - 12))
-        lat_radians = math.radians(self.latitude)
-
-        cz = math.sin(lat_radians) * math.sin(declina) + \
-            math.cos(lat_radians) * math.cos(declina) * math.cos(solar_angle)
-        cw = math.cos(declina) * math.sin(solar_angle)
-        aux = 1.0 - cw**2 - cz**2
-        if aux > 0:
-            cs = math.sqrt(aux)
-        else:
-            cs = 0
-
-        bbb = math.tan(declina) / math.tan(lat_radians)
-        if math.cos(solar_angle) < bbb:
-            cs = -cs
-        return (cs, cw, cz)
-
     def _t_sky_calculation(self, temp, rel_hum, opaque_cover):
         """Caclulation of Sky Temperature using the Clark & Allen correlaton (1978) and the correlation of Walton (1983)
 
@@ -305,33 +219,6 @@ class File_met(Component):
         ir = SIGMA * epsilon * (temp + 273.15)**4
         t_sky = (ir/SIGMA)**0.25 - 273.15
         return t_sky
-
-    def sunrise_sunset(self, datetime):
-        """Sunrise and sunset solar hour
-
-        Args:
-            datetime (datetime): Local hour
-
-        Returns:
-            (number, number): (sunrise, sunset)
-        """
-        day = datetime.timetuple().tm_yday  # Día del año
-        declina = 23.45 * math.sin(2 * math.pi * (284 + day) / 365)
-        solar_angle_cos = -math.tan(math.radians(self.latitude)) * math.tan(
-            math.radians(declina)
-        )
-        if solar_angle_cos <= -1:  # Sun allways out
-            return (0.0, 24.0)
-        elif solar_angle_cos >= 1:  # Allways night
-            return (0.0, 0.0)
-        else:
-            solar_angle = math.acos(solar_angle_cos)
-            if solar_angle < 0:
-                solar_angle += math.pi
-            return (
-                (12 - (12 * solar_angle) / math.pi),
-                (12 + (12 * solar_angle) / math.pi),
-            )
 
     def solar_direct_rad(self, time_index, surf_azimuth, surf_altitude):
         """Solar Direct radiation over surface
@@ -395,3 +282,76 @@ class File_met(Component):
                 return None
         else:
             return None
+
+    def sunpos(self, date, latitude, longitude, timezone):
+        # Extract the passed data
+        year = date.year
+        month = date.month
+        day = date.day
+        hour = date.hour
+        minute = date.minute
+        second = date.second
+        # Math typing shortcuts
+        rad, deg = math.radians, math.degrees
+        sin, cos, tan = math.sin, math.cos, math.tan
+        asin, atan2 = math.asin, math.atan2
+        # Convert latitude and longitude to radians
+        rlat = rad(latitude)
+        rlon = rad(longitude)
+        # Decimal hour of the day at Greenwich
+        greenwichtime = hour - timezone + minute / 60 + second / 3600
+        # Days from J2000, accurate from 1901 to 2099
+        daynum = (
+            367 * year
+            - 7 * (year + (month + 9) // 12) // 4
+            + 275 * month // 9
+            + day
+            - 730531.5
+            + greenwichtime / 24
+        )
+        # Mean longitude of the sun
+        mean_long = daynum * 0.01720279239 + 4.894967873
+        # Mean anomaly of the Sun
+        mean_anom = daynum * 0.01720197034 + 6.240040768
+        # Ecliptic longitude of the sun
+        eclip_long = (
+            mean_long
+            + 0.03342305518 * sin(mean_anom)
+            + 0.0003490658504 * sin(2 * mean_anom)
+        )
+        # Obliquity of the ecliptic
+        obliquity = 0.4090877234 - 0.000000006981317008 * daynum
+        # Right ascension of the sun
+        rasc = atan2(cos(obliquity) * sin(eclip_long), cos(eclip_long))
+        # Declination of the sun
+        decl = asin(sin(obliquity) * sin(eclip_long))
+        # Local sidereal time
+        sidereal = 4.894961213 + 6.300388099 * daynum + rlon
+        # Hour angle of the sun
+        hour_ang = sidereal - rasc
+        # Local elevation of the sun
+        elevation = asin(sin(decl) * sin(rlat) + cos(decl)
+                         * cos(rlat) * cos(hour_ang))
+        # Local azimuth of the sun
+        azimuth = atan2(
+            -cos(decl) * cos(rlat) * sin(hour_ang),
+            sin(decl) - sin(rlat) * sin(elevation),
+        )
+        # Convert azimuth and elevation to degrees
+        azimuth = math.pi-azimuth  # South: 0, East 90
+        azimuth = self._into_range_(deg(azimuth), -180, 180)
+        elevation = self._into_range_(deg(elevation), -180, 180)
+        # Refraction correction (optional)
+        targ = rad((elevation + (10.3 / (elevation + 5.11))))
+        elevation += (1.02 / tan(targ)) / 60
+
+        # Solar hour
+        hour_ang = self._into_range_(deg(hour_ang), -180, 180)
+        solar_hour = hour_ang/15 + 12
+        # Return azimuth and elevation in degrees
+        return (round(azimuth, 3), round(elevation, 3), round(solar_hour, 3))
+
+    def _into_range_(self, x, range_min, range_max):
+        shiftedx = x - range_min
+        delta = range_max - range_min
+        return (((shiftedx % delta) + delta) % delta) + range_min
