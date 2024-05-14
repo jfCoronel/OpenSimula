@@ -212,7 +212,7 @@ The parameters will be defined as Python dictionary keys (or json format files),
 - Parameter_float: Floating point value, e.g.: `"conducticity": 1.8`.
 - Parameter_options: character string included in a closed option list, e.g.: `"file_type": "EXCEL"`.
 - Parameter_component: Reference to another component, e.g.: `"meteo_file": "Sevilla"`.
-- Parameter_variable: This parameter is used to create a variable in the component by copying it from another component. A new name is defined and the unit will be taken from the original variable. e.g.: `"definition_variables": "t_1 = meteo.temperature"`, a variable called "t_1" will be created which is a copy of the variable "temperature" of the component "meteo".  
+- Parameter_variable: This parameter is used to create a variable in the component by copying it from another component. A new name is defined and the unit will be taken from the original variable. e.g.: `"input_variables": "t_1 = meteo.temperature"`, a variable called "t_1" will be created which is a copy of the variable "temperature" of the component "meteo".  
 - Parameter_math_exp: parameter defining a mathematical expression. Each of the components knows how to use that mathematical expression within its simulation process. e.g.: `"people_density": "0.1 * f"`, this parameter states that the people density shall be calculated by multiplying by 0.1 a variable called "f" that the component must include.
 
 All of the above types can also be defined as parameter lists, giving rise to the following types:
@@ -223,7 +223,7 @@ All of the above types can also be defined as parameter lists, giving rise to th
 - Parameter_float_list: List of floating point values, e.g.: `"solar_alpha": [0.8, 0.75]`.
 - Parameter_options_list: List of character strings included in a closed option list, e.g.: `"day_types": ["MONDAY", "TUESDAY"]`.
 - Parameter_component_list: List of references to another components, e.g.: `"materials": ["Cement mortar", "Hollow brick"]`.
-- Parameter_variable_list: List of parameters used to copy a list of variables. e.g.: `"definition_variables": ["t_1 = meteo.temperature","hr = meteo.relative_humidity"]`.
+- Parameter_variable_list: List of parameters used to copy a list of variables. e.g.: `"input_variables": ["t_1 = meteo.temperature","hr = meteo.relative_humidity"]`.
 - Parameter_math_exp_list: List of mathematical expressions. e.g.: `"curves": ["0.3 * t + 20","0.04 * t^2 - 0.2 * t + 3 "]`.
 
 

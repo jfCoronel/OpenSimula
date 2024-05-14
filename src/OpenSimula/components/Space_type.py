@@ -10,7 +10,7 @@ class Space_type(Component):
         self.parameter(
             "description").value = "Type of space, internal gains definition"
         # Parameters
-        self.add_parameter(Parameter_variable_list("definition_variables", []))
+        self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("people_density", "0.1", "p/m²"))
         self.add_parameter(Parameter_float(
             "people_sensible", 70, "W/p", min=0))
@@ -27,6 +27,11 @@ class Space_type(Component):
         self.add_parameter(Parameter_float(
             "other_gains_radiant_fraction", 0.5, "frac", min=0, max=1))
         self.add_parameter(Parameter_math_exp("infiltration", "1", "1/h"))
+        self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
+        self.add_parameter(Parameter_math_exp("cooling_setpoint", "25", "°C"))
+        self.add_parameter(Parameter_math_exp("heating_on_off", "1", "on/off"))
+        self.add_parameter(Parameter_math_exp("cooling_on_off", "1", "on/off"))
+
         # Variables
         self.add_variable(Variable("people_convective", unit="W/m²"))
         self.add_variable(Variable("people_radiant", unit="W/m²"))
@@ -37,25 +42,29 @@ class Space_type(Component):
         self.add_variable(Variable("other_gains_radiant", unit="W/m²"))
         self.add_variable(Variable("other_gains_latent", unit="W/m²"))
         self.add_variable(Variable("infiltration_rate", unit="1/h"))
+        self.add_variable(Variable("heating_setpoint", unit="°C"))
+        self.add_variable(Variable("cooling_setpoint", unit="°C"))
+        self.add_variable(Variable("heating_on_off", unit="on/off"))
+        self.add_variable(Variable("cooling_on_off", unit="on/off"))
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        # aux_varibles symbol and variable
-        self.aux_var_symbol = []
-        self.aux_var_variable = []
-        for i in range(len(self.parameter("definition_variables").variable)):
-            self.aux_var_symbol.append(
-                self.parameter("definition_variables").symbol[i])
-            self.aux_var_variable.append(
-                self.parameter("definition_variables").variable[i])
+        # input_varibles symbol and variable
+        self.input_var_symbol = []
+        self.input_var_variable = []
+        for i in range(len(self.parameter("input_variables").variable)):
+            self.input_var_symbol.append(
+                self.parameter("input_variables").symbol[i])
+            self.input_var_variable.append(
+                self.parameter("input_variables").variable[i])
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
         # variables dictonary
         var_dic = {}
-        for i in range(len(self.aux_var_symbol)):
-            var_dic[self.aux_var_symbol[i]
-                    ] = self.aux_var_variable[i].values[time_index]
+        for i in range(len(self.input_var_symbol)):
+            var_dic[self.input_var_symbol[i]
+                    ] = self.input_var_variable[i].values[time_index]
 
         # People
         people = self.parameter("people_density").evaluate(var_dic)
@@ -87,3 +96,20 @@ class Space_type(Component):
         # Infiltration
         self.variable("infiltration_rate").values[time_index] = self.parameter(
             "infiltration").evaluate(var_dic)
+        
+        # setpoints
+        self.variable("heating_setpoint").values[time_index] = self.parameter(
+            "heating_setpoint").evaluate(var_dic)
+        self.variable("cooling_setpoint").values[time_index] = self.parameter(
+            "cooling_setpoint").evaluate(var_dic)
+         # on/off
+        self.variable("heating_on_off").values[time_index] = self.parameter(
+            "heating_on_off").evaluate(var_dic)
+        if self.variable("heating_on_off").values[time_index] != 0:
+            self.variable("heating_on_off").values[time_index] = 1
+        self.variable("cooling_on_off").values[time_index] = self.parameter(
+            "cooling_on_off").evaluate(var_dic)
+        if self.variable("cooling_on_off").values[time_index] != 0:
+            self.variable("cooling_on_off").values[time_index] = 1
+
+

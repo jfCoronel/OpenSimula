@@ -1,5 +1,5 @@
 from OpenSimula.Component import Component
-from OpenSimula.Parameters import Parameter_component, Parameter_float
+from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_boolean
 from OpenSimula.Variable import Variable
 import numpy as np
 import psychrolib as sicro
@@ -20,6 +20,7 @@ class Space(Component):
         self.add_parameter(Parameter_float("volume", 1, "m³", min=0.0))
         self.add_parameter(Parameter_float(
             "furniture_weight", 10, "kg/m²", min=0.0))
+        self.add_parameter(Parameter_boolean("perfect_conditioning", False))
 
         # Variables
         self.add_variable(Variable("temperature", unit="°C"))

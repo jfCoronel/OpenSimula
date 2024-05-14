@@ -7,7 +7,6 @@ In a clean python version:
 - shapely
 - psychrolib
 - pyvista
-- pyvista
 - ipywidgets
 - trame
 - trame-vtk
