@@ -97,9 +97,9 @@ def test_load_from_dic_two_projects():
 def test_load_from_json_files():
     sim = osm.Simulation()
     p1 = sim.new_project("p1")
-    p1.read_json("examples/input_files/test_project_1.json")
+    p1.read_json("test/test_project_1.json")
     p2 = sim.new_project("p2")
-    p2.read_json("examples/input_files/test_project_2.json")
+    p2.read_json("test/test_project_2.json")
 
     comp_ref = p2.component("comp 3").parameter("component").component
     assert comp_ref.parameter("name").value == "comp 1"
@@ -115,8 +115,8 @@ def test_write_to_dict_json_file():
     assert dic_p1["name"] == "project 1"
     assert len(dic_p1["components"]) == 2
     assert dic_p1["components"][0]["name"] == "comp 1"
-    p1.write_json("examples/input_files/test_project_1_written.json")
+    p1.write_json("test/test_project_1_written.json")
 
     p2 = sim.new_project("p2")
     p2.read_dict(p2_dic)
-    p2.write_json("examples/input_files/test_project_2_written.json")
+    p2.write_json("test/test_project_2_written.json")

@@ -9,7 +9,7 @@ project_dic = {
             "type": "File_data",
             "name": "datas",
             "file_type": "CSV",
-            "file_name": "examples/input_files/data_example.csv",
+            "file_name": "test/data_example.csv",
             "file_step": "SIMULATION"
         }
     ],
@@ -35,7 +35,7 @@ def test_File_data_EXCEL():
     p1.component("datas").parameter("file_type").value = "EXCEL"
     p1.component("datas").parameter(
         "file_name"
-    ).value = "examples/input_files/data_example.xlsx"
+    ).value = "test/data_example.xlsx"
     p1.simulate()
     t = p1.component("datas").variable("temperature").values
 

@@ -253,18 +253,30 @@ class File_met(Component):
             float: Solar diffuse radiation over surface (W/m^2)
         """
         sol_diffuse = self.variable("sol_diffuse").values[time_index]
-        theta = self.solar_surface_angle(
-            time_index, surf_azimuth, surf_altitude)
-        sol_direct = self.variable("sol_direct").values[time_index]
-        sol_altitude = self.variable("sol_altitude").values[time_index]
+
         # Isotropic diffuse radiation (Liu-Jordan model)
         E_dif_iso = sol_diffuse * (1 + math.sin(math.radians(surf_altitude)))/2
-        # Horizont correction
-        f_1 = 1
-        # Near sun correction
-        f_2 = 1
 
-        return E_dif_iso * f_1 * f_2
+        # Anisotropic model ...
+        # theta = self.solar_surface_angle(time_index, surf_azimuth, surf_altitude)
+        # sol_direct = self.variable("sol_direct").values[time_index]
+        # sol_altitude = self.variable("sol_altitude").values[time_index]
+        # F not clear days
+        # if sol_direct+sol_diffuse > 0:
+        #    F = 1 - (sol_diffuse/(sol_diffuse+sol_direct))**2
+        # else:
+        #    F = 0
+        # Horizont correction
+        # f_1 = 1
+        # if sol_diffuse > 0:
+        #    f_1 = 1 + F*(math.sin(math.pi/2 - math.radians(surf_altitude)))**3
+        # Near sun correction
+        # f_2 = 1
+        # if theta != None and surf_altitude != 90:
+        #    f_2 = 1 + F * (math.cos(theta))**2 * \
+        #        (math.sin(math.pi/2-math.radians(sol_altitude))**3)
+
+        return E_dif_iso
 
     def solar_surface_angle(self, time_index, surf_azimuth, surf_altitude):
         """Relative angle between surface exterior normal and the sum
