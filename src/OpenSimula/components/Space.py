@@ -40,6 +40,8 @@ class Space(Component):
         self.add_variable(Variable("delta_int_energy", unit="W"))
         self.add_variable(Variable("infiltration_sensible_heat", unit="W"))
         self.add_variable(Variable("infiltration_latent_heat", unit="W"))
+        self.add_variable(Variable("Q_heating", unit="W"))
+        self.add_variable(Variable("Q_cooling", unit="W"))
 
         # Sicro
         sicro.SetUnitSystem(sicro.SI)
@@ -304,3 +306,19 @@ class Space(Component):
         # infiltration latent
         self.variable(
             "infiltration_latent_heat").values[time_i] = m_inf * building.LAMBDA * (new_humidity - w_pre)
+    
+    def perfect_heating(self, time_i):
+        t_sp = self._space_type_comp.variable("heating_setpoint").values[time_i]
+        if self.parameter("perfect_conditioning").value:
+            on_off =  bool(self._space_type_comp.variable("heating_on_off").values[time_i])
+            return (on_off,t_sp)
+        else:
+            return (False,t_sp)
+    
+    def perfect_cooling(self, time_i):
+        t_sp = self._space_type_comp.variable("cooling_setpoint").values[time_i]
+        if self.parameter("perfect_conditioning").value:
+            on_off =  bool(self._space_type_comp.variable("cooling_on_off").values[time_i])
+            return (on_off,t_sp)
+        else:
+            return (False,t_sp)

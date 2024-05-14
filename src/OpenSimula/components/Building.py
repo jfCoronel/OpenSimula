@@ -402,10 +402,14 @@ class Building(Component):
 
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
-        # Store TZ
+        # Calcular nueva TZ con las condiciones actuales
+        # Comprobar convergencia
+        # Almacenar los datos que necesitan los otros componentes
+        # Store TZ ¿En cada iteración o solo cuando converja?
         for i in range(len(self.spaces)):
             self.spaces[i].variable(
                 "temperature").values[time_index] = self.TZ_vector[i]
+        # Calculate TS, ¿En cada iteración o solo cuando converja?
         self.TS_vector = np.matmul(self.KS_inv_matrix, self.FS_vector) - np.matmul(
             self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.TZ_vector))
         # Store TS
@@ -418,6 +422,8 @@ class Building(Component):
                     self.surfaces[i].variable(
                         "T_s1").values[time_index] = self.TS_vector[i]
         return True
+    
+    
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
