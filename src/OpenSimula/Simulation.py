@@ -102,24 +102,25 @@ class Simulation:
         """Return the list of messages"""
         return self._messages_
 
-    def plotly(self, variables, frequency=None, value="mean"):
+    def plotly(self, dates, variables, names=[], axis=[], frequency=None, value="mean"):
         """_summary_
         Draw variables graph using plotly
 
         Args:
-            variables (list of dictonary): Each dictonary must define "project", "component", "variable" 
+            variables: List of hourly variables
+            axis: list of axis y 1 or 2 to use for each variable, empty all in first axis 
             frequency (None or str, optional): frequency of the values: None, "H" Hour, "D" Day, "M" Month, "Y" Year . Defaults to None.
             value (str, optional): "mean", "sum", "max" or "min". Defaults to "mean".
 
         """
 
         series = {}
-        series["date"] = self.project(variables[0]["project"]).dates_array()
-        for var in variables:
-            var_hor = self.project(var["project"]).component(
-                var["component"]).variable(var["variable"])
-            name = var["component"]+"->"+var["variable"]
-            series[name] = var_hor.values
+        series["date"] = dates
+        for i in range(len(variables)):
+            if i < len(names):
+                series[names[i]] = variables[i].values
+            else:
+                series[variables[i].key] = variables[i].values
         data = pd.DataFrame(series)
         if frequency != None:
             if value == "mean":
@@ -134,13 +135,16 @@ class Simulation:
 
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
 
-        for var in variables:
-            name = var["component"]+"->"+var["variable"]
+        for i in range(len(variables)):
+            if i < len(names):
+                name = names[i]
+            else:
+                name = variables[i].key
             fig = px.line(data, x='date', y=name)
             fig.for_each_trace(lambda t: t.update(name=name))
             fig.update_traces(showlegend=True)
-            if "y" in var:
-                if (var["y"] == 2):
+            if i < len(axis):
+                if (axis[i] == 2):
                     fig.update_traces(yaxis="y2")
             subfig.add_traces(fig.data)
 
