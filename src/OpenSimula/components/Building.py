@@ -368,6 +368,7 @@ class Building(Component):
     def _calculate_FZ_vector(self, time_i):
         m = len(self.spaces)
         self.FZ_vector = np.zeros(m)
+        self.PZ_vector = np.zeros(m)  # Perfect conditioning loads
 
         for i in range(m):
             if time_i == 0:
@@ -402,14 +403,95 @@ class Building(Component):
 
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
-        # Calcular nueva TZ con las condiciones actuales
         # Comprobar convergencia
-        # Almacenar los datos que necesitan los otros componentes
-        # Store TZ ¿En cada iteración o solo cuando converja?
+        converged = self._converged(time_index)
+        if converged:
+            self._store_spaces_values(time_index)
+            self._store_surfaces_values(time_index)
+        else:
+            self._calculate_T_P(time_index)
+        return converged
+
+    def _converged(self, time_i):
+        for i in range(len(self.spaces)):
+            heat_on, heat_sp = self.spaces[i].perfect_heating(time_i)
+            cool_on, cool_sp = self.spaces[i].perfect_cooling(time_i)
+            if heat_on and self.TZ_vector[i] < heat_sp:
+                return False
+            if cool_on and self.TZ_vector[i] > cool_sp:
+                return False
+        return True
+
+    def _calculate_T_P(self, time_i):
+        # T del espacio 0 -9999 si desconocida
+        unknown_T = []
+        n_unknown_T = 0
+        for i in range(len(self.spaces)):
+            heat_on, heat_sp = self.spaces[i].perfect_heating(time_i)
+            cool_on, cool_sp = self.spaces[i].perfect_cooling(time_i)
+            unknown_T.append(True)
+            n_unknown_T += 1
+            if heat_on and self.TZ_vector[i] < heat_sp:
+                unknown_T[i] = False
+                self.TZ_vector[i] = heat_sp
+                n_unknown_T -= 1
+            if cool_on and self.TZ_vector[i] > cool_sp:
+                unknown_T[i] = False
+                self.TZ_vector[i] = cool_sp
+                n_unknown_T -= 1
+        if n_unknown_T > 0:
+            K = np.zeros((n_unknown_T, n_unknown_T))
+            F = np.zeros(n_unknown_T)
+            i0 = 0
+            j0 = 0
+            for i in range(len(self.spaces)):
+                if unknown_T[i]:
+                    F[i0] = self.FFIN_vector[i]
+                    for j in range(len(self.spaces)):
+                        if unknown_T:
+                            K[i0][j0] = self.KFIN_matrix[i][j]
+                            j0 += 1
+                        else:
+                            F[i0] -= self.KFIN_matrix[i][j]*self.TZ_vector[j]
+                    i0 += 1
+
+            T = np.linalg.solve(K, F)
+            i0 = 0
+            for i in range(len(self.spaces)):
+                if unknown_T[i]:
+                    self.TZ_vector[i] = T[i0]
+                    i0 += 1
+
+        # Calculate P
+        for i in range(len(self.spaces)):
+            if unknown_T[i]:
+                self.PZ_vector[i] = 0
+            else:
+                self.PZ_vector[i] = - self.FFIN_vector[i]
+                for j in range(len(self.spaces)):
+                    self.PZ_vector[i] += self.KFIN_matrix[i][j] * \
+                        self.TZ_vector[j]
+
+    def _store_spaces_values(self, time_i):
+        # Store TZ y PZ
         for i in range(len(self.spaces)):
             self.spaces[i].variable(
-                "temperature").values[time_index] = self.TZ_vector[i]
-        # Calculate TS, ¿En cada iteración o solo cuando converja?
+                "temperature").values[time_i] = self.TZ_vector[i]
+
+            self.spaces[i].variable("Q_heating").values[time_i] = 0
+            self.spaces[i].variable("Q_cooling").values[time_i] = 0
+
+            if self.PZ_vector[i] > 0:
+                self.spaces[i].variable(
+                    "Q_heating").values[time_i] = self.PZ_vector[i]
+            elif self.PZ_vector[i] < 0:
+                self.spaces[i].variable(
+                    "Q_cooling").values[time_i] = - self.PZ_vector[i]
+
+        # Calculate hunmidity balance ??
+
+    def _store_surfaces_values(self, time_i):
+        # Calculate TS,
         self.TS_vector = np.matmul(self.KS_inv_matrix, self.FS_vector) - np.matmul(
             self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.TZ_vector))
         # Store TS
@@ -417,13 +499,10 @@ class Building(Component):
             if not self.surfaces[i].is_virtual():
                 if (self.sides[i] == 0):
                     self.surfaces[i].variable(
-                        "T_s0").values[time_index] = self.TS_vector[i]
+                        "T_s0").values[time_i] = self.TS_vector[i]
                 else:
                     self.surfaces[i].variable(
-                        "T_s1").values[time_index] = self.TS_vector[i]
-        return True
-    
-    
+                        "T_s1").values[time_i] = self.TS_vector[i]
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)

@@ -1,5 +1,7 @@
 from OpenSimula.Project import Project
 import pandas as pd
+import plotly.express as px
+from plotly.subplots import make_subplots
 
 
 class Simulation:
@@ -99,3 +101,50 @@ class Simulation:
     def message_list(self):
         """Return the list of messages"""
         return self._messages_
+
+    def plotly(self, variables, frequency=None, value="mean"):
+        """_summary_
+        Draw variables graph using plotly
+
+        Args:
+            variables (list of dictonary): Each dictonary must define "project", "component", "variable" 
+            frequency (None or str, optional): frequency of the values: None, "H" Hour, "D" Day, "M" Month, "Y" Year . Defaults to None.
+            value (str, optional): "mean", "sum", "max" or "min". Defaults to "mean".
+
+        """
+
+        series = {}
+        series["date"] = self.project(variables[0]["project"]).dates_array()
+        for var in variables:
+            var_hor = self.project(var["project"]).component(
+                var["component"]).variable(var["variable"])
+            name = var["component"]+"->"+var["variable"]
+            series[name] = var_hor.values
+        data = pd.DataFrame(series)
+        if frequency != None:
+            if value == "mean":
+                data = data.resample(frequency, on='date').mean()
+            elif value == "sum":
+                data = data.resample(frequency, on='date').sum()
+            elif value == "max":
+                data = data.resample(frequency, on='date').max()
+            elif value == "min":
+                data = data.resample(frequency, on='date').min()
+            data["date"] = data.index
+
+        subfig = make_subplots(specs=[[{"secondary_y": True}]])
+
+        for var in variables:
+            name = var["component"]+"->"+var["variable"]
+            fig = px.line(data, x='date', y=name)
+            fig.for_each_trace(lambda t: t.update(name=name))
+            fig.update_traces(showlegend=True)
+            if "y" in var:
+                if (var["y"] == 2):
+                    fig.update_traces(yaxis="y2")
+            subfig.add_traces(fig.data)
+
+        subfig.for_each_trace(lambda t: t.update(
+            line=dict(color=t.marker.color)))
+        # fig.update_traces(showlegend=True)
+        subfig.show()
