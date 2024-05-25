@@ -239,10 +239,10 @@ class Space(Component):
             s_type = self.surfaces[i].parameter("type").value
             if s_type == "Opening":
                 solar_gain += self.surfaces[i].area * \
-                    self.surfaces[i].variable("q_sol_dir_trans").values[time_i]
+                    self.surfaces[i].variable("E_dir_tra").values[time_i]
             elif s_type == "Virtual_exterior_surface":
                 solar_gain += self.surfaces[i].area * \
-                    self.surfaces[i].variable("E_dir0").values[time_i]
+                    self.surfaces[i].variable("E_dir").values[time_i]
 
         self.variable("solar_direct_gains").values[time_i] = solar_gain
 

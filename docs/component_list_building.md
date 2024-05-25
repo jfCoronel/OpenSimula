@@ -190,8 +190,8 @@ After the simulation we will have the following variables of this component, all
 - __q_lwt0, q_lwt1__ [W/m²]: Radiant long wave heat flux at the surfaces due other surfaces temperatures.
 - __p_0, p_1__ [W/m²]: Conductive heat flux at the surfaces due to previous time steps.
 - __T_rm__ [°C]: Exterior radiant mean temperature.
-- __E_dir0__ [W/m²]: Direct solar radiation incident on the exterior surface.
-- __E_dif0__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
+- __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
+- __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
 
 ### Interior_surface
 
@@ -335,8 +335,8 @@ north_hole.set_parameters(param)
 After the simulation we will have the following variables of this component:
 
 - __T_rm__ [°C]: Exterior radiant mean temperature.
-- __E_dir0__ [W/m²]: Direct solar radiation incident on the exterior surface.
-- __E_dif0__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
+- __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
+- __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
 
 ### Virtual_interior_surface
 
@@ -418,6 +418,6 @@ After the simulation we will have the following variables of this component, all
 - __q_lwig0, q_lwig1__ [W/m²]: Radiant long wave heat flux at the surfaces due to internal gains.
 - __q_lwt0, q_lwt1__ [W/m²]: Radiant long wave heat flux at the surfaces due other surfaces temperatures.
 - __T_rm__ [°C]: Exterior radiant mean temperature.
-- __E_dir0__ [W/m²]: Direct solar radiation incident on the exterior surface.
-- __E_dif0__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
+- __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
+- __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
 

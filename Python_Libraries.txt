@@ -11,11 +11,10 @@ In a clean python version:
 - trame
 - trame-vtk
 - trame-vuetify
-
+- plotly
 
 For juputer:
 - notebook
-- plotly
 
 
 With Anaconda you must add:

@@ -18,8 +18,8 @@ class Exterior_surface(Real_surface):
         self.H_RD = 5.705  # 4*sigma*(293^3)
         # Variables
         self.add_variable(Variable("T_rm", "°C"))
-        self.add_variable(Variable("E_dir0", "W/m²"))
-        self.add_variable(Variable("E_dif0", "W/m²"))
+        self.add_variable(Variable("E_dir", "W/m²"))
+        self.add_variable(Variable("E_dif", "W/m²"))
 
     def building(self):
         return self.parameter("space").component.building()
@@ -70,19 +70,19 @@ class Exterior_surface(Real_surface):
         hor_sol_dif = self._file_met.variable("sol_diffuse").values[time_i]
         hor_sol_dir = self._file_met.variable("sol_direct").values[time_i]
         T_sky = self._file_met.variable("sky_temperature").values[time_i]
-        E_dif0 = self._file_met.solar_diffuse_rad(time_i, self.orientation_angle(
+        E_dif = self._file_met.solar_diffuse_rad(time_i, self.orientation_angle(
             "azimuth", 0),  self.orientation_angle("altitude", 0))
-        E_dif0 = E_dif0 + (1-self._F_sky)*self._albedo * \
+        E_dif = E_dif + (1-self._F_sky)*self._albedo * \
             (hor_sol_dif+hor_sol_dir)
-        self.variable("E_dif0").values[time_i] = E_dif0
-        E_dir0 = self._file_met.solar_direct_rad(time_i, self.orientation_angle(
+        self.variable("E_dif").values[time_i] = E_dif
+        E_dir = self._file_met.solar_direct_rad(time_i, self.orientation_angle(
             "azimuth", 0),  self.orientation_angle("altitude", 0))
-        self.variable("E_dir0").values[time_i] = E_dir0
+        self.variable("E_dir").values[time_i] = E_dir
         T_rm = self._F_sky * T_sky + (1-self._F_sky)*self._T_ext
         self.variable("T_rm").values[time_i] = T_rm
         h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
         q_sol = self.radiant_property(
-            "alpha", "solar_diffuse", 0) * (E_dif0 + E_dir0)
+            "alpha", "solar_diffuse", 0) * (E_dif + E_dir)
         self.variable("q_sol0").values[time_i] = q_sol
         p_0, p_1 = self.parameter("construction").component.get_P(
             time_i, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
