@@ -105,8 +105,8 @@ class Opening(Component):
             self.variable("E_dir_tra").values[time_i] = self.variable("E_dir").values[time_i]*self.radiant_property("tau", "solar_direct", 0, theta)
             q_sol0 += self.radiant_property("alpha", "solar_direct",0, theta) * self.variable("E_dir").values[time_i]
             q_sol1 += self.radiant_property("alpha_other_side", "solar_direct",0, theta) * self.variable("E_dir").values[time_i]
-        self.variable("q_sol0").values[time_i] = -q_sol0
-        self.variable("q_sol1").values[time_i] = -q_sol1
+        self.variable("q_sol0").values[time_i] = q_sol0
+        self.variable("q_sol1").values[time_i] = q_sol1
         h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
         T_rm = self.variable("T_rm").values[time_i]
         self.f_0 = self.area * (- self.parameter("h_cv").value[0]* self._T_ext - h_rd * T_rm )
@@ -151,7 +151,7 @@ class Opening(Component):
         self.variable("q_lwt0").values[time_i] = h_rd * (self.variable(
             "T_rm").values[time_i] - self.variable("T_s0").values[time_i])
 
-        self.variable("q_lwt1").values[time_i] = self.variable("q_cd").values[time_i] - self.variable("q_cv1").values[time_i] - \
+        self.variable("q_lwt1").values[time_i] = + self.variable("q_cd").values[time_i] - self.variable("q_cv1").values[time_i] - \
             self.variable("q_sol1").values[time_i] - self.variable(
             "q_swig1").values[time_i] - self.variable("q_lwig1").values[time_i]
 

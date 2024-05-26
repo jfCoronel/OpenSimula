@@ -342,18 +342,18 @@ class Building(Component):
             elif s_type == "Virtual_exterior_surface" or s_type == "Virtual_interior_surface":
                 self.FS_vector[i] = 0.0
             elif s_type == "Opening":
-                q_sol_10 =(self.Q_dir[i] + self.Q_dif[i])/area
-                E_sol_int = -q_sol_10/self.surfaces[i].radiant_property("alpha", "solar_diffuse", 1)
+                q_sol_10 =-(self.Q_dir[i] + self.Q_dif[i])/area
+                E_sol_int = q_sol_10/self.surfaces[i].radiant_property("alpha", "solar_diffuse", 1)
                 E_swig_int = -self.Q_igsw[i]/(area*self.surfaces[i].radiant_property("alpha", "solar_diffuse", 1))
                 self.surfaces[i].variable("E_ref").values[time_i] = E_sol_int
                 self.surfaces[i].variable("E_ref_tra").values[time_i] = E_sol_int * self.surfaces[i].radiant_property("tau", "solar_diffuse", 1)    
                 self.surfaces[i].variable("q_sol1").values[time_i] += q_sol_10 
-                self.surfaces[i].variable("q_sol0").values[time_i] += -E_sol_int * self.surfaces[i].radiant_property("alpha_other_side", "solar_diffuse", 1)
-                self.surfaces[i].variable("q_swig1").values[time_i] = self.Q_igsw[i]/area
-                self.surfaces[i].variable("q_swig0").values[time_i] = - E_swig_int * self.surfaces[i].radiant_property("alpha_other_side", "solar_diffuse", 1)
-                self.surfaces[i].variable("q_lwig1").values[time_i] = (self.Q_iglw[i] + self.Q_extlw[i])/area
-                f_0 = self.surfaces[i].f_0 + (self.surfaces[i].variable("q_sol0").values[time_i] +self.surfaces[i].variable("q_swig0").values[time_i] ) * area
-                self.FS_vector[i] = - Q_rad + self.surfaces[i].variable("q_sol1").values[time_i] * area - f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
+                self.surfaces[i].variable("q_sol0").values[time_i] += E_sol_int * self.surfaces[i].radiant_property("alpha_other_side", "solar_diffuse", 1)
+                self.surfaces[i].variable("q_swig1").values[time_i] = -self.Q_igsw[i]/area
+                self.surfaces[i].variable("q_swig0").values[time_i] =  E_swig_int * self.surfaces[i].radiant_property("alpha_other_side", "solar_diffuse", 1)
+                self.surfaces[i].variable("q_lwig1").values[time_i] = -(self.Q_iglw[i] + self.Q_extlw[i])/area
+                f_0 = self.surfaces[i].f_0 - (self.surfaces[i].variable("q_sol0").values[time_i] +self.surfaces[i].variable("q_swig0").values[time_i] ) * area
+                self.FS_vector[i] = - Q_rad - (self.surfaces[i].variable("q_sol1").values[time_i]-q_sol_10) * area - f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
 
     def _calculate_FZ_vector(self, time_i):
         m = len(self.spaces)
