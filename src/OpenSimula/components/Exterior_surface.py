@@ -20,6 +20,7 @@ class Exterior_surface(Real_surface):
         self.add_variable(Variable("T_rm", "°C"))
         self.add_variable(Variable("E_dir", "W/m²"))
         self.add_variable(Variable("E_dif", "W/m²"))
+        self.add_variable(Variable("debug_f", ""))
 
     def building(self):
         return self.parameter("space").component.building()

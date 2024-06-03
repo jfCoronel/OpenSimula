@@ -1,5 +1,6 @@
 from OpenSimula.components.Real_surface import Real_surface
 from OpenSimula.Parameters import Parameter_component, Parameter_float
+from OpenSimula.Variable import Variable
 
 
 class Underground_surface(Real_surface):
@@ -12,6 +13,7 @@ class Underground_surface(Real_surface):
         self.add_parameter(Parameter_float("h_cv", 2, "W/m²K", min=0))
 
         # Variables
+        self.add_variable(Variable("debug_f", ""))
 
     def building(self):
         return self.parameter("space").component.building()

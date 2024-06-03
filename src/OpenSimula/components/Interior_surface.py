@@ -1,5 +1,6 @@
 from OpenSimula.components.Real_surface import Real_surface
 from OpenSimula.Parameters import Parameter_component_list, Parameter_float_list
+from OpenSimula.Variable import Variable
 
 
 class Interior_surface(Real_surface):
@@ -12,6 +13,10 @@ class Interior_surface(Real_surface):
             "spaces", ["not_defined", "not_defined"], ["Space"]))
         self.add_parameter(Parameter_float_list(
             "h_cv", [2, 2], "W/m²K", min=0))
+
+        # Variables
+        self.add_variable(Variable("debug_f0", ""))
+        self.add_variable(Variable("debug_f1", ""))
 
     def building(self):
         return self.parameter("spaces").component[0].building()
