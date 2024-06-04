@@ -39,7 +39,7 @@ class Component(Parameter_container):
     def variable_dict(self):
         return self._variables_
 
-    def variable_dataframe(self, with_unit=True, frequency=None, value="mean"):
+    def variable_dataframe(self, with_unit=True, frequency=None, value="mean", interval=None):
         """_summary_
 
         Args:
@@ -61,17 +61,19 @@ class Component(Parameter_container):
                 else:
                     series[key] = var.values
         data = pd.DataFrame(series)
-        if frequency == None:
-            return data
-        else:
+        if frequency != None:
             if value == "mean":
-                return data.resample(frequency, on='date').mean()
+                data = data.resample(frequency, on='date').mean()
             elif value == "sum":
-                return data.resample(frequency, on='date').sum()
+                data = data.resample(frequency, on='date').sum()
             elif value == "max":
-                return data.resample(frequency, on='date').max()
+                data = data.resample(frequency, on='date').max()
             elif value == "min":
-                return data.resample(frequency, on='date').min()
+                data = data.resample(frequency, on='date').min()
+        if interval != None:
+            data = data[(data['date'] > interval[0]) &
+                        (data['date'] < interval[1])]
+        return data
 
     # ____________ Functions that must be overwriten for time simulation _________________
 
