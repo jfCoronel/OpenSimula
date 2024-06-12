@@ -47,6 +47,19 @@ class Parameter(Child):
     def _get_error_header_(self):
         return f'Error: {self.parent.parameter("name").value}->{self.key}. '
 
+    def _cast_to_bool_(self, input_value):
+        if isinstance(input_value, bool):
+            return (input_value, 'ok')
+        elif isinstance(input_value, str):
+            if (input_value == 'True'):
+                return (True, 'ok')
+            elif (input_value == 'False'):
+                return (False, 'ok')
+            else:
+                return (True, f"{input_value} cannot be converted to boolean.")
+        else:
+            return (True, f"{str(input_value)} is not boolean.")
+
 
 # _____________ Parameter_boolean ___________________________
 
@@ -61,11 +74,11 @@ class Parameter_boolean(Parameter):
 
     @value.setter
     def value(self, value):
-        if isinstance(value, bool):
-            self._value_ = value
+        val, msg = self._cast_to_bool_(value)
+        if (msg == 'ok'):
+            self._value_ = val
         else:
-            msg = self._get_error_header_()+f"{str(value)} is not boolean."
-            self._sim_.print(msg)
+            self._sim_.print(self._get_error_header_()+msg)
 
 
 class Parameter_boolean_list(Parameter):
@@ -78,17 +91,22 @@ class Parameter_boolean_list(Parameter):
 
     @value.setter
     def value(self, value):
-        try:
-            if not isinstance(value, list):
-                booleans = [bool(value)]
+        if not isinstance(value, list):
+            val, msg = self._cast_to_bool_(value)
+            if (msg == 'ok'):
+                self._value_ = [val]
             else:
-                booleans = []
-                for n in value:
-                    booleans.append(bool(n))
-                self._value_ = booleans
-        except ValueError as error:
-            msg = self._get_error_header_()+f"{str(error)}"
-            self._sim_.print(msg)
+                self._sim_.print(self._get_error_header_()+msg)
+        else:
+            booleans = []
+            for n in value:
+                val, msg = self._cast_to_bool_(n)
+                if (msg == 'ok'):
+                    booleans.append(val)
+                else:
+                    self._sim_.print(self._get_error_header_()+msg)
+                    booleans.append(True)
+            self._value_ = booleans
 
 
 # _____________ Parameter_string ___________________________

@@ -45,14 +45,17 @@ class Parameter_container:
                     "Error: Component parameter " + key + " does not exist"
                 )
 
-    def parameter_dataframe(self):
+    def parameter_dataframe(self, string_format=False):
         keys = []
         values = []
         types = []
         units = []
         for key, par in self._parameters_.items():
             keys.append(key)
-            values.append(par.value)
+            if string_format:
+                values.append(str(par.value))
+            else:
+                values.append(par.value)
             types.append(par.type)
             if hasattr(par, "unit"):
                 units.append(par.unit)

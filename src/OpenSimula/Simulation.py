@@ -57,7 +57,7 @@ class Simulation:
         """
         return self._projects_
 
-    def project_dataframe(self):
+    def project_dataframe(self, string_format=False):
         data = pd.DataFrame()
         pro_list = self.project_list()
         parameters = []
@@ -66,7 +66,10 @@ class Simulation:
                 parameters.append(key)
                 param_array = []
                 for pro in pro_list:
-                    param_array.append(pro.parameter(key).value)
+                    if string_format:
+                        param_array.append(str(pro.parameter(key).value))
+                    else:
+                        param_array.append(pro.parameter(key).value)
                 data[key] = param_array
         return data
 
