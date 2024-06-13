@@ -121,9 +121,9 @@ class Project(Parameter_container):
                 param_array = []
                 for comp in comp_list:
                     if string_format:
-                        param_array.append(str(comp.parameter(key).value))
+                        param_array.append(str(comp.parameter(param).value))
                     else:
-                        param_array.append(comp.parameter(key).value)
+                        param_array.append(comp.parameter(param).value)
                 data[param] = param_array
         return data
 
