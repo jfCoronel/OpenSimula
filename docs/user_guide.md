@@ -118,7 +118,7 @@ pro.set_parameters(param)
 - **component_dataframe()**: Returns pandas DataFrame with the components of the project.
 - **check()**: Returns the list of errors after checking all the components. All the errors returned are also printed.
 - **simulate()**: Perform the time simulation of the project, calculating all the varibles of the components
-- **dates_array()**: Returns numpy array with the date of each simulation instant, using winter time without daylight saving.
+- **dates()**: Returns numpy array with the date of each simulation instant, using winter time without daylight saving.
 
 the first simulation instant is the initial_time plus 1/2 of the time_step. For example, if initial_time = “01/01/2001 00:00:00” and time_step = 3600, then the first simulation instant is: “01/01/2001 00:30:00”, the second: “01/01/2001 01:30:00”, and so on. 
 

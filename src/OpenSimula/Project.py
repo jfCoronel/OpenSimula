@@ -439,7 +439,7 @@ class Project(Parameter_container):
         for comp in self._ordered_component_list_:
             comp.post_iteration(time_index, date, dayligth_saving, converged)
 
-    def dates_array(self):
+    def dates(self):
         n = self.parameter("n_time_steps").value
         date = dt.datetime.strptime(
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"

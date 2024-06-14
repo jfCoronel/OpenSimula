@@ -80,12 +80,12 @@ Finally, the `Year_schedule` named `year` sets three annual periods using the `p
 - August 1st to September 1st: `holiday_week`.
 - September 1st to December 31st: `working_week`.
 
-To simulate this project that we have defined, we first import the OpenSimula package with the alias osm, create a simulation environment in the `sim` variable, a project within that simulation environment called `pro`. We load the project reading the dictionary that we have explained previously with the `read_dict` function available for projects and we simulate it using the `simulate()` function. 
+To simulate this project that we have defined, we first import the OpenSimula.Simulation object to create a simulation environment in the `sim` variable, a project within that simulation environment called `pro`. We load the project reading the dictionary that we have explained previously with the `read_dict` function available for projects and we simulate it using the `simulate()` function. 
 
 <pre><code class="python">
-import OpenSimula as osm
+import OpenSimula.Simulation as Simulation
 
-sim = osm.Simulation()
+sim = Simulation()
 pro = sim.new_project("pro")
 pro.read_dict(project_dic)
 pro.simulate()
@@ -101,18 +101,14 @@ ok
 Simulation: 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%  End
 </code></pre>
 
-After the simulation, each of the components will have its time variables calculated. In our case the `year` component has a temporary variable called `values` that we can obtain. The following code snippet shows how to plot this variable using the `plotly` python library.
+After the simulation, each of the components will have its time variables calculated. In our case the `year` component has a temporary variable called `values` that we can obtain. the Simulation.plotly function can be used to draw an interactive graph (plotly library), the first argument are the dates of the simulation steps (pro.dates()) return the array of simulated dates) and the second a list of the varibles to draw.
 
 <pre><code class="python">
-import plotly.express as px
-
-data = pro.component("year").variable_dataframe()
-fig = px.bar(data,x='date',y=['values'],height=600)
-fig.show()
+variables = [pro.component("year").variable("values")]
+sim.plotly(pro.dates(), variables)
 </code></pre>
 
 We obtain an interactive graph with the 8760 values on which we can zoom in to show, as an example, the first week of the year.
-first week of the year.
 
 ![First example plot](img/schedule_plot.png)
 

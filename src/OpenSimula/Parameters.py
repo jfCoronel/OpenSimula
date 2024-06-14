@@ -75,6 +75,8 @@ class Parameter(Child):
     def _cast_to_float_(self, input_value):
         if isinstance(input_value, float):
             return (input_value, 'ok')
+        elif isinstance(input_value, int):
+            return (float(input_value), 'ok')
         elif isinstance(input_value, str):
             try:
                 number = float(input_value)

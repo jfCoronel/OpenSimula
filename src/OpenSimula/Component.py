@@ -51,7 +51,7 @@ class Component(Parameter_container):
             pandas DataFrame: Returns all the variables 
         """
         series = {}
-        series["date"] = self.project().dates_array()
+        series["date"] = self.project().dates()
         for key, var in self._variables_.items():
             if var.unit == "":
                 series[key] = var.values

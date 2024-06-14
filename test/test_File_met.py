@@ -9,13 +9,13 @@ project = {
         {
             "type": "File_met",
             "name": "sevilla",
-            "file_name": "met_files/sevilla.met"
+            "file_name": "test/sevilla.met"
         },
         {
             "type": "File_met",
             "name": "denver",
             "file_type": "TMY3",
-            "file_name": "ashrae_140/WD100.tmy3"
+            "file_name": "test/WD100.tmy3"
         }
     ]
 }
