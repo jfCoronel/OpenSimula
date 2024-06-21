@@ -48,7 +48,7 @@ def test_project_parameters():
     p1 = sim.new_project("Project 1")
     p1.parameter("description").value = "Project 1 description"
 
-    assert p1.simulation() == sim
+    assert p1._sim_ == sim
     assert p1.parameter("name").value == "Project 1"
     assert p1.parameter("description").value == "Project 1 description"
 

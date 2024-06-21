@@ -431,7 +431,7 @@ class Parameter_component(Parameter):
     def component(self):
         if self.external:
             splits = self.value.split("->")
-            proj = self.parent.project().simulation().project(splits[0])
+            proj = self.parent.project()._sim_.project(splits[0])
             if proj == None:
                 return None
             else:
@@ -498,7 +498,7 @@ class Parameter_component_list(Parameter):
         for i, element in enumerate(self.value):
             if self.external[i]:
                 splits = element.split("->")
-                proj = self.parent.project().simulation().project(splits[0])
+                proj = self.parent.project()._sim_.project(splits[0])
                 if proj == None:
                     components.append(None)
                 else:
@@ -574,7 +574,7 @@ class Parameter_variable(Parameter):
         try:
             if self.external:
                 splits = self._component_.split("->")
-                proj = self.parent.project().simulation().project(
+                proj = self.parent.project()._sim_.project(
                     splits[0].strip())
                 var = proj.component(
                     splits[1].strip()).variable(self._variable_)
@@ -659,7 +659,7 @@ class Parameter_variable_list(Parameter):
             try:
                 if self.external[i]:
                     splits = self._component_[i].split("->")
-                    proj = self.parent.project().simulation().project(
+                    proj = self.parent.project()._sim_.project(
                         splits[0].strip())
                     variables.append(proj.component(
                         splits[1].strip()).variable(self._variable_[i]))

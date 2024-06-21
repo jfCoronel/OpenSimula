@@ -101,13 +101,6 @@ class Project(Parameter_container):
                     comp_list.append(comp)
         return comp_list
 
-    def simulation(self):
-        """
-        Returns:
-            simulation (Simulation): Simulation environment
-        """
-        return self._sim_
-
     def component_dataframe(self, type="all", string_format=False):
         data = pd.DataFrame()
         comp_list = self.component_list(type)

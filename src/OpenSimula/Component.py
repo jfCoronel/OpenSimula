@@ -18,9 +18,6 @@ class Component(Parameter_container):
     def project(self):
         return self._project_
 
-    def simulation(self):
-        return self._sim_
-
     def print(self, msg):
         self._sim_.print(msg)
 
