@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../img/favicon.ico">
+
+    
+    <title>Component list building - OpenSimula</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
+
+    
+        
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
+        
+    
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            
+              <a class="navbar-brand" href="..">OpenSimula</a>
+            
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../getting_started/">Getting started</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../user_guide/">User guide</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../component_list/">Component list</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../developer_guide/">Developer guide</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#component-list-for-building-definition-elements">Component List for building definition elements</a></li>
+            <li class="second-level"><a href="#building">Building</a></li>
+                
+                <li class="third-level"><a href="#parameters">Parameters</a></li>
+            <li class="second-level"><a href="#space_type">Space_type</a></li>
+                
+                <li class="third-level"><a href="#parameters_1">Parameters</a></li>
+                <li class="third-level"><a href="#variables">Variables</a></li>
+            <li class="second-level"><a href="#space">Space</a></li>
+                
+                <li class="third-level"><a href="#parameters_2">Parameters</a></li>
+                <li class="third-level"><a href="#variables_1">Variables</a></li>
+            <li class="second-level"><a href="#exterior_surface">Exterior_surface</a></li>
+                
+                <li class="third-level"><a href="#parameters_3">Parameters</a></li>
+                <li class="third-level"><a href="#variables_2">Variables</a></li>
+            <li class="second-level"><a href="#interior_surface">Interior_surface</a></li>
+                
+                <li class="third-level"><a href="#parameters_4">Parameters</a></li>
+                <li class="third-level"><a href="#variables_3">Variables</a></li>
+            <li class="second-level"><a href="#underground_surface">Underground_surface</a></li>
+                
+                <li class="third-level"><a href="#parameters_5">Parameters</a></li>
+                <li class="third-level"><a href="#variables_4">Variables</a></li>
+            <li class="second-level"><a href="#virtual_exterior_surface">Virtual_exterior_surface</a></li>
+                
+                <li class="third-level"><a href="#parameters_6">Parameters</a></li>
+                <li class="third-level"><a href="#variables_5">Variables</a></li>
+            <li class="second-level"><a href="#virtual_interior_surface">Virtual_interior_surface</a></li>
+                
+                <li class="third-level"><a href="#parameters_7">Parameters</a></li>
+            <li class="second-level"><a href="#opening">Opening</a></li>
+                
+                <li class="third-level"><a href="#parameters_8">Parameters</a></li>
+                <li class="third-level"><a href="#variables_6">Variables</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h2 id="component-list-for-building-definition-elements">Component List for building definition elements</h2>
+<h3 id="building">Building</h3>
+<p>Base component for the definition of a building. The building is made up of a set of spaces (Space component).</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><strong>file_met</strong> [<em>component</em>, default = "not_defined", component type = File_met]: Reference to the component where the weather file is defined.</li>
+<li><strong>azimuth</strong> [<em>float</em>, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the east (Global x-axis). The coordinates of all building elements refer to the building coordinate system. </li>
+<li><strong>albedo</strong> [<em>float</em>, unit = "frac", default = 0.3, min = 0, max = 1]: Solar reflectivity of the ground surrounding the building. Used to calculate the solar radiation reflected to the exterior surfaces of the building.</li>
+<li><strong>initial_temperature</strong> [<em>float</em>, unit = "°C", default = 20]: Initial temperature of all building components at the beginning of the simulation.</li>
+<li><strong>initial_humidity</strong> [<em>float</em>, unit = "g/kg", default = 7.3]: Initial absolute humidity of all building spaces at the beginning of the simulation.</li>
+</ul>
+<p>The following figure shows the building's coordinate system:</p>
+<p><img alt="Building coordinate system" src="../img/building_coordinate_system.png" /></p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+building = osm.components.Building("building",project)
+param = {
+    "file_met": "met"
+    "azimuth": 90,
+    "albedo": 0.4
+}
+building.set_parameters(param)
+</code></pre>
+
+<h3 id="space_type">Space_type</h3>
+<p>Component used to define the type of space. This component will be referenced by all spaces that are of the same type. This component defines the internal loads and some of the functional characteristics of the space.</p>
+<h4 id="parameters_1">Parameters</h4>
+<ul>
+<li><strong>input_variables</strong> [<em>variable_list</em>, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.</li>
+<li><strong>people_density</strong> [<em>math_exp</em>, unit = "p/m²", default = "0.1"]: Occupancy density, defined in persons per m² of floor. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value. See example below</li>
+<li><strong>people_sensible</strong> [<em>float</em>, unit = "W/p", default = 70, min = 0]: Sensible heat generated by each of the occupants of the space.</li>
+<li><strong>people_latent</strong> [<em>float</em>, unit = "W/p", default = 35, min = 0]: Latent heat generated by each of the occupants of the space.</li>
+<li><strong>people_radiant_fraction</strong> [<em>float</em>, unit = "frac", default = 0.6, min = 0, max = 1]: Long wave radiant fraction of heat generated by occupants. The rest of the heat is assumed to be convective.</li>
+<li><strong>light_density</strong> [<em>math_exp</em>, unit = "W/m²", default = "10"]: Lighting density, defined as the electrical lighting power [W] per m² of floor. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value. See example below.</li>
+<li><strong>light_radiant_fraction</strong> [<em>float</em>, unit = "frac", default = 0.6, min = 0, max = 1]: Short wave radiant fraction of heat generated by lights. The rest of the heat is assumed to be convective.</li>
+<li><strong>other_gains_density</strong> [<em>math_exp</em>, unit = "W/m²", default = "10"]: Other gains density, defined as the heat generated by other gains (Household appliances, office automation, miscellaneous electrical equipment, etc.) [W] per m² of floor. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value. See example below.</li>
+<li><strong>other_gains_radiant_fraction</strong> [<em>float</em>, unit = "frac", default = 0.5, min = 0, max = 1]: Long wave radiant fraction of the heat generated by other gains. The convective fraction is calculated by subtracting the radiant and latent fractions.</li>
+<li><strong>other_gains_latent_fraction</strong> [<em>float</em>, unit = "frac", default = 0.0, min = 0, max = 1]: Latent fraction of the heat generated by other gains. The convective fraction is calculated by subtracting the radiant and latent fractions.</li>
+<li><strong>infiltration</strong> [<em>math_exp</em>, unit = "1/h", default = "1"]: Air flow rate infiltrated into the space from outside and expressed in volumes of the space per hour. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+<li><strong>heating_setpoint</strong> [<em>math_exp</em>, unit = "°C", default = "20"]: Heating setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+<li><strong>cooling_setpoint</strong> [<em>math_exp</em>, unit = "°C", default = "25"]: Cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+<li><strong>heating_on_off</strong> [<em>math_exp</em>, unit = "on/off", default = "1"]: If this value is 0, the heating will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+<li><strong>cooling_on_off</strong> [<em>math_exp</em>, unit = "on/off", default = "1"]: If this value is 0, the cooling will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+</ul>
+<p>Assuming that the variation of occupancy, lighting and other loads has been defined in a "Year_schedule" component, named "schedule" with values between 0 and 1, the following example would capture that variation.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+office_space = osm.components.Space_type("office_space",project)
+param = {
+        "input_variables": ["f = schedule.value"]
+        "people_density": "0.1*f",
+        "light_density": "10*f",
+        "other_gains_density": "4.2*f",
+        "other_gains_radiant_fraction": 0.6,
+        "infiltration": "0.5",
+        "heating_setpoint": "20",
+        "cooling_setpoint": "25",
+        "heating_on_off": "f",
+        "cooling_on_off": "f",
+}
+office_space.set_parameters(param)
+</code></pre>
+
+<h4 id="variables">Variables</h4>
+<p>After the simulation we will have the following variables of this component:</p>
+<ul>
+<li><strong>people_convective</strong> [W/m²]: Convective heat due to occupancy.</li>
+<li><strong>people_radiant</strong> [W/m²]: Radiant heat (long wave) due to occupancy.</li>
+<li><strong>people_latent</strong> [W/m²]: Latent heat due to occupancy.</li>
+<li><strong>light_convective</strong> [W/m²]: Convective heat due to lighting.</li>
+<li><strong>light_radiant</strong> [W/m²]: Radiant heat (short wave) due to lighting.</li>
+<li><strong>other_gains_convective</strong> [W/m²]: Convective heat due to other gains.</li>
+<li><strong>other_gains_radiant</strong> [W/m²]: Radiant heat (long wave) due to other gains.</li>
+<li><strong>other_gains_latent</strong> [W/m²]: Latent heat due to other gains.</li>
+<li><strong>infiltration_rate</strong> [1/h]: Air flow rate infiltrated into the space from outside, expressed in volumes of the space per hour.</li>
+<li><strong>heating_setpoint</strong> [°C]: Heating setpoint temperature.</li>
+<li><strong>cooling_setpoint</strong> [°C]: Cooling setpoint temperature.</li>
+<li><strong>heating_on_off</strong> [on/off]: Heating on (1), off (0).</li>
+<li><strong>heating_on_off</strong> [on/off]: Cooling on (1), off (0).</li>
+</ul>
+<h3 id="space">Space</h3>
+<p>Component used to define each of the building's spaces. The spaces of a building are each of the volumes of the building where we can find a different temperatures. The spaces will be referenced by the different surfaces that comprise them.</p>
+<h4 id="parameters_2">Parameters</h4>
+<ul>
+<li><strong>building</strong> [<em>component</em>, default = "not_defined", component type = Building]: Reference to the "Building" component of which it is a part.</li>
+<li><strong>space_type</strong> [<em>component</em>, default = "not_defined", component type = Space_type]: Reference to the "Space_type" component that defines its occupational and functional characteristics.</li>
+<li><strong>floor_area</strong> [<em>float</em>, unit = "m²", default = 1, min = 0]: Floor area of the space.</li>
+<li><strong>volume</strong> [<em>float</em>, unit = "m³", default = 1, min = 0]: Volume of the space.</li>
+<li><strong>furniture_weight</strong> [<em>float</em>, unit = "kg/m²", default = 10, min = 0]: Weight of the furniture in the space. Used to increase the thermal inertia of the space which will be added to that of the air (for the furniture a specific heat of 1000 J/kg·K will be used).</li>
+<li><strong>perfect_conditioning</strong> [<em>boolean</em>, default = False]: If the value is "True" the space shall be perfectly conditioned using the setpoints and operating periods specified in its space_type,therefore the temperature will be maintained exactly at the value indicated in the setpoint if necessary. For "False" value the space will evolve freely according to the actual conditioning systems available.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+space_1 = osm.components.Space("space_1",project)
+param = {
+        "building": "building",
+        "space_type": "office_space",
+        "floor_area": 30,
+        "volume": 90
+}
+space_1.set_parameters(param)
+</code></pre>
+
+<h4 id="variables_1">Variables</h4>
+<p>After the simulation we will have the following variables of this component:</p>
+<ul>
+<li><strong>temperatura</strong> [°C]: Space dry air temperatura.</li>
+<li><strong>abs_humidity</strong> [g/kg]: Absolute space air humidity.</li>
+<li><strong>rel_humidity</strong> [%]: Relative space air humidity.</li>
+<li><strong>people_convective</strong> [W]: Convective heat due to occupancy.</li>
+<li><strong>people_radiant</strong> [W]: Radiant heat (long wave) due to occupancy.</li>
+<li><strong>people_latent</strong> [W]: Latent heat due to occupancy.</li>
+<li><strong>light_convective</strong> [W]: Convective heat due to lighting.</li>
+<li><strong>light_radiant</strong> [W]: Radiant heat (short wave) due to lighting.</li>
+<li><strong>other_gains_convective</strong> [W]: Convective heat due to other gains.</li>
+<li><strong>other_gains_radiant</strong> [W]: Radiant heat (long wave) due to other gains.</li>
+<li><strong>other_gains_latent</strong> [W]: Latent heat due to other gains.</li>
+<li><strong>solar_direct_gains</strong> [W]: Direct solar radiation gains.</li>
+<li><strong>infiltration_flow</strong> [m³/s]: Air flow rate infiltrated into the space from outside.</li>
+<li><strong>infiltration_sensible_heat</strong> [W]: Sensible heat due to air infiltration from outdoor.</li>
+<li><strong>infiltration_latent_heat</strong> [W]: Latent heat due to air infiltration from outdoor.</li>
+</ul>
+<h3 id="exterior_surface">Exterior_surface</h3>
+<p>Component to define the exterior surfaces of the building: vertical or inclined walls and horizontal or inclined roofs.</p>
+<h4 id="parameters_3">Parameters</h4>
+<ul>
+<li><strong>shape</strong> [<em>option</em>, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". </li>
+<li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>height</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>ref_point</strong> [<em>float-list</em>, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.</li>
+<li><strong>x_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". </li>
+<li><strong>y_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".</li>
+<li><strong>azimuth</strong> [<em>float</em>, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.</li>
+<li><strong>altitude</strong> [<em>float</em>, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.</li>
+<li><strong>construction</strong> [<em>component</em>, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition.</li>
+<li><strong>space</strong> [<em>component</em>, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.</li>
+<li><strong>h_cv</strong> [<em>float-list</em>, unit = "W/m²K", default = [19.3,2], min = 0]: Convective film coefficients of the exterior and interior surfaces, respectively.</li>
+</ul>
+<p>The following figures show the surface coordinate system versus the building coordinate system for rectangular or polygonal surfaces.</p>
+<p><img alt="Rectangular surface coordinate system" src="../img/rectangular_surface_coordinate_system.png" /></p>
+<p><img alt="Polygon surface coordinate system" src="../img/polygon_surface_coordinate_system.png" /></p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+north_wall = osm.components.Exterior_surface("north_wall",project)
+param = {
+        "ref_point": [8,0,-6],
+        "width": 8,
+        "height": 2.7,
+        "azimuth": 180,
+        "altitude": 0,
+        "construction": "Multilayer_wall",
+        "space": "space_1"
+}
+north_wall.set_parameters(param)
+</code></pre>
+
+<h4 id="variables_2">Variables</h4>
+<p>After the simulation we will have the following variables of this component, all variables ending in 0 refer to the outer surface and those ending in 1 to the inner surface:</p>
+<ul>
+<li><strong>T_s0, T_s1</strong> [°C]: Surface temperatures</li>
+<li><strong>q_cd0, q_cd1</strong> [W/m²]: Conductive heat flux at the surfaces.</li>
+<li><strong>q_cv0, q_cv1</strong> [W/m²]: Convective heat flux at the surfaces.</li>
+<li><strong>q_sol0, q_sol1</strong> [W/m²]: Solar heat flux at the surfaces.</li>
+<li><strong>q_swig0, q_swig1</strong> [W/m²]: Radiant short wave heat flux at the surfaces due to internal gains.</li>
+<li><strong>q_lwig0, q_lwig1</strong> [W/m²]: Radiant long wave heat flux at the surfaces due to internal gains.</li>
+<li><strong>q_lwt0, q_lwt1</strong> [W/m²]: Radiant long wave heat flux at the surfaces due other surfaces temperatures.</li>
+<li><strong>p_0, p_1</strong> [W/m²]: Conductive heat flux at the surfaces due to previous time steps.</li>
+<li><strong>T_rm</strong> [°C]: Exterior radiant mean temperature.</li>
+<li><strong>E_dir</strong> [W/m²]: Direct solar radiation incident on the exterior surface.</li>
+<li><strong>E_dif</strong> [W/m²]: Diffuse solar radiation incident on the exterior surface.</li>
+</ul>
+<h3 id="interior_surface">Interior_surface</h3>
+<p>Component to define the interior surfaces of the building: vertical or inclined interior walls and slabs between floors.</p>
+<h4 id="parameters_4">Parameters</h4>
+<ul>
+<li><strong>shape</strong> [<em>option</em>, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". </li>
+<li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>height</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>ref_point</strong> [<em>float-list</em>, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed the "0" side, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.</li>
+<li><strong>x_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". </li>
+<li><strong>y_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".</li>
+<li><strong>azimuth</strong> [<em>float</em>, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.</li>
+<li><strong>altitude</strong> [<em>float</em>, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.</li>
+<li><strong>construction</strong> [<em>component</em>, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition.</li>
+<li><strong>spaces</strong> [<em>component-list</em>, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.</li>
+<li><strong>h_cv</strong> [<em>float-list</em>, unit = "W/m²K", default = [2,2], min = 0]: Convective film coefficients of the 0 an 1 side, respectively.</li>
+</ul>
+<p>See figures of the coordinate systems in the "Exterior_surface" component.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+interior_wall = osm.components.Interior_surface("interior_wall",project)
+param = {
+        "ref_point": [8,0,-3],
+        "width": 8,
+        "height": 2.7,
+        "azimuth": 0,
+        "altitude": 0,
+        "construction": "Multilayer_wall",
+        "spaces": ["space_0", "space_1"]
+}
+interior_wall.set_parameters(param)
+</code></pre>
+
+<h4 id="variables_3">Variables</h4>
+<p>After the simulation we will have the following variables of this component, all variables ending in 0 refer "0" surface and those ending in 1 to the "1" surface:</p>
+<ul>
+<li><strong>T_s0, T_s1</strong> [°C]: Surface temperatures</li>
+<li><strong>q_cd0, q_cd1</strong> [W/m²]: Conductive heat flux at the surfaces.</li>
+<li><strong>q_cv0, q_cv1</strong> [W/m²]: Convective heat flux at the surfaces.</li>
+<li><strong>q_sol0, q_sol1</strong> [W/m²]: Solar heat flux at the surfaces.</li>
+<li><strong>q_swig0, q_swig1</strong> [W/m²]: Radiant short wave heat flux at the surfaces due to internal gains.</li>
+<li><strong>q_lwig0, q_lwig1</strong> [W/m²]: Radiant long wave heat flux at the surfaces due to internal gains.</li>
+<li><strong>q_lwt0, q_lwt1</strong> [W/m²]: Radiant long wave heat flux at the surfaces due other surfaces temperatures.</li>
+<li><strong>p_0, p_1</strong> [W/m²]: Conductive heat flux at the surfaces due to previous time steps.</li>
+</ul>
+<h3 id="underground_surface">Underground_surface</h3>
+<p>Component define the surfaces in contact with the ground. Floors or vertical undergorund enclosures.</p>
+<h4 id="parameters_5">Parameters</h4>
+<ul>
+<li><strong>shape</strong> [<em>option</em>, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". </li>
+<li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>height</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>ref_point</strong> [<em>float-list</em>, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed the "0" side, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.</li>
+<li><strong>x_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". </li>
+<li><strong>y_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".</li>
+<li><strong>azimuth</strong> [<em>float</em>, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.</li>
+<li><strong>altitude</strong> [<em>float</em>, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.</li>
+<li><strong>construction</strong> [<em>component</em>, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition.</li>
+<li><strong>space</strong> [<em>component</em>, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.</li>
+<li><strong>h_cv</strong> [<em>float</em>, unit = "W/m²K", default = 2, min = 0]: Convective film coefficient of interior surface.</li>
+</ul>
+<p>See figures of the coordinate systems in the "Exterior_surface" component.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+floor = osm.components.Underground_surface("floor",project)
+param = {
+        "shape": "POLYGON",
+        "ref_point": [0,0,0],
+        "x_polygon": [0,8,8,0],
+        "y_polygon": [0,0,6,6],
+        "azimuth": 0,
+        "altitude": -90,
+        "construction": "Multilayer wall",
+        "space": "space_1"
+}
+floor.set_parameters(param)
+</code></pre>
+
+<h4 id="variables_4">Variables</h4>
+<p>After the simulation we will have the following variables of this component, all variables ending in 0 refer to the underground surface and those ending in 1 to the interior surface:</p>
+<ul>
+<li><strong>T_s0, T_s1</strong> [°C]: Surface temperatures</li>
+<li><strong>q_cd0, q_cd1</strong> [W/m²]: Conductive heat flux at the surfaces.</li>
+<li><strong>q_cv1</strong> [W/m²]: Convective heat flux at the ineterior surface.</li>
+<li><strong>q_sol1</strong> [W/m²]: Solar heat flux at the surfaces.</li>
+<li><strong>q_swig1</strong> [W/m²]: Radiant short wave heat flux at the interior surface due to internal gains.</li>
+<li><strong>q_lwig1</strong> [W/m²]: Radiant long wave heat flux at the interior surface due to internal gains.</li>
+<li><strong>q_lwt1</strong> [W/m²]: Radiant long wave heat flux at the interior surface due other surfaces temperatures.</li>
+<li><strong>p_0, p_1</strong> [W/m²]: Conductive heat flux at the surfaces due to previous time steps.</li>
+</ul>
+<h3 id="virtual_exterior_surface">Virtual_exterior_surface</h3>
+<p>Virtual surfaces are used to define gaps between a space and the outside "Virtual_exterior_surface" or between two spaces "Virtual_interior_surface". Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.</p>
+<h4 id="parameters_6">Parameters</h4>
+<ul>
+<li><strong>shape</strong> [<em>option</em>, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". </li>
+<li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>height</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>ref_point</strong> [<em>float-list</em>, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.</li>
+<li><strong>x_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". </li>
+<li><strong>y_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".</li>
+<li><strong>azimuth</strong> [<em>float</em>, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.</li>
+<li><strong>altitude</strong> [<em>float</em>, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.</li>
+<li><strong>space</strong> [<em>component</em>, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.</li>
+</ul>
+<p>See figures of the coordinate systems in the "Exterior_surface" component.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+north_hole = osm.components.Virtual_exterior_surface("north_hole",project)
+param = {
+            "ref_point": [8,0,-6],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 180,
+            "altitude": 0,
+            "space": "space_1"
+}
+north_hole.set_parameters(param)
+</code></pre>
+
+<h4 id="variables_5">Variables</h4>
+<p>After the simulation we will have the following variables of this component:</p>
+<ul>
+<li><strong>T_rm</strong> [°C]: Exterior radiant mean temperature.</li>
+<li><strong>E_dir</strong> [W/m²]: Direct solar radiation incident on the exterior surface.</li>
+<li><strong>E_dif</strong> [W/m²]: Diffuse solar radiation incident on the exterior surface.</li>
+</ul>
+<h3 id="virtual_interior_surface">Virtual_interior_surface</h3>
+<p>Virtual surfaces are used to define gaps between a space and the outside "Virtual_exterior_surface" or between two spaces "Virtual_interior_surface". Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.</p>
+<h4 id="parameters_7">Parameters</h4>
+<ul>
+<li><strong>shape</strong> [<em>option</em>, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". </li>
+<li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>height</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
+<li><strong>ref_point</strong> [<em>float-list</em>, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.</li>
+<li><strong>x_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". </li>
+<li><strong>y_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".</li>
+<li><strong>azimuth</strong> [<em>float</em>, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.</li>
+<li><strong>altitude</strong> [<em>float</em>, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.</li>
+<li><strong>spaces</strong> [<em>component-list</em>, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.</li>
+</ul>
+<p>See figures of the coordinate systems in the "Exterior_surface" component.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+interior_hole = osm.components.Virtual_interior_surface("interior_hole",project)
+param = {
+            "ref_point": [8,0,-3],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 0,
+            "altitude": 0,
+            "spaces": ["space_0","space_1"]
+}
+interior_hole.set_parameters(param)
+</code></pre>
+
+<h3 id="opening">Opening</h3>
+<p>Component for defining openings in exterior surfaces, e.g. windows or doors. These elements must be rectangular.</p>
+<h4 id="parameters_8">Parameters</h4>
+<ul>
+<li><strong>surface</strong> [<em>component</em>, default = "not_defined", component type = Exterior_surface]: Reference to the "Exterior_surface" in which it is located.</li>
+<li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the opening.</li>
+<li><strong>height</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Height of the opening.</li>
+<li><strong>ref_point</strong> [<em>float-list</em>, unit = "m", default = [0,0]]: Two-dimensional coordinate of the opening reference point in the exterior wall coordinate system. The reference point is the lower left corner of the opening viewed from the outside.</li>
+<li><strong>opening_type</strong> [<em>component</em>, default = "not_defined", component type = Opening_type]: Reference to the "Opening_type" component that defines its composition.</li>
+<li><strong>h_cv</strong> [<em>float-list</em>, unit = "W/m²K", default = [19.3,2], min = 0]: Convective film coefficients of the exterior and interior surfaces, respectively.</li>
+</ul>
+<p>The following figure show geometrical definition of the opening in the surface coordinate system.</p>
+<p><img alt="Opening gemetrical definition" src="../img/opening_definition.png" /></p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+south_window = osm.components.Opening("south_window",project)
+param = {
+        "surface": "south_wall"
+        "ref_point": [2,1],
+        "width": 3,
+        "height": 1.3,
+        "opening_type": "double_glazed_window"
+}
+south_window.set_parameters(param)
+</code></pre>
+
+<h4 id="variables_6">Variables</h4>
+<p>After the simulation we will have the following variables of this component, all variables ending in 0 refer to the outer surface and those ending in 1 to the inner surface:</p>
+<ul>
+<li><strong>T_s0, T_s1</strong> [°C]: Surface temperatures</li>
+<li><strong>q_cd</strong> [W/m²]: Conductive heat flux.</li>
+<li><strong>q_sol_dir_trans</strong> [W/m²]: Direct solar radiation passing through into space.</li>
+<li><strong>q_cv0, q_cv1</strong> [W/m²]: Convective heat flux at the surfaces.</li>
+<li><strong>q_sol0, q_sol1</strong> [W/m²]: Solar heat flux at the surfaces.</li>
+<li><strong>q_sol01, q_sol10</strong> [W/m²]: Solar heat flux appearing on surface "i" due to the absorption of solar radiation on surface "j". </li>
+<li><strong>q_swig0, q_swig1</strong> [W/m²]: Radiant short wave heat flux at the surfaces due to internal gains.</li>
+<li><strong>q_lwig0, q_lwig1</strong> [W/m²]: Radiant long wave heat flux at the surfaces due to internal gains.</li>
+<li><strong>q_lwt0, q_lwt1</strong> [W/m²]: Radiant long wave heat flux at the surfaces due other surfaces temperatures.</li>
+<li><strong>T_rm</strong> [°C]: Exterior radiant mean temperature.</li>
+<li><strong>E_dir</strong> [W/m²]: Direct solar radiation incident on the exterior surface.</li>
+<li><strong>E_dif</strong> [W/m²]: Diffuse solar radiation incident on the exterior surface.</li>
+</ul></div>
+        
+        
+    </div>
+
+    
+      <footer class="col-md-12 text-center">
+          
+          
+            <hr>
+            <p>
+            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+            </p>
+          
+
+          
+          
+      </footer>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
+
+    
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    <script>var base_url = ".."</script>
+    
+    <script src="../js/base.js"></script>
+    <script src="../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>

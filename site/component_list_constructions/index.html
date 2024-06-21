@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../img/favicon.ico">
+
+    
+    <title>Component list constructions - OpenSimula</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
+
+    
+        
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
+        
+    
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            
+              <a class="navbar-brand" href="..">OpenSimula</a>
+            
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../getting_started/">Getting started</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../user_guide/">User guide</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../component_list/">Component list</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../developer_guide/">Developer guide</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#component-list-for-constructive-elements">Component List for constructive elements</a></li>
+            <li class="second-level"><a href="#material">Material</a></li>
+                
+                <li class="third-level"><a href="#parameters">Parameters</a></li>
+            <li class="second-level"><a href="#construction">Construction</a></li>
+                
+                <li class="third-level"><a href="#parameters_1">Parameters</a></li>
+            <li class="second-level"><a href="#glazing">Glazing</a></li>
+                
+                <li class="third-level"><a href="#parameters_2">Parameters</a></li>
+            <li class="second-level"><a href="#frame">Frame</a></li>
+                
+                <li class="third-level"><a href="#parameters_3">Parameters</a></li>
+            <li class="second-level"><a href="#opening_type">Opening_type</a></li>
+                
+                <li class="third-level"><a href="#parameters_4">Parameters</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h2 id="component-list-for-constructive-elements">Component List for constructive elements</h2>
+<h3 id="material">Material</h3>
+<p>Component to describe the thermal characteristics of the materials used in the enclosures (Construction component).</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><strong>conductivity</strong> [<em>float</em>, unit = "W/(n·K)", default = 1, min = 0]: Material thermal conductivity. </li>
+<li><strong>density</strong> [<em>float</em>, unit = "kg/m³", default = 1000, min = 0.001]: Material Density.</li>
+<li><strong>specific_heat</strong> [<em>float</em>, unit = "J/(kg·K)", default = 1000, min = 0.001]: Material specific heat.</li>
+<li><strong>use_resistance</strong> [<em>boolean</em>, default = False]: If the value is "False", conductivity, density and specific heat will be used. For "True" value, thermal resistance, density and specific heat will be used. </li>
+<li><strong>thermal_resistance</strong> [<em>float</em>, unit = "(m²·K)/W", default = 1, min = 0]: Thermal resistance of material layer.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+material = pro.new_component("Material","concrete")
+param = {
+    "conductivity": 1.95,
+    "density": 2240,
+    "specific_heat": 900,
+}
+material.set_parameters(param)
+</code></pre>
+
+<h3 id="construction">Construction</h3>
+<p>Component to describe the composition of the different layers (Material component) of an enclosure.</p>
+<h4 id="parameters_1">Parameters</h4>
+<ul>
+<li><strong>solar_alpha</strong> [<em>float-list</em>, unit = "frac", default = [0.8,0.8], min = 0, max = 1]: Solar absortance for surfaces 1 and 2.</li>
+<li><strong>lw_epsilon</strong> [<em>float-list</em>, unit = "frac", default = [0.9,0.9], min = 0, max = 1]: Long wave emissivity for surfaces 1 and 2.</li>
+<li><strong>materials</strong> [[<em>component-list</em>, default = [], component type = Material]]: Materials list for each of the layers, defined from surface 1 to 2.</li>
+<li><strong>thicknesses</strong> [<em>float-list</em>, unit = "m", default = [], min = 0]: Thicknesses of each of the layers defined in the "materials" parameter. Must have the same number of elements as the "materials" parameter.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+construction = pro.new_component("Construction","Multilayer wall")
+param = {
+    "solar_alpha": [0.8, 0.8],
+    "materials": ["Gypsum board","EPS board","Heavyweight concrete","EPS board","Stucco"],
+    "thicknesses": [0.016, 0.076, 0.203, 0.076, 0.025],
+}
+construction.set_parameters(param)
+</code></pre>
+
+<h3 id="glazing">Glazing</h3>
+<p>Component to describe the glazings. Default values are those of a clear single pane of 6 mm thickness.</p>
+<h4 id="parameters_2">Parameters</h4>
+<ul>
+<li><strong>solar_tau</strong> [<em>float</em>, unit = "frac", default = 0.849, min = 0, max = 1]: Solar transmittance of glass at normal incidence.</li>
+<li><strong>solar_rho</strong> [<em>float-list</em>, unit = "frac", default = [0.077,0.077], min = 0, max = 1]: Solar reflectance of glass at normal incidence, for ∫surfaces 1 and 2.</li>
+<li><strong>lw_epsilon</strong> [<em>float-list</em>, unit = "frac", default = [0.837,0.837], min = 0, max = 1]: Long wave emissivity, for surfaces 1 and 2.</li>
+<li><strong>g</strong> [<em>float-list</em>, unit = "frac", default = [0.867093,0.867093], min = 0, max = 1]: Solar factor at normal incidence, calculated according to EN 410:2011, for surfaces 1 and 2.</li>
+<li><strong>U</strong> [<em>float</em>, unit = "W/m²K", default = 5.686, min = 0]: Thermal transmittance of glazing calculated according to EN 673:2011.</li>
+<li><strong>f_tau_nor</strong> [[<em>math-exp</em>, default = "1.3186 * cos_theta^3 - 3.5251 * cos_theta^2 + 3.2065 * cos_theta"]: Normalised curve of the variation of solar transmittance, depending on the cosine of the angle of incidence (0º, at normal incidence).</li>
+<li><strong>f_1_minus_rho_nor</strong> [[<em>math-exp-list</em>, default = ["1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta", "1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta"]]: Normalised curve of the variation for (1 - solar reflectance), depending on the cosine of the angle of incidence (0º, at normal incidence).</li>
+</ul>
+<p>To obtain the solar transmittance at an angle of incidence theta, the component shall multiply the value at normal incidence <em>solar_tau</em> by the value of the curve <em>f_tau_nor</em>.</p>
+<p>The following pictures show the solar transmittance of a single glazing as a function of the angle of incidence, and the normalised curve as a function of the cosine of the angle of incidence.
+<img alt="simple glazing solar tau" src="../img/simple%20glazing%20tau.png" />
+<img alt="simple glazing solar tau norm" src="../img/simple%20glazing%20tau%20norm.png" /></p>
+<p>To obtain the angular reflectance for each side, multiply the normal incidence value <em>solar_rho</em> by the value of the expression: (1 - <em>f_1_minus_rho_nor</em>). </p>
+<p>We use the normalisation of (1 - reflectance) since the reflectance tends to 1 when the angle of incidence tends to 90º and the value we use to normalise is the reflectance at normal incidence (0º).</p>
+<p>The following pictures show the solar reflectance and (1- solar reflectance) of a single glazing as a function of the angle of incidence, and the normalised curve as a function of the cosine of the angle of incidence.
+<img alt="simple glazing solar rho" src="../img/simple%20glazing%20rho.png" />
+<img alt="simple glazing solar rho norm" src="../img/simple%20glazing%20rho%20norm.png" /></p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+glazing = pro.new_component("Glazing","Double_glazing")
+param = {
+    "solar_tau": 0.731,
+    "solar_rho": [0.133,0.133],
+    "g": [0.776, 0.776],
+    "U": 2.914,
+    "f_tau_nor": "-0.3516 * cos_theta^3 - 0.6031 * cos_theta^2 +1.9424 * cos_theta",
+    "f_1_minus_rho_nor: ["0.9220 * cos_theta^3 - 2.8551 * cos_theta^2 + 2.9327 * cos_theta", "0.9220 * cos_theta^3 - 2.8551 * cos_theta^2 + 2.9327 * cos_theta"]
+}
+glazing.set_parameters(param)
+</code></pre>
+
+<h3 id="frame">Frame</h3>
+<p>Component to describe the thermal properties of frames used in Opening_types.</p>
+<h4 id="parameters_3">Parameters</h4>
+<ul>
+<li><strong>solar_alpha</strong> [<em>float-list</em>, unit = "frac", default = [0.8,0.8], min = 0, max = 1]: Solar absortance for surfaces 1 and 2.</li>
+<li><strong>lw_epsilon</strong> [<em>float-list</em>, unit = "frac", default = [0.9,0.9], min = 0, max = 1]: Long wave emissivity, for surfaces 1 and 2.</li>
+<li><strong>thermal_resistance</strong> [<em>float</em>, unit = "m²K/W", default = 0.2, min = 0]: Average surface-to-surface thermal resistance of the frame.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+frame = pro.new_component("Frame","metal_frame")
+param = {
+    "solar_alpha": [0.6, 0.6],
+    "thermal_resistance": 0.35
+}
+frame.set_parameters(param)
+</code></pre>
+
+<h3 id="opening_type">Opening_type</h3>
+<p>Component for defining the composition of façade openings in buildings. For example windows or doors. </p>
+<h4 id="parameters_4">Parameters</h4>
+<ul>
+<li><strong>glazing</strong> [[<em>component</em>, default = "not_defined", component type = Glazing]]: Reference to the "Glazing" component used.</li>
+<li><strong>frame</strong> [[<em>component</em>, default = "not_defined", component type = Frame]]: Reference to the "Frame" component used.</li>
+<li><strong>construction</strong> [[<em>component</em>, default = "not_defined", component type = Glazing]]: Reference to the "Construction" component used. If the opaque part of an opening is defined by a constraction, it will always be assumed to be in steady state for thermal calculations.</li>
+<li><strong>glazing_fraction</strong> [<em>float</em>, unit = "frac", default = 0.9, min = 0, max = 1]: Fraction of the opening made up of a glazing.</li>
+<li><strong>frame_fraction</strong> [<em>float</em>, unit = "frac", default = 0.1, min = 0, max = 1]: Fraction of the opening made up of a frame.</li>
+</ul>
+<p>if the glazing_fraction plus the frame_fraction is less than 1 the rest of the area is assumed to be opaque and formed by the defined cosntruction.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+double_glazed_window = pro.new_component("Opening_type","double_glazed_window")
+param = {
+    "glazing": "double_glazing",
+    "frame": "wood_frame",
+    "glazing_fraction": 0.8,
+    "frame_fraction": 0.2
+}
+double_glazed_window.set_parameters(param)
+</code></pre></div>
+        
+        
+    </div>
+
+    
+      <footer class="col-md-12 text-center">
+          
+          
+            <hr>
+            <p>
+            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+            </p>
+          
+
+          
+          
+      </footer>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
+
+    
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    <script>var base_url = ".."</script>
+    
+    <script src="../js/base.js"></script>
+    <script src="../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>
