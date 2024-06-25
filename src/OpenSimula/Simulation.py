@@ -2,6 +2,8 @@ from OpenSimula.Project import Project
 import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
+from dash import Dash, dash_table, callback, Input, Output
+import dash_bootstrap_components as dbc
 
 
 class Simulation:
@@ -111,7 +113,7 @@ class Simulation:
 
         Args:
             variables: List of hourly variables
-            axis: list of axis y 1 or 2 to use for each variable, empty all in first axis 
+            axis: list of axis y 1 or 2 to use for each variable, empty all in first axis
             frequency (None or str, optional): frequency of the values: None, "H" Hour, "D" Day, "M" Month, "Y" Year . Defaults to None.
             value (str, optional): "mean", "sum", "max" or "min". Defaults to "mean".
 
@@ -155,3 +157,39 @@ class Simulation:
             line=dict(color=t.marker.color)))
         # fig.update_traces(showlegend=True)
         subfig.show()
+
+    def edit_project(self):
+        editor = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+        df = self.project_dataframe(string_format=True)
+
+        editor.layout = [
+            dbc.Label("Projects editor:"),
+            dash_table.DataTable(
+                id="project-table",
+                data=df.to_dict("records"),
+                columns=[{"name": i, "id": i}
+                         for i in df.columns],
+                editable=True,
+                row_selectable=True,
+                style_table={'overflowX': 'auto'},
+                style_cell={
+                    # all three widths are needed
+                    'minWidth': '40px', 'width': '120px', 'maxWidth': '200px',
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'fontSize': 14,
+                    'font-family': 'sans-serif'
+                })]
+
+        @callback(
+            Output('project-table', 'data'),
+            Input('project-table', 'data'))
+        def update_data(rows):
+            for i in range(len(rows)):
+                for key, value in rows[i].items():
+                    if df.loc[i, key] != value:
+                        self.project(df.loc[i, "name"]).parameter(
+                            key).value = value
+            return self.project_dataframe(string_format=True).to_dict("records")
+
+        editor.run()

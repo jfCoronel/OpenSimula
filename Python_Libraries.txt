@@ -12,6 +12,8 @@ In a clean python version:
 - trame-vtk
 - trame-vuetify
 - plotly
+- dash
+- dash_bootstrap_components
 
 For juputer:
 - notebook
