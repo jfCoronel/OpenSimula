@@ -2,6 +2,8 @@ import json
 import datetime as dt
 import numpy as np
 import pandas as pd
+from dash import Dash, dash_table, callback, Input, Output, html
+import dash_bootstrap_components as dbc
 from OpenSimula.Parameter_container import Parameter_container
 from OpenSimula.Parameters import Parameter_int, Parameter_string, Parameter_string_list, Parameter_boolean
 from OpenSimula.components import *
@@ -454,3 +456,50 @@ class Project(Parameter_container):
         html += "<br/><strong>Components list:</strong>"
         html += self.component_dataframe().to_html()
         return html
+    
+    def component_editor(self,type="all"):
+        editor = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+        df = self.component_dataframe(type=type,string_format=True)
+        self._n_clicks_new_project_ = 0
+        if type="all":
+        else:
+        
+
+        editor.layout = [
+            dbc.Label("Components editor:"),
+            html.Br(),
+            dbc.Button('New component', id='btn-new-comp', n_clicks=0),
+            html.Br(),
+            html.Br(),   
+            dash_table.DataTable(
+                id="comp-table",
+                data=df.to_dict("records"),
+                columns=[{"name": i, "id": i}
+                         for i in df.columns],
+                editable=True,
+                row_selectable=True,
+                style_table={'overflowX': 'auto'},
+                style_cell={
+                    # all three widths are needed
+                    'minWidth': '40px', 'width': '120px', 'maxWidth': '200px',
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'fontSize': 13,
+                    'font-family': 'sans-serif'
+                })]
+
+        @callback(
+            Output('comp-table', 'data'),
+            Input('comp-table', 'data'))
+        def update_data(rows):
+            df_init = self.component_dataframe(type=type,string_format=True)
+            for i in range(len(rows)):
+                for key, value in rows[i].items():
+                    if df_init.loc[i, key] != value:
+                        self.component(df_init.loc[i, "name"]).parameter(
+                            key).value = value
+            df_end = self.component_dataframe(type=type,string_format=True)            
+            return df_end.to_dict("records")
+
+        editor.run(jupyter_height=400)
+
