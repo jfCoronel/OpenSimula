@@ -456,28 +456,29 @@ class Project(Parameter_container):
         html += "<br/><strong>Components list:</strong>"
         html += self.component_dataframe().to_html()
         return html
-    
-    def component_editor(self,type="all"):
+
+    def component_editor(self, type="all"):
         editor = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-        df = self.component_dataframe(type=type,string_format=True)
-        self._n_clicks_new_project_ = 0
-        if type="all":
-        else:
-        
+        df = self.component_dataframe(type=type, string_format=True)
+        self._n_clicks_new_comp_ = 0
+        disabled_new = False
+        if type == "all":
+            disabled_new = True
 
         editor.layout = [
             dbc.Label("Components editor:"),
             html.Br(),
-            dbc.Button('New component', id='btn-new-comp', n_clicks=0),
+            dbc.Button('New component', id='btn-new-comp',
+                       disabled=disabled_new, n_clicks=0),
             html.Br(),
-            html.Br(),   
+            html.Br(),
             dash_table.DataTable(
                 id="comp-table",
                 data=df.to_dict("records"),
                 columns=[{"name": i, "id": i}
                          for i in df.columns],
                 editable=True,
-                row_selectable=True,
+                row_deletable=True,
                 style_table={'overflowX': 'auto'},
                 style_cell={
                     # all three widths are needed
@@ -490,16 +491,29 @@ class Project(Parameter_container):
 
         @callback(
             Output('comp-table', 'data'),
-            Input('comp-table', 'data'))
-        def update_data(rows):
-            df_init = self.component_dataframe(type=type,string_format=True)
-            for i in range(len(rows)):
-                for key, value in rows[i].items():
-                    if df_init.loc[i, key] != value:
-                        self.component(df_init.loc[i, "name"]).parameter(
-                            key).value = value
-            df_end = self.component_dataframe(type=type,string_format=True)            
+            Input('comp-table', 'data'),
+            Input('btn-new-comp', 'n_clicks'),
+            prevent_initial_call=True)
+        def update_data(rows, n_clicks):
+            if (self._n_clicks_new_comp_ < n_clicks):
+                self.new_component(type, "new_comp_"+str(n_clicks))
+                self._n_clicks_new_comp_ = n_clicks
+            else:
+                df_init = self.component_dataframe(
+                    type=type, string_format=True)
+                if (len(df_init.index) > len(rows)):
+                    for i in range(len(df_init.index)):
+                        if (df_init.loc[i, "name"] != rows[i]["name"]):
+                            self.del_component(
+                                self.component(df_init.loc[i, "name"]))
+                            break
+                else:
+                    for i in range(len(rows)):
+                        for key, value in rows[i].items():
+                            if df_init.loc[i, key] != value:
+                                self.component(df_init.loc[i, "name"]).parameter(
+                                    key).value = value
+            df_end = self.component_dataframe(type=type, string_format=True)
             return df_end.to_dict("records")
 
         editor.run(jupyter_height=400)
-
