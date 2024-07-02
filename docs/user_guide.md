@@ -188,7 +188,7 @@ Simulating Project one: 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%  End
 
 The list of parameters of a project can be obtained in pandas DataFrame format using the project functions `parameter_dataframe()`. For the components we can get parameters and variables dataframes with  `parameter_dataframe()` and `variable_dataframe()`.
 
-To obtain the list of components in a project with the parameters as columns use the function `component_dataframe(type="all")`. 
+To obtain the list of components in a project with the parameters as columns use the function `component_dataframe(comp_type="all")`. 
 In the "type" argument of the function we can indicate the type of components we want to list (for example: "Day_schedule"), or indicate "all" (this is the default value), which will show all components including only the three parameters common to all components: "name", "type" and "description". 
 
 With Jupyter notebooks or Google Collab, writing the python variable of a project the parameter and component dataframe will be shown, and writing one component python variable parameter and variable dataframe will be shown. Next example shows the parameter and component dataframes of our project:

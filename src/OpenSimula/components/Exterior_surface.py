@@ -48,7 +48,7 @@ class Exterior_surface(Real_surface):
         self._calculate_K()
 
     def _create_openings_list(self):
-        project_openings_list = self.project().component_list(type="Opening")
+        project_openings_list = self.project().component_list(comp_type="Opening")
         self.openings = []
         for opening in project_openings_list:
             if opening.parameter("surface").component == self:

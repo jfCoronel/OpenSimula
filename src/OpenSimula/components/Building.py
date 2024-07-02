@@ -55,7 +55,7 @@ class Building(Component):
         self._create_K_matrices()
 
     def _create_spaces_surfaces_list(self):
-        project_spaces_list = self.project().component_list(type="Space")
+        project_spaces_list = self.project().component_list(comp_type="Space")
         self.spaces = []
         self.surfaces = []
         self.sides = []

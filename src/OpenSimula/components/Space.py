@@ -76,7 +76,7 @@ class Space(Component):
         self.surfaces = []
         self.sides = []
         # Exterior
-        surfaces_list = self.project().component_list(type="Exterior_surface")
+        surfaces_list = self.project().component_list("Exterior_surface")
         for surface in surfaces_list:
             if surface.parameter("space").component == self:
                 self.surfaces.append(surface)
@@ -85,19 +85,19 @@ class Space(Component):
                     self.surfaces.append(opening)
                     self.sides.append(1)
         # Virtual exterior
-        surfaces_list = self.project().component_list(type="Virtual_exterior_surface")
+        surfaces_list = self.project().component_list("Virtual_exterior_surface")
         for surface in surfaces_list:
             if surface.parameter("space").component == self:
                 self.surfaces.append(surface)
                 self.sides.append(1)
         # Underground
-        surfaces_list = self.project().component_list(type="Underground_surface")
+        surfaces_list = self.project().component_list("Underground_surface")
         for surface in surfaces_list:
             if surface.parameter("space").component == self:
                 self.surfaces.append(surface)
                 self.sides.append(1)
         # Interior
-        surfaces_list = self.project().component_list(type="Interior_surface")
+        surfaces_list = self.project().component_list("Interior_surface")
         for surface in surfaces_list:
             if surface.parameter("spaces").component[0] == self:
                 self.surfaces.append(surface)
@@ -106,7 +106,7 @@ class Space(Component):
                 self.surfaces.append(surface)
                 self.sides.append(1)
         # Virtual Interior
-        surfaces_list = self.project().component_list(type="Virtual_interior_surface")
+        surfaces_list = self.project().component_list("Virtual_interior_surface")
         for surface in surfaces_list:
             if surface.parameter("spaces").component[0] == self:
                 self.surfaces.append(surface)
@@ -306,19 +306,23 @@ class Space(Component):
         # infiltration latent
         self.variable(
             "infiltration_latent_heat").values[time_i] = m_inf * building.LAMBDA * (new_humidity - w_pre)
-    
+
     def perfect_heating(self, time_i):
-        t_sp = self._space_type_comp.variable("heating_setpoint").values[time_i]
+        t_sp = self._space_type_comp.variable(
+            "heating_setpoint").values[time_i]
         if self.parameter("perfect_conditioning").value:
-            on_off =  bool(self._space_type_comp.variable("heating_on_off").values[time_i])
-            return (on_off,t_sp)
+            on_off = bool(self._space_type_comp.variable(
+                "heating_on_off").values[time_i])
+            return (on_off, t_sp)
         else:
-            return (False,t_sp)
-    
+            return (False, t_sp)
+
     def perfect_cooling(self, time_i):
-        t_sp = self._space_type_comp.variable("cooling_setpoint").values[time_i]
+        t_sp = self._space_type_comp.variable(
+            "cooling_setpoint").values[time_i]
         if self.parameter("perfect_conditioning").value:
-            on_off =  bool(self._space_type_comp.variable("cooling_on_off").values[time_i])
-            return (on_off,t_sp)
+            on_off = bool(self._space_type_comp.variable(
+                "cooling_on_off").values[time_i])
+            return (on_off, t_sp)
         else:
-            return (False,t_sp)
+            return (False, t_sp)

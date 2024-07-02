@@ -2,7 +2,7 @@ import json
 import datetime as dt
 import numpy as np
 import pandas as pd
-from dash import Dash, dash_table, callback, Input, Output, html
+from dash import Dash, callback, Input, Output, html, State
 import dash_ag_grid as dag
 import dash_bootstrap_components as dbc
 from OpenSimula.Parameter_container import Parameter_container
@@ -89,7 +89,7 @@ class Project(Parameter_container):
                 return comp
         return None
 
-    def component_list(self, type="all"):
+    def component_list(self, comp_type="all"):
         """Components list in the project
 
         Returns:
@@ -97,19 +97,19 @@ class Project(Parameter_container):
         """
         comp_list = []
         for comp in self._components_:
-            if type == "all":
+            if comp_type == "all":
                 comp_list.append(comp)
             else:
-                if comp.parameter("type").value == type:
+                if comp.parameter("type").value == comp_type:
                     comp_list.append(comp)
         return comp_list
 
-    def component_dataframe(self, type="all", string_format=False):
+    def component_dataframe(self, comp_type="all", string_format=False):
         data = pd.DataFrame()
-        comp_list = self.component_list(type)
+        comp_list = self.component_list(comp_type)
         if len(comp_list) > 0:
             parameters = ["name", "type", "description"]
-            if type != "all":
+            if comp_type != "all":
                 for key, par in comp_list[0]._parameters_.items():
                     if key != "name" and key != "type" and key != "description":
                         parameters.append(key)
@@ -123,9 +123,9 @@ class Project(Parameter_container):
                 data[param] = param_array
         return data
 
-    def new_component(self, type, name):
+    def new_component(self, comp_type, name):
         try:
-            clase = globals()[type]
+            clase = globals()[comp_type]
             comp = clase(name, self)
             self._components_.append(comp)
             return comp
@@ -458,124 +458,69 @@ class Project(Parameter_container):
         html += self.component_dataframe().to_html()
         return html
 
-    def component_editor(self, type="all"):
+    def component_editor(self, comp_type="all"):
         editor = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-        df = self.component_dataframe(type=type, string_format=True)
+        df = self.component_dataframe(comp_type=comp_type, string_format=True)
         self._n_clicks_new_comp_ = 0
+        self._n_clicks_del_comp_ = 0
         disabled_new = False
-        if type == "all":
+        if comp_type == "all":
             disabled_new = True
 
-        editor.layout = [
+        column_definition = [
+            {"field": "name", "checkboxSelection": True, "headerCheckboxSelection": True}]
+        for i in df.columns:
+            if i != "name":
+                column_definition.append({"field": i})
+
+        editor.layout = html.Div([
             dbc.Label("Components editor:"),
             html.Br(),
             dbc.Button('New component', id='btn-new-comp',
                        disabled=disabled_new, n_clicks=0),
+            dbc.Button('Delete selected components',
+                       id='btn-del-comp', n_clicks=0, style={"margin-left": "15px"}),
             html.Br(),
             html.Br(),
-            dash_table.DataTable(
+            dag.AgGrid(
                 id="comp-table",
-                data=df.to_dict("records"),
-                columns=[{"name": i, "id": i}
-                         for i in df.columns],
-                editable=True,
-                row_deletable=True,
-                style_table={'overflowX': 'auto'},
-                style_cell={
-                    # all three widths are needed
-                    'minWidth': '40px', 'width': '120px', 'maxWidth': '200px',
-                    'overflow': 'hidden',
-                    'textOverflow': 'ellipsis',
-                    'fontSize': 13,
-                    'font-family': 'sans-serif'
-                })]
+                rowData=df.to_dict("records"),
+                columnDefs=column_definition,
+                columnSize="sizeToFit",
+                defaultColDef={"filter": True, "editable": True},
+                style={"height": '500px'},
+                dashGridOptions={
+                    "rowSelection": "multiple",
+                    "suppressRowClickSelection": True,
+                    "pagination": True,
+                })
+        ])
 
         @callback(
-            Output('comp-table', 'data'),
-            Input('comp-table', 'data'),
+            Output('comp-table', 'rowData'),
+            Input('comp-table', 'cellValueChanged'),
             Input('btn-new-comp', 'n_clicks'),
+            Input('btn-del-comp', 'n_clicks'),
+            State('comp-table', 'selectedRows'),
             prevent_initial_call=True)
-        def update_data(rows, n_clicks):
-            if (self._n_clicks_new_comp_ < n_clicks):
-                self.new_component(type, "new_comp_"+str(n_clicks))
-                self._n_clicks_new_comp_ = n_clicks
+        def update_data(changed, n_clicks_new, n_clicks_del, selectedRows):
+            if (self._n_clicks_new_comp_ < n_clicks_new):
+                self.new_component(comp_type, "new_comp_"+str(n_clicks_new))
+                self._n_clicks_new_comp_ = n_clicks_new
+            elif (self._n_clicks_del_comp_ < n_clicks_del):
+                for row in selectedRows:
+                    self.del_component(self.component(row["name"]))
+                self._n_clicks_del_comp_ = n_clicks_del
             else:
-                df_init = self.component_dataframe(
-                    type=type, string_format=True)
-                if (len(df_init.index) > len(rows)):
-                    for i in range(len(df_init.index)):
-                        if (df_init.loc[i, "name"] != rows[i]["name"]):
-                            self.del_component(
-                                self.component(df_init.loc[i, "name"]))
-                            break
-                else:
-                    for i in range(len(rows)):
-                        for key, value in rows[i].items():
-                            if df_init.loc[i, key] != value:
-                                self.component(df_init.loc[i, "name"]).parameter(
-                                    key).value = value
-            df_end = self.component_dataframe(type=type, string_format=True)
+                if changed != None:
+                    if changed[0]["colId"] == "name":
+                        self.component(changed[0]['oldValue']).parameter(
+                            "name").value = changed[0]["value"]
+                    else:
+                        self.component(changed[0]['data']["name"]).parameter(
+                            changed[0]["colId"]).value = changed[0]["value"]
+            df_end = self.component_dataframe(
+                comp_type=comp_type, string_format=True)
             return df_end.to_dict("records")
 
-        editor.run(jupyter_height=400)
-
-# def component_editor(self, type="all"):
-#         editor = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-#         df = self.component_dataframe(type=type, string_format=True)
-#         self._n_clicks_new_comp_ = 0
-#         disabled_new = False
-#         if type == "all":
-#             disabled_new = True
-
-#         editor.layout = [
-#             dbc.Label("Components editor:"),
-#             html.Br(),
-#             dbc.Button('New component', id='btn-new-comp',
-#                        disabled=disabled_new, n_clicks=0),
-#             html.Br(),
-#             html.Br(),
-#             dash_table.DataTable(
-#                 id="comp-table",
-#                 data=df.to_dict("records"),
-#                 columns=[{"name": i, "id": i}
-#                          for i in df.columns],
-#                 editable=True,
-#                 row_deletable=True,
-#                 style_table={'overflowX': 'auto'},
-#                 style_cell={
-#                     # all three widths are needed
-#                     'minWidth': '40px', 'width': '120px', 'maxWidth': '200px',
-#                     'overflow': 'hidden',
-#                     'textOverflow': 'ellipsis',
-#                     'fontSize': 13,
-#                     'font-family': 'sans-serif'
-#                 })]
-
-#         @callback(
-#             Output('comp-table', 'data'),
-#             Input('comp-table', 'data'),
-#             Input('btn-new-comp', 'n_clicks'),
-#             prevent_initial_call=True)
-#         def update_data(rows, n_clicks):
-#             if (self._n_clicks_new_comp_ < n_clicks):
-#                 self.new_component(type, "new_comp_"+str(n_clicks))
-#                 self._n_clicks_new_comp_ = n_clicks
-#             else:
-#                 df_init = self.component_dataframe(
-#                     type=type, string_format=True)
-#                 if (len(df_init.index) > len(rows)):
-#                     for i in range(len(df_init.index)):
-#                         if (df_init.loc[i, "name"] != rows[i]["name"]):
-#                             self.del_component(
-#                                 self.component(df_init.loc[i, "name"]))
-#                             break
-#                 else:
-#                     for i in range(len(rows)):
-#                         for key, value in rows[i].items():
-#                             if df_init.loc[i, key] != value:
-#                                 self.component(df_init.loc[i, "name"]).parameter(
-#                                     key).value = value
-#             df_end = self.component_dataframe(type=type, string_format=True)
-#             return df_end.to_dict("records")
-
-#         editor.run(jupyter_height=400)
+        editor.run(jupyter_height=600)

@@ -2,7 +2,7 @@ from OpenSimula.Project import Project
 import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
-from dash import Dash, dash_table, callback, Input, Output, html, State
+from dash import Dash, callback, Input, Output, html, State
 import dash_ag_grid as dag
 import dash_bootstrap_components as dbc
 
@@ -205,7 +205,6 @@ class Simulation:
                 self._n_clicks_new_project_ = n_clicks_new
             elif (self._n_clicks_del_project_ < n_clicks_del):
                 for row in selectedRows:
-                    # print(row["name"])
                     self.del_project(self.project(row["name"]))
                 self._n_clicks_del_project_ = n_clicks_del
             else:
@@ -220,60 +219,3 @@ class Simulation:
             return df_end.to_dict("records")
 
         editor.run(jupyter_height=350)
-
-
-# def project_editor(self):
-#         editor = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-#         df = self.project_dataframe(string_format=True)
-#         self._n_clicks_new_project_ = 0
-
-#         editor.layout = [
-#             dbc.Label("Projects editor:  "),
-#             html.Br(),
-#             dbc.Button('New project', id='btn-new-project', n_clicks=0),
-#             html.Br(),
-#             html.Br(),
-#             dash_table.DataTable(
-#                 id="project-table",
-#                 data=df.to_dict("records"),
-#                 columns=[{"name": i, "id": i}
-#                          for i in df.columns],
-#                 editable=True,
-#                 row_deletable=True,
-#                 style_table={'overflowX': 'auto'},
-#                 style_cell={
-#                     # all three widths are needed
-#                     'minWidth': '40px', 'width': '120px', 'maxWidth': '200px',
-#                     'overflow': 'hidden',
-#                     'textOverflow': 'ellipsis',
-#                     'fontSize': 13,
-#                     'font-family': 'sans-serif'
-#                 })]
-
-#         @callback(
-#             Output('project-table', 'data'),
-#             Input('project-table', 'data'),
-#             Input('btn-new-project', 'n_clicks'),
-#             prevent_initial_call=True)
-#         def update_data(rows,n_clicks):
-#             if (self._n_clicks_new_project_ < n_clicks):
-#                 self.new_project("new_project_"+str(n_clicks))
-#                 self._n_clicks_new_project_ = n_clicks
-#             else:
-#                 df_init = self.project_dataframe(string_format=True)
-#                 if (len(df_init.index)>len(rows)):
-#                     for i in range(len(df_init.index)):
-#                         if (df_init.loc[i,"name"] != rows[i]["name"]):
-#                             self.del_project(self.project(df_init.loc[i,"name"]))
-#                             break
-#                 else:
-#                     for i in range(len(rows)):
-#                         for key, value in rows[i].items():
-#                             if df_init.loc[i, key] != value:
-#                                 self.project(df_init.loc[i, "name"]).parameter(
-#                                     key).value = value
-
-#             df_end = self.project_dataframe(string_format=True)
-#             return df_end.to_dict("records")
-
-#         editor.run(jupyter_height=240)
