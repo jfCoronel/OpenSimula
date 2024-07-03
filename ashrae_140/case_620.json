@@ -1,5 +1,5 @@
 {
-    "name": "Case 600",
+    "name": "Case 620",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -222,11 +222,11 @@
         },
         {
             "type": "Opening",
-            "name": "south_window_1",
-            "surface": "south_wall",
+            "name": "east_window",
+            "surface": "east_wall",
             "opening_type": "Window",
             "ref_point": [
-                0.5,
+                1.5,
                 0.2
             ],
             "width": 3,
@@ -238,11 +238,11 @@
         },
         {
             "type": "Opening",
-            "name": "south_window_2",
-            "surface": "south_wall",
+            "name": "west_window",
+            "surface": "west_wall",
             "opening_type": "Window",
             "ref_point": [
-                4.5,
+                1.5,
                 0.2
             ],
             "width": 3,

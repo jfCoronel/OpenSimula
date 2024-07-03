@@ -1,5 +1,5 @@
 {
-    "name": "Case 600",
+    "name": "Case 650",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -135,8 +135,40 @@
             "glazing_fraction": 1
         },
         {
+            "type": "Day_schedule",
+            "name": "fan_schedule_day",
+            "time_steps": [
+                28800,
+                39600
+            ],
+            "values": [
+                1,
+                0,
+                1
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Week_schedule",
+            "name": "fan_schedule_week",
+            "days_schedules": [
+                "fan_schedule_day"
+            ]
+        },
+        {
+            "type": "Year_schedule",
+            "name": "fan_schedule_year",
+            "periods": [],
+            "weeks_schedules": [
+                "fan_schedule_week"
+            ]
+        },
+        {
             "type": "Space_type",
             "name": "constant_gain_space",
+            "input_variables": [
+                "fan_on = fan_schedule_year.values"
+            ],
             "people_density": "0",
             "light_density": "0",
             "other_gains_density": "4.1667",

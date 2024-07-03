@@ -1,5 +1,5 @@
 {
-    "name": "Case 600",
+    "name": "Case 640",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -135,14 +135,46 @@
             "glazing_fraction": 1
         },
         {
+            "type": "Day_schedule",
+            "name": "heating_setpoint_day",
+            "time_steps": [
+                28800,
+                54000
+            ],
+            "values": [
+                10,
+                20,
+                10
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Week_schedule",
+            "name": "heating_setpoint_week",
+            "days_schedules": [
+                "heating_setpoint_day"
+            ]
+        },
+        {
+            "type": "Year_schedule",
+            "name": "heating_setpoint_year",
+            "periods": [],
+            "weeks_schedules": [
+                "heating_setpoint_week"
+            ]
+        },
+        {
             "type": "Space_type",
             "name": "constant_gain_space",
+            "input_variables": [
+                "setpoint_t = heating_setpoint_year.values"
+            ],
             "people_density": "0",
             "light_density": "0",
             "other_gains_density": "4.1667",
             "other_gains_radiant_fraction": 0.6,
             "infiltration": "0.5",
-            "heating_setpoint": "20",
+            "heating_setpoint": "setpoint_t",
             "cooling_setpoint": "27",
             "heating_on_off": "1",
             "cooling_on_off": "1"
