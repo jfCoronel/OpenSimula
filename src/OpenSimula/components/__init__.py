@@ -17,4 +17,5 @@ from OpenSimula.components.Virtual_exterior_surface import Virtual_exterior_surf
 from OpenSimula.components.Interior_surface import Interior_surface
 from OpenSimula.components.Virtual_interior_surface import Virtual_interior_surface
 from OpenSimula.components.Underground_surface import Underground_surface
+from OpenSimula.components.Shadow_surface import Shadow_surface
 from OpenSimula.components.Opening import Opening

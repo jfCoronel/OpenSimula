@@ -15,11 +15,12 @@ class Surface(Component):
         self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
         self.add_parameter(Parameter_float("height", 1, "m", min=0.0))
         # Building Coordinate system
-        self.add_parameter(Parameter_float_list("ref_point", [0, 0, 0], "m"))
         self.add_parameter(Parameter_float_list(
-            "x_polygon", [0, 10, 10, 0], "m"))
+            "ref_point", [0, 0, 0], "m", min=float("-inf")))
         self.add_parameter(Parameter_float_list(
-            "y_polygon", [0, 0, 10, 10], "m"))
+            "x_polygon", [0, 10, 10, 0], "m", min=float("-inf")))
+        self.add_parameter(Parameter_float_list(
+            "y_polygon", [0, 0, 10, 10], "m", min=float("-inf")))
         self.add_parameter(Parameter_float(
             "azimuth", 0, "°", min=-180, max=180))  # Surface x vs Building x -> S: 0º, E: 90º, W: -90º, N: 180º
         self.add_parameter(Parameter_float(

@@ -58,6 +58,7 @@ class Project(Parameter_container):
                     "Underground_surface",
                     "Interior_surface",
                     "Virtual_interior_surface",
+                    "Shadow_surface",
                     "Opening",
                     "Space",
                     "Building"

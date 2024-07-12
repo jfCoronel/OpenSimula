@@ -37,6 +37,7 @@ class Building(Component):
             errors.append(
                 f"Error: {self.parameter('name').value}, file_met must be defined.")
         self._create_spaces_surfaces_list()
+        self._create_shadow_surfaces_list()
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -48,6 +49,7 @@ class Building(Component):
         # Density for convert volumetric to mass flows
         self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
         self._create_spaces_surfaces_list()
+        self._create_shadow_surfaces_list()
         self._create_ff_matrix()
         self._create_B_matrix()
         self._create_SW_matrices()
@@ -66,6 +68,9 @@ class Building(Component):
                     self.surfaces.append(surface)
                 for side in space.sides:
                     self.sides.append(side)
+
+    def _create_shadow_surfaces_list(self):
+        self.shadow_surfaces = self.project().component_list(comp_type="Shadow_surface")
 
     def _create_ff_matrix(self):
         n = len(self.surfaces)
@@ -522,7 +527,7 @@ class Building(Component):
         super().post_iteration(time_index, date, daylight_saving, converged)
         # When not converged .... ?
 
-    def draw_pyvista(self, opacity=1, coordinate_system="building", space="all"):
+    def draw_pyvista(self, opacity=1, coordinate_system="building", space="all", shadows=True):
         self._create_spaces_surfaces_list()
         plot = pv.Plotter()
         plot.add_axes_at_origin()
@@ -557,5 +562,12 @@ class Building(Component):
 
             plot.add_mesh(polygon_pyvista, color=color,
                           show_edges=True, opacity=opa)
+        if shadows:
+            for surface in self.shadow_surfaces:
+                polygon = surface.get_pyvista_polygon(coordinate_system)
+                faces = [len(polygon), *range(0, len(polygon))]
+                polygon_pyvista = pv.PolyData(polygon, faces)
+                color = "gray"
+                plot.add_mesh(polygon_pyvista, color=color, show_edges=True)
 
         plot.show(jupyter_backend="client")
