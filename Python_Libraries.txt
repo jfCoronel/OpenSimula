@@ -6,24 +6,26 @@ In a clean python version:
 - py-expression-eval
 - shapely
 - psychrolib
-- pyvista
-- ipywidgets
-- trame
-- trame-vtk
-- trame-vuetify
 - plotly
 - dash
 - dash_bootstrap_components
-
-For juputer:
-- notebook
-
-
-With Anaconda you must add:
-- py_expression_eval
-- psychrolib
+- dash_ag_grid
 - pyvista
-- ipywidgets
 - trame
 - trame-vtk
 - trame-vuetify
+- ipywidgets
+
+For jupyter with VSC: try to run one ipynb file and VSC will isntall all packages it needed
+
+Development tools:
+- pipreqs: Revisa el código y mira que packages necesita el código
+- pytest: Para ejecutar los test que se encuentran en el directorio test
+- mkdocs: Para generar la documentación (mkdcos serve, mkdocs build --clean)
+
+
+
+
+
+
+

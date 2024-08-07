@@ -8,17 +8,19 @@ Component-based time simulation environment in Python
 * [Juan F. Coronel](http://jfc.us.es), Universidad de Sevilla
 
 ## Package dependencies
-- Numpy
-- Pandas
-- Scipy
+- numpy
+- pandas
+- scipy
 - py-expression-eval
-- Shapely
+- shapely
 - psychrolib
+- plotly
+- dash
+- dash_bootstrap_components
+- dash_ag_grid
 - pyvista
-- ipywidgets
 - trame
 - trame-vtk
 - trame-vuetify
-- plotly
-
+- ipywidgets
 

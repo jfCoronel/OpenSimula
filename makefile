@@ -42,3 +42,7 @@ clean:
 	rm -rf build
 	rm -rf dist
 	rm -rf site
+
+
+PyPi API token:
+pypi-AgEIcHlwaS5vcmcCJDBjNTZkMjhlLTIxYTUtNDFiYS1hMmM0LWUyYTU1OWZjN2FkOAACKlszLCI3MTE4MmJjOC0zZjg2LTQyMDYtYjBiYS01NzMxNzg4NmEzMjkiXQAABiD9YsncYlrRROcia_BffLfctvkSWlVH2-IKniHMTgg_-Q
