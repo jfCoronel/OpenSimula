@@ -176,7 +176,7 @@ pro = sim.new_project("Project 1")
 <li><strong>project(name)</strong>: Returns the project with name parameter "name". Returns "None" if not found.</li>
 <li><strong>project_list()</strong>: Returns the list of projects in simulation environment.</li>
 <li><strong>project_dataframe()</strong>: Returns pandas DataFrame with all the projects and its parameters as columns.</li>
-<li><strong>plotly(dates,variables,names=[],axis=[],frequency=None,value="mean")</strong>:  Draw variables graph using plotly. dates is the array of dates to be used on the x-axis (can be obtained with the dates() function of the projects). Varibles is a list of variables to be plotted, each one in a serie. Names is the list of names for the series (if empty variables names will be used).frequency [<strong>None</strong>, "H", "D", "M", "Y"] is the frequency of the data, that of the simulation (None), hourly ("H"), daily ("D"), monthly ("M") or yearly ("Y") and value [<strong>"mean"</strong>,"max","min","sum"], if we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each point (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min") or the sum ("sum").</li>
+<li><strong>plot(dates,variables,names=[],axis=[],frequency=None,value="mean")</strong>:  Draw variables graph (using plotly). dates is the array of dates to be used on the x-axis (can be obtained with the dates() function of the projects). Varibles is a list of variables to be plotted, each one in a serie. Names is the list of names for the series (if empty variables names will be used).frequency [<strong>None</strong>, "H", "D", "M", "Y"] is the frequency of the data, that of the simulation (None), hourly ("H"), daily ("D"), monthly ("M") or yearly ("Y") and value [<strong>"mean"</strong>,"max","min","sum"], if we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each point (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min") or the sum ("sum").</li>
 </ul>
 <h3 id="projects">Projects</h3>
 <p>Projects contain a set of components defining a case that can be temporarily simulated.</p>
@@ -204,10 +204,10 @@ pro = sim.new_project("Project 1")
                     "Opening_type",
                     "Space_type",
                     "Exterior_surface",
-                    "Virtual_exterior_surface",
                     "Underground_surface",
                     "Interior_surface",
-                    "Virtual_interior_surface",
+                    "Virtual_surface",
+                    "Shadow_surface",
                     "Opening",
                     "Space",
                     "Building"

@@ -8,7 +8,7 @@ class Real_surface(Surface):
         Surface.__init__(self, name, project)
         # Parameters
         self.parameter("type").value = "Real_surface"
-        self.parameter("description").value = "Buildingn real surface"
+        self.parameter("description").value = "Building real surface"
         self.add_parameter(Parameter_component(
             "construction", "not_defined", ["Construction"]))
 

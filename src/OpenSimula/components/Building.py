@@ -157,8 +157,6 @@ class Building(Component):
         self.LWR_matrix = np.linalg.inv(self.LWR_matrix)
         aux_matrix = np.matmul(area_matrix, np.matmul(
             alpha_matrix, self.LWR_matrix))
-        self.LWEXT_matrix = np.matmul(aux_matrix, np.matmul(
-            self.ff_matrix, tau_matrix))  # Exterior irradiations
 
         m = len(self.spaces)
         ig_dist_matrix = np.zeros((n, m))
@@ -217,12 +215,7 @@ class Building(Component):
                         self.KSZ_matrix[i][j] = self.surfaces[i].area * \
                             self.surfaces[i].parameter(
                                 "h_cv").value[self.sides[i]]
-            elif s_type == "Virtual_exterior_surface":
-                self.KS_matrix[i][i] += 1.0
-                for j in range(m):
-                    if self.spaces[j] == self.surfaces[i].parameter("space").component:
-                        self.KSZ_matrix[i][j] = 0
-            elif s_type == "Virtual_interior_surface":
+            elif s_type == "Virtual_surface":
                 self.KS_matrix[i][i] += 1.0
                 for j in range(m):
                     if self.spaces[j] == self.surfaces[i].parameter("spaces").component[self.sides[i]]:
@@ -254,7 +247,6 @@ class Building(Component):
         self._calculate_Q_igsw(time_index)
         self._calculate_Q_iglw(time_index)
         self._calculate_Q_dif(time_index)
-        self._calculate_Q_extlw(time_index)
         self._calculate_FS_vector(time_index)
         self._calculate_FZ_vector(time_index)
         self._update_K_matrices(time_index)
@@ -285,26 +277,16 @@ class Building(Component):
         E_dif = np.zeros(len(self.surfaces))
         for i in range(len(self.surfaces)):
             s_type = self.surfaces[i].parameter("type").value
-            if s_type == "Opening" or s_type == "Exterior_surface" or s_type == "Virtual_exterior_surface":
+            if s_type == "Opening" or s_type == "Exterior_surface":
                 E_dif[i] = self.surfaces[i].variable("E_dif").values[time_i]
         self.Q_dif = np.matmul(self.SWDIF_matrix, E_dif)
-
-    def _calculate_Q_extlw(self, time_i):
-        E_ext = np.zeros(len(self.surfaces))
-        for i in range(len(self.surfaces)):
-            s_type = self.surfaces[i].parameter("type").value
-            if s_type == "Virtual_exterior_surface":
-                E_ext[i] = 5.56E-8 * \
-                    (self.surfaces[i].variable("T_rm").values[time_i]**4)
-        self.Q_extlw = np.matmul(self.LWEXT_matrix, E_ext)
 
     def _calculate_FS_vector(self, time_i):
         n = len(self.surfaces)
         self.FS_vector = np.zeros(n)
 
         for i in range(n):
-            Q_rad = -(self.Q_dir[i] + self.Q_dif[i] +
-                      self.Q_igsw[i] + self.Q_iglw[i] + self.Q_extlw[i])  # positive surface incoming
+            Q_rad = -(self.Q_dir[i] + self.Q_dif[i] + self.Q_igsw[i] + self.Q_iglw[i])  # positive surface incoming
             s_type = self.surfaces[i].parameter("type").value
             area = self.surfaces[i].area
             if s_type == "Exterior_surface":
@@ -312,8 +294,7 @@ class Building(Component):
                     self.Q_dir[i] + self.Q_dif[i])/area
                 self.surfaces[i].variable(
                     "q_swig1").values[time_i] = - self.Q_igsw[i]/area
-                self.surfaces[i].variable("q_lwig1").values[time_i] = - (
-                    self.Q_iglw[i] + self.Q_extlw[i])/area
+                self.surfaces[i].variable("q_lwig1").values[time_i] = - (self.Q_iglw[i] )/area
                 f = -self.surfaces[i].area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
                 self.FS_vector[i] = f
@@ -323,8 +304,7 @@ class Building(Component):
                     self.Q_dir[i] + self.Q_dif[i])/area
                 self.surfaces[i].variable(
                     "q_swig1").values[time_i] = - self.Q_igsw[i]/area
-                self.surfaces[i].variable("q_lwig1").values[time_i] = - (
-                    self.Q_iglw[i] + self.Q_extlw[i])/area
+                self.surfaces[i].variable("q_lwig1").values[time_i] = - (self.Q_iglw[i])/area
                 f = -self.surfaces[i].area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].k_01 * self.surfaces[i].variable("T_s0").values[time_i]
                 self.FS_vector[i] = f
@@ -335,8 +315,7 @@ class Building(Component):
                         self.Q_dir[i] + self.Q_dif[i])/area
                     self.surfaces[i].variable(
                         "q_swig0").values[time_i] = - self.Q_igsw[i]/area
-                    self.surfaces[i].variable("q_lwig0").values[time_i] = - (
-                        self.Q_iglw[i] + self.Q_extlw[i])/area
+                    self.surfaces[i].variable("q_lwig0").values[time_i] = - (self.Q_iglw[i])/area
                     f = -self.surfaces[i].area * \
                         self.surfaces[i].variable("p_0").values[time_i] - Q_rad
                     self.FS_vector[i] = f
@@ -347,12 +326,12 @@ class Building(Component):
                     self.surfaces[i].variable(
                         "q_swig1").values[time_i] = - self.Q_igsw[i]/area
                     self.surfaces[i].variable("q_lwig1").values[time_i] = - (
-                        self.Q_iglw[i] + self.Q_extlw[i])/area
+                        self.Q_iglw[i])/area
                     f = -self.surfaces[i].area * \
                         self.surfaces[i].variable("p_1").values[time_i] - Q_rad
                     self.FS_vector[i] = f
                     self.surfaces[i].variable("debug_f1").values[time_i] = f
-            elif s_type == "Virtual_exterior_surface" or s_type == "Virtual_interior_surface":
+            elif s_type == "Virtual_surface":
                 self.FS_vector[i] = 0.0
             elif s_type == "Opening":
                 q_sol_10 = -(self.Q_dir[i] + self.Q_dif[i])/area
@@ -376,7 +355,7 @@ class Building(Component):
                     self.surfaces[i].radiant_property(
                         "alpha_other_side", "solar_diffuse", 1)
                 self.surfaces[i].variable(
-                    "q_lwig1").values[time_i] = -(self.Q_iglw[i] + self.Q_extlw[i])/area
+                    "q_lwig1").values[time_i] = -(self.Q_iglw[i])/area
                 f_0 = self.surfaces[i].f_0 - (self.surfaces[i].variable(
                     "q_sol0").values[time_i] + self.surfaces[i].variable("q_swig0").values[time_i]) * area
                 f = - Q_rad - (self.surfaces[i].variable(
@@ -515,7 +494,7 @@ class Building(Component):
             self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.TZ_vector))
         # Store TS
         for i in range(len(self.surfaces)):
-            if not self.surfaces[i].is_virtual():
+            if self.surfaces[i].parameter("type").value != "Virtual_surface":
                 if (self.sides[i] == 0):
                     self.surfaces[i].variable(
                         "T_s0").values[time_i] = self.TS_vector[i]
@@ -527,13 +506,13 @@ class Building(Component):
         super().post_iteration(time_index, date, daylight_saving, converged)
         # When not converged .... ?
 
-    def draw_pyvista(self, opacity=1, coordinate_system="building", space="all", shadows=True):
+    def draw3D(self, opacity=1, coordinate_system="building", space="all", shadows=True):
         self._create_spaces_surfaces_list()
         plot = pv.Plotter()
         plot.add_axes_at_origin()
         for surface in self.surfaces:
             if space != "all":
-                if surface.parameter("type").value == "Interior_surface" or surface.parameter("type").value == "Virtual_interior_surface":
+                if surface.parameter("type").value == "Interior_surface" or surface.parameter("type").value == "Virtual_surface":
                     is_my_space = surface.space(0).parameter(
                         "name").value == space or surface.space(1).parameter("name").value == space
                 else:
@@ -550,7 +529,7 @@ class Building(Component):
             polygon_pyvista = pv.PolyData(polygon, faces)
             if surface.parameter("type").value == "Opening":
                 color = "blue"
-            elif surface.parameter("type").value == "Virtual_exterior_surface" or surface.parameter("type").value == "Virtual_interior_surface":
+            elif surface.parameter("type").value == "Virtual_surface":
                 color = "red"
                 opa = opa*0.4
             elif surface.parameter("type").value == "Interior_surface":

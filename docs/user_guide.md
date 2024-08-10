@@ -37,7 +37,7 @@ The following is a list of the most useful functions of the Simulation object:
 - **project(name)**: Returns the project with name parameter "name". Returns "None" if not found.
 - **project_list()**: Returns the list of projects in simulation environment.
 - **project_dataframe()**: Returns pandas DataFrame with all the projects and its parameters as columns.
-- **plotly(dates,variables,names=[],axis=[],frequency=None,value="mean")**:  Draw variables graph using plotly. dates is the array of dates to be used on the x-axis (can be obtained with the dates() function of the projects). Varibles is a list of variables to be plotted, each one in a serie. Names is the list of names for the series (if empty variables names will be used).frequency [__None__, "H", "D", "M", "Y"] is the frequency of the data, that of the simulation (None), hourly ("H"), daily ("D"), monthly ("M") or yearly ("Y") and value [__"mean"__,"max","min","sum"], if we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each point (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min") or the sum ("sum").
+- **plot(dates,variables,names=[],axis=[],frequency=None,value="mean")**:  Draw variables graph (using plotly). dates is the array of dates to be used on the x-axis (can be obtained with the dates() function of the projects). Varibles is a list of variables to be plotted, each one in a serie. Names is the list of names for the series (if empty variables names will be used).frequency [__None__, "H", "D", "M", "Y"] is the frequency of the data, that of the simulation (None), hourly ("H"), daily ("D"), monthly ("M") or yearly ("Y") and value [__"mean"__,"max","min","sum"], if we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each point (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min") or the sum ("sum").
 
 ### Projects
 
@@ -67,10 +67,10 @@ Projects contain a set of components defining a case that can be temporarily sim
                     "Opening_type",
                     "Space_type",
                     "Exterior_surface",
-                    "Virtual_exterior_surface",
                     "Underground_surface",
                     "Interior_surface",
-                    "Virtual_interior_surface",
+                    "Virtual_surface",
+                    "Shadow_surface",
                     "Opening",
                     "Space",
                     "Building"

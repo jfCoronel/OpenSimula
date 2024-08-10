@@ -84,12 +84,6 @@ class Space(Component):
                 for opening in surface.openings:
                     self.surfaces.append(opening)
                     self.sides.append(1)
-        # Virtual exterior
-        surfaces_list = self.project().component_list("Virtual_exterior_surface")
-        for surface in surfaces_list:
-            if surface.parameter("space").component == self:
-                self.surfaces.append(surface)
-                self.sides.append(1)
         # Underground
         surfaces_list = self.project().component_list("Underground_surface")
         for surface in surfaces_list:
@@ -105,8 +99,8 @@ class Space(Component):
             elif surface.parameter("spaces").component[1] == self:
                 self.surfaces.append(surface)
                 self.sides.append(1)
-        # Virtual Interior
-        surfaces_list = self.project().component_list("Virtual_interior_surface")
+        # Virtual Surface
+        surfaces_list = self.project().component_list("Virtual_surface")
         for surface in surfaces_list:
             if surface.parameter("spaces").component[0] == self:
                 self.surfaces.append(surface)
@@ -240,9 +234,6 @@ class Space(Component):
             if s_type == "Opening":
                 solar_gain += self.surfaces[i].area * \
                     self.surfaces[i].variable("E_dir_tra").values[time_i]
-            elif s_type == "Virtual_exterior_surface":
-                solar_gain += self.surfaces[i].area * \
-                    self.surfaces[i].variable("E_dir").values[time_i]
 
         self.variable("solar_direct_gains").values[time_i] = solar_gain
 

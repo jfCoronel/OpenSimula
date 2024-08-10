@@ -140,17 +140,13 @@
                 
                 <li class="third-level"><a href="#parameters_5">Parameters</a></li>
                 <li class="third-level"><a href="#variables_4">Variables</a></li>
-            <li class="second-level"><a href="#virtual_exterior_surface">Virtual_exterior_surface</a></li>
+            <li class="second-level"><a href="#virtual_surface">Virtual_surface</a></li>
                 
                 <li class="third-level"><a href="#parameters_6">Parameters</a></li>
-                <li class="third-level"><a href="#variables_5">Variables</a></li>
-            <li class="second-level"><a href="#virtual_interior_surface">Virtual_interior_surface</a></li>
-                
-                <li class="third-level"><a href="#parameters_7">Parameters</a></li>
             <li class="second-level"><a href="#opening">Opening</a></li>
                 
-                <li class="third-level"><a href="#parameters_8">Parameters</a></li>
-                <li class="third-level"><a href="#variables_6">Variables</a></li>
+                <li class="third-level"><a href="#parameters_7">Parameters</a></li>
+                <li class="third-level"><a href="#variables_5">Variables</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -427,47 +423,9 @@ floor.set_parameters(param)
 <li><strong>q_lwt1</strong> [W/m²]: Radiant long wave heat flux at the interior surface due other surfaces temperatures.</li>
 <li><strong>p_0, p_1</strong> [W/m²]: Conductive heat flux at the surfaces due to previous time steps.</li>
 </ul>
-<h3 id="virtual_exterior_surface">Virtual_exterior_surface</h3>
-<p>Virtual surfaces are used to define gaps between a space and the outside "Virtual_exterior_surface" or between two spaces "Virtual_interior_surface". Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.</p>
+<h3 id="virtual_surface">Virtual_surface</h3>
+<p>Virtual surfaces are used to define gaps between two spaces. Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.</p>
 <h4 id="parameters_6">Parameters</h4>
-<ul>
-<li><strong>shape</strong> [<em>option</em>, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". </li>
-<li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
-<li><strong>height</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
-<li><strong>ref_point</strong> [<em>float-list</em>, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.</li>
-<li><strong>x_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". </li>
-<li><strong>y_polygon</strong> [<em>float-list</em>, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".</li>
-<li><strong>azimuth</strong> [<em>float</em>, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.</li>
-<li><strong>altitude</strong> [<em>float</em>, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.</li>
-<li><strong>space</strong> [<em>component</em>, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.</li>
-</ul>
-<p>See figures of the coordinate systems in the "Exterior_surface" component.</p>
-<p><strong>Example:</strong></p>
-<pre><code class="python">
-...
-
-north_hole = osm.components.Virtual_exterior_surface("north_hole",project)
-param = {
-            "ref_point": [8,0,-6],
-            "width": 8,
-            "height": 2.7,
-            "azimuth": 180,
-            "altitude": 0,
-            "space": "space_1"
-}
-north_hole.set_parameters(param)
-</code></pre>
-
-<h4 id="variables_5">Variables</h4>
-<p>After the simulation we will have the following variables of this component:</p>
-<ul>
-<li><strong>T_rm</strong> [°C]: Exterior radiant mean temperature.</li>
-<li><strong>E_dir</strong> [W/m²]: Direct solar radiation incident on the exterior surface.</li>
-<li><strong>E_dif</strong> [W/m²]: Diffuse solar radiation incident on the exterior surface.</li>
-</ul>
-<h3 id="virtual_interior_surface">Virtual_interior_surface</h3>
-<p>Virtual surfaces are used to define gaps between a space and the outside "Virtual_exterior_surface" or between two spaces "Virtual_interior_surface". Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.</p>
-<h4 id="parameters_7">Parameters</h4>
 <ul>
 <li><strong>shape</strong> [<em>option</em>, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". </li>
 <li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". </li>
@@ -484,7 +442,7 @@ north_hole.set_parameters(param)
 <pre><code class="python">
 ...
 
-interior_hole = osm.components.Virtual_interior_surface("interior_hole",project)
+interior_hole = osm.components.Virtual_surface("interior_hole",project)
 param = {
             "ref_point": [8,0,-3],
             "width": 8,
@@ -498,7 +456,7 @@ interior_hole.set_parameters(param)
 
 <h3 id="opening">Opening</h3>
 <p>Component for defining openings in exterior surfaces, e.g. windows or doors. These elements must be rectangular.</p>
-<h4 id="parameters_8">Parameters</h4>
+<h4 id="parameters_7">Parameters</h4>
 <ul>
 <li><strong>surface</strong> [<em>component</em>, default = "not_defined", component type = Exterior_surface]: Reference to the "Exterior_surface" in which it is located.</li>
 <li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the opening.</li>
@@ -524,7 +482,7 @@ param = {
 south_window.set_parameters(param)
 </code></pre>
 
-<h4 id="variables_6">Variables</h4>
+<h4 id="variables_5">Variables</h4>
 <p>After the simulation we will have the following variables of this component, all variables ending in 0 refer to the outer surface and those ending in 1 to the inner surface:</p>
 <ul>
 <li><strong>T_s0, T_s1</strong> [°C]: Surface temperatures</li>

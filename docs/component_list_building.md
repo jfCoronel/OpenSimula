@@ -296,51 +296,9 @@ After the simulation we will have the following variables of this component, all
 - __p_0, p_1__ [W/m²]: Conductive heat flux at the surfaces due to previous time steps.
 
 
-### Virtual_exterior_surface
+### Virtual_surface
 
-Virtual surfaces are used to define gaps between a space and the outside "Virtual_exterior_surface" or between two spaces "Virtual_interior_surface". Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.
-
-#### Parameters
-
-- **shape** [_option_, default = "RECTANGLE", options = ["RECTANGLE","POLYGON"]]: Shape of the surface, for a rectangle the parameters "width" and "height" will be used and for a polygon the parameters "x-polygon" and "y-polygon". 
-- **width** [_float_, unit = "m", default = 1, min = 0]: Width of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
-- **height** [_float_, unit = "m", default = 1, min = 0]: Height of the rectangular surface. Only used if "shape" is equal to "RECTANGLE". 
-- **ref_point** [_float-list_, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.
-- **x_polygon** [_float-list_, unit = "m", default = [0,10,10,0]]: List with the x-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON". 
-- **y_polygon** [_float-list_, unit = "m", default = [0,0,10,10]]: List with the y-coordinates of the points defining the surface polygon. Only used if "shape" is equal to "POLYGON".
-- **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the projection of the x-axis of the surface.
-- **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.
-- **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.
-
-See figures of the coordinate systems in the "Exterior_surface" component.
-
-**Example:**
-<pre><code class="python">
-...
-
-north_hole = osm.components.Virtual_exterior_surface("north_hole",project)
-param = {
-            "ref_point": [8,0,-6],
-            "width": 8,
-            "height": 2.7,
-            "azimuth": 180,
-            "altitude": 0,
-            "space": "space_1"
-}
-north_hole.set_parameters(param)
-</code></pre>
-
-#### Variables
-
-After the simulation we will have the following variables of this component:
-
-- __T_rm__ [°C]: Exterior radiant mean temperature.
-- __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
-- __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
-
-### Virtual_interior_surface
-
-Virtual surfaces are used to define gaps between a space and the outside "Virtual_exterior_surface" or between two spaces "Virtual_interior_surface". Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.
+Virtual surfaces are used to define gaps between two spaces. Spaces in OpenSimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.
 
 #### Parameters
 
@@ -360,7 +318,7 @@ See figures of the coordinate systems in the "Exterior_surface" component.
 <pre><code class="python">
 ...
 
-interior_hole = osm.components.Virtual_interior_surface("interior_hole",project)
+interior_hole = osm.components.Virtual_surface("interior_hole",project)
 param = {
             "ref_point": [8,0,-3],
             "width": 8,

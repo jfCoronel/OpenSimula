@@ -101,11 +101,11 @@ ok
 Simulation: 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%  End
 </code></pre>
 
-After the simulation, each of the components will have its time variables calculated. In our case the `year` component has a temporary variable called `values` that we can obtain. the Simulation.plotly function can be used to draw an interactive graph (plotly library), the first argument are the dates of the simulation steps (pro.dates()) return the array of simulated dates) and the second a list of the varibles to draw.
+After the simulation, each of the components will have its time variables calculated. In our case the `year` component has a temporary variable called `values` that we can obtain. the Simulation.plot function can be used to draw an interactive graph (plotly library), the first argument are the dates of the simulation steps (pro.dates() return the array of simulated dates) and the second a list of the varibles to draw.
 
 <pre><code class="python">
 variables = [pro.component("year").variable("values")]
-sim.plotly(pro.dates(), variables)
+sim.plot(pro.dates(), variables)
 </code></pre>
 
 We obtain an interactive graph with the 8760 values on which we can zoom in to show, as an example, the first week of the year.

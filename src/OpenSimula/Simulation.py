@@ -108,9 +108,9 @@ class Simulation:
         """Return the list of messages"""
         return self._messages_
 
-    def plotly(self, dates, variables, names=[], axis=[], frequency=None, value="mean"):
+    def plot(self, dates, variables, names=[], axis=[], frequency=None, value="mean"):
         """_summary_
-        Draw variables graph using plotly
+        Draw variables graph (using plotly)
 
         Args:
             variables: List of hourly variables
