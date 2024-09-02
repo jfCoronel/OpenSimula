@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "OpenSimula"
-version = "0.1.1"
+version = "0.0.5"
 authors = [
   { name="Juan F. Coronel", email="jfc@us.es" },
 ]
@@ -18,33 +18,31 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "numpy>=1.25.2",
-  "pandas>=2.2.2",
-  "scipy>=1.14.0",
+  "numpy>1.25",
+  "pandas>1.5",
+  "scipy>=1.1",
   "py-expression-eval>=0.3.14",
-  "shapely>=2.0.5",
+  "shapely>=2.0.3",
   "psychrolib>=2.5.0",
-  "pyvista>=0.43.4",
-  "plotly>=5.23.0",
-  "dash>=2.17.1",
-  "dash_ag_grid>=31.2.0",
-  "dash_bootstrap_components>=1.6.0",
-  "trame>=3.6.3",
-  "trame-vtk>=2.8.9",
-  "trame-vuetify>=2.6.2",
-  "ipywidgets>=8.1.3"
+  "pyvista>=0.43.5",
+  "ipywidgets>=8.1.2",
+  "trame>=3.6.0",
+  "trame-vtk>=2.8.5",
+  "trame-vuetify>=2.4.3"
+  "plotly>=5.17.0"
+  "triangle>=20230923"
 ]
 
 [project.optional-dependencies]
 testing = [
-    'pytest'
+    'pytest',
 ]
 docs = [
-    'mkdocs'
+    'mkdocs>=1.5',
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/jfCoronel/OpenSimula/Site"
+"Homepage" = "http://opensimula.org"
 "Repository" = "https://github.com/jfCoronel/OpenSimula"
 "Bug Tracker" = "https://github.com/jfCoronel/OpenSimula/issues"
 

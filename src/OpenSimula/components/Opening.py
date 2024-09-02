@@ -207,3 +207,14 @@ class Opening(Component):
                          v_loc[2]]
             polygon3D.append(v_loc)
         return polygon3D
+
+    def get_global_origin(self):
+        sur_component = self.parameter("surface").component
+        return sur_component.get_global_origin()
+
+    def get_polygon_2D(self):  # Get polygon_2D
+        ref = self.parameter("ref_point").value
+        w = self.parameter("width").value
+        h = self.parameter("height").value
+        return [[ref[0], ref[1]], [ref[0]+w, ref[1]],
+                [ref[0]+w, ref[1]+h], [ref[0], ref[1]+h]]

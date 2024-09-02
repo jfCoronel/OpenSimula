@@ -110,3 +110,25 @@ class Surface(Component):
                          v_loc[2]]
             polygon3D.append(v_loc)
         return polygon3D
+
+    def get_global_origin(self):
+        az_b = math.radians(self.building().parameter("azimuth").value)
+        local_origin = self.parameter("ref_point").value
+        global_origin = [local_origin[0]*math.cos(az_b)-local_origin[1]*math.sin(az_b),
+                         local_origin[0]*math.sin(az_b) +
+                         local_origin[1]*math.cos(az_b),
+                         local_origin[2]]
+        return global_origin
+
+    def get_polygon_2D(self):  # Get polygon_2D
+        if (self.parameter("shape").value == "RECTANGLE"):
+            w = self.parameter("width").value
+            h = self.parameter("height").value
+            return [[0, 0], [w, 0], [w, h], [0, h]]
+        elif (self.parameter("shape").value == "POLYGON"):
+            polygon2D = []
+            n = len(self.parameter("x_polygon").value)
+            for i in range(0, n):
+                polygon2D.append([self.parameter("x_polygon").value[i],
+                                  self.parameter("y_polygon").value[i]])
+            return polygon2D

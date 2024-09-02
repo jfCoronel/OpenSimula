@@ -4,6 +4,7 @@ import numpy as np
 import math
 import psychrolib as sicro
 import pyvista as pv
+from OpenSimula.components.utils.sun_shadows import Building_3D, Polygon_3D
 
 
 class Building(Component):
@@ -31,6 +32,9 @@ class Building(Component):
 
         # Variables
 
+        # Building_3D
+        self.building_3D = None
+
     def check(self):
         errors = super().check()
         if self.parameter("file_met").value == "not_defined":
@@ -50,6 +54,7 @@ class Building(Component):
         self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
         self._create_spaces_surfaces_list()
         self._create_shadow_surfaces_list()
+        self._create_building_3D()
         self._create_ff_matrix()
         self._create_B_matrix()
         self._create_SW_matrices()
@@ -71,6 +76,25 @@ class Building(Component):
 
     def _create_shadow_surfaces_list(self):
         self.shadow_surfaces = self.project().component_list(comp_type="Shadow_surface")
+
+    def _create_building_3D(self):
+        self.building_3D = Building_3D()
+        for surface in [*self.surfaces, *self.shadow_surfaces]:
+            azimuth = surface.orientation_angle("azimuth", 0)
+            altitude = surface.orientation_angle("altitude", 0)
+            global_origin = surface.get_global_origin()
+            pol_2D = surface.get_polygon_2D()
+            s_type = surface.parameter("type").value
+
+            if s_type == "Exterior_surface":
+                holes_2D = []
+                for opening in surface.openings:
+                    holes_2D.append(opening.get_polygon_2D())
+                polygon = Polygon_3D(global_origin, azimuth,
+                                     altitude, pol_2D, holes_2D)
+            else:
+                polygon = Polygon_3D(global_origin, azimuth, altitude, pol_2D)
+            self.building_3D.add_polygons([polygon], s_type)
 
     def _create_ff_matrix(self):
         n = len(self.surfaces)
@@ -286,7 +310,9 @@ class Building(Component):
         self.FS_vector = np.zeros(n)
 
         for i in range(n):
-            Q_rad = -(self.Q_dir[i] + self.Q_dif[i] + self.Q_igsw[i] + self.Q_iglw[i])  # positive surface incoming
+            # positive surface incoming
+            Q_rad = -(self.Q_dir[i] + self.Q_dif[i] +
+                      self.Q_igsw[i] + self.Q_iglw[i])
             s_type = self.surfaces[i].parameter("type").value
             area = self.surfaces[i].area
             if s_type == "Exterior_surface":
@@ -294,7 +320,8 @@ class Building(Component):
                     self.Q_dir[i] + self.Q_dif[i])/area
                 self.surfaces[i].variable(
                     "q_swig1").values[time_i] = - self.Q_igsw[i]/area
-                self.surfaces[i].variable("q_lwig1").values[time_i] = - (self.Q_iglw[i] )/area
+                self.surfaces[i].variable(
+                    "q_lwig1").values[time_i] = - (self.Q_iglw[i])/area
                 f = -self.surfaces[i].area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
                 self.FS_vector[i] = f
@@ -304,7 +331,8 @@ class Building(Component):
                     self.Q_dir[i] + self.Q_dif[i])/area
                 self.surfaces[i].variable(
                     "q_swig1").values[time_i] = - self.Q_igsw[i]/area
-                self.surfaces[i].variable("q_lwig1").values[time_i] = - (self.Q_iglw[i])/area
+                self.surfaces[i].variable(
+                    "q_lwig1").values[time_i] = - (self.Q_iglw[i])/area
                 f = -self.surfaces[i].area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].k_01 * self.surfaces[i].variable("T_s0").values[time_i]
                 self.FS_vector[i] = f
@@ -315,7 +343,8 @@ class Building(Component):
                         self.Q_dir[i] + self.Q_dif[i])/area
                     self.surfaces[i].variable(
                         "q_swig0").values[time_i] = - self.Q_igsw[i]/area
-                    self.surfaces[i].variable("q_lwig0").values[time_i] = - (self.Q_iglw[i])/area
+                    self.surfaces[i].variable(
+                        "q_lwig0").values[time_i] = - (self.Q_iglw[i])/area
                     f = -self.surfaces[i].area * \
                         self.surfaces[i].variable("p_0").values[time_i] - Q_rad
                     self.FS_vector[i] = f
@@ -505,6 +534,10 @@ class Building(Component):
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
         # When not converged .... ?
+
+    def show3D(self, hide=[], opacity=1):
+        self._create_building_3D()
+        self.building_3D.show(hide, opacity)
 
     def draw3D(self, opacity=1, coordinate_system="building", space="all", shadows=True):
         self._create_spaces_surfaces_list()
