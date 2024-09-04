@@ -77,12 +77,14 @@ class Building(Component):
     def _create_shadow_surfaces_list(self):
         self.shadow_surfaces = self.project().component_list(comp_type="Shadow_surface")
 
-    def _create_building_3D(self):
+    def _create_building_3D(self, coordinate_system="global"):
         self.building_3D = Building_3D()
         for surface in [*self.surfaces, *self.shadow_surfaces]:
-            azimuth = surface.orientation_angle("azimuth", 0)
-            altitude = surface.orientation_angle("altitude", 0)
-            global_origin = surface.get_global_origin()
+            azimuth = surface.orientation_angle(
+                "azimuth", 0, coordinate_system)
+            altitude = surface.orientation_angle(
+                "altitude", 0, coordinate_system)
+            origin = surface.get_origin(coordinate_system)
             pol_2D = surface.get_polygon_2D()
             s_type = surface.parameter("type").value
 
@@ -90,10 +92,10 @@ class Building(Component):
                 holes_2D = []
                 for opening in surface.openings:
                     holes_2D.append(opening.get_polygon_2D())
-                polygon = Polygon_3D(global_origin, azimuth,
+                polygon = Polygon_3D(origin, azimuth,
                                      altitude, pol_2D, holes_2D)
             else:
-                polygon = Polygon_3D(global_origin, azimuth, altitude, pol_2D)
+                polygon = Polygon_3D(origin, azimuth, altitude, pol_2D)
             self.building_3D.add_polygons([polygon], s_type)
 
     def _create_ff_matrix(self):
@@ -535,9 +537,35 @@ class Building(Component):
         super().post_iteration(time_index, date, daylight_saving, converged)
         # When not converged .... ?
 
-    def show3D(self, hide=[], opacity=1):
-        self._create_building_3D()
+    def show3D(self, hide=[], opacity=1, coordinate_system="global", space="all"):
+        self._create_building_3D(coordinate_system)
+        if space != "all":
+            if not isinstance(opacity, list):
+                opacity = [opacity] * len(self.building_3D.polygons)
+            i = 0
+            for surface in [*self.surfaces, *self.shadow_surfaces]:
+                if surface.parameter("type").value == "Interior_surface" or surface.parameter("type").value == "Virtual_surface":
+                    is_my_space = surface.space(0).parameter(
+                        "name").value == space or surface.space(1).parameter("name").value == space
+                elif surface.parameter("type").value == "Shadow_surface":
+                    is_my_space = False
+                else:
+                    is_my_space = surface.space().parameter("name").value == space
+
+                if not is_my_space:
+                    opacity[i] = opacity[i] * 0.25
+                i = i + 1
         self.building_3D.show(hide, opacity)
+
+    def show3D_shadows(self, date):
+        self._create_building_3D()
+        self._file_met = self.parameter("file_met").component
+        cos = self._file_met.sun_cosines(date)
+        if len(cos) == 3:
+            self.building_3D.show_shadows(cos)
+        else:
+            self._sim_.print(
+                "Warning: " + date.strftime('%H:%M,  %d/%m/%Y') + " is night")
 
     def draw3D(self, opacity=1, coordinate_system="building", space="all", shadows=True):
         self._create_spaces_surfaces_list()

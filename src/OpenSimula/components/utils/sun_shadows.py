@@ -28,19 +28,21 @@ class Building_3D():
 
     def show(self, hide=[], opacity=1):
         draw = Draw_3D()
-        for polygon, pol_type in zip(self.polygons, self.pol_types):
+        if not isinstance(opacity, list):
+            opacity = [opacity] * len(self.polygons)
+        for polygon, pol_type, opa in zip(self.polygons, self.pol_types, opacity):
             if pol_type == "Opening" and "Opening" not in hide:
-                draw.add_polygon(polygon, "blue", opacity*0.6)
+                draw.add_polygon(polygon, "blue", opa*0.6)
             elif pol_type == "Virtual_surface" and "Virtual_surface" not in hide:
-                draw.add_polygon(polygon, "red", opacity*0.4)
+                draw.add_polygon(polygon, "red", opa*0.4)
             elif pol_type == "Interior_surface" and "Interior_surface" not in hide:
-                draw.add_polygon(polygon, "green", opacity)
+                draw.add_polygon(polygon, "green", opa)
             elif pol_type == "Exterior_surface" and "Exterior_surface" not in hide:
-                draw.add_polygon(polygon, "white", opacity)
+                draw.add_polygon(polygon, "white", opa)
             elif pol_type == "Underground_surface" and "Underground_surface" not in hide:
-                draw.add_polygon(polygon, "brown", opacity)
+                draw.add_polygon(polygon, "brown", opa)
             elif pol_type == "Shadow_surface" and "Shadow_surface" not in hide:
-                draw.add_polygon(polygon, "cyan", opacity)
+                draw.add_polygon(polygon, "cyan", opa)
         draw.show()
 
     def show_shadows(self, sun_position):

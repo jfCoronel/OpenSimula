@@ -174,8 +174,8 @@ class Opening(Component):
     def radiant_property(self, prop, radiation_type, side, theta=0):
         return self.parameter("opening_type").component.radiant_property(prop, radiation_type, side, theta)
 
-    def orientation_angle(self, angle, side):
-        return self.parameter("surface").component.orientation_angle(angle, side)
+    def orientation_angle(self, angle, side, coordinate_system="global"):
+        return self.parameter("surface").component.orientation_angle(angle, side, coordinate_system)
 
     def is_virtual(self):
         return False
@@ -208,9 +208,9 @@ class Opening(Component):
             polygon3D.append(v_loc)
         return polygon3D
 
-    def get_global_origin(self):
+    def get_origin(self, coordinate_system="global"):
         sur_component = self.parameter("surface").component
-        return sur_component.get_global_origin()
+        return sur_component.get_origin(coordinate_system)
 
     def get_polygon_2D(self):  # Get polygon_2D
         ref = self.parameter("ref_point").value

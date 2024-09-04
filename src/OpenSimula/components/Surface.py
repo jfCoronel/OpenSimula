@@ -48,10 +48,13 @@ class Surface(Component):
                                self.parameter("y_polygon").value[i]])
             return Polygon(polygon).area
 
-    def orientation_angle(self, angle, side):  # exterior normal vector
+    # exterior normal vector
+    def orientation_angle(self, angle, side, coordinate_system="global"):
         if angle == "azimuth":
-            azi_building = self.building().parameter("azimuth").value
-            az = self.parameter("azimuth").value + azi_building
+            az = self.parameter("azimuth").value
+            if coordinate_system == "global":
+                azi_building = self.building().parameter("azimuth").value
+                az = az + azi_building
             if side == 0:
                 return az
             elif side == 1:
@@ -111,14 +114,17 @@ class Surface(Component):
             polygon3D.append(v_loc)
         return polygon3D
 
-    def get_global_origin(self):
-        az_b = math.radians(self.building().parameter("azimuth").value)
-        local_origin = self.parameter("ref_point").value
-        global_origin = [local_origin[0]*math.cos(az_b)-local_origin[1]*math.sin(az_b),
-                         local_origin[0]*math.sin(az_b) +
-                         local_origin[1]*math.cos(az_b),
-                         local_origin[2]]
-        return global_origin
+    def get_origin(self, coordinate_system="global"):
+        if coordinate_system == "global":
+            az_b = math.radians(self.building().parameter("azimuth").value)
+            local_origin = self.parameter("ref_point").value
+            global_origin = [local_origin[0]*math.cos(az_b)-local_origin[1]*math.sin(az_b),
+                             local_origin[0]*math.sin(az_b) +
+                             local_origin[1]*math.cos(az_b),
+                             local_origin[2]]
+            return global_origin
+        else:
+            return self.parameter("ref_point").value
 
     def get_polygon_2D(self):  # Get polygon_2D
         if (self.parameter("shape").value == "RECTANGLE"):

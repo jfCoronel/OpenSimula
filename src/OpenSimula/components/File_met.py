@@ -121,8 +121,7 @@ class File_met(Component):
         super().pre_iteration(time_index, date, daylight_saving)
         # solar_hour = self._solar_hour_(date)
         # azi, alt = self.solar_pos(date, solar_hour)
-        azi, alt, solar_hour = self.sunpos(
-            date, self.latitude, self.longitude, self.reference_time_longitude/15)
+        azi, alt, solar_hour = self.sunpos(date)
         self.variable("sol_hour").values[time_index] = solar_hour
         self.variable("sol_azimuth").values[time_index] = azi
         self.variable("sol_altitude").values[time_index] = alt
@@ -306,7 +305,7 @@ class File_met(Component):
         else:
             return None
 
-    def sunpos(self, date, latitude, longitude, timezone):
+    def sunpos(self, date):
         # Extract the passed data
         year = date.year
         month = date.month
@@ -319,9 +318,10 @@ class File_met(Component):
         sin, cos, tan = math.sin, math.cos, math.tan
         asin, atan2 = math.asin, math.atan2
         # Convert latitude and longitude to radians
-        rlat = rad(latitude)
-        rlon = rad(longitude)
+        rlat = rad(self.latitude)
+        rlon = rad(self.longitude)
         # Decimal hour of the day at Greenwich
+        timezone = self.reference_time_longitude/15
         greenwichtime = hour - timezone + minute / 60 + second / 3600
         # Days from J2000, accurate from 1901 to 2099
         daynum = (
@@ -373,6 +373,15 @@ class File_met(Component):
         solar_hour = hour_ang/15 + 12
         # Return azimuth and elevation in degrees
         return (round(azimuth, 3), round(elevation, 3), round(solar_hour, 3))
+
+    def sun_cosines(self, date):
+        azi, alt, solar_hour = self.sunpos(date)
+        if alt < 0:
+            return []
+        else:
+            azi_rd = math.radians(azi)
+            alt_rd = math.radians(alt)
+            return np.array([math.cos(alt_rd)*math.sin(azi_rd), -math.cos(alt_rd)*math.cos(azi_rd), math.sin(alt_rd)])
 
     def _into_range_(self, x, range_min, range_max):
         shiftedx = x - range_min
