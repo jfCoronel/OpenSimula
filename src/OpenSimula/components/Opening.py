@@ -135,6 +135,7 @@ class Opening(Component):
             self.variable("E_dir").values[time_index] = self.variable(
                 "E_dir").values[time_index] * sunny_fracion
             self._shadow_calculated = True
+        return True
 
     def _f_setback_(self, time_i, azimuth_sur, altitude_sur):
         theta_h = math.fabs(self._file_met.variable(

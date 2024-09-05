@@ -104,6 +104,7 @@ class Exterior_surface(Real_surface):
             self.variable("E_dir").values[time_index] = self.variable(
                 "E_dir").values[time_index] * sunny_fracion
             self._shadow_calculated = True
+        return True
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
