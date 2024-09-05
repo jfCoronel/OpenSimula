@@ -19,6 +19,7 @@ class Exterior_surface(Real_surface):
         # Variables
         self.add_variable(Variable("T_rm", "°C"))
         self.add_variable(Variable("E_dir", "W/m²"))
+        self.add_variable(Variable("f_sunny", "frac"))
         self.add_variable(Variable("E_dif", "W/m²"))
         self.add_variable(Variable("debug_f", ""))
 
@@ -64,6 +65,7 @@ class Exterior_surface(Real_surface):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
+        self._shadow_calculated = False
         self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_variables_pre_iteration(self, time_i):
@@ -92,6 +94,16 @@ class Exterior_surface(Real_surface):
         self.f_0 = self.area * \
             (- p_0 - self.parameter("h_cv").value[0]
              * self._T_ext - h_rd * T_rm - q_sol)
+
+    def iteration(self, time_index, date, daylight_saving):
+        super().iteration(time_index, date, daylight_saving)
+        # Calculate shadows only once
+        if not self._shadow_calculated:
+            sunny_fracion = self.building().get_actual_sunny_fraction(self)
+            self.variable("f_sunny").values[time_index] = sunny_fracion
+            self.variable("E_dir").values[time_index] = self.variable(
+                "E_dir").values[time_index] * sunny_fracion
+            self._shadow_calculated = True
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)

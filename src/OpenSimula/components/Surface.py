@@ -85,34 +85,34 @@ class Surface(Component):
     def is_virtual(self):
         return False
 
-    def get_pyvista_polygon(self, coordinate_system="building"):
-        v1 = self.parameter("ref_point").value
-        az = math.radians(self.parameter("azimuth").value)
-        alt = math.radians(self.parameter("altitude").value)
-        if (self.parameter("shape").value == "RECTANGLE"):
-            w = self.parameter("width").value
-            h = self.parameter("height").value
-            polygon2D = [[0, 0], [w, 0], [w, h], [0, h]]
-        elif (self.parameter("shape").value == "POLYGON"):
-            polygon2D = []
-            n = len(self.parameter("x_polygon").value)
-            for i in range(0, n):
-                polygon2D.append([self.parameter("x_polygon").value[i],
-                                  self.parameter("y_polygon").value[i]])
-        polygon3D = []
-        for vertex in polygon2D:
-            v_loc = [v1[0]+vertex[0]*math.cos(az)-vertex[1]*math.sin(alt)*math.sin(az),
-                     v1[1]+vertex[0] *
-                     math.sin(az)+vertex[1] *
-                     math.sin(alt)*math.cos(az),
-                     v1[2]+vertex[1]*math.cos(alt)]
-            if (coordinate_system == "global"):
-                az_b = math.radians(self.building().parameter("azimuth").value)
-                v_loc = [v_loc[0]*math.cos(az_b)-v_loc[1]*math.sin(az_b),
-                         v_loc[0]*math.sin(az_b)+v_loc[1]*math.cos(az_b),
-                         v_loc[2]]
-            polygon3D.append(v_loc)
-        return polygon3D
+    # def get_pyvista_polygon(self, coordinate_system="building"):
+    #     v1 = self.parameter("ref_point").value
+    #     az = math.radians(self.parameter("azimuth").value)
+    #     alt = math.radians(self.parameter("altitude").value)
+    #     if (self.parameter("shape").value == "RECTANGLE"):
+    #         w = self.parameter("width").value
+    #         h = self.parameter("height").value
+    #         polygon2D = [[0, 0], [w, 0], [w, h], [0, h]]
+    #     elif (self.parameter("shape").value == "POLYGON"):
+    #         polygon2D = []
+    #         n = len(self.parameter("x_polygon").value)
+    #         for i in range(0, n):
+    #             polygon2D.append([self.parameter("x_polygon").value[i],
+    #                               self.parameter("y_polygon").value[i]])
+    #     polygon3D = []
+    #     for vertex in polygon2D:
+    #         v_loc = [v1[0]+vertex[0]*math.cos(az)-vertex[1]*math.sin(alt)*math.sin(az),
+    #                  v1[1]+vertex[0] *
+    #                  math.sin(az)+vertex[1] *
+    #                  math.sin(alt)*math.cos(az),
+    #                  v1[2]+vertex[1]*math.cos(alt)]
+    #         if (coordinate_system == "global"):
+    #             az_b = math.radians(self.building().parameter("azimuth").value)
+    #             v_loc = [v_loc[0]*math.cos(az_b)-v_loc[1]*math.sin(az_b),
+    #                      v_loc[0]*math.sin(az_b)+v_loc[1]*math.cos(az_b),
+    #                      v_loc[2]]
+    #         polygon3D.append(v_loc)
+    #     return polygon3D
 
     def get_origin(self, coordinate_system="global"):
         if coordinate_system == "global":

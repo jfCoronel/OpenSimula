@@ -9,22 +9,25 @@ class Building_3D():
     def __init__(self):
         self.polygons = []
         self.pol_types = []
+        self.polygon_surface = []  # Reference to the surface object
         self.sunny_list = []
+        self.sunny_surface = []  # Reference to the sunny surface object
         self.shadow_list = []
 
-    def add_polygons(self, polygon_list, pol_type):
-        for polygon in polygon_list:
-            self.polygons.append(polygon)
-            self.pol_types.append(pol_type)
-            if pol_type == "Exterior_surface" or pol_type == "Opening":
-                self.sunny_list.append(polygon)
-            if pol_type == "Shadow_surface" or pol_type == "Exterior_surface":
-                if polygon.has_holes():
-                    pol_without_holes = Polygon_3D(
-                        polygon.origin, polygon.azimuth, polygon.altitude, polygon.polygon2D, [])
-                    self.shadow_list.append(pol_without_holes)
-                else:
-                    self.shadow_list.append(polygon)
+    def add_polygon(self, polygon, pol_type, surface_reference=None):
+        self.polygons.append(polygon)
+        self.pol_types.append(pol_type)
+        self.polygon_surface.append(surface_reference)
+        if pol_type == "Exterior_surface" or pol_type == "Opening":
+            self.sunny_list.append(polygon)
+            self.sunny_surface.append(surface_reference)
+        if pol_type == "Shadow_surface" or pol_type == "Exterior_surface":
+            if polygon.has_holes():
+                pol_without_holes = Polygon_3D(
+                    polygon.origin, polygon.azimuth, polygon.altitude, polygon.polygon2D, [])
+                self.shadow_list.append(pol_without_holes)
+            else:
+                self.shadow_list.append(polygon)
 
     def show(self, hide=[], opacity=1):
         draw = Draw_3D()

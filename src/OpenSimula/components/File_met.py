@@ -122,9 +122,14 @@ class File_met(Component):
         # solar_hour = self._solar_hour_(date)
         # azi, alt = self.solar_pos(date, solar_hour)
         azi, alt, solar_hour = self.sunpos(date)
+
         self.variable("sol_hour").values[time_index] = solar_hour
-        self.variable("sol_azimuth").values[time_index] = azi
-        self.variable("sol_altitude").values[time_index] = alt
+        if alt <= 1:
+            self.variable("sol_azimuth").values[time_index] = float("nan")
+            self.variable("sol_altitude").values[time_index] = float("nan")
+        else:
+            self.variable("sol_azimuth").values[time_index] = azi
+            self.variable("sol_altitude").values[time_index] = alt
         self.variable(
             "underground_temperature").values[time_index] = self._T_average
         if self.parameter("file_type").value == "MET":
@@ -382,6 +387,23 @@ class File_met(Component):
             azi_rd = math.radians(azi)
             alt_rd = math.radians(alt)
             return np.array([math.cos(alt_rd)*math.sin(azi_rd), -math.cos(alt_rd)*math.cos(azi_rd), math.sin(alt_rd)])
+
+    def maximun_solar_angles(self):
+        azimuth = []
+        altitude = []
+        if (self.longitude > 0):
+            solstice = dt.datetime(2001, 6, 21)
+        else:
+            solstice = dt.datetime(2001, 6, 22)
+        for i in range(0, 23):
+            solstice = solstice.replace(hour=i, minute=30)
+            az, alt, hour = self.sunpos(solstice)
+            if alt < 0:
+                alt = 0
+                az = 0
+            azimuth.append(az)
+            altitude.append(alt)
+        return (max(azimuth), max(altitude))
 
     def _into_range_(self, x, range_min, range_max):
         shiftedx = x - range_min
