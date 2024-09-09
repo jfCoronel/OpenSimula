@@ -83,26 +83,30 @@ class Exterior_surface(Real_surface):
         self.variable("E_dir").values[time_i] = E_dir
         T_rm = self._F_sky * T_sky + (1-self._F_sky)*self._T_ext
         self.variable("T_rm").values[time_i] = T_rm
-        h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
-        q_sol = self.radiant_property(
-            "alpha", "solar_diffuse", 0) * (E_dif + E_dir)
-        self.variable("q_sol0").values[time_i] = q_sol
+        self.variable("q_sol0").values[time_i] = self.radiant_property(
+            "alpha", "solar_diffuse", 0) * E_dif
         p_0, p_1 = self.parameter("construction").component.get_P(
             time_i, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
         self.variable("p_0").values[time_i] = p_0
         self.variable("p_1").values[time_i] = p_1
-        self.f_0 = self.area * \
-            (- p_0 - self.parameter("h_cv").value[0]
-             * self._T_ext - h_rd * T_rm - q_sol)
 
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
         # Calculate shadows only once
         if not self._shadow_calculated:
             sunny_fracion = self.building().get_actual_sunny_fraction(self)
+            E_dir = self.variable("E_dir").values[time_index] * sunny_fracion
             self.variable("f_sunny").values[time_index] = sunny_fracion
-            self.variable("E_dir").values[time_index] = self.variable(
-                "E_dir").values[time_index] * sunny_fracion
+            self.variable("E_dir").values[time_index] = E_dir
+            self.variable(
+                "q_sol0").values[time_index] += self.radiant_property("alpha", "solar_diffuse", 0) * E_dir
+            q_sol = self.variable("q_sol0").values[time_index]
+            p_0 = self.variable("p_0").values[time_index]
+            h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+            T_rm = self.variable("T_rm").values[time_index]
+            self.f_0 = self.area * \
+                (- p_0 - self.parameter("h_cv").value[0]
+                 * self._T_ext - h_rd * T_rm - q_sol)
             self._shadow_calculated = True
         return True
 

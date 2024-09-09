@@ -33,6 +33,7 @@ class Opening(Component):
         self.add_variable(Variable("f_sunny", "frac"))
         self.add_variable(Variable("E_dir_tra", "W/m²"))
         self.add_variable(Variable("E_dif_tra", "W/m²"))
+        self.add_variable(Variable("theta_sun", "°"))
         self.add_variable(Variable("E_ref", "W/m²"))
         self.add_variable(Variable("E_ref_tra", "W/m²"))
         self.add_variable(Variable("q_cv0", "W/m²"))
@@ -95,6 +96,7 @@ class Opening(Component):
             "T_rm").values[time_i]
         theta = self._file_met.solar_surface_angle(time_i, surface.orientation_angle(
             "azimuth", 0), surface.orientation_angle("altitude", 0))
+        self.variable("theta_sun").values[time_i] = theta
         # Setback shadow
         if (theta is not None and self.parameter("setback").value > 0):
             f_setback = self._f_setback_(time_i, surface.orientation_angle(
@@ -105,21 +107,13 @@ class Opening(Component):
         self.variable("f_setback").values[time_i] = f_setback
         self.variable("E_dir").values[time_i] = surface.variable(
             "E_dir").values[time_i] * f_setback
-        q_sol0 = self.radiant_property(
+        self.variable("q_sol0").values[time_i] = self.radiant_property(
             "alpha", "solar_diffuse", 0) * self.variable("E_dif").values[time_i]
-        q_sol1 = self.radiant_property(
+        self.variable("q_sol1").values[time_i] = self.radiant_property(
             "alpha_other_side", "solar_diffuse", 0) * self.variable("E_dif").values[time_i]
         self.variable("E_dif_tra").values[time_i] = self.variable(
             "E_dif").values[time_i]*self.radiant_property("tau", "solar_diffuse", 0)
-        if theta is not None:  # direct radiation
-            self.variable("E_dir_tra").values[time_i] = self.variable(
-                "E_dir").values[time_i]*self.radiant_property("tau", "solar_direct", 0, theta)
-            q_sol0 += self.radiant_property("alpha", "solar_direct",
-                                            0, theta) * self.variable("E_dir").values[time_i]
-            q_sol1 += self.radiant_property("alpha_other_side", "solar_direct",
-                                            0, theta) * self.variable("E_dir").values[time_i]
-        self.variable("q_sol0").values[time_i] = q_sol0
-        self.variable("q_sol1").values[time_i] = q_sol1
+
         h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
         T_rm = self.variable("T_rm").values[time_i]
         self.f_0 = self.area * \
@@ -131,9 +125,19 @@ class Opening(Component):
         # Calculate shadows only once
         if not self._shadow_calculated:
             sunny_fracion = self.building().get_actual_sunny_fraction(self)
+            E_dir = self.variable("E_dir").values[time_index] * sunny_fracion
+            theta = self.variable("theta_sun").values[time_index]
             self.variable("f_sunny").values[time_index] = sunny_fracion
-            self.variable("E_dir").values[time_index] = self.variable(
-                "E_dir").values[time_index] * sunny_fracion
+            self.variable("E_dir").values[time_index] = E_dir
+            if E_dir > 0:
+                self.variable("E_dir_tra").values[time_index] = E_dir * \
+                    self.radiant_property("tau", "solar_direct", 0, theta)
+                self.variable("q_sol0").values[time_index] += self.radiant_property(
+                    "alpha", "solar_direct", 0, theta) * E_dir
+                self.variable("q_sol1").values[time_index] += self.radiant_property(
+                    "alpha_other_side", "solar_direct", 0, theta) * E_dir
+            else:
+                self.variable("E_dir_tra").values[time_index] = 0
             self._shadow_calculated = True
         return True
 

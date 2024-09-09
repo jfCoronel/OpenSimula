@@ -278,15 +278,12 @@ class Building(Component):
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
         self._calculate_shadows(time_index)
-        self._calculate_Q_dir(time_index)
+        self._shadow_calculated = False
         self._calculate_Q_igsw(time_index)
         self._calculate_Q_iglw(time_index)
         self._calculate_Q_dif(time_index)
-        self._calculate_FS_vector(time_index)
         self._calculate_FZ_vector(time_index)
         self._update_K_matrices(time_index)
-        self._calculate_FINAL_matrices(time_index)
-        self.TZ_vector = np.matmul(self.KFIN_inv_matrix, self.FFIN_vector)
 
     def _calculate_shadows(self, time_i):
         if self.parameter("shadow_calculation").value == "INSTANT":
@@ -301,13 +298,6 @@ class Building(Component):
                     sun_position)
             else:
                 self.sunny_fractions = [1]*len(self.building_3D.sunny_list)
-
-    def _calculate_Q_dir(self, time_i):
-        E_dir = np.zeros(len(self.spaces))
-        for i in range(len(self.spaces)):
-            E_dir[i] = self.spaces[i].variable(
-                "solar_direct_gains").values[time_i]
-        self.Q_dir = np.matmul(self.SWDIR_matrix, E_dir)
 
     def _calculate_Q_igsw(self, time_i):
         E_ig = np.zeros(len(self.spaces))
@@ -330,6 +320,58 @@ class Building(Component):
                 E_dif[i] = self.surfaces[i].variable("E_dif").values[time_i]
         self.Q_dif = np.matmul(self.SWDIF_matrix, E_dif)
 
+    def _calculate_FZ_vector(self, time_i):
+        m = len(self.spaces)
+        self.FZ_vector = np.zeros(m)
+        self.PZ_vector = np.zeros(m)  # Perfect conditioning loads
+
+        for i in range(m):
+            if time_i == 0:
+                T_pre = self.parameter("initial_temperature").value
+            else:
+                T_pre = self.spaces[i].variable("temperature").values[time_i-1]
+            self.FZ_vector[i] = self.spaces[i].variable("people_convective").values[time_i] + self.spaces[i].variable(
+                "other_gains_convective").values[time_i] + self.spaces[i].variable("light_convective").values[time_i]
+            self.FZ_vector[i] += (self.spaces[i].parameter("volume").value * self.RHO * self.C_P + self.spaces[i].parameter(
+                "furniture_weight").value * self.C_P_FURNITURE) * T_pre / self.project().parameter("time_step").value
+            self.FZ_vector[i] += self.spaces[i].variable("infiltration_flow").values[time_i] * \
+                self.RHO*self.C_P * \
+                self._file_met.variable("temperature").values[time_i]
+
+    def _update_K_matrices(self, time_i):
+        m = len(self.spaces)
+        self.KZFIN_matrix = self.KZ_matrix.copy()
+
+        # Add infiltration
+        for i in range(m):
+            self.KZFIN_matrix[i][i] += self.spaces[i].variable(
+                "infiltration_flow").values[time_i]*self.RHO*self.C_P
+
+    def iteration(self, time_index, date, daylight_saving):
+        super().iteration(time_index, date, daylight_saving)
+        # Calculate shadows only once
+        if not self._shadow_calculated:
+            self._calculate_Q_dir(time_index)
+            self._calculate_FS_vector(time_index)
+            self._calculate_FINAL_matrices(time_index)
+            self.TZ_vector = np.matmul(self.KFIN_inv_matrix, self.FFIN_vector)
+            self._shadow_calculated = True
+        # Comprobar convergencia
+        converged = self._converged(time_index)
+        if converged:
+            self._store_spaces_values(time_index)
+            self._store_surfaces_values(time_index)
+        else:
+            self._calculate_T_P(time_index)
+        return converged
+
+    def _calculate_Q_dir(self, time_i):
+        E_dir = np.zeros(len(self.spaces))
+        for i in range(len(self.spaces)):
+            E_dir[i] = self.spaces[i].variable(
+                "solar_direct_gains").values[time_i]
+        self.Q_dir = np.matmul(self.SWDIR_matrix, E_dir)
+
     def _calculate_FS_vector(self, time_i):
         n = len(self.surfaces)
         self.FS_vector = np.zeros(n)
@@ -347,7 +389,7 @@ class Building(Component):
                     "q_swig1").values[time_i] = - self.Q_igsw[i]/area
                 self.surfaces[i].variable(
                     "q_lwig1").values[time_i] = - (self.Q_iglw[i])/area
-                f = -self.surfaces[i].area * self.surfaces[i].variable(
+                f = -area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
                 self.FS_vector[i] = f
                 self.surfaces[i].variable("debug_f").values[time_i] = f
@@ -358,7 +400,7 @@ class Building(Component):
                     "q_swig1").values[time_i] = - self.Q_igsw[i]/area
                 self.surfaces[i].variable(
                     "q_lwig1").values[time_i] = - (self.Q_iglw[i])/area
-                f = -self.surfaces[i].area * self.surfaces[i].variable(
+                f = -area * self.surfaces[i].variable(
                     "p_1").values[time_i] - Q_rad - self.surfaces[i].k_01 * self.surfaces[i].variable("T_s0").values[time_i]
                 self.FS_vector[i] = f
                 self.surfaces[i].variable("debug_f").values[time_i] = f
@@ -417,33 +459,6 @@ class Building(Component):
                 self.FS_vector[i] = f
                 self.surfaces[i].variable("debug_f").values[time_i] = f
 
-    def _calculate_FZ_vector(self, time_i):
-        m = len(self.spaces)
-        self.FZ_vector = np.zeros(m)
-        self.PZ_vector = np.zeros(m)  # Perfect conditioning loads
-
-        for i in range(m):
-            if time_i == 0:
-                T_pre = self.parameter("initial_temperature").value
-            else:
-                T_pre = self.spaces[i].variable("temperature").values[time_i-1]
-            self.FZ_vector[i] = self.spaces[i].variable("people_convective").values[time_i] + self.spaces[i].variable(
-                "other_gains_convective").values[time_i] + self.spaces[i].variable("light_convective").values[time_i]
-            self.FZ_vector[i] += (self.spaces[i].parameter("volume").value * self.RHO * self.C_P + self.spaces[i].parameter(
-                "furniture_weight").value * self.C_P_FURNITURE) * T_pre / self.project().parameter("time_step").value
-            self.FZ_vector[i] += self.spaces[i].variable("infiltration_flow").values[time_i] * \
-                self.RHO*self.C_P * \
-                self._file_met.variable("temperature").values[time_i]
-
-    def _update_K_matrices(self, time_i):
-        m = len(self.spaces)
-        self.KZFIN_matrix = self.KZ_matrix.copy()
-
-        # Add infiltration
-        for i in range(m):
-            self.KZFIN_matrix[i][i] += self.spaces[i].variable(
-                "infiltration_flow").values[time_i]*self.RHO*self.C_P
-
     def _calculate_FINAL_matrices(self, time_i):
         self.KFIN_matrix = self.KZFIN_matrix - \
             np.matmul(self.KZS_matrix, np.matmul(
@@ -452,17 +467,6 @@ class Building(Component):
         self.FFIN_vector = self.FZ_vector - \
             np.matmul(self.KZS_matrix, np.matmul(
                 self.KS_inv_matrix, self.FS_vector))
-
-    def iteration(self, time_index, date, daylight_saving):
-        super().iteration(time_index, date, daylight_saving)
-        # Comprobar convergencia
-        converged = self._converged(time_index)
-        if converged:
-            self._store_spaces_values(time_index)
-            self._store_surfaces_values(time_index)
-        else:
-            self._calculate_T_P(time_index)
-        return converged
 
     def _converged(self, time_i):
         for i in range(len(self.spaces)):

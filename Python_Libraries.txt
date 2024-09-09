@@ -13,6 +13,7 @@ In a clean python version:
 - plotly
 - dash
 - dash_bootstrap_components
+- dash_ag_grid
 - triangle:
     pip install triangle
     pip install git+https://github.com/drufat/triangle.git # For Macos Apple Silicon

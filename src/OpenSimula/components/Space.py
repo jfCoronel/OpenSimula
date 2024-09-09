@@ -192,7 +192,7 @@ class Space(Component):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        self._calculate_solar_direct_gains(time_index)
+        self._shadow_calculated = False
 
         # People
         self.variable("people_convective").values[time_index] = self._area * \
@@ -226,6 +226,14 @@ class Space(Component):
         self.variable("infiltration_flow").values[time_index] = self._volume * \
             self._space_type_comp.variable(
                 "infiltration_rate").values[time_index] / 3600
+
+    def iteration(self, time_index, date, daylight_saving):
+        super().iteration(time_index, date, daylight_saving)
+        # Calculate shadows only once
+        if not self._shadow_calculated:
+            self._calculate_solar_direct_gains(time_index)
+            self._shadow_calculated = True
+        return True
 
     def _calculate_solar_direct_gains(self, time_i):
         solar_gain = 0
