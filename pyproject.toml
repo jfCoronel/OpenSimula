@@ -28,8 +28,8 @@ dependencies = [
   "ipywidgets>=8.1.2",
   "trame>=3.6.0",
   "trame-vtk>=2.8.5",
-  "trame-vuetify>=2.4.3"
-  "plotly>=5.17.0"
+  "trame-vuetify>=2.4.3",
+  "plotly>=5.17.0",
   "triangle>=20230923"
 ]
 
