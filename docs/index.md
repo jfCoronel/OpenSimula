@@ -6,6 +6,15 @@ ___OpenSimula___ project.
 
 `OpenSimula` is a component-based time simulation environment in Python. 
 
+The main objective is the thermal and energy simulation of different systems and installations, mainly in buildings, although it can be used to simulate any component that presents a temporal variation.
+
+![Building shadows example](img/shadows_example.png)
+
+![Plot variables example](img/plot_example.png)
+
+
+### Structure
+
 The general object structure provided by OpenSimula is composed of three main elements:
 
 - Simulation: The global environment for simulation.
@@ -40,9 +49,4 @@ information generated during the simulation.
 3. [Developer guide](developer_guide.md)
 
 
-## Acknowledgements
-
-People:
-- ...
-
-_© JFC 2023_
+_© JFC 2024_

@@ -2,11 +2,7 @@
 
 In this guide you will find information on how to use OpenSimula from an environment that can run Python.
 
-The best environment to start using OpenSimula is with [Jupyter notebooks](https://jupyter.org/) or [Google Colab](https://colab.research.google.com/).
-
-### Installation
-
-    pip install opensimula
+The best environment to start using OpenSimula is with [Jupyter notebooks](https://jupyter.org/).
 
 ### Simulation environment
 
@@ -38,6 +34,9 @@ The following is a list of the most useful functions of the Simulation object:
 - **project_list()**: Returns the list of projects in simulation environment.
 - **project_dataframe()**: Returns pandas DataFrame with all the projects and its parameters as columns.
 - **plot(dates,variables,names=[],axis=[],frequency=None,value="mean")**:  Draw variables graph (using plotly). dates is the array of dates to be used on the x-axis (can be obtained with the dates() function of the projects). Varibles is a list of variables to be plotted, each one in a serie. Names is the list of names for the series (if empty variables names will be used).frequency [__None__, "H", "D", "M", "Y"] is the frequency of the data, that of the simulation (None), hourly ("H"), daily ("D"), monthly ("M") or yearly ("Y") and value [__"mean"__,"max","min","sum"], if we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each point (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min") or the sum ("sum").
+- **project_editor()**: When used in Jupyter, it generates a form with a table that allows you to create new projects, delete existing ones and edit the parameters of each project, as shown in the following image.
+
+![Project editor example](img/project_editor.png)
 
 ### Projects
 
@@ -89,7 +88,7 @@ pro.parameter("n_time_steps").value = 24*4*7
 pro.parameter("initial_time").value = "01/06/2001 00:00:00"
 </code></pre>
 
-Project and component parameters can be changed one by one or in bulk using a dictionary and the `set_parameter(dictonaty)` function.
+Project and component parameters can be changed one by one, in bulk using a dictionary and the `set_parameter(dictonaty)` function, or interactively using the project and component editors.
 
 <pre><code class="python">
 import OpenSimula as osm
@@ -124,6 +123,9 @@ The following is a list of the most useful functions of the Project object:
 - **check()**: Returns the list of errors after checking all the components. All the errors returned are also printed.
 - **simulate()**: Perform the time simulation of the project, calculating all the varibles of the components
 - **dates()**: Returns numpy array with the date of each simulation instant, using winter time without daylight saving.
+- **component_editor(type)**: When used in Jupyter, it generates a form with a table that allows you to create new compenents, delete existing ones and edit the parameters of each component. If the type is specified, a table with only the components of that type will be displayed. If no type is included or type = “all” all components will be displayed but only with the common parameters. Following image shows an expample of the component editor:
+
+![Compoenent editor example](img/component_editor.png)
 
 the first simulation instant is the initial_time plus 1/2 of the time_step. For example, if initial_time = “01/01/2001 00:00:00” and time_step = 3600, then the first simulation instant is: “01/01/2001 00:30:00”, the second: “01/01/2001 01:30:00”, and so on. 
 

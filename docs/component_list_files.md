@@ -32,8 +32,8 @@ To generate the variables in the simulation time step, the values are obtained b
 - **sol_azimut** [°]: Solar azimut (degrees from south: E-, W+) (calculated).
 - **sol_altitude** [°]: Solar altitude (degrees) (calculated).
 - **wind_speed** [m/s]: Wind speed.
-- **wind_direction** [W/m²]: Wind direction (degrees from north: E+, W-).
-- **pressure** [Pa]: Ambient absolute pressure (read from TMY3 files, calculated using sstandard atmosphere for MET files).
+- **wind_direction** [°]: Wind direction (degrees from north: E+, W-).
+- **pressure** [Pa]: Ambient absolute pressure (read from TMY3 files, calculated using standard atmosphere for MET files).
 - **total_cloud_cover** [%]:  Percentage of the sky covered by all the visible clouds (read from TMY3 files, 0 for MET files).
 - **opaque_cloud_cover** [%]: Percentage of the sky covered, used for infrared radiation an sky temperature estimation (read from TMY3 files, 0 for MET files).
 

@@ -1,8 +1,32 @@
 ## Getting Started
 
-### First example
+The best environment to start using OpenSimula is with [Jupyter notebooks](https://jupyter.org/) or [Google Colab](https://colab.research.google.com/). We recommend the use of [JupyterLab Desktop](https://github.com/jupyterlab/jupyterlab-desktop)
 
-The best environment to start using OpenSimula is with [Jupyter notebooks](https://jupyter.org/) or [Google Colab](https://colab.research.google.com/).
+### Installing OpenSiumula
+
+To install OpenSimula you can use any of the methods that Python makes possible. For example, to install using pip we must use:
+
+<pre>
+pip install OpenSimula
+</pre>
+
+OpenSimula uses in different parts of the code the following Python packages, which will be installed automatically when OpenSimula is installed:
+
+- NumPy
+- pandas
+- SciPy
+- py-expression-eval
+- shapely
+- psychrolib
+- pyvista[jupyter]
+- plotly
+- dash
+- dash_bootstrap_components
+- dash_ag_grid
+- triangle
+
+
+### First example
 
 First we are going to define a Python dictionary that contains the information of our project:
 
