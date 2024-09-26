@@ -7,6 +7,8 @@ component used to read and manage weather files. Creating the necessary weather 
 #### Parameters
 - **file_type** [_option_, default = "MET", options = ["MET","TMY3"]]: Weather file type. "MET": MET format. [.MET format (CTE documentation)](https://www.codigotecnico.org/pdf/Documentos/HE/20170202-DOC-DB-HE-0-Climas%20de%20referencia.pdf). "TMY3" TMY3 format [TMY format description](https://www.nrel.gov/docs/fy08osti/43156.pdf)
 - **file_name** [_string_, default = "name.met"]: Name of the weather file containing the data. 
+- **tilted_diffuse_model** [_option_, default = "HAY-DAVIES", options = ["REINDL","HAY-DAVIES", "ISOTROPIC"]]: Model used for the calculation of diffuse solar radiation on inclined surfaces. The simplest model is the isotropic model (“ISOTROPIC”) which only takes into account uniform diffuse radiation. The Hay-Davies model (default value) includes the influence of the circumsolar component and the Reindl model also includes the effect of the horizon brightening component. [More information about diffuse models on tilted surface](https://pvpmc.sandia.gov/modeling-guide/1-weather-design-inputs/plane-of-array-poa-irradiance/calculating-poa-irradiance/poa-sky-diffuse/)
+
 
 **Example:**
 <pre><code class="python">

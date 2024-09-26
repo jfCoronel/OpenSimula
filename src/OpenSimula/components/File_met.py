@@ -16,6 +16,8 @@ class File_met(Component):
         self.add_parameter(Parameter_string("file_name", "name.met"))
         self.add_parameter(Parameter_options(
             "file_type", "MET", ["MET", "TMY3"]))
+        self.add_parameter(Parameter_options(
+            "tilted_diffuse_model", "HAY-DAVIES", ["REINDL", "HAY-DAVIES", "ISOTROPIC"]))
 
         # Variables
         self.add_variable(Variable("sol_hour", unit="h"))
@@ -124,7 +126,7 @@ class File_met(Component):
         azi, alt, solar_hour = self.sunpos(date)
 
         self.variable("sol_hour").values[time_index] = solar_hour
-        if alt <= 1:
+        if alt < 3:
             self.variable("sol_azimuth").values[time_index] = float("nan")
             self.variable("sol_altitude").values[time_index] = float("nan")
         else:
@@ -156,7 +158,7 @@ class File_met(Component):
         self._interpolate("opaque_cloud_cover", self.opaque_cloud_cover,
                           time_index, i, j, f)
         # Corregir la directa si el sol no ha salido, y con alturas solares pequeñas
-        if (alt <= 1 and self.variable("sol_direct").values[time_index] > 0):
+        if (alt < 3 and self.variable("sol_direct").values[time_index] > 0):
             self.variable(
                 "sol_diffuse").values[time_index] += self.variable("sol_direct").values[time_index]
             self.variable("sol_direct").values[time_index] = 0
@@ -235,9 +237,11 @@ class File_met(Component):
         Returns:
             float: Solar direct radiation over surface (W/m^2)
         """
+        sol_direct = self.variable("sol_direct").values[time_index]
+        if sol_direct == 0:
+            return 0
         theta = self.solar_surface_angle(
             time_index, surf_azimuth, surf_altitude)
-        sol_direct = self.variable("sol_direct").values[time_index]
         sol_altitude = self.variable("sol_altitude").values[time_index]
         if theta is not None:
             return sol_direct * math.cos(theta) / math.sin(math.radians(sol_altitude))
@@ -246,7 +250,6 @@ class File_met(Component):
 
     def solar_diffuse_rad(self, time_index, surf_azimuth, surf_altitude):
         """Solar Diffuse radiation over surface
-        Isotropic diffuse Model
 
         Args:
             time_index (int): Simulation time index
@@ -257,30 +260,44 @@ class File_met(Component):
             float: Solar diffuse radiation over surface (W/m^2)
         """
         sol_diffuse = self.variable("sol_diffuse").values[time_index]
-
-        # Isotropic diffuse radiation (Liu-Jordan model)
-        E_dif_iso = sol_diffuse * (1 + math.sin(math.radians(surf_altitude)))/2
-
-        # Anisotropic model ...
-        # theta = self.solar_surface_angle(time_index, surf_azimuth, surf_altitude)
-        # sol_direct = self.variable("sol_direct").values[time_index]
-        # sol_altitude = self.variable("sol_altitude").values[time_index]
-        # F not clear days
-        # if sol_direct+sol_diffuse > 0:
-        #    F = 1 - (sol_diffuse/(sol_diffuse+sol_direct))**2
-        # else:
-        #    F = 0
-        # Horizont correction
-        # f_1 = 1
-        # if sol_diffuse > 0:
-        #    f_1 = 1 + F*(math.sin(math.pi/2 - math.radians(surf_altitude)))**3
-        # Near sun correction
-        # f_2 = 1
-        # if theta != None and surf_altitude != 90:
-        #    f_2 = 1 + F * (math.cos(theta))**2 * \
-        #        (math.sin(math.pi/2-math.radians(sol_altitude))**3)
-
-        return E_dif_iso
+        if (sol_diffuse == 0):
+            return 0
+        model = self.parameter("tilted_diffuse_model").value
+        beta = math.radians(surf_altitude)
+        if (model == "ISOTROPIC"):
+            # Isotropic diffuse radiation (Liu-Jordan model)
+            E_dif = sol_diffuse * (1 + math.sin(beta))/2
+        elif (model == "HAY-DAVIES"):
+            theta = self.solar_surface_angle(
+                time_index, surf_azimuth, surf_altitude)
+            if theta is not None:
+                sol_direct = self.variable("sol_direct").values[time_index]
+                sol_altitude = math.radians(self.variable(
+                    "sol_altitude").values[time_index])
+                A = sol_direct/math.sin(sol_altitude)/1353
+                R_b = math.cos(theta) / math.sin(sol_altitude)
+                E_dif = sol_diffuse * A * R_b + sol_diffuse * \
+                    (1-A) * (1 + math.sin(beta))/2
+            else:
+                E_dif = sol_diffuse * (1 + math.sin(beta))/2
+        else:  # Default model "REINDL"
+            theta = self.solar_surface_angle(
+                time_index, surf_azimuth, surf_altitude)
+            sol_altitude = math.radians(self.variable(
+                "sol_altitude").values[time_index])
+            sol_direct = self.variable("sol_direct").values[time_index]
+            zenit = math.pi/2 - beta
+            f_horizon = 1 + \
+                math.sqrt(sol_direct/(sol_direct+sol_diffuse)) * \
+                (math.sin(zenit/2))**3
+            if theta is not None:
+                A = sol_direct/math.sin(sol_altitude)/1353
+                R_b = math.cos(theta) / math.sin(sol_altitude)
+                E_dif = sol_diffuse * A * R_b + sol_diffuse * \
+                    (1-A) * (1 + math.sin(beta))/2 * f_horizon
+            else:
+                E_dif = sol_diffuse * (1 + math.sin(beta))/2 * f_horizon
+        return E_dif
 
     def solar_surface_angle(self, time_index, surf_azimuth, surf_altitude):
         """Relative angle between surface exterior normal and the sum
@@ -293,17 +310,17 @@ class File_met(Component):
         Returns:
             float: Angle in radians
         """
+        azi_sur = math.radians(surf_azimuth)
+        alt_sur = math.radians(surf_altitude)
         sol_direct = self.variable("sol_direct").values[time_index]
-        sol_azimuth = self.variable("sol_azimuth").values[time_index]
-        sol_altitude = self.variable("sol_altitude").values[time_index]
+        azi_sol = math.radians(self.variable("sol_azimuth").values[time_index])
+        alt_sol = math.radians(self.variable(
+            "sol_altitude").values[time_index])
         if sol_direct > 0:
-            cos = math.cos(math.radians(sol_azimuth))*math.cos(math.radians(sol_altitude)) * \
-                math.cos(math.radians(surf_azimuth)) * math.cos(math.radians(surf_altitude)) + \
-                math.sin(math.radians(sol_azimuth))*math.cos(math.radians(sol_altitude)) * \
-                math.sin(math.radians(surf_azimuth)) * math.cos(math.radians(surf_altitude)) + \
-                math.sin(math.radians(sol_altitude)) * \
-                math.sin(math.radians(surf_altitude))
-            if cos > 1E-5:
+            cos = math.cos(azi_sol)*math.cos(alt_sol) * math.cos(azi_sur) * math.cos(alt_sur) + math.sin(azi_sol) * \
+                math.cos(alt_sol) * math.sin(azi_sur) * \
+                math.cos(alt_sur) + math.sin(alt_sol) * math.sin(alt_sur)
+            if cos > .05:  # angle < 87.13, problems with angles near to 90º
                 return math.acos(cos)
             else:
                 return None
