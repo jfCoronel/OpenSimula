@@ -3,6 +3,7 @@ from OpenSimula.Parameters import Parameter_component, Parameter_float, Paramete
 import numpy as np
 import math
 import psychrolib as sicro
+from scipy.interpolate import RegularGridInterpolator
 import pyvista as pv
 from OpenSimula.components.utils.sun_shadows import Building_3D, Polygon_3D
 
@@ -58,16 +59,15 @@ class Building(Component):
         self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
         self._create_spaces_surfaces_list()
         self._create_shadow_surfaces_list()
-        self._create_building_3D()
         self._create_ff_matrix()
         self._create_B_matrix()
         self._create_SW_matrices()
         self._create_LW_matrices()
         self._create_K_matrices()
-        if self.parameter("shadow_calculation").value == "INSTANT":
+        if self.parameter("shadow_calculation").value != "NO":
             self._create_building_3D()
-        elif self.parameter("shadow_calculation").value == "INTERPOLATION":
-            self._create_building_3D()
+            self._create_shadow_interpolation_table()
+            self._create_diffuse_shadow()
 
     def _create_spaces_surfaces_list(self):
         project_spaces_list = self.project().component_list(comp_type="Space")
@@ -275,6 +275,35 @@ class Building(Component):
         # KZS
         self.KZS_matrix = -1 * self.KSZ_matrix.transpose()
 
+    def _create_shadow_interpolation_table(self):
+        self.shadow_azimuth_grid = np.linspace(0, 345, 24)
+        self.shadow_altitude_grid = np.linspace(-80, 80, 17)
+        self.sunny_fraction_tables = np.zeros(
+            (len(self.building_3D.sunny_surface), 24, 17))
+        j = 0
+        for azimuth in self.shadow_azimuth_grid:
+            azi_rd = math.radians(azimuth)
+            k = 0
+            for altitude in self.shadow_altitude_grid:
+                alt_rd = math.radians(altitude)
+                sun_position = np.array([math.cos(
+                    alt_rd)*math.sin(azi_rd), -math.cos(alt_rd)*math.cos(azi_rd), math.sin(alt_rd)])
+                sunny_frac = self.building_3D.get_sunny_fractions(sun_position)
+                for i in range(len(sunny_frac)):
+                    self.sunny_fraction_tables[i][j][k] = sunny_frac[i]
+                k = k + 1
+            j = j + 1
+        self.sunny_interpolation_functions = []
+        for i in range(0, len(self.building_3D.sunny_surface)):
+            self.sunny_interpolation_functions.append(RegularGridInterpolator(
+                (self.shadow_azimuth_grid, self.shadow_altitude_grid), self.sunny_fraction_tables[i], bounds_error=False, fill_value=None, method="cubic"))
+
+    def _create_diffuse_shadow(self):
+        def integrand(azi, alt, i):
+            azi_grad = math.degrees(azi)
+            alt_grad = math.degrees(alt)
+            sf = self.sunny_interpolation_functions[i]((azi_grad, alt_grad))
+
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
         self._calculate_shadows(time_index)
@@ -286,18 +315,24 @@ class Building(Component):
         self._update_K_matrices(time_index)
 
     def _calculate_shadows(self, time_i):
-        if self.parameter("shadow_calculation").value == "INSTANT":
+        self.sunny_fractions = [1]*len(self.building_3D.sunny_list)
+        if self.parameter("shadow_calculation").value != "NO":
             azi = self._file_met.variable("sol_azimuth").values[time_i]
             alt = self._file_met.variable("sol_altitude").values[time_i]
             if not math.isnan(alt):
-                azi_rd = math.radians(azi)
-                alt_rd = math.radians(alt)
-                sun_position = np.array([math.cos(
-                    alt_rd)*math.sin(azi_rd), -math.cos(alt_rd)*math.cos(azi_rd), math.sin(alt_rd)])
-                self.sunny_fractions = self.building_3D.get_sunny_fractions(
-                    sun_position)
-            else:
-                self.sunny_fractions = [1]*len(self.building_3D.sunny_list)
+                if self.parameter("shadow_calculation").value == "INSTANT":
+                    azi_rd = math.radians(azi)
+                    alt_rd = math.radians(alt)
+                    sun_position = np.array([math.cos(
+                        alt_rd)*math.sin(azi_rd), -math.cos(alt_rd)*math.cos(azi_rd), math.sin(alt_rd)])
+                    self.sunny_fractions = self.building_3D.get_sunny_fractions(
+                        sun_position)
+                elif self.parameter("shadow_calculation").value == "INTERPOLATION":
+                    for i in range(0, len(self.building_3D.sunny_surface)):
+                        if (azi < 0):
+                            azi = azi+360
+                        self.sunny_fractions[i] = self.sunny_interpolation_functions[i](
+                            (azi, alt))
 
     def _calculate_Q_igsw(self, time_i):
         E_ig = np.zeros(len(self.spaces))
@@ -594,77 +629,6 @@ class Building(Component):
             self._sim_.print(
                 "Warning: " + date.strftime('%H:%M,  %d/%m/%Y') + " is night")
 
-    # def draw3D(self, opacity=1, coordinate_system="building", space="all", shadows=True):
-    #     self._create_spaces_surfaces_list()
-    #     plot = pv.Plotter()
-    #     plot.add_axes_at_origin()
-    #     for surface in self.surfaces:
-    #         if space != "all":
-    #             if surface.parameter("type").value == "Interior_surface" or surface.parameter("type").value == "Virtual_surface":
-    #                 is_my_space = surface.space(0).parameter(
-    #                     "name").value == space or surface.space(1).parameter("name").value == space
-    #             else:
-    #                 is_my_space = surface.space().parameter("name").value == space
-
-    #             if is_my_space:
-    #                 opa = opacity
-    #             else:
-    #                 opa = opacity * 0.25
-    #         else:
-    #             opa = opacity
-    #         polygon = surface.get_pyvista_polygon(coordinate_system)
-    #         faces = [len(polygon), *range(0, len(polygon))]
-    #         polygon_pyvista = pv.PolyData(polygon, faces)
-    #         if surface.parameter("type").value == "Opening":
-    #             color = "blue"
-    #         elif surface.parameter("type").value == "Virtual_surface":
-    #             color = "red"
-    #             opa = opa*0.4
-    #         elif surface.parameter("type").value == "Interior_surface":
-    #             color = "green"
-    #         elif surface.parameter("type").value == "Underground_surface":
-    #             color = "brown"
-    #         else:
-    #             color = None
-
-    #         plot.add_mesh(polygon_pyvista, color=color,
-    #                       show_edges=True, opacity=opa)
-    #     if shadows:
-    #         for surface in self.shadow_surfaces:
-    #             polygon = surface.get_pyvista_polygon(coordinate_system)
-    #             faces = [len(polygon), *range(0, len(polygon))]
-    #             polygon_pyvista = pv.PolyData(polygon, faces)
-    #             color = "gray"
-    #             plot.add_mesh(polygon_pyvista, color=color, show_edges=True)
-
-    #     plot.show(jupyter_backend="client")
-
     def get_actual_sunny_fraction(self, surface):
-        if self.parameter("shadow_calculation").value == "NO":
-            return 1
-        else:
-            i = self.building_3D.sunny_surface.index(surface)
-            return self.sunny_fractions[i]
-
-    def calculate_shadow_interpolation_table(self):
-        self._create_building_3D()
-        self._file_met = self.parameter("file_met").component
-        max_azi, max_alt = self._file_met.maximun_solar_angles()
-        self.shadow_azimuth_list = np.linspace(
-            round(-max_azi*1.05), round(max_azi*1.05), num=10)
-        self.shadow_altitude_list = np.linspace(1, round(max_alt*1.05), num=10)
-        self.sunny_fraction_tables = np.zeros(
-            (len(self.building_3D.sunny_surface), 10, 10))
-        j = 0
-        for azimuth in self.shadow_azimuth_list:
-            azi_rd = math.radians(azimuth)
-            k = 0
-            for altitude in self.shadow_altitude_list:
-                alt_rd = math.radians(altitude)
-                sun_position = np.array([math.cos(
-                    alt_rd)*math.sin(azi_rd), -math.cos(alt_rd)*math.cos(azi_rd), math.sin(alt_rd)])
-                sunny_frac = self.building_3D.get_sunny_fractions(sun_position)
-                for i in range(len(sunny_frac)):
-                    self.sunny_fraction_tables[i][j][k] = sunny_frac[i]
-                k = k + 1
-            j = j + 1
+        i = self.building_3D.sunny_surface.index(surface)
+        return self.sunny_fractions[i]

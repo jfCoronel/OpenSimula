@@ -126,6 +126,9 @@ class Surface(Component):
         else:
             return self.parameter("ref_point").value
 
+    def get_global_angles(azi_rel, alt_rel):
+        pass
+
     def get_polygon_2D(self):  # Get polygon_2D
         if (self.parameter("shape").value == "RECTANGLE"):
             w = self.parameter("width").value
