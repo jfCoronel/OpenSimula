@@ -1,4 +1,5 @@
 import math
+import numpy as np
 from OpenSimula.Component import Component
 from OpenSimula.Parameters import Parameter_options, Parameter_float, Parameter_float_list
 from shapely.geometry import Polygon
@@ -126,8 +127,17 @@ class Surface(Component):
         else:
             return self.parameter("ref_point").value
 
-    def get_global_angles(azi_rel, alt_rel):
-        pass
+    def get_global_angles(self, phi, theta):
+        azi = math.radians(self.orientation_angle("azimuth",0))
+        alt = math.radians(self.orientation_angle("altitude",0))
+        R = np.array([[math.cos(azi),math.sin(azi),0],
+                     [math.sin(alt)*math.cos(math.pi/2-azi),math.sin(alt)*math.sin(math.pi/2-azi),math.cos(alt)],
+                     [math.cos(alt)*math.cos(azi+math.pi/2),math.cos(alt)*math.sin(azi+math.pi/2),math.sin(alt)]])
+        v_local = np.array([math.sin(theta)*math.cos(phi),math.sin(theta)*math.sin(phi),math.cos(theta)])
+        v_global = np.dot(R,v_local.T)
+        alt_g = math.asin(v_global[2])
+        azi_g = math.acos(v_global[0]*math.cos(alt_g))
+        return (math.degrees(azi_g)+90,math.degrees(alt_g))
 
     def get_polygon_2D(self):  # Get polygon_2D
         if (self.parameter("shape").value == "RECTANGLE"):

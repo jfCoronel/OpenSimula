@@ -299,8 +299,8 @@ class Building(Component):
                 (self.shadow_azimuth_grid, self.shadow_altitude_grid), self.sunny_fraction_tables[i], bounds_error=False, fill_value=None, method="cubic"))
 
     def _create_diffuse_shadow(self):
-        def integrand(azi, alt, i):
-            azi_grad = math.degrees(azi)
+        def integrand(phi, theta, i):
+            azi_grad, alt_grad = self. 
             alt_grad = math.degrees(alt)
             sf = self.sunny_interpolation_functions[i]((azi_grad, alt_grad))
 

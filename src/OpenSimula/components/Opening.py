@@ -194,6 +194,9 @@ class Opening(Component):
     def orientation_angle(self, angle, side, coordinate_system="global"):
         return self.parameter("surface").component.orientation_angle(angle, side, coordinate_system)
 
+    def get_golbal_angles(self, phi, theta):
+        return self.parameter("surface").component.get_global_angles(phi, theta)
+
     def is_virtual(self):
         return False
 
