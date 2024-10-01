@@ -37,6 +37,18 @@ class Surface(Component):
                 )
         return errors
 
+    def pre_simulation(self, n_time_steps, delta_t):
+        super().pre_simulation(n_time_steps, delta_t)
+        # calculate rot_matrix
+        azi = math.radians(self.orientation_angle("azimuth", 0))
+        alt = math.radians(self.orientation_angle("altitude", 0))
+        self.normal_vector = np.array([math.cos(
+            alt)*math.cos(azi-math.pi/2), math.cos(alt)*math.sin(azi-math.pi/2), math.sin(alt)])
+        self.rot_matrix = np.array([[math.cos(azi), math.sin(azi), 0],
+                                    [math.sin(alt)*math.cos(math.pi/2+azi), math.sin(alt)
+                                     * math.sin(math.pi/2+azi), math.cos(alt)],
+                                    [math.cos(alt)*math.cos(azi-math.pi/2), math.cos(alt)*math.sin(azi-math.pi/2), math.sin(alt)]])
+
     @property
     def area(self):
         if (self.parameter("shape").value == "RECTANGLE"):
@@ -86,35 +98,6 @@ class Surface(Component):
     def is_virtual(self):
         return False
 
-    # def get_pyvista_polygon(self, coordinate_system="building"):
-    #     v1 = self.parameter("ref_point").value
-    #     az = math.radians(self.parameter("azimuth").value)
-    #     alt = math.radians(self.parameter("altitude").value)
-    #     if (self.parameter("shape").value == "RECTANGLE"):
-    #         w = self.parameter("width").value
-    #         h = self.parameter("height").value
-    #         polygon2D = [[0, 0], [w, 0], [w, h], [0, h]]
-    #     elif (self.parameter("shape").value == "POLYGON"):
-    #         polygon2D = []
-    #         n = len(self.parameter("x_polygon").value)
-    #         for i in range(0, n):
-    #             polygon2D.append([self.parameter("x_polygon").value[i],
-    #                               self.parameter("y_polygon").value[i]])
-    #     polygon3D = []
-    #     for vertex in polygon2D:
-    #         v_loc = [v1[0]+vertex[0]*math.cos(az)-vertex[1]*math.sin(alt)*math.sin(az),
-    #                  v1[1]+vertex[0] *
-    #                  math.sin(az)+vertex[1] *
-    #                  math.sin(alt)*math.cos(az),
-    #                  v1[2]+vertex[1]*math.cos(alt)]
-    #         if (coordinate_system == "global"):
-    #             az_b = math.radians(self.building().parameter("azimuth").value)
-    #             v_loc = [v_loc[0]*math.cos(az_b)-v_loc[1]*math.sin(az_b),
-    #                      v_loc[0]*math.sin(az_b)+v_loc[1]*math.cos(az_b),
-    #                      v_loc[2]]
-    #         polygon3D.append(v_loc)
-    #     return polygon3D
-
     def get_origin(self, coordinate_system="global"):
         if coordinate_system == "global":
             az_b = math.radians(self.building().parameter("azimuth").value)
@@ -128,16 +111,32 @@ class Surface(Component):
             return self.parameter("ref_point").value
 
     def get_global_angles(self, phi, theta):
-        azi = math.radians(self.orientation_angle("azimuth",0))
-        alt = math.radians(self.orientation_angle("altitude",0))
-        R = np.array([[math.cos(azi),math.sin(azi),0],
-                     [math.sin(alt)*math.cos(math.pi/2-azi),math.sin(alt)*math.sin(math.pi/2-azi),math.cos(alt)],
-                     [math.cos(alt)*math.cos(azi+math.pi/2),math.cos(alt)*math.sin(azi+math.pi/2),math.sin(alt)]])
-        v_local = np.array([math.sin(theta)*math.cos(phi),math.sin(theta)*math.sin(phi),math.cos(theta)])
-        v_global = np.dot(R,v_local.T)
-        alt_g = math.asin(v_global[2])
-        azi_g = math.acos(v_global[0]*math.cos(alt_g))
-        return (math.degrees(azi_g)+90,math.degrees(alt_g))
+        v_local = np.array([math.sin(theta)*math.cos(phi),
+                           math.sin(theta)*math.sin(phi), math.cos(theta)])
+        v_global = np.dot(v_local, self.rot_matrix)
+        alt_r = math.asin(v_global[2])
+        if (math.fabs(v_global[0]) > 1e-3):
+            azi_r = math.acos(v_global[0]*math.cos(alt_r))
+        else:
+            azi_r = math.asin(v_global[1]*math.cos(alt_r))
+        alt_g = math.degrees(alt_r)
+        if alt_g > 90:
+            alt_g = 180 - alt_g
+        elif alt_g < -90:
+            alt_g = -(180+alt_g)
+        azi_g = math.degrees(azi_r)+90  # South
+        if azi_g > 360:
+            azi_g = azi_g - 360
+        elif azi_g < 0:
+            azi_g = 360 + azi_g
+        return (azi_g, alt_g)
+
+    def get_angle_with_normal(self, sol_azimuth, sol_altitude):
+        azi_r = math.radians(sol_azimuth)
+        alt_r = math.radians(sol_altitude)
+        sol_vector = np.array([math.cos(alt_r)*math.cos(azi_r-math.pi/2),
+                              math.cos(alt_r)*math.sin(azi_r-math.pi/2), math.sin(alt_r)])
+        return np.arccos(np.clip(np.dot(self.normal_vector, sol_vector), -1.0, 1.0))
 
     def get_polygon_2D(self):  # Get polygon_2D
         if (self.parameter("shape").value == "RECTANGLE"):
