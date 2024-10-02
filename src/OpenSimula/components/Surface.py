@@ -44,10 +44,6 @@ class Surface(Component):
         alt = math.radians(self.orientation_angle("altitude", 0))
         self.normal_vector = np.array([math.cos(
             alt)*math.cos(azi-math.pi/2), math.cos(alt)*math.sin(azi-math.pi/2), math.sin(alt)])
-        self.rot_matrix = np.array([[math.cos(azi), math.sin(azi), 0],
-                                    [math.sin(alt)*math.cos(math.pi/2+azi), math.sin(alt)
-                                     * math.sin(math.pi/2+azi), math.cos(alt)],
-                                    [math.cos(alt)*math.cos(azi-math.pi/2), math.cos(alt)*math.sin(azi-math.pi/2), math.sin(alt)]])
 
     @property
     def area(self):
@@ -109,27 +105,6 @@ class Surface(Component):
             return global_origin
         else:
             return self.parameter("ref_point").value
-
-    def get_global_angles(self, phi, theta):
-        v_local = np.array([math.sin(theta)*math.cos(phi),
-                           math.sin(theta)*math.sin(phi), math.cos(theta)])
-        v_global = np.dot(v_local, self.rot_matrix)
-        alt_r = math.asin(v_global[2])
-        if (math.fabs(v_global[0]) > 1e-3):
-            azi_r = math.acos(v_global[0]*math.cos(alt_r))
-        else:
-            azi_r = math.asin(v_global[1]*math.cos(alt_r))
-        alt_g = math.degrees(alt_r)
-        if alt_g > 90:
-            alt_g = 180 - alt_g
-        elif alt_g < -90:
-            alt_g = -(180+alt_g)
-        azi_g = math.degrees(azi_r)+90  # South
-        if azi_g > 360:
-            azi_g = azi_g - 360
-        elif azi_g < 0:
-            azi_g = 360 + azi_g
-        return (azi_g, alt_g)
 
     def get_angle_with_normal(self, sol_azimuth, sol_altitude):
         azi_r = math.radians(sol_azimuth)

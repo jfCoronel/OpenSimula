@@ -280,10 +280,10 @@ class Building(Component):
         self.KZS_matrix = -1 * self.KSZ_matrix.transpose()
 
     def _create_shadow_interpolation_table(self):
-        self.shadow_azimuth_grid = np.linspace(0, 345, 24)
-        self.shadow_altitude_grid = np.linspace(-80, 80, 17)
+        self.shadow_azimuth_grid = np.linspace(0, 350, 36)
+        self.shadow_altitude_grid = np.linspace(-85, 85, 18)
         self.sunny_fraction_tables = np.zeros(
-            (len(self.building_3D.sunny_surface), 24, 17))
+            (len(self.building_3D.sunny_surface), 36, 18))
         j = 0
         for azimuth in self.shadow_azimuth_grid:
             azi_rd = math.radians(azimuth)
@@ -302,44 +302,6 @@ class Building(Component):
             self.sunny_interpolation_functions.append(RegularGridInterpolator(
                 (self.shadow_azimuth_grid, self.shadow_altitude_grid), self.sunny_fraction_tables[i], bounds_error=False, fill_value=None, method="cubic"))
 
-    # def _create_diffuse_shadow(self):
-    #     def integrand(theta, phi, i):
-    #         azi_grad, alt_grad = self.building_3D.sunny_surface[i].get_global_angles(
-    #             phi, theta)
-    #         sf = self.sunny_interpolation_functions[i]((azi_grad, alt_grad))
-    #         return sf*math.cos(theta)*math.sin(theta)
-    #     self.shadow_diffuse_fraction = []
-    #     for i in range(0, len(self.building_3D.sunny_surface)):
-    #         integral = (1/math.pi)*dblquad(integrand, 0, 2*math.pi,
-    #                                        0, math.pi/2, args=(i,), epsabs=1e-3, epsrel=1e-3)[0]
-    #         self.shadow_diffuse_fraction.append(integral)
-
-    # def _create_diffuse_shadow(self):
-    #     n_phi = 100
-    #     n_theta = 100
-    #     delta_phi = 2*math.pi/n_phi
-    #     delta_theta = math.pi/2/n_theta
-    #     phi_g = np.linspace(delta_phi/2, 2*math.pi-delta_phi/2, n_phi-1)
-    #     theta_g = np.linspace(delta_theta/2, math.pi /
-    #                           2-delta_theta/2, n_theta-1)
-
-    #     def integral(i):
-    #         value = 0
-    #         for theta in theta_g:
-    #             for phi in phi_g:
-    #                 azi_grad, alt_grad = self.building_3D.sunny_surface[i].get_global_angles(
-    #                     phi, theta)
-    #                 value = value + self.sunny_interpolation_functions[i](
-    #                     (azi_grad, alt_grad))
-
-    #         value = value / ((n_phi-1)*(n_theta-1))
-    #         # value = value + f_med*2*math.pi*math.cos(theta) * \
-    #         #    math.sin(theta)*delta_theta
-    #         return value
-    #     self.shadow_diffuse_fraction = []
-    #     for i in range(0, len(self.building_3D.sunny_surface)):
-    #         self.shadow_diffuse_fraction.append(integral(i))
-
     def _create_diffuse_shadow(self):
         def integral(i):
             value = 0
@@ -349,10 +311,11 @@ class Building(Component):
                     theta = self.building_3D.sunny_surface[i].get_angle_with_normal(
                         self.shadow_azimuth_grid[j], self.shadow_altitude_grid[k])
                     if (theta < math.pi/2):
-                        value = value + \
+                        value = value + 0.5 * \
+                            math.sin(2*theta) * \
                             self.sunny_fraction_tables[i][j][k]
-                        n = n
-            return value/n
+                        n = n + 1
+            return value*math.pi/n
         self.shadow_diffuse_fraction = []
         for i in range(0, len(self.building_3D.sunny_surface)):
             self.shadow_diffuse_fraction.append(integral(i))
@@ -682,9 +645,13 @@ class Building(Component):
             self._sim_.print(
                 "Warning: " + date.strftime('%H:%M,  %d/%m/%Y') + " is night")
 
-    def get_actual_sunny_fraction(self, surface):
+    def get_direct_sunny_fraction(self, surface):
         i = self.building_3D.sunny_surface.index(surface)
         return self.sunny_fractions[i]
+
+    def get_diffuse_sunny_fraction(self, surface):
+        i = self.building_3D.sunny_surface.index(surface)
+        return self.shadow_diffuse_fraction[i]
 
     def show_sunny_fraction(self, i):
         fig, ax = plt.subplots()

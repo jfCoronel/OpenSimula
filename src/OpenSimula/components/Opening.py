@@ -27,10 +27,10 @@ class Opening(Component):
         self.add_variable(Variable("T_s0", "°C"))
         self.add_variable(Variable("T_s1", "°C"))
         self.add_variable(Variable("T_rm", "°C"))
+        self.add_variable(Variable("E_dir_sunny", "W/m²"))
         self.add_variable(Variable("E_dir", "W/m²"))
+        self.add_variable(Variable("E_dif_sunny", "W/m²"))
         self.add_variable(Variable("E_dif", "W/m²"))
-        self.add_variable(Variable("f_setback", "frac"))
-        self.add_variable(Variable("f_sunny", "frac"))
         self.add_variable(Variable("E_dir_tra", "W/m²"))
         self.add_variable(Variable("E_dif_tra", "W/m²"))
         self.add_variable(Variable("theta_sun", "°"))
@@ -72,6 +72,7 @@ class Opening(Component):
         super().pre_simulation(n_time_steps, delta_t)
         self._file_met = self.building().parameter("file_met").component
         self._calculate_K()
+        self.f_dif_setback = self._f_diffuse_setback()
 
     def _calculate_K(self):
         self.k = [0, 0]
@@ -90,8 +91,11 @@ class Opening(Component):
     def _calculate_variables_pre_iteration(self, time_i):
         self._T_ext = self._file_met.variable("temperature").values[time_i]
         surface = self.parameter("surface").component
-        self.variable("E_dif").values[time_i] = surface.variable(
-            "E_dif").values[time_i]
+        E_dif_sunny = surface.variable("E_dif_sunny").values[time_i]
+        self.variable("E_dif_sunny").values[time_i] = E_dif_sunny
+        diffuse_sunny_fracion = self.building().get_diffuse_sunny_fraction(self)
+        E_dif = E_dif_sunny * diffuse_sunny_fracion * self.f_dif_setback
+        self.variable("E_dif").values[time_i] = E_dif
         self.variable("T_rm").values[time_i] = surface.variable(
             "T_rm").values[time_i]
         theta = self._file_met.solar_surface_angle(time_i, surface.orientation_angle(
@@ -104,15 +108,15 @@ class Opening(Component):
                 "altitude", 0))
         else:
             f_setback = 1
-        self.variable("f_setback").values[time_i] = f_setback
-        self.variable("E_dir").values[time_i] = surface.variable(
-            "E_dir").values[time_i] * f_setback
+        E_dir_sunny = surface.variable("E_dir_sunny").values[time_i]
+        self.variable("E_dir_sunny").values[time_i] = E_dir_sunny
+        self.variable("E_dir").values[time_i] = E_dir_sunny * f_setback
         self.variable("q_sol0").values[time_i] = self.radiant_property(
-            "alpha", "solar_diffuse", 0) * self.variable("E_dif").values[time_i]
+            "alpha", "solar_diffuse", 0) * E_dif
         self.variable("q_sol1").values[time_i] = self.radiant_property(
-            "alpha_other_side", "solar_diffuse", 0) * self.variable("E_dif").values[time_i]
-        self.variable("E_dif_tra").values[time_i] = self.variable(
-            "E_dif").values[time_i]*self.radiant_property("tau", "solar_diffuse", 0)
+            "alpha_other_side", "solar_diffuse", 0) * E_dif
+        self.variable("E_dif_tra").values[time_i] = self.radiant_property(
+            "tau", "solar_diffuse", 0)*E_dif
 
         h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
         T_rm = self.variable("T_rm").values[time_i]
@@ -124,10 +128,9 @@ class Opening(Component):
         super().iteration(time_index, date, daylight_saving)
         # Calculate shadows only once
         if not self._shadow_calculated:
-            sunny_fracion = self.building().get_actual_sunny_fraction(self)
+            sunny_fracion = self.building().get_direct_sunny_fraction(self)
             E_dir = self.variable("E_dir").values[time_index] * sunny_fracion
             theta = self.variable("theta_sun").values[time_index]
-            self.variable("f_sunny").values[time_index] = sunny_fracion
             self.variable("E_dir").values[time_index] = E_dir
             if E_dir > 0:
                 self.variable("E_dir_tra").values[time_index] = E_dir * \
@@ -155,6 +158,16 @@ class Opening(Component):
         if f_shadow_v > 1:
             f_shadow_v = 1
         return (1-f_shadow_h)*(1-f_shadow_v)
+
+    def _f_diffuse_setback(self):
+        if (self.parameter("setback").value == 0):
+            return 1
+        else:
+            X = self.parameter("width").value/self.parameter("setback").value
+            Y = self.parameter("height").value/self.parameter("setback").value
+            F = 2/(math.pi*X*Y)*(math.log(((1+X**2)*(1+Y**2)/(1+X**2+Y**2))**0.5) + X*((1+Y**2)**0.5) * math.atan(
+                X/((1+Y**2)**0.5)) + Y*((1+X**2))**0.5 * math.atan(Y/((1+X**2))**0.5) - X*math.atan(X)-Y*math.atan(Y))
+            return (1-F)
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
@@ -196,9 +209,6 @@ class Opening(Component):
 
     def get_angle_with_normal(self, sol_azimuth, sol_altitude):
         return self.parameter("surface").component.get_angle_with_normal(sol_azimuth, sol_altitude)
-
-    def get_global_angles(self, phi, theta):
-        return self.parameter("surface").component.get_global_angles(phi, theta)
 
     def is_virtual(self):
         return False

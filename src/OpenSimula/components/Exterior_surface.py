@@ -18,8 +18,9 @@ class Exterior_surface(Real_surface):
         self.H_RD = 5.705  # 4*sigma*(293^3)
         # Variables
         self.add_variable(Variable("T_rm", "°C"))
+        self.add_variable(Variable("E_dir_sunny", "W/m²"))  # Without shadows
         self.add_variable(Variable("E_dir", "W/m²"))
-        self.add_variable(Variable("f_sunny", "frac"))
+        self.add_variable(Variable("E_dif_sunny", "W/m²"))  # Without shadows
         self.add_variable(Variable("E_dif", "W/m²"))
         self.add_variable(Variable("debug_f", ""))
 
@@ -73,14 +74,17 @@ class Exterior_surface(Real_surface):
         hor_sol_dif = self._file_met.variable("sol_diffuse").values[time_i]
         hor_sol_dir = self._file_met.variable("sol_direct").values[time_i]
         T_sky = self._file_met.variable("sky_temperature").values[time_i]
-        E_dif = self._file_met.solar_diffuse_rad(time_i, self.orientation_angle(
+        E_dif_sunny = self._file_met.solar_diffuse_rad(time_i, self.orientation_angle(
             "azimuth", 0),  self.orientation_angle("altitude", 0))
-        E_dif = E_dif + (1-self._F_sky)*self._albedo * \
+        E_dif_sunny = E_dif_sunny + (1-self._F_sky)*self._albedo * \
             (hor_sol_dif+hor_sol_dir)
+        self.variable("E_dif_sunny").values[time_i] = E_dif_sunny
+        diffuse_sunny_fracion = self.building().get_diffuse_sunny_fraction(self)
+        E_dif = E_dif_sunny * diffuse_sunny_fracion
         self.variable("E_dif").values[time_i] = E_dif
-        E_dir = self._file_met.solar_direct_rad(time_i, self.orientation_angle(
+        E_dir_sunny = self._file_met.solar_direct_rad(time_i, self.orientation_angle(
             "azimuth", 0),  self.orientation_angle("altitude", 0))
-        self.variable("E_dir").values[time_i] = E_dir
+        self.variable("E_dir_sunny").values[time_i] = E_dir_sunny
         T_rm = self._F_sky * T_sky + (1-self._F_sky)*self._T_ext
         self.variable("T_rm").values[time_i] = T_rm
         self.variable("q_sol0").values[time_i] = self.radiant_property(
@@ -94,9 +98,9 @@ class Exterior_surface(Real_surface):
         super().iteration(time_index, date, daylight_saving)
         # Calculate shadows only once
         if not self._shadow_calculated:
-            sunny_fracion = self.building().get_actual_sunny_fraction(self)
-            E_dir = self.variable("E_dir").values[time_index] * sunny_fracion
-            self.variable("f_sunny").values[time_index] = sunny_fracion
+            direct_sunny_fracion = self.building().get_direct_sunny_fraction(self)
+            E_dir = self.variable(
+                "E_dir_sunny").values[time_index] * direct_sunny_fracion
             self.variable("E_dir").values[time_index] = E_dir
             self.variable(
                 "q_sol0").values[time_index] += self.radiant_property("alpha", "solar_diffuse", 0) * E_dir
