@@ -17,7 +17,7 @@ class File_met(Component):
         self.add_parameter(Parameter_options(
             "file_type", "MET", ["MET", "TMY3"]))
         self.add_parameter(Parameter_options(
-            "tilted_diffuse_model", "HAY-DAVIES", ["REINDL", "HAY-DAVIES", "ISOTROPIC"]))
+            "tilted_diffuse_model", "PEREZ", ["REINDL", "HAY-DAVIES", "ISOTROPIC", "PEREZ"]))
 
         # Variables
         self.add_variable(Variable("sol_hour", unit="h"))
@@ -280,7 +280,7 @@ class File_met(Component):
                     (1-A) * (1 + math.sin(beta))/2
             else:
                 E_dif = sol_diffuse * (1 + math.sin(beta))/2
-        else:  # Default model "REINDL"
+        elif (model == "REINDL"):
             theta = self.solar_surface_angle(
                 time_index, surf_azimuth, surf_altitude)
             sol_altitude = math.radians(self.variable(
@@ -297,7 +297,48 @@ class File_met(Component):
                     (1-A) * (1 + math.sin(beta))/2 * f_horizon
             else:
                 E_dif = sol_diffuse * (1 + math.sin(beta))/2 * f_horizon
+        elif (model == "PEREZ"):
+            theta = self.solar_surface_angle(
+                time_index, surf_azimuth, surf_altitude)
+            if theta is None:  # No direct sun
+                E_dif = sol_diffuse * (1 + math.sin(beta))/2
+            else:
+                sol_altitude = math.radians(self.variable(
+                    "sol_altitude").values[time_index])
+                sol_direct = self.variable("sol_direct").values[time_index]
+                zenit = math.pi/2 - beta
+                sol_zenit = math.pi/2 - sol_altitude
+                epsilon = ((sol_direct/math.sin(sol_altitude)+sol_diffuse) /
+                           sol_diffuse + 1.041 * sol_zenit**3)/(1 + 1.041*sol_zenit**3)
+                m = 1 / math.cos(sol_zenit)
+                Delta = m*sol_diffuse/1353
+                f = self._perez_coef(epsilon)
+                F_2 = f[3]+f[4]*Delta+f[5]*sol_zenit
+                a = math.cos(theta)
+                b = max(0.087156, math.cos(sol_zenit))
+                F_1 = max(0, f[0]+f[1]*Delta+f[2]*sol_zenit)
+                E_dif = sol_diffuse * \
+                    ((1-F_1)*(1+math.cos(zenit))/2 +
+                     F_1 * a/b + F_2 * math.sin(zenit))
         return E_dif
+
+    def _perez_coef(self, epsilon):
+        if epsilon > 1 and epsilon <= 1.065:
+            return [-0.0083117, 0.5877285, -0.0620636, -0.0596012, 0.0721249, -0.0220216]
+        elif epsilon > 1.065 and epsilon <= 1.23:
+            return [0.1299457, 0.6825954, -0.1513752, -0.0189325, 0.0659650, -0.0288748]
+        elif epsilon > 1.23 and epsilon <= 1.5:
+            return [0.3296958, 0.4868735, -0.2210958, 0.055414, -0.0639588, -0.0260542]
+        elif epsilon > 1.5 and epsilon <= 1.95:
+            return [0.5682053, 0.1874525, -0.295129, 0.1088631, -0.1519229, -0.0139754]
+        elif epsilon > 1.95 and epsilon <= 2.8:
+            return [0.873028, -0.3920403, -0.3616149, 0.2255647, -0.4620442, 0.0012448]
+        elif epsilon > 2.8 and epsilon <= 4.5:
+            return [1.1326077, -1.2367284, -0.4118494, 0.2877813, -0.8230357, 0.0558651]
+        elif epsilon > 4.5 and epsilon <= 6.2:
+            return [1.0601591, -1.5999137, -0.3589221, 0.2642124, -1.127234, 0.1310694]
+        elif epsilon > 6.2:
+            return [0.677747, -0.3272588, -0.2504286, 0.1561313, -1.3765031, 0.2506212]
 
     def solar_surface_angle(self, time_index, surf_azimuth, surf_altitude):
         """Relative angle between surface exterior normal and the sum

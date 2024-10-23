@@ -304,18 +304,21 @@ class Building(Component):
 
     def _create_diffuse_shadow(self):
         def integral(i):
-            value = 0
+            sunny_value = 0
+            shadow_value = 0
             n = 0
             for j in range(len(self.shadow_azimuth_grid)):
                 for k in range(len(self.shadow_altitude_grid)):
                     theta = self.building_3D.sunny_surface[i].get_angle_with_normal(
                         self.shadow_azimuth_grid[j], self.shadow_altitude_grid[k])
                     if (theta < math.pi/2):
-                        value = value + 0.5 * \
-                            math.sin(2*theta) * \
+                        f = 0.5 * math.sin(2*theta)
+                        sunny_value = sunny_value + f
+                        shadow_value = shadow_value + f * \
                             self.sunny_fraction_tables[i][j][k]
                         n = n + 1
-            return value*math.pi/n
+            return shadow_value/sunny_value
+
         self.shadow_diffuse_fraction = []
         for i in range(0, len(self.building_3D.sunny_surface)):
             self.shadow_diffuse_fraction.append(integral(i))
@@ -646,12 +649,18 @@ class Building(Component):
                 "Warning: " + date.strftime('%H:%M,  %d/%m/%Y') + " is night")
 
     def get_direct_sunny_fraction(self, surface):
-        i = self.building_3D.sunny_surface.index(surface)
-        return self.sunny_fractions[i]
+        if self.parameter("shadow_calculation").value == "NO":
+            return 1
+        else:
+            i = self.building_3D.sunny_surface.index(surface)
+            return self.sunny_fractions[i]
 
     def get_diffuse_sunny_fraction(self, surface):
-        i = self.building_3D.sunny_surface.index(surface)
-        return self.shadow_diffuse_fraction[i]
+        if self.parameter("shadow_calculation").value == "NO":
+            return 1
+        else:
+            i = self.building_3D.sunny_surface.index(surface)
+            return self.shadow_diffuse_fraction[i]
 
     def show_sunny_fraction(self, i):
         fig, ax = plt.subplots()

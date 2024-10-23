@@ -228,18 +228,22 @@ class Polygon_3D():
 
     def _calculate_shapely_2D_projected_(self, polygon_to_project, sun_position):
         projected_polygon = []
-        k_vertex = []
+        n_points = 0
+        k_total = 0
         for point in polygon_to_project.polygon3D:
             k = (np.sum(self.normal_vector * point)-self.equation_d) / \
                 (np.sum(self.normal_vector * sun_position))
-            if k >= -1e-6:
-                projected_point_3D = point - k * sun_position
-                vector = projected_point_3D - self.origin
-                projected_point_2D = np.array(
-                    [np.sum(self.x_axis*vector), np.sum(self.y_axis*vector)])
-                projected_polygon.append(projected_point_2D)
-                k_vertex.append(k)
-        if sum(k_vertex) > 1e-4:  # TODO: que ocurre cuando tengo planos cortantes
+            projected_point_3D = point - k * sun_position
+            vector = projected_point_3D - self.origin
+            projected_point_2D = np.array(
+                [np.sum(self.x_axis*vector), np.sum(self.y_axis*vector)])
+            projected_polygon.append(projected_point_2D)
+            if (k > -1e-6):  # Por delante o en el plano
+                n_points += 1
+            if (k > 0.1):  # 10 cm
+                k_total += k
+        # TODO: que ocurre cuando tengo planos cortantes ...
+        if n_points > 2 and k_total > 0.1:
             return Polygon(projected_polygon)
         else:
             return None
