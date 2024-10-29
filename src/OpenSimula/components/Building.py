@@ -535,20 +535,17 @@ class Building(Component):
     def _calculate_T_P(self, time_i):
         # T del espacio 0 -9999 si desconocida
         unknown_T = []
-        n_unknown_T = 0
         for i in range(len(self.spaces)):
             heat_on, heat_sp = self.spaces[i].perfect_heating(time_i)
             cool_on, cool_sp = self.spaces[i].perfect_cooling(time_i)
             unknown_T.append(True)
-            n_unknown_T += 1
             if heat_on and self.TZ_vector[i] < heat_sp:
                 unknown_T[i] = False
                 self.TZ_vector[i] = heat_sp
-                n_unknown_T -= 1
             if cool_on and self.TZ_vector[i] > cool_sp:
                 unknown_T[i] = False
                 self.TZ_vector[i] = cool_sp
-                n_unknown_T -= 1
+        n_unknown_T = sum(unknown_T)  # N. of True
         if n_unknown_T > 0:
             K = np.zeros((n_unknown_T, n_unknown_T))
             F = np.zeros(n_unknown_T)
@@ -558,7 +555,7 @@ class Building(Component):
                 if unknown_T[i]:
                     F[i0] = self.FFIN_vector[i]
                     for j in range(len(self.spaces)):
-                        if unknown_T:
+                        if unknown_T[j]:
                             K[i0][j0] = self.KFIN_matrix[i][j]
                             j0 += 1
                         else:
