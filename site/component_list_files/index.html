@@ -136,6 +136,7 @@
 <ul>
 <li><strong>file_type</strong> [<em>option</em>, default = "MET", options = ["MET","TMY3"]]: Weather file type. "MET": MET format. <a href="https://www.codigotecnico.org/pdf/Documentos/HE/20170202-DOC-DB-HE-0-Climas%20de%20referencia.pdf">.MET format (CTE documentation)</a>. "TMY3" TMY3 format <a href="https://www.nrel.gov/docs/fy08osti/43156.pdf">TMY format description</a></li>
 <li><strong>file_name</strong> [<em>string</em>, default = "name.met"]: Name of the weather file containing the data. </li>
+<li><strong>tilted_diffuse_model</strong> [<em>option</em>, default = "PEREZ", options = ["PEREZ","REINDL","HAY-DAVIES", "ISOTROPIC"]]: Model used for the calculation of diffuse solar radiation on inclined surfaces. The simplest model is the isotropic model (“ISOTROPIC”) which only takes into account uniform diffuse radiation. The Hay-Davies model (default value) includes the influence of the circumsolar component and the Reindl and Perez model also includes the effect of the horizon brightening component. <a href="https://pvpmc.sandia.gov/modeling-guide/1-weather-design-inputs/plane-of-array-poa-irradiance/calculating-poa-irradiance/poa-sky-diffuse/">More information about diffuse models on tilted surface</a></li>
 </ul>
 <p><strong>Example:</strong></p>
 <pre><code class="python">
@@ -161,8 +162,8 @@ met.parameter("file_name").value = "examples/met_files/sevilla.met"
 <li><strong>sol_azimut</strong> [°]: Solar azimut (degrees from south: E-, W+) (calculated).</li>
 <li><strong>sol_altitude</strong> [°]: Solar altitude (degrees) (calculated).</li>
 <li><strong>wind_speed</strong> [m/s]: Wind speed.</li>
-<li><strong>wind_direction</strong> [W/m²]: Wind direction (degrees from north: E+, W-).</li>
-<li><strong>pressure</strong> [Pa]: Ambient absolute pressure (read from TMY3 files, calculated using sstandard atmosphere for MET files).</li>
+<li><strong>wind_direction</strong> [°]: Wind direction (degrees from north: E+, W-).</li>
+<li><strong>pressure</strong> [Pa]: Ambient absolute pressure (read from TMY3 files, calculated using standard atmosphere for MET files).</li>
 <li><strong>total_cloud_cover</strong> [%]:  Percentage of the sky covered by all the visible clouds (read from TMY3 files, 0 for MET files).</li>
 <li><strong>opaque_cloud_cover</strong> [%]: Percentage of the sky covered, used for infrared radiation an sky temperature estimation (read from TMY3 files, 0 for MET files).</li>
 </ul>

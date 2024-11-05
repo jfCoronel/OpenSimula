@@ -127,6 +127,8 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
         <li class="first-level active"><a href="#getting-started">Getting Started</a></li>
+            <li class="second-level"><a href="#installing-opensiumula">Installing OpenSiumula</a></li>
+                
             <li class="second-level"><a href="#first-example">First example</a></li>
                 
     </ul>
@@ -134,8 +136,29 @@
         <div class="col-md-9" role="main">
 
 <h2 id="getting-started">Getting Started</h2>
+<p>The best environment to start using OpenSimula is with <a href="https://jupyter.org/">Jupyter notebooks</a> or <a href="https://colab.research.google.com/">Google Colab</a>. We recommend the use of <a href="https://github.com/jupyterlab/jupyterlab-desktop">JupyterLab Desktop</a></p>
+<h3 id="installing-opensiumula">Installing OpenSiumula</h3>
+<p>To install OpenSimula you can use any of the methods that Python makes possible. For example, to install using pip we must use:</p>
+<pre>
+pip install OpenSimula
+</pre>
+
+<p>OpenSimula uses in different parts of the code the following Python packages, which will be installed automatically when OpenSimula is installed:</p>
+<ul>
+<li>NumPy</li>
+<li>pandas</li>
+<li>SciPy</li>
+<li>py-expression-eval</li>
+<li>shapely</li>
+<li>psychrolib</li>
+<li>pyvista[jupyter]</li>
+<li>plotly</li>
+<li>dash</li>
+<li>dash_bootstrap_components</li>
+<li>dash_ag_grid</li>
+<li>triangle</li>
+</ul>
 <h3 id="first-example">First example</h3>
-<p>The best environment to start using OpenSimula is with <a href="https://jupyter.org/">Jupyter notebooks</a> or <a href="https://colab.research.google.com/">Google Colab</a>.</p>
 <p>First we are going to define a Python dictionary that contains the information of our project:</p>
 <pre><code class="python">
 project_dic = {
