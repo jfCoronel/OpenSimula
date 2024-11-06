@@ -24,14 +24,14 @@ To generate the variables in the simulation time step, the values are obtained b
 - **temperature** [°C]: Dry bulb temperature.
 - **sky_temperature** [°C]: Sky temperature, for radiant heat exchange (read from MET files, calculated in TMY3 files).
 - **underground_temperature** [°C]: Ground temperature, to be used as the temperature imposed on the outer surface of the enclosures in contact with the ground (currently not read from the file, it is calculated as the annual average air temperature).
-- **abs_humidity** [g/kg]: Air relative humidity (calculated).
+- **abs_humidity** [g/kg]: Air absolute humidity (calculated).
 - **rel_humidity** [%]: Air relative humidity.
 - **dew_point_temp** [°C]: Dew point air temperature (calculated).
 - **wet_bulb_temp** [°C]: Wet bulb air temperature (calculated).
 - **sol_hour** [h]: Solar hour of the day (calculated).
 - **sol_direct** [W/m²]: Direct solar irradiance over horizontal surface.
 - **sol_diffuse** [W/m²]: Diffuse solar irradiance over horizontal surface.
-- **sol_azimut** [°]: Solar azimut (degrees from south: E-, W+) (calculated).
+- **sol_azimuth** [°]: Solar azimuth (degrees from south: E-, W+) (calculated).
 - **sol_altitude** [°]: Solar altitude (degrees) (calculated).
 - **wind_speed** [m/s]: Wind speed.
 - **wind_direction** [°]: Wind direction (degrees from north: E+, W-).

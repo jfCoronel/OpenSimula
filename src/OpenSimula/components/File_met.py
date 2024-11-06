@@ -20,23 +20,39 @@ class File_met(Component):
             "tilted_diffuse_model", "PEREZ", ["REINDL", "HAY-DAVIES", "ISOTROPIC", "PEREZ"]))
 
         # Variables
-        self.add_variable(Variable("sol_hour", unit="h"))
-        self.add_variable(Variable("temperature", unit="°C"))
-        self.add_variable(Variable("sky_temperature", unit="°C"))
-        self.add_variable(Variable("underground_temperature", unit="°C"))
-        self.add_variable(Variable("rel_humidity", unit="%"))
-        self.add_variable(Variable("abs_humidity", unit="g/kg"))
-        self.add_variable(Variable("dew_point_temp", unit="°C"))
-        self.add_variable(Variable("wet_bulb_temp", unit="°C"))
-        self.add_variable(Variable("sol_direct", unit="W/m²"))
-        self.add_variable(Variable("sol_diffuse", unit="W/m²"))
-        self.add_variable(Variable("wind_speed", unit="m/s"))
-        self.add_variable(Variable("wind_direction", unit="°"))
-        self.add_variable(Variable("sol_azimuth", unit="°"))
-        self.add_variable(Variable("sol_altitude", unit="°"))
-        self.add_variable(Variable("pressure", unit="Pa"))
-        self.add_variable(Variable("total_cloud_cover", unit="%"))
-        self.add_variable(Variable("opaque_cloud_cover", unit="%"))
+        self.add_variable(
+            Variable("sol_hour", "h", "Solar hour of the day (calculated)"))
+        self.add_variable(
+            Variable("temperature", "°C", "Dry bulb temperature"))
+        self.add_variable(Variable("sky_temperature", "°C",
+                          "Sky temperature, for radiant heat exchange (read from MET files, calculated in TMY3 files)."))
+        self.add_variable(Variable("underground_temperature", "°C",
+                          "Ground temperature, to be used as the temperature imposed on the outer surface of the enclosures in contact with the ground (currently not read from the file, it is calculated as the annual average air temperature)."))
+        self.add_variable(
+            Variable("rel_humidity", "%", "Air relative humidity."))
+        self.add_variable(Variable("abs_humidity", "g/kg",
+                          "Air absolute humidity (calculated)."))
+        self.add_variable(Variable("dew_point_temp", "°C",
+                          "Dew point air temperature (calculated)."))
+        self.add_variable(Variable("wet_bulb_temp", "°C",
+                          "Wet bulb air temperature (calculated)."))
+        self.add_variable(Variable("sol_direct", "W/m²",
+                          "Direct solar irradiance over horizontal surface."))
+        self.add_variable(Variable("sol_diffuse", "W/m²",
+                          "Diffuse solar irradiance over horizontal surface."))
+        self.add_variable(Variable("wind_speed", "m/s", "Wind speed."))
+        self.add_variable(Variable("wind_direction", "°",
+                          "Wind direction (degrees from north: E+, W-)."))
+        self.add_variable(Variable(
+            "sol_azimuth", "°", "Solar azimuth (degrees from south: E-, W+) (calculated)."))
+        self.add_variable(Variable("sol_altitude", "°",
+                          "Solar altitude (degrees) (calculated)."))
+        self.add_variable(Variable(
+            "pressure", "Pa", " Ambient absolute pressure (read from TMY3 files, calculated using standard atmosphere for MET files)."))
+        self.add_variable(Variable("total_cloud_cover", "%",
+                          "Percentage of the sky covered by all the visible clouds (read from TMY3 files, 0 for MET files)."))
+        self.add_variable(Variable("opaque_cloud_cover", "%",
+                          "Percentage of the sky covered, used for infrared radiation an sky temperature estimation (read from TMY3 files, 0 for MET files)."))
 
         # Las variables leidas las guardamos en numpy arrays
         self.temperature = np.zeros(8760)

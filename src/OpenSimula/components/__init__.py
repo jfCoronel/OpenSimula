@@ -18,3 +18,4 @@ from OpenSimula.components.Virtual_surface import Virtual_surface
 from OpenSimula.components.Underground_surface import Underground_surface
 from OpenSimula.components.Shadow_surface import Shadow_surface
 from OpenSimula.components.Opening import Opening
+from OpenSimula.components.Calculator import Calculator

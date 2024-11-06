@@ -60,7 +60,8 @@ class Project(Parameter_container):
                     "Shadow_surface",
                     "Opening",
                     "Space",
-                    "Building"
+                    "Building",
+                    "Calculator"
                 ],
             )
         )

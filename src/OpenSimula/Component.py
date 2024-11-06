@@ -36,13 +36,14 @@ class Component(Parameter_container):
     def variable_dict(self):
         return self._variables_
 
-    def variable_dataframe(self, with_unit=True, frequency=None, value="mean", interval=None):
+    def variable_dataframe(self, units=False, frequency=None, value="mean", interval=None):
         """_summary_
 
         Args:
-            with_unit (bool, optional): Includes unit in the name of the variable. Defaults to True.
+            units (bool, optional): Includes unit in the name of the variable. Defaults to True.
             frequency (None or str, optional): frequency of the values: None, "H" Hour, "D" Day, "M" Month, "Y" Year . Defaults to None.
             value (str, optional): "mean", "sum", "max" or "min". Defaults to "mean".
+            interval (None or list of two dates): List with the start and end dates of the period to be included in the dataframe, if the value is None all values are included.
 
         Returns:
             pandas DataFrame: Returns all the variables 
@@ -53,7 +54,7 @@ class Component(Parameter_container):
             if var.unit == "":
                 series[key] = var.values
             else:
-                if with_unit:
+                if units:
                     series[key + " [" + var.unit + "]"] = var.values
                 else:
                     series[key] = var.values
@@ -122,11 +123,15 @@ class Component(Parameter_container):
             # Create variables in paramater_variable
             if value.type == "Parameter_variable":
                 if value.variable is not None:
+                    if (value.symbol in self._variables_):  # Delete
+                        self.del_variable(self.variable(value.symbol))
                     self.add_variable(
                         Variable(value.symbol, value.variable.unit))
             if value.type == "Parameter_variable_list":
                 for i in range(len(value.variable)):
                     if value.variable[i] is not None:
+                        if (value.symbol[i] in self._variables_):  # Delete
+                            self.del_variable(self.variable(value.symbol[i]))
                         self.add_variable(
                             Variable(value.symbol[i], value.variable[i].unit))
 
@@ -161,10 +166,28 @@ class Component(Parameter_container):
         pass
 
     def _repr_html_(self):
-        html = f"<h3>Component: {self.parameter('name').value}</h3><p>{self.parameter('description').value}</p>"
+        html = f"<h3>Component: {self.parameter('name').value}</h3><p><strong>Desciption: </strong>{self.parameter('description').value}</p>"
         html += "<strong>Parameters:</strong>"
         html += self.parameter_dataframe().to_html()
         if (len(self._variables_) > 0):
             html += "<br/><strong>Variables:</strong>"
-            html += self.variable_dataframe().head(10).to_html()
+            html += self.variable_html()
         return html
+
+    def variable_html(self):
+        keys = []
+        descriptions = []
+        units = []
+        for key, var in self._variables_.items():
+            keys.append(key)
+            descriptions.append(var.description)
+            units.append(var.unit)
+
+        data = pd.DataFrame(
+            {"key": keys, "description": descriptions, "unit": units}
+        )
+        return data.to_html()
+
+    def function_html(self):
+        html = "<p><strong>parameter_dataframe():</strong> Return pandas DataFrame with the component parametes.</p>"
+        html += "<p><strong>variable_dataframe():</strong> Return pandas DataFrame with the component variables.</p>"

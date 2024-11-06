@@ -18,7 +18,8 @@ class Year_schedule(Component):
             )
         )
         # Create Variable
-        self.add_variable(Variable("values", ""))
+        self.add_variable(Variable(
+            "values", "", "Values obtained using year, weeks and days schedules for each of the simulation time steps."))
 
     def check(self):
         errors = super().check()

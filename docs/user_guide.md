@@ -299,13 +299,14 @@ array([  0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
 Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
 </code></pre>
 
-The `variable_dataframe(with_unit, frequency, value)` method of the components returns a pandas dataframe with all the variables of the component.
+The `variable_dataframe(units, frequency, value, interval)` method of the components returns a pandas dataframe with all the variables of the component.
 
 with the following possible arguments (In bold the default values):
 
-- with_unit [__True__/False]: Include de units in the name of the variable.
+- units [__False__/True]: Include de units in the name of the variable.
 - frequency [__None__, "H", "D", "M", "Y"]: Frequency of the data, that of the simulation (None), hourly ("H"), daily ("D"), monthly ("M") or yearly ("Y").
 - value [__"mean"__,"max","min","sum"]: If we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each row (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min") or the sum ("sum").
+- interval [__None__,[start_date, end_date]]: List with the start and end dates of the period to be included in the dataframe, if the value is None all values are included.
 
 As an example we can see how to obtain the monthly average values of the variables of a meteorological file (File_met component):
 
