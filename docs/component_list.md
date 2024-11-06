@@ -13,3 +13,4 @@ We have divided the list of all components into several groups of related compon
 - [Components for reading files](component_list_files.md): File_met, File_data.
 - [Constructive components](component_list_constructions.md): Material, Construction, Glazing, Frame, Opening_type.
 - [Building definition components](component_list_building.md): Building, Space_type, Space, Exterior_surface, Interior_surface, Underground_surface, Virtual_surface, Opening, Shadow_surface.
+- [Components for various utilities](component_list_utils.md): Calculator.
