@@ -42,16 +42,6 @@ class Project(Parameter_container):
             Parameter_string_list(
                 "simulation_order",
                 [
-                    "File_data",
-                    "File_met",
-                    "Day_schedule",
-                    "Week_schedule",
-                    "Year_schedule",
-                    "Material",
-                    "Glazing",
-                    "Frame",
-                    "Construction",
-                    "Opening_type",
                     "Space_type",
                     "Exterior_surface",
                     "Underground_surface",
@@ -288,22 +278,22 @@ class Project(Parameter_container):
 
     def _set_ordered_component_list_(self):
         all_comp_list = []
+        # Add referenced components
         for comp in self.component_list():
             components = comp.get_all_referenced_components()
             for comp_i in components:
                 if comp_i not in all_comp_list:
                     all_comp_list.append(comp_i)
         # order components
-        self._ordered_component_list_ = []
-        # Add components in simulation order
-        for type in self.parameter("simulation_order").value:
+        self._ordered_component_list_ = all_comp_list.copy()
+        # Remove components and at the end
+        for comp_type in self.parameter("simulation_order").value:
             for comp in all_comp_list:
-                if comp.parameter("type").value == type:
+                if comp.parameter("type").value == comp_type:
+                    self._ordered_component_list_.remove(comp)
+            for comp in  all_comp_list:
+                if comp.parameter("type").value == comp_type:
                     self._ordered_component_list_.append(comp)
-        # Add rest of components
-        for comp in all_comp_list:
-            if comp not in self._ordered_component_list_:
-                self._ordered_component_list_.append(comp)
 
     def check(self):
         """Check if all is correct, for the project and all its components

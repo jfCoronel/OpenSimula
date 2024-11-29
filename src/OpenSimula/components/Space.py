@@ -226,6 +226,9 @@ class Space(Component):
         self.variable("infiltration_flow").values[time_index] = self._volume * \
             self._space_type_comp.variable(
                 "infiltration_rate").values[time_index] / 3600
+        
+        # Systems air flows
+        self.system_air_flows = []
 
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
@@ -244,6 +247,20 @@ class Space(Component):
                     self.surfaces[i].variable("E_dir_tra").values[time_i]
 
         self.variable("solar_direct_gains").values[time_i] = solar_gain
+
+    def add_system_air_flow(self,air_flow):
+        # Delete if exist
+        self.system_air_flows = [air for air in self.system_air_flows if air['name'] != air_flow["name"] ]
+        self.system_air_flows.append(air_flow)
+
+    def get_control_param(self,time_i):
+        control = {"T_cool_sp": self._space_type_comp.variable("cooling_setpoint").values[time_i],
+                   "T_heat_sp": self._space_type_comp.variable("heating_setpoint").values[time_i],
+                    "cool_on":  bool(self._space_type_comp.variable("cooling_on_off").values[time_i]),
+                    "heat_on":  bool(self._space_type_comp.variable("heating_on_off").values[time_i]),
+                    "perfect_conditioning":  self.parameter("perfect_conditioning").value
+                    }
+        return control
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)

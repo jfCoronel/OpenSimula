@@ -19,3 +19,6 @@ from OpenSimula.components.Underground_surface import Underground_surface
 from OpenSimula.components.Shadow_surface import Shadow_surface
 from OpenSimula.components.Opening import Opening
 from OpenSimula.components.Calculator import Calculator
+from OpenSimula.components.HVAC_DX_equipment import HVAC_DX_equipment
+from OpenSimula.components.HVAC_DX_system import HVAC_DX_system
+

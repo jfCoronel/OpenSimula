@@ -54,16 +54,6 @@ Projects contain a set of components defining a case that can be temporarily sim
 - **daylight_saving_end_time** [_string_, default = "28/10/2001 02:00:00"]: daylight saving start time, time with format "DD/MM/YYYY hh:mm:ss". It will only be used if the daylight_saving parameter is set to True.
 - **n_max_iteration** [_int_, default = 1000, min = 1]: Maximum number of iterations in each time step. If after this number of iterations the instant has not converged, it is passed to the next time instant. 
 - **simulation_order** [_string-list_, default = [
-                    "File_data",
-                    "File_met",
-                    "Day_schedule",
-                    "Week_schedule",
-                    "Year_schedule",
-                    "Material",
-                    "Glazing",
-                    "Frame",
-                    "Construction",
-                    "Opening_type",
                     "Space_type",
                     "Exterior_surface",
                     "Underground_surface",
@@ -73,7 +63,7 @@ Projects contain a set of components defining a case that can be temporarily sim
                     "Opening",
                     "Space",
                     "Building"
-                ]]: Order used for the types of components in the simulation loops.
+                ]]: Order used for the types of components in the simulation loops. All components not specified are added at the beginning and those defined in this list are added at the end in the established order.
 
 Example of project for the simulation of the first week of june with 15 min time step.
 

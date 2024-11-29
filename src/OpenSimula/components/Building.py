@@ -417,6 +417,7 @@ class Building(Component):
             self._store_surfaces_values(time_index)
         else:
             self._calculate_T_P(time_index)
+            self._store_spaces_values(time_index)
         return converged
 
     def _calculate_Q_dir(self, time_i):
@@ -595,7 +596,7 @@ class Building(Component):
                 self.spaces[i].variable(
                     "Q_cooling").values[time_i] = - self.PZ_vector[i]
 
-        # Calculate hunmidity balance ??
+        # Calculate humidity balance ??
 
     def _store_surfaces_values(self, time_i):
         # Calculate TS,
