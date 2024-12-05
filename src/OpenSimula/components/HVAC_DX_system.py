@@ -7,7 +7,7 @@ import psychrolib as sicro
 class HVAC_DX_system(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "HVAC_DX_systemt"
+        self.parameter("type").value = "HVAC_DX_system"
         self.parameter("description").value = "HVAC Direct Expansion system for time simulation"
         self.add_parameter(Parameter_component("equipment", "not_defined", ["HVAC_DX_equipment"]))
         self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
@@ -45,7 +45,7 @@ class HVAC_DX_system(Component):
          # Sicro
         sicro.SetUnitSystem(sicro.SI)
         self.CP_A = 1007 # (J/kg�K)
-        self.DH_W = 2500 # (J/g H20)
+        self.DH_W = 2501 # (J/g H20)
 
     def check(self):
         errors = super().check()
@@ -53,10 +53,6 @@ class HVAC_DX_system(Component):
         if self.parameter("equipment").value == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, must define its equipment.")
-        # Test schedule defined
-        if self.parameter("schedule").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define its schedule.")
         # Test space defined
         if self.parameter("space").value == "not_defined":
             errors.append(
@@ -74,7 +70,6 @@ class HVAC_DX_system(Component):
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         self._equipment = self.parameter("equipment").component
-        self._shedule = self.parameter("schedule").component
         self._space = self.parameter("space").component
         self._space_type = self._space.parameter("space_type").component
         self._file_met = self.parameter("file_met").component
@@ -83,7 +78,7 @@ class HVAC_DX_system(Component):
         self._f_air = self._supply_air_flow / self._equipment.parameter("nominal_air_flow").value
         self._f_oa = self._outdoor_air_flow/self._supply_air_flow
         self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
-        self.RHO_A = sicro.GetMoistAirDensity(22,8.261,self.ATM_PRESSURE)
+        self.RHO_A = sicro.GetMoistAirDensity(20,0.0073,self.ATM_PRESSURE)
         self._m_supply =  self.RHO_A * self._supply_air_flow # V_imp * rho 
         self._mrcp =  self.RHO_A * self._supply_air_flow * self.CP_A # V_imp * rho * c_p
         self._mrdh =  self.RHO_A * self._supply_air_flow * self.DH_W # V_imp * rho * Dh
@@ -95,7 +90,7 @@ class HVAC_DX_system(Component):
         self._T_odb = self._file_met.variable("temperature").values[time_index]
         self._T_owb = self._file_met.variable("wet_bulb_temp").values[time_index]
         self._w_o = self._file_met.variable("abs_humidity").values[time_index]
-        control_param = self._space.get_control_param() # T_cool_sp, T_heat_sp, cool_on, heat_on, perfect_conditioning    
+        control_param = self._space.get_control_param(time_index) # T_cool_sp, T_heat_sp, cool_on, heat_on, perfect_conditioning    
         self._T_cool_sp = control_param["T_cool_sp"]
         self._T_heat_sp = control_param["T_heat_sp"]
         self._cool_on = control_param["cool_on"]
@@ -143,7 +138,6 @@ class HVAC_DX_system(Component):
                 self._f_load = 1
             self._T_supply = self._Q_heating / self._mrcp + self._T_edb
             self._w_supply = self._w_e
-            self._space.add_system_air_flow({"name": self.parameter("name").value, "m": self._m_supply, "T": self._T_supply, "w": self._w_supply})
         elif self._Q_cooling > 0:
             tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_edb, self._T_ewb, self._T_odb,self._f_air)
             self._f_load = self._Q_cooling/sen_cool_cap
@@ -155,13 +149,12 @@ class HVAC_DX_system(Component):
             self._Q_cooling_tot = tot_cool_cap*self._f_load
             self._T_supply = self._T_edb - self._Q_cooling / self._mrcp
             self._w_supply = self._w_e - (self._Q_cooling_tot - self._Q_cooling) / self._mrdh 
-            self._space.add_system_air_flow({"name": self.parameter("name").value, "m": self._m_supply, "T": self._T_supply, "w": self._w_supply})
         else:
             self._f_load = 0
             self._state = 3
             self._T_supply = self._T_edb
             self._w_supply = self._w_e 
-            self._space.add_system_air_flow({"name": self.parameter("name").value, "m": self._m_supply, "T": self._T_supply, "w": self._w_supply})
+        self._space.add_system_air_flow({"name": self.parameter("name").value, "V": self._supply_air_flow, "T": self._T_supply, "w": self._w_supply})
                         
     def termostat_control(self):
         self._f_load = 0
@@ -190,18 +183,18 @@ class HVAC_DX_system(Component):
             self._Q_heating = heat_cap * self._f_load
             self._T_supply = self._Q_heating / self._mrcp + self._T_edb
             self._w_supply = self._w_e
-            self._space.add_system_air_flow({"name": self.parameter("name").value, "m": self._m_supply, "T": self._T_supply, "w": self._w_supply})
+            self._space.add_system_air_flow({"name": self.parameter("name").value, "V": self._supply_air_flow, "T": self._T_supply, "w": self._w_supply})
         elif self._state == 2: # Cooling
             tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_edb, self._T_ewb, self._T_odb,self._f_air)
             self._Q_cooling = sen_cool_cap * self._f_load
             self._Q_cooling_tot = tot_cool_cap*self._f_load           
             self._T_supply = self._T_edb - self._Q_cooling / self._mrcp
             self._w_supply = self._w_e - (self._Q_cooling_tot - self._Q_cooling) / self._mrdh 
-            self._space.add_system_air_flow({"name": self.parameter("name").value, "m": self._m_supply, "T": self._T_supply, "w": self._w_supply})
+            self._space.add_system_air_flow({"name": self.parameter("name").value, "V": self._supply_air_flow, "T": self._T_supply, "w": self._w_supply})
         elif self._state == 3: # Venting
             self._T_supply = self._T_edb
             self._w_supply = self._w_e 
-            self._space.add_system_air_flow({"name": self.parameter("name").value, "m": self._m_supply, "T": self._T_supply, "w": self._w_supply})
+            self._space.add_system_air_flow({"name": self.parameter("name").value, "V": self._supply_air_flow, "T": self._T_supply, "w": self._w_supply})
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)

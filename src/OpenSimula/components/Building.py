@@ -377,7 +377,7 @@ class Building(Component):
     def _calculate_FZ_vector(self, time_i):
         m = len(self.spaces)
         self.FZ_vector = np.zeros(m)
-        self.PZ_vector = np.zeros(m)  # Perfect conditioning loads
+        self.Q_spaces = np.zeros(m)  # Perfect conditioning loads
 
         for i in range(m):
             if time_i == 0:
@@ -410,14 +410,13 @@ class Building(Component):
             self._calculate_FINAL_matrices(time_index)
             self.TZ_vector = np.matmul(self.KFIN_inv_matrix, self.FFIN_vector)
             self._shadow_calculated = True
-        # Comprobar convergencia
+     
+  
+        self._calculate_T_Q(time_index)
+        self._store_spaces_values(time_index)
+        self.humidity_balance(time_index)
+           # Comprobar convergencia
         converged = self._converged(time_index)
-        if converged:
-            self._store_spaces_values(time_index)
-            self._store_surfaces_values(time_index)
-        else:
-            self._calculate_T_P(time_index)
-            self._store_spaces_values(time_index)
         return converged
 
     def _calculate_Q_dir(self, time_i):
@@ -527,14 +526,14 @@ class Building(Component):
         for i in range(len(self.spaces)):
             heat_on, heat_sp = self.spaces[i].perfect_heating(time_i)
             cool_on, cool_sp = self.spaces[i].perfect_cooling(time_i)
-            if heat_on and self.TZ_vector[i] < heat_sp:
+            if heat_on and self.T_spaces[i] < heat_sp:
                 return False
-            if cool_on and self.TZ_vector[i] > cool_sp:
+            if cool_on and self.T_spaces[i] > cool_sp:
                 return False
         return True
 
-    def _calculate_T_P(self, time_i):
-        # T del espacio 0 -9999 si desconocida
+    def _calculate_T_Q(self, time_i):
+        self.T_spaces = self.TZ_vector.copy()
         unknown_T = []
         for i in range(len(self.spaces)):
             heat_on, heat_sp = self.spaces[i].perfect_heating(time_i)
@@ -542,10 +541,10 @@ class Building(Component):
             unknown_T.append(True)
             if heat_on and self.TZ_vector[i] < heat_sp:
                 unknown_T[i] = False
-                self.TZ_vector[i] = heat_sp
+                self.T_spaces[i] = heat_sp
             if cool_on and self.TZ_vector[i] > cool_sp:
                 unknown_T[i] = False
-                self.TZ_vector[i] = cool_sp
+                self.T_spaces[i] = cool_sp
         n_unknown_T = sum(unknown_T)  # N. of True
         if n_unknown_T > 0:
             K = np.zeros((n_unknown_T, n_unknown_T))
@@ -560,48 +559,48 @@ class Building(Component):
                             K[i0][j0] = self.KFIN_matrix[i][j]
                             j0 += 1
                         else:
-                            F[i0] -= self.KFIN_matrix[i][j]*self.TZ_vector[j]
+                            F[i0] -= self.KFIN_matrix[i][j]*self.T_spaces[j]
                     i0 += 1
 
             T = np.linalg.solve(K, F)
             i0 = 0
             for i in range(len(self.spaces)):
                 if unknown_T[i]:
-                    self.TZ_vector[i] = T[i0]
+                    self.T_spaces[i] = T[i0]
                     i0 += 1
 
         # Calculate P
         for i in range(len(self.spaces)):
             if unknown_T[i]:
-                self.PZ_vector[i] = 0
+                self.Q_spaces[i] = 0
             else:
-                self.PZ_vector[i] = - self.FFIN_vector[i]
+                self.Q_spaces[i] = - self.FFIN_vector[i]
                 for j in range(len(self.spaces)):
-                    self.PZ_vector[i] += self.KFIN_matrix[i][j] * \
-                        self.TZ_vector[j]
+                    self.Q_spaces[i] += self.KFIN_matrix[i][j] * \
+                        self.T_spaces[j]
+
+
+    def humidity_balance(self, time_i):
+        for i in range(len(self.spaces)):
+           self.spaces[i].humidity_balance(time_i)
 
     def _store_spaces_values(self, time_i):
         # Store TZ y PZ
         for i in range(len(self.spaces)):
-            self.spaces[i].variable(
-                "temperature").values[time_i] = self.TZ_vector[i]
+            self.spaces[i].variable("temperature").values[time_i] = self.T_spaces[i]
 
             self.spaces[i].variable("Q_heating").values[time_i] = 0
             self.spaces[i].variable("Q_cooling").values[time_i] = 0
 
-            if self.PZ_vector[i] > 0:
-                self.spaces[i].variable(
-                    "Q_heating").values[time_i] = self.PZ_vector[i]
-            elif self.PZ_vector[i] < 0:
-                self.spaces[i].variable(
-                    "Q_cooling").values[time_i] = - self.PZ_vector[i]
-
-        # Calculate humidity balance ??
+            if self.Q_spaces[i] > 0:
+                self.spaces[i].variable("Q_heating").values[time_i] = self.Q_spaces[i]
+            elif self.Q_spaces[i] < 0:
+                self.spaces[i].variable("Q_cooling").values[time_i] = - self.Q_spaces[i]
 
     def _store_surfaces_values(self, time_i):
         # Calculate TS,
         self.TS_vector = np.matmul(self.KS_inv_matrix, self.FS_vector) - np.matmul(
-            self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.TZ_vector))
+            self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.T_spaces))
         # Store TS
         for i in range(len(self.surfaces)):
             if self.surfaces[i].parameter("type").value != "Virtual_surface":
@@ -614,6 +613,7 @@ class Building(Component):
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
+        self._store_surfaces_values(time_index)
         # When not converged .... ?
 
     def show3D(self, hide=[], opacity=1, coordinate_system="global", space="all"):

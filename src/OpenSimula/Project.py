@@ -51,6 +51,7 @@ class Project(Parameter_container):
                     "Opening",
                     "Space",
                     "Building",
+                    "HVAC_DX_system",
                     "Calculator"
                 ],
             )

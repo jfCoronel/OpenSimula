@@ -265,7 +265,6 @@ class Space(Component):
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
         self._calculate_heat_fluxes(time_index)
-        self._humidity_balance(time_index)
 
     def _calculate_heat_fluxes(self, time_i):
         building = self.parameter("building").component
@@ -285,30 +284,26 @@ class Space(Component):
         self.variable("surfaces_convective").values[time_i] = -self.variable("people_convective").values[time_i] - self.variable(
             "light_convective").values[time_i] - self.variable("other_gains_convective").values[time_i] - self.variable("infiltration_sensible_heat").values[time_i] - self.variable("delta_int_energy").values[time_i]
 
-    def _humidity_balance(self, time_i):
+    def humidity_balance(self, time_i):
         building = self.parameter("building").component
         if time_i == 0:
             w_pre = building.parameter("initial_humidity").value
-            T_pre = building.parameter("initial_temperature").value
         else:
             w_pre = self.variable("abs_humidity").values[time_i-1]
-            T_pre = self.variable("temperature").values[time_i-1]
 
-        m_inf = self.variable(
-            "infiltration_flow").values[time_i] * building.RHO
-
-        ro_int = sicro.GetMoistAirDensity(
-            T_pre, w_pre/1000, building.ATM_PRESSURE)
+        V_inf = self.variable("infiltration_flow").values[time_i]
         vol = self.parameter("volume").value
         Dt = self.project().parameter("time_step").value
-        Q_lat = self.variable(
-            "people_latent").values[time_i] + self.variable("other_gains_latent").values[time_i]
+        Q_lat = self.variable("people_latent").values[time_i] + self.variable("other_gains_latent").values[time_i]/(building.RHO*building.LAMBDA)
+        k_hum = vol / Dt + V_inf
+        c_hum = vol / Dt * w_pre + V_inf * self._file_met.variable("abs_humidity").values[time_i] + Q_lat 
+        for system in self.system_air_flows:
+            k_hum += system["V"]
+            c_hum += system["V"]*system["w"]
 
-        new_humidity = (vol * ro_int * w_pre + m_inf * self._file_met.variable(
-            "abs_humidity").values[time_i] * Dt + (Q_lat * Dt)/building.LAMBDA) / (vol * ro_int + m_inf * Dt)
+        new_humidity = c_hum/k_hum
 
-        max_hum = sicro.GetHumRatioFromRelHum(self.variable(
-            "temperature").values[time_i], 1, building.ATM_PRESSURE)*1000
+        max_hum = sicro.GetHumRatioFromRelHum(self.variable("temperature").values[time_i], 1, building.ATM_PRESSURE)*1000
 
         if (new_humidity > max_hum):
             self.variable("abs_humidity").values[time_i] = max_hum
@@ -320,8 +315,7 @@ class Space(Component):
                 "temperature").values[time_i], new_humidity/1000, building.ATM_PRESSURE)*100
 
         # infiltration latent
-        self.variable(
-            "infiltration_latent_heat").values[time_i] = m_inf * building.LAMBDA * (new_humidity - w_pre)
+        self.variable("infiltration_latent_heat").values[time_i] = V_inf * building.RHO * building.LAMBDA * (new_humidity - w_pre)
 
     def perfect_heating(self, time_i):
         t_sp = self._space_type_comp.variable(

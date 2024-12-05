@@ -40,8 +40,8 @@ case_ce100_dict = {
             "other_gains_radiant_fraction": 0,
             "infiltration": "0",
             "heating_setpoint": "20",
-            "cooling_setpoint": "27",
-            "heating_on_off": "1",
+            "cooling_setpoint": "22.2",
+            "heating_on_off": "0",
             "cooling_on_off": "1"
         },
         {
@@ -55,7 +55,7 @@ case_ce100_dict = {
             "nominal_other_cooling_power": 108,
             "nominal_cooling_conditions": [26.7,19.4,35],
             "total_cooling_expression": "0.0003561*T_odb + 0.03788*T_ewb - 0.00002701*T_odb^2 + 0.0003109*T_ewb^2 - 0.0004733*T_odb*T_ewb + 0.48799",
-            "sensible_cooling_expression": "0.0009756*T_odb - 0.06613*T_ewb + 0.08618*T_edb - 0.00003684*T_odb^2 - 0.004368*T_ewb^2 - 0.002095*T_edb^2 + 0.0004198*T_odb*Tewb - 0.0004874*T_odb*T_edb + 0.005634*T_ewb*T_edb + 0.39218",
+            "sensible_cooling_expression": "0.0009756*T_odb - 0.06613*T_ewb + 0.08618*T_edb - 0.00003684*T_odb^2 - 0.004368*T_ewb^2 - 0.002095*T_edb^2 + 0.0004198*T_odb*T_ewb - 0.0004874*T_odb*T_edb + 0.005634*T_ewb*T_edb + 0.39218",
             "compressor_cooling_expression": "0.01519*T_odb + 0.01531*T_ewb + 0.00005392*T_odb^2 + 0.00009073*T_ewb^2  - 0.0002189*T_odb*T_ewb + 0.22",
             "EER_expression": "1 - 0.229*(1-F_load)"
         },
@@ -76,6 +76,15 @@ case_ce100_dict = {
             "volume": 129.6,
             "furniture_weight": 0,
             "perfect_conditioning": True
+        },
+        {
+            "type": "HVAC_DX_system",
+            "name": "HVAC_system",
+            "equipment": "HVAC_equipment",
+            "space": "space_1",
+            "file_met": "T_ext_cte",
+            "supply_air_flow": 0.4248,
+            "outdoor_air_flow": 0
         },
         {
             "type": "Exterior_surface",
