@@ -1,5 +1,9 @@
 from OpenSimula.Component import Component
-from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_options
+from OpenSimula.Parameters import (
+    Parameter_component,
+    Parameter_float,
+    Parameter_options,
+)
 import numpy as np
 import math
 import psychrolib as sicro
@@ -16,20 +20,16 @@ class Building(Component):
         self.parameter("type").value = "Building"
         self.parameter("description").value = "Building description"
         # Parameters
-        self.add_parameter(Parameter_component(
-            "file_met", "not_defined", ["File_met"]))
+        self.add_parameter(Parameter_component("file_met", "not_defined", ["File_met"]))
         # X-axe vs East angle (0: X->East, 90: x->North)
-        self.add_parameter(Parameter_float(
-            "azimuth", 0, "°", min=-180, max=180))
-        self.add_parameter(Parameter_float(
-            "albedo", 0.3, "frac", min=0, max=1))
-        self.add_parameter(Parameter_float(
-            "initial_temperature", 20, "°C"))
-        self.add_parameter(Parameter_float(
-            "initial_humidity", 7.3, "g/kg"))
+        self.add_parameter(Parameter_float("azimuth", 0, "°", min=-180, max=180))
+        self.add_parameter(Parameter_float("albedo", 0.3, "frac", min=0, max=1))
+        self.add_parameter(Parameter_float("initial_temperature", 20, "°C"))
+        self.add_parameter(Parameter_float("initial_humidity", 7.3, "g/kg"))
         self.add_parameter(
-            Parameter_options("shadow_calculation", "INSTANT", [
-                              "NO", "INSTANT", "INTERPOLATION"])
+            Parameter_options(
+                "shadow_calculation", "INSTANT", ["NO", "INSTANT", "INTERPOLATION"]
+            )
         )
 
         # Constant values
@@ -46,7 +46,8 @@ class Building(Component):
         errors = super().check()
         if self.parameter("file_met").value == "not_defined":
             errors.append(
-                f"Error: {self.parameter('name').value}, file_met must be defined.")
+                f"Error: {self.parameter('name').value}, file_met must be defined."
+            )
         self._create_spaces_surfaces_list()
         self._create_shadow_surfaces_list()
         return errors
@@ -55,8 +56,7 @@ class Building(Component):
         super().pre_simulation(n_time_steps, delta_t)
         self._file_met = self.parameter("file_met").component
         sicro.SetUnitSystem(sicro.SI)
-        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(
-            self._file_met.altitude)
+        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
         # Density for convert volumetric to mass flows
         self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
         self._create_spaces_surfaces_list()
@@ -79,12 +79,14 @@ class Building(Component):
         self.surfaces = []
         self.sides = []
         for space in project_spaces_list:
-            if (space.parameter("building").component == self):
+            if space.parameter("building").component == self:
                 self.spaces.append(space)
                 for surface in space.surfaces:
                     self.surfaces.append(surface)
                 for side in space.sides:
                     self.sides.append(side)
+        self._n_spaces = len(self.spaces)
+        self._n_surfaces = len(self.surfaces)
 
     def _create_shadow_surfaces_list(self):
         self.shadow_surfaces = self.project().component_list(comp_type="Shadow_surface")
@@ -92,10 +94,8 @@ class Building(Component):
     def _create_building_3D(self, coordinate_system="global"):
         self.building_3D = Building_3D()
         for surface in [*self.surfaces, *self.shadow_surfaces]:
-            azimuth = surface.orientation_angle(
-                "azimuth", 0, coordinate_system)
-            altitude = surface.orientation_angle(
-                "altitude", 0, coordinate_system)
+            azimuth = surface.orientation_angle("azimuth", 0, coordinate_system)
+            altitude = surface.orientation_angle("altitude", 0, coordinate_system)
             origin = surface.get_origin(coordinate_system)
             pol_2D = surface.get_polygon_2D()
             s_type = surface.parameter("type").value
@@ -104,63 +104,63 @@ class Building(Component):
                 holes_2D = []
                 for opening in surface.openings:
                     holes_2D.append(opening.get_polygon_2D())
-                polygon = Polygon_3D(origin, azimuth,
-                                     altitude, pol_2D, holes_2D)
+                polygon = Polygon_3D(origin, azimuth, altitude, pol_2D, holes_2D)
             else:
                 polygon = Polygon_3D(origin, azimuth, altitude, pol_2D)
             self.building_3D.add_polygon(polygon, s_type, surface)
 
     def _create_ff_matrix(self):
-        n = len(self.surfaces)
-        self.ff_matrix = np.zeros((n, n))
+        self.ff_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
         i = 0
         for space in self.spaces:
             n_i = len(space.surfaces)
-            self.ff_matrix[i:i+n_i, i:i + n_i] = space.ff_matrix
+            self.ff_matrix[i : i + n_i, i : i + n_i] = space.ff_matrix
             i += n_i
 
     def _create_B_matrix(self):
-        n = len(self.surfaces)
-        self.B_matrix = np.zeros((n, n))
-        for i in range(n):
-            for j in range(n):
+        self.B_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
+        for i in range(self._n_surfaces):
+            for j in range(self._n_surfaces):
                 if i != j and self.surfaces[i] == self.surfaces[j]:
                     self.B_matrix[i][j] = 1
 
     def _create_SW_matrices(self):
-        n = len(self.surfaces)
-        self.SWR_matrix = np.identity(n)
-        rho_matrix = np.zeros((n, n))
-        tau_matrix = np.zeros((n, n))
-        alpha_matrix = np.zeros((n, n))
-        area_matrix = np.zeros((n, n))
+        self.SWR_matrix = np.identity(self._n_surfaces)
+        rho_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
+        tau_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
+        alpha_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
+        area_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
 
-        for i in range(n):
+        for i in range(self._n_surfaces):
             rho_matrix[i][i] = self.surfaces[i].radiant_property(
-                "rho", "solar_diffuse", self.sides[i])
+                "rho", "solar_diffuse", self.sides[i]
+            )
             tau_matrix[i][i] = self.surfaces[i].radiant_property(
-                "tau", "solar_diffuse", self.sides[i])
+                "tau", "solar_diffuse", self.sides[i]
+            )
             # Negative (absortion)
-            alpha_matrix[i][i] = -1 * \
-                self.surfaces[i].radiant_property(
-                    "alpha", "solar_diffuse", self.sides[i])
+            alpha_matrix[i][i] = -1 * self.surfaces[i].radiant_property(
+                "alpha", "solar_diffuse", self.sides[i]
+            )
             area_matrix[i][i] = self.surfaces[i].area
 
-        self.SWR_matrix = self.SWR_matrix - \
-            np.matmul(self.ff_matrix, rho_matrix) - \
-            np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix))
+        self.SWR_matrix = (
+            self.SWR_matrix
+            - np.matmul(self.ff_matrix, rho_matrix)
+            - np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix))
+        )
 
         self.SWR_matrix = np.linalg.inv(self.SWR_matrix)
-        aux_matrix = np.matmul(area_matrix, np.matmul(
-            alpha_matrix, self.SWR_matrix))
-        self.SWDIF_matrix = np.matmul(aux_matrix, np.matmul(
-            self.ff_matrix, tau_matrix))  # SW Solar Diffuse
+        aux_matrix = np.matmul(area_matrix, np.matmul(alpha_matrix, self.SWR_matrix))
+        self.SWDIF_matrix = np.matmul(
+            aux_matrix, np.matmul(self.ff_matrix, tau_matrix)
+        )  # SW Solar Diffuse
 
-        m = len(self.spaces)
-        dsr_dist_matrix = np.zeros((n, m))
-        ig_dist_matrix = np.zeros((n, m))
+       
+        dsr_dist_matrix = np.zeros((self._n_surfaces, self._n_spaces))
+        ig_dist_matrix = np.zeros((self._n_surfaces, self._n_spaces))
         i_glob = 0
-        for j in range(m):
+        for j in range(self._n_spaces):
             for i in range(len(self.spaces[j].surfaces)):
                 dsr_dist_matrix[i_glob][j] = self.spaces[j].dsr_dist_vector[i]
                 ig_dist_matrix[i_glob][j] = self.spaces[j].ig_dist_vector[i]
@@ -170,36 +170,37 @@ class Building(Component):
         self.SWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
 
     def _create_LW_matrices(self):
-        n = len(self.surfaces)
-        self.LWR_matrix = np.identity(n)
-        rho_matrix = np.zeros((n, n))
-        tau_matrix = np.zeros((n, n))
-        alpha_matrix = np.zeros((n, n))
-        area_matrix = np.zeros((n, n))
+        self.LWR_matrix = np.identity(self._n_surfaces)
+        rho_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
+        tau_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
+        alpha_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
+        area_matrix = np.zeros((self._n_surfaces,self._n_surfaces))
 
-        for i in range(n):
+        for i in range(self._n_surfaces):
             rho_matrix[i][i] = self.surfaces[i].radiant_property(
-                "rho", "long_wave", self.sides[i])
+                "rho", "long_wave", self.sides[i]
+            )
             tau_matrix[i][i] = self.surfaces[i].radiant_property(
-                "tau", "long_wave", self.sides[i])
+                "tau", "long_wave", self.sides[i]
+            )
             # Negative (absortion)
-            alpha_matrix[i][i] = -1 * \
-                self.surfaces[i].radiant_property(
-                    "alpha", "long_wave", self.sides[i])
+            alpha_matrix[i][i] = -1 * self.surfaces[i].radiant_property(
+                "alpha", "long_wave", self.sides[i]
+            )
             area_matrix[i][i] = self.surfaces[i].area
 
-        self.LWR_matrix = self.LWR_matrix - \
-            np.matmul(self.ff_matrix, rho_matrix) - \
-            np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix))
+        self.LWR_matrix = (
+            self.LWR_matrix
+            - np.matmul(self.ff_matrix, rho_matrix)
+            - np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix))
+        )
 
         self.LWR_matrix = np.linalg.inv(self.LWR_matrix)
-        aux_matrix = np.matmul(area_matrix, np.matmul(
-            alpha_matrix, self.LWR_matrix))
+        aux_matrix = np.matmul(area_matrix, np.matmul(alpha_matrix, self.LWR_matrix))
 
-        m = len(self.spaces)
-        ig_dist_matrix = np.zeros((n, m))
+        ig_dist_matrix = np.zeros((self._n_surfaces, self._n_spaces))
         i_glob = 0
-        for j in range(m):
+        for j in range(self._n_spaces):
             for i in range(len(self.spaces[j].surfaces)):
                 ig_dist_matrix[i_glob][j] = self.spaces[j].ig_dist_vector[i]
                 i_glob += 1
@@ -207,74 +208,93 @@ class Building(Component):
         self.LWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
 
         # Temperature matrix
-        self.KTEMP_matrix = np.matmul(area_matrix, -1 * alpha_matrix) - \
-            np.matmul(aux_matrix, np.matmul(self.ff_matrix, alpha_matrix))
+        self.KTEMP_matrix = np.matmul(area_matrix, -1 * alpha_matrix) - np.matmul(
+            aux_matrix, np.matmul(self.ff_matrix, alpha_matrix)
+        )
 
         H_RD = 5.705  # 4*sigma*(293^3)
         self.KTEMP_matrix = H_RD * self.KTEMP_matrix
 
     def _create_K_matrices(self):
-        n = len(self.surfaces)
-        m = len(self.spaces)
         self.KS_matrix = np.copy(-self.KTEMP_matrix)
-        self.KSZ_matrix = np.zeros((n, m))
-        self.KZ_matrix = np.zeros((m, m))
+        self.KSZ_matrix = np.zeros((self._n_surfaces, self._n_spaces))
+        self.KZ_matrix = np.zeros((self._n_spaces, self._n_spaces))
 
         # KS_matriz, KSZ_matrix
-        for i in range(n):
+        for i in range(self._n_surfaces):
             s_type = self.surfaces[i].parameter("type").value
 
             if s_type == "Exterior_surface":
                 k = self.surfaces[i].k
                 k_01 = self.surfaces[i].k_01
-                self.KS_matrix[i][i] += k[1] - (k_01**2)/k[0]
-                for j in range(m):
+                self.KS_matrix[i][i] += k[1] - (k_01**2) / k[0]
+                for j in range(self._n_spaces):
                     if self.spaces[j] == self.surfaces[i].parameter("space").component:
-                        self.KSZ_matrix[i][j] = self.surfaces[i].area * \
-                            self.surfaces[i].parameter(
-                                "h_cv").value[self.sides[i]]
+                        self.KSZ_matrix[i][j] = (
+                            self.surfaces[i].area
+                            * self.surfaces[i].parameter("h_cv").value[self.sides[i]]
+                        )
             elif s_type == "Underground_surface":
                 k = self.surfaces[i].k
                 k_01 = self.surfaces[i].k_01
                 self.KS_matrix[i][i] += k[1]
-                for j in range(m):
+                for j in range(self._n_spaces):
                     if self.spaces[j] == self.surfaces[i].parameter("space").component:
-                        self.KSZ_matrix[i][j] = self.surfaces[i].area * \
-                            self.surfaces[i].parameter("h_cv").value
+                        self.KSZ_matrix[i][j] = (
+                            self.surfaces[i].area
+                            * self.surfaces[i].parameter("h_cv").value
+                        )
             elif s_type == "Interior_surface":
                 k = self.surfaces[i].k
                 k_01 = self.surfaces[i].k_01
                 self.KS_matrix[i][i] += k[self.sides[i]]
-                for j in range(n):
+                for j in range(self._n_surfaces):
                     if self.B_matrix[i][j] == 1:
                         self.KS_matrix[i][j] += k_01
-                for j in range(m):
-                    if self.spaces[j] == self.surfaces[i].parameter("spaces").component[self.sides[i]]:
-                        self.KSZ_matrix[i][j] = self.surfaces[i].area * \
-                            self.surfaces[i].parameter(
-                                "h_cv").value[self.sides[i]]
+                for j in range(self._n_spaces):
+                    if (
+                        self.spaces[j]
+                        == self.surfaces[i].parameter("spaces").component[self.sides[i]]
+                    ):
+                        self.KSZ_matrix[i][j] = (
+                            self.surfaces[i].area
+                            * self.surfaces[i].parameter("h_cv").value[self.sides[i]]
+                        )
             elif s_type == "Virtual_surface":
                 self.KS_matrix[i][i] += 1.0
-                for j in range(m):
-                    if self.spaces[j] == self.surfaces[i].parameter("spaces").component[self.sides[i]]:
+                for j in range(self._n_spaces):
+                    if (
+                        self.spaces[j]
+                        == self.surfaces[i].parameter("spaces").component[self.sides[i]]
+                    ):
                         self.KSZ_matrix[i][j] = 0
             elif s_type == "Opening":
                 k = self.surfaces[i].k
                 k_01 = self.surfaces[i].k_01
-                self.KS_matrix[i][i] += k[1] - (k_01**2)/k[0]
-                for j in range(m):
-                    if self.spaces[j] == self.surfaces[i].parameter("surface").component.parameter("space").component:
-                        self.KSZ_matrix[i][j] = self.surfaces[i].area * \
-                            self.surfaces[i].parameter(
-                                "h_cv").value[self.sides[i]]
+                self.KS_matrix[i][i] += k[1] - (k_01**2) / k[0]
+                for j in range(self._n_spaces):
+                    if (
+                        self.spaces[j]
+                        == self.surfaces[i]
+                        .parameter("surface")
+                        .component.parameter("space")
+                        .component
+                    ):
+                        self.KSZ_matrix[i][j] = (
+                            self.surfaces[i].area
+                            * self.surfaces[i].parameter("h_cv").value[self.sides[i]]
+                        )
 
         self.KS_inv_matrix = np.linalg.inv(self.KS_matrix)
 
         # KZ_matrix without air movement
-        for i in range(m):
-            self.KZ_matrix[i][i] = (self.spaces[i].parameter("volume").value * self.RHO * self.C_P + self.spaces[i].parameter(
-                "furniture_weight").value * self.C_P_FURNITURE) / self.project().parameter("time_step").value
-            for j in range(n):
+        for i in range(self._n_spaces):
+            self.KZ_matrix[i][i] = (
+                self.spaces[i].parameter("volume").value * self.RHO * self.C_P
+                + self.spaces[i].parameter("furniture_weight").value
+                * self.C_P_FURNITURE
+            ) / self.project().parameter("time_step").value
+            for j in range(self._n_surfaces):
                 self.KZ_matrix[i][i] += self.KSZ_matrix[j][i]
         # KZS
         self.KZS_matrix = -1 * self.KSZ_matrix.transpose()
@@ -283,15 +303,21 @@ class Building(Component):
         self.shadow_azimuth_grid = np.linspace(0, 350, 36)
         self.shadow_altitude_grid = np.linspace(-85, 85, 18)
         self.sunny_fraction_tables = np.zeros(
-            (len(self.building_3D.sunny_surface), 36, 18))
+            (len(self.building_3D.sunny_surface), 36, 18)
+        )
         j = 0
         for azimuth in self.shadow_azimuth_grid:
             azi_rd = math.radians(azimuth)
             k = 0
             for altitude in self.shadow_altitude_grid:
                 alt_rd = math.radians(altitude)
-                sun_position = np.array([math.cos(
-                    alt_rd)*math.sin(azi_rd), -math.cos(alt_rd)*math.cos(azi_rd), math.sin(alt_rd)])
+                sun_position = np.array(
+                    [
+                        math.cos(alt_rd) * math.sin(azi_rd),
+                        -math.cos(alt_rd) * math.cos(azi_rd),
+                        math.sin(alt_rd),
+                    ]
+                )
                 sunny_frac = self.building_3D.get_sunny_fractions(sun_position)
                 for i in range(len(sunny_frac)):
                     self.sunny_fraction_tables[i][j][k] = sunny_frac[i]
@@ -299,8 +325,15 @@ class Building(Component):
             j = j + 1
         self.sunny_interpolation_functions = []
         for i in range(0, len(self.building_3D.sunny_surface)):
-            self.sunny_interpolation_functions.append(RegularGridInterpolator(
-                (self.shadow_azimuth_grid, self.shadow_altitude_grid), self.sunny_fraction_tables[i], bounds_error=False, fill_value=None, method="cubic"))
+            self.sunny_interpolation_functions.append(
+                RegularGridInterpolator(
+                    (self.shadow_azimuth_grid, self.shadow_altitude_grid),
+                    self.sunny_fraction_tables[i],
+                    bounds_error=False,
+                    fill_value=None,
+                    method="cubic",
+                )
+            )
 
     def _create_diffuse_shadow(self):
         def integral(i):
@@ -310,14 +343,16 @@ class Building(Component):
             for j in range(len(self.shadow_azimuth_grid)):
                 for k in range(len(self.shadow_altitude_grid)):
                     theta = self.building_3D.sunny_surface[i].get_angle_with_normal(
-                        self.shadow_azimuth_grid[j], self.shadow_altitude_grid[k])
-                    if (theta < math.pi/2):
-                        f = 0.5 * math.sin(2*theta)
+                        self.shadow_azimuth_grid[j], self.shadow_altitude_grid[k]
+                    )
+                    if theta < math.pi / 2:
+                        f = 0.5 * math.sin(2 * theta)
                         sunny_value = sunny_value + f
-                        shadow_value = shadow_value + f * \
-                            self.sunny_fraction_tables[i][j][k]
+                        shadow_value = (
+                            shadow_value + f * self.sunny_fraction_tables[i][j][k]
+                        )
                         n = n + 1
-            return shadow_value/sunny_value
+            return shadow_value / sunny_value
 
         self.shadow_diffuse_fraction = []
         for i in range(0, len(self.building_3D.sunny_surface)):
@@ -326,15 +361,21 @@ class Building(Component):
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
         self._calculate_shadows(time_index)
-        self._shadow_calculated = False
+        self._first_iteration = True
         self._calculate_Q_igsw(time_index)
         self._calculate_Q_iglw(time_index)
         self._calculate_Q_dif(time_index)
         self._calculate_FZ_vector(time_index)
         self._update_K_matrices(time_index)
+        # Any perfect conditioning
+        self._perfect_conditioning  = False
+        for i in range(self._n_spaces):
+            if self.spaces[i].parameter("perfect_conditioning").value:
+                self._perfect_conditioning  = True
+
 
     def _calculate_shadows(self, time_i):
-        self.sunny_fractions = [1]*len(self.building_3D.sunny_list)
+        self.sunny_fractions = [1] * len(self.building_3D.sunny_list)
         if self.parameter("shadow_calculation").value != "NO":
             azi = self._file_met.variable("sol_azimuth").values[time_i]
             alt = self._file_met.variable("sol_altitude").values[time_i]
@@ -342,274 +383,359 @@ class Building(Component):
                 if self.parameter("shadow_calculation").value == "INSTANT":
                     azi_rd = math.radians(azi)
                     alt_rd = math.radians(alt)
-                    sun_position = np.array([math.cos(
-                        alt_rd)*math.sin(azi_rd), -math.cos(alt_rd)*math.cos(azi_rd), math.sin(alt_rd)])
+                    sun_position = np.array(
+                        [
+                            math.cos(alt_rd) * math.sin(azi_rd),
+                            -math.cos(alt_rd) * math.cos(azi_rd),
+                            math.sin(alt_rd),
+                        ]
+                    )
                     self.sunny_fractions = self.building_3D.get_sunny_fractions(
-                        sun_position)
+                        sun_position
+                    )
                 elif self.parameter("shadow_calculation").value == "INTERPOLATION":
                     for i in range(0, len(self.building_3D.sunny_surface)):
-                        if (azi < 0):
-                            azi = azi+360
+                        if azi < 0:
+                            azi = azi + 360
                         self.sunny_fractions[i] = self.sunny_interpolation_functions[i](
-                            (azi, alt))
+                            (azi, alt)
+                        )
 
     def _calculate_Q_igsw(self, time_i):
-        E_ig = np.zeros(len(self.spaces))
-        for i in range(len(self.spaces)):
+        E_ig = np.zeros(self._n_spaces)
+        for i in range(self._n_spaces):
             E_ig[i] = self.spaces[i].variable("light_radiant").values[time_i]
         self.Q_igsw = np.matmul(self.SWIG_matrix, E_ig)
 
     def _calculate_Q_iglw(self, time_i):
-        E_ig = np.zeros(len(self.spaces))
-        for i in range(len(self.spaces)):
-            E_ig[i] = self.spaces[i].variable(
-                "people_radiant").values[time_i] + self.spaces[i].variable("other_gains_radiant").values[time_i]
+        E_ig = np.zeros(self._n_spaces)
+        for i in range(self._n_spaces):
+            E_ig[i] = (
+                self.spaces[i].variable("people_radiant").values[time_i]
+                + self.spaces[i].variable("other_gains_radiant").values[time_i]
+            )
         self.Q_iglw = np.matmul(self.LWIG_matrix, E_ig)
 
     def _calculate_Q_dif(self, time_i):
-        E_dif = np.zeros(len(self.surfaces))
-        for i in range(len(self.surfaces)):
+        E_dif = np.zeros(self._n_surfaces)
+        for i in range(self._n_surfaces):
             s_type = self.surfaces[i].parameter("type").value
             if s_type == "Opening" or s_type == "Exterior_surface":
                 E_dif[i] = self.surfaces[i].variable("E_dif").values[time_i]
         self.Q_dif = np.matmul(self.SWDIF_matrix, E_dif)
 
     def _calculate_FZ_vector(self, time_i):
-        m = len(self.spaces)
-        self.FZ_vector = np.zeros(m)
-        self.Q_spaces = np.zeros(m)  # Perfect conditioning loads
+        self.FZ_vector = np.zeros(self._n_spaces)
 
-        for i in range(m):
+        for i in range(self._n_spaces):
             if time_i == 0:
                 T_pre = self.parameter("initial_temperature").value
             else:
-                T_pre = self.spaces[i].variable("temperature").values[time_i-1]
-            self.FZ_vector[i] = self.spaces[i].variable("people_convective").values[time_i] + self.spaces[i].variable(
-                "other_gains_convective").values[time_i] + self.spaces[i].variable("light_convective").values[time_i]
-            self.FZ_vector[i] += (self.spaces[i].parameter("volume").value * self.RHO * self.C_P + self.spaces[i].parameter(
-                "furniture_weight").value * self.C_P_FURNITURE) * T_pre / self.project().parameter("time_step").value
-            self.FZ_vector[i] += self.spaces[i].variable("infiltration_flow").values[time_i] * \
-                self.RHO*self.C_P * \
-                self._file_met.variable("temperature").values[time_i]
+                T_pre = self.spaces[i].variable("temperature").values[time_i - 1]
+            self.FZ_vector[i] = (
+                self.spaces[i].variable("people_convective").values[time_i]
+                + self.spaces[i].variable("other_gains_convective").values[time_i]
+                + self.spaces[i].variable("light_convective").values[time_i]
+            )
+            self.FZ_vector[i] += (
+                (
+                    self.spaces[i].parameter("volume").value * self.RHO * self.C_P
+                    + self.spaces[i].parameter("furniture_weight").value
+                    * self.C_P_FURNITURE
+                )
+                * T_pre
+                / self.project().parameter("time_step").value
+            )
+            self.FZ_vector[i] += (
+                self.spaces[i].variable("infiltration_flow").values[time_i]
+                * self.RHO
+                * self.C_P
+                * self._file_met.variable("temperature").values[time_i]
+            )
 
     def _update_K_matrices(self, time_i):
-        m = len(self.spaces)
         self.KZFIN_matrix = self.KZ_matrix.copy()
 
         # Add infiltration
-        for i in range(m):
-            self.KZFIN_matrix[i][i] += self.spaces[i].variable(
-                "infiltration_flow").values[time_i]*self.RHO*self.C_P
+        for i in range(self._n_spaces):
+            self.KZFIN_matrix[i][i] += (
+                self.spaces[i].variable("infiltration_flow").values[time_i]
+                * self.RHO
+                * self.C_P
+            )
 
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
-        # Calculate shadows only once
-        if not self._shadow_calculated:
+        if self._first_iteration:  # Only in the 1st iteration
             self._calculate_Q_dir(time_index)
             self._calculate_FS_vector(time_index)
-            self._calculate_FINAL_matrices(time_index)
-            self.TZ_vector = np.matmul(self.KFIN_inv_matrix, self.FFIN_vector)
-            self._shadow_calculated = True
-     
-  
-        self._calculate_T_Q(time_index)
+            self._calculate_FIN_WS_matrices(time_index)
+            self._first_iteration = False
+        self._add_systems(time_index)    
+        self.TZ_vector = np.matmul(self.KFIN_inv_matrix, self.FFIN_vector)
+        self.T_spaces = self.TZ_vector.copy()
+        self.Q_spaces = np.zeros(self._n_spaces)  # Perfect conditioning loads
+        if self._perfect_conditioning:
+            self._calculate_T_Q(time_index)
         self._store_spaces_values(time_index)
         self.humidity_balance(time_index)
-           # Comprobar convergencia
+        # Comprobar convergencia
         converged = self._converged(time_index)
         return converged
 
     def _calculate_Q_dir(self, time_i):
-        E_dir = np.zeros(len(self.spaces))
-        for i in range(len(self.spaces)):
-            E_dir[i] = self.spaces[i].variable(
-                "solar_direct_gains").values[time_i]
+        E_dir = np.zeros(self._n_spaces)
+        for i in range(self._n_spaces):
+            E_dir[i] = self.spaces[i].variable("solar_direct_gains").values[time_i]
         self.Q_dir = np.matmul(self.SWDIR_matrix, E_dir)
 
     def _calculate_FS_vector(self, time_i):
-        n = len(self.surfaces)
-        self.FS_vector = np.zeros(n)
+        self.FS_vector = np.zeros(self._n_surfaces)
 
-        for i in range(n):
+        for i in range(self._n_surfaces):
             # positive surface incoming
-            Q_rad = -(self.Q_dir[i] + self.Q_dif[i] +
-                      self.Q_igsw[i] + self.Q_iglw[i])
+            Q_rad = -(self.Q_dir[i] + self.Q_dif[i] + self.Q_igsw[i] + self.Q_iglw[i])
             s_type = self.surfaces[i].parameter("type").value
             area = self.surfaces[i].area
             if s_type == "Exterior_surface":
-                self.surfaces[i].variable("q_sol1").values[time_i] = - (
-                    self.Q_dir[i] + self.Q_dif[i])/area
-                self.surfaces[i].variable(
-                    "q_swig1").values[time_i] = - self.Q_igsw[i]/area
-                self.surfaces[i].variable(
-                    "q_lwig1").values[time_i] = - (self.Q_iglw[i])/area
-                f = -area * self.surfaces[i].variable(
-                    "p_1").values[time_i] - Q_rad - self.surfaces[i].f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
+                self.surfaces[i].variable("q_sol1").values[time_i] = (
+                    -(self.Q_dir[i] + self.Q_dif[i]) / area
+                )
+                self.surfaces[i].variable("q_swig1").values[time_i] = (
+                    -self.Q_igsw[i] / area
+                )
+                self.surfaces[i].variable("q_lwig1").values[time_i] = (
+                    -(self.Q_iglw[i]) / area
+                )
+                f = (
+                    -area * self.surfaces[i].variable("p_1").values[time_i]
+                    - Q_rad
+                    - self.surfaces[i].f_0
+                    * self.surfaces[i].k_01
+                    / self.surfaces[i].k[0]
+                )
                 self.FS_vector[i] = f
                 self.surfaces[i].variable("debug_f").values[time_i] = f
             elif s_type == "Underground_surface":
-                self.surfaces[i].variable("q_sol1").values[time_i] = - (
-                    self.Q_dir[i] + self.Q_dif[i])/area
-                self.surfaces[i].variable(
-                    "q_swig1").values[time_i] = - self.Q_igsw[i]/area
-                self.surfaces[i].variable(
-                    "q_lwig1").values[time_i] = - (self.Q_iglw[i])/area
-                f = -area * self.surfaces[i].variable(
-                    "p_1").values[time_i] - Q_rad - self.surfaces[i].k_01 * self.surfaces[i].variable("T_s0").values[time_i]
+                self.surfaces[i].variable("q_sol1").values[time_i] = (
+                    -(self.Q_dir[i] + self.Q_dif[i]) / area
+                )
+                self.surfaces[i].variable("q_swig1").values[time_i] = (
+                    -self.Q_igsw[i] / area
+                )
+                self.surfaces[i].variable("q_lwig1").values[time_i] = (
+                    -(self.Q_iglw[i]) / area
+                )
+                f = (
+                    -area * self.surfaces[i].variable("p_1").values[time_i]
+                    - Q_rad
+                    - self.surfaces[i].k_01
+                    * self.surfaces[i].variable("T_s0").values[time_i]
+                )
                 self.FS_vector[i] = f
                 self.surfaces[i].variable("debug_f").values[time_i] = f
             elif s_type == "Interior_surface":
                 if self.sides[i] == 0:
-                    self.surfaces[i].variable("q_sol0").values[time_i] = - (
-                        self.Q_dir[i] + self.Q_dif[i])/area
-                    self.surfaces[i].variable(
-                        "q_swig0").values[time_i] = - self.Q_igsw[i]/area
-                    self.surfaces[i].variable(
-                        "q_lwig0").values[time_i] = - (self.Q_iglw[i])/area
-                    f = -self.surfaces[i].area * \
-                        self.surfaces[i].variable("p_0").values[time_i] - Q_rad
+                    self.surfaces[i].variable("q_sol0").values[time_i] = (
+                        -(self.Q_dir[i] + self.Q_dif[i]) / area
+                    )
+                    self.surfaces[i].variable("q_swig0").values[time_i] = (
+                        -self.Q_igsw[i] / area
+                    )
+                    self.surfaces[i].variable("q_lwig0").values[time_i] = (
+                        -(self.Q_iglw[i]) / area
+                    )
+                    f = (
+                        -self.surfaces[i].area
+                        * self.surfaces[i].variable("p_0").values[time_i]
+                        - Q_rad
+                    )
                     self.FS_vector[i] = f
                     self.surfaces[i].variable("debug_f0").values[time_i] = f
                 else:
-                    self.surfaces[i].variable("q_sol1").values[time_i] = - (
-                        self.Q_dir[i] + self.Q_dif[i])/area
-                    self.surfaces[i].variable(
-                        "q_swig1").values[time_i] = - self.Q_igsw[i]/area
-                    self.surfaces[i].variable("q_lwig1").values[time_i] = - (
-                        self.Q_iglw[i])/area
-                    f = -self.surfaces[i].area * \
-                        self.surfaces[i].variable("p_1").values[time_i] - Q_rad
+                    self.surfaces[i].variable("q_sol1").values[time_i] = (
+                        -(self.Q_dir[i] + self.Q_dif[i]) / area
+                    )
+                    self.surfaces[i].variable("q_swig1").values[time_i] = (
+                        -self.Q_igsw[i] / area
+                    )
+                    self.surfaces[i].variable("q_lwig1").values[time_i] = (
+                        -(self.Q_iglw[i]) / area
+                    )
+                    f = (
+                        -self.surfaces[i].area
+                        * self.surfaces[i].variable("p_1").values[time_i]
+                        - Q_rad
+                    )
                     self.FS_vector[i] = f
                     self.surfaces[i].variable("debug_f1").values[time_i] = f
             elif s_type == "Virtual_surface":
                 self.FS_vector[i] = 0.0
             elif s_type == "Opening":
-                q_sol_10 = -(self.Q_dir[i] + self.Q_dif[i])/area
-                E_sol_int = q_sol_10 / \
-                    self.surfaces[i].radiant_property(
-                        "alpha", "solar_diffuse", 1)
-                E_swig_int = - \
-                    self.Q_igsw[i]/(area*self.surfaces[i].radiant_property(
-                        "alpha", "solar_diffuse", 1))
+                q_sol_10 = -(self.Q_dir[i] + self.Q_dif[i]) / area
+                E_sol_int = q_sol_10 / self.surfaces[i].radiant_property(
+                    "alpha", "solar_diffuse", 1
+                )
+                E_swig_int = -self.Q_igsw[i] / (
+                    area
+                    * self.surfaces[i].radiant_property("alpha", "solar_diffuse", 1)
+                )
                 self.surfaces[i].variable("E_ref").values[time_i] = E_sol_int
-                self.surfaces[i].variable("E_ref_tra").values[time_i] = E_sol_int * \
-                    self.surfaces[i].radiant_property(
-                        "tau", "solar_diffuse", 1)
+                self.surfaces[i].variable("E_ref_tra").values[time_i] = (
+                    E_sol_int
+                    * self.surfaces[i].radiant_property("tau", "solar_diffuse", 1)
+                )
                 self.surfaces[i].variable("q_sol1").values[time_i] += q_sol_10
-                self.surfaces[i].variable("q_sol0").values[time_i] += E_sol_int * \
-                    self.surfaces[i].radiant_property(
-                        "alpha_other_side", "solar_diffuse", 1)
-                self.surfaces[i].variable(
-                    "q_swig1").values[time_i] = -self.Q_igsw[i]/area
-                self.surfaces[i].variable("q_swig0").values[time_i] = E_swig_int * \
-                    self.surfaces[i].radiant_property(
-                        "alpha_other_side", "solar_diffuse", 1)
-                self.surfaces[i].variable(
-                    "q_lwig1").values[time_i] = -(self.Q_iglw[i])/area
-                f_0 = self.surfaces[i].f_0 - (self.surfaces[i].variable(
-                    "q_sol0").values[time_i] + self.surfaces[i].variable("q_swig0").values[time_i]) * area
-                f = - Q_rad - (self.surfaces[i].variable(
-                    "q_sol1").values[time_i]-q_sol_10) * area - f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
+                self.surfaces[i].variable("q_sol0").values[
+                    time_i
+                ] += E_sol_int * self.surfaces[i].radiant_property(
+                    "alpha_other_side", "solar_diffuse", 1
+                )
+                self.surfaces[i].variable("q_swig1").values[time_i] = (
+                    -self.Q_igsw[i] / area
+                )
+                self.surfaces[i].variable("q_swig0").values[time_i] = (
+                    E_swig_int
+                    * self.surfaces[i].radiant_property(
+                        "alpha_other_side", "solar_diffuse", 1
+                    )
+                )
+                self.surfaces[i].variable("q_lwig1").values[time_i] = (
+                    -(self.Q_iglw[i]) / area
+                )
+                f_0 = (
+                    self.surfaces[i].f_0
+                    - (
+                        self.surfaces[i].variable("q_sol0").values[time_i]
+                        + self.surfaces[i].variable("q_swig0").values[time_i]
+                    )
+                    * area
+                )
+                f = (
+                    -Q_rad
+                    - (self.surfaces[i].variable("q_sol1").values[time_i] - q_sol_10)
+                    * area
+                    - f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
+                )
                 self.FS_vector[i] = f
                 self.surfaces[i].variable("debug_f").values[time_i] = f
 
-    def _calculate_FINAL_matrices(self, time_i):
-        self.KFIN_matrix = self.KZFIN_matrix - \
-            np.matmul(self.KZS_matrix, np.matmul(
-                self.KS_inv_matrix, self.KSZ_matrix))
+    def _calculate_FIN_WS_matrices(self, time_i): # Without Systems
+        self.KFIN_WS_matrix = self.KZFIN_matrix - np.matmul(
+            self.KZS_matrix, np.matmul(self.KS_inv_matrix, self.KSZ_matrix)
+        )
+        self.FFIN_WS_vector = self.FZ_vector - np.matmul(
+            self.KZS_matrix, np.matmul(self.KS_inv_matrix, self.FS_vector)
+        )
+    
+    def _add_systems(self, time_i):
+        self.KFIN_matrix = self.KFIN_WS_matrix.copy()
+        self.FFIN_vector = self.FFIN_WS_vector.copy()
+
+        # Add sytems in not perfect conditioning
+        for i in range(self._n_spaces):
+            if not self.spaces[i].parameter("perfect_conditioning").value:
+                V, V_T = self.spaces[i].get_systems_acumulated()
+                self.KZFIN_matrix[i][i] += V * self.RHO * self.C_P
+                self.FFIN_vector[i] += V_T * self.RHO * self.C_P
         self.KFIN_inv_matrix = np.linalg.inv(self.KFIN_matrix)
-        self.FFIN_vector = self.FZ_vector - \
-            np.matmul(self.KZS_matrix, np.matmul(
-                self.KS_inv_matrix, self.FS_vector))
 
     def _converged(self, time_i):
-        for i in range(len(self.spaces)):
-            heat_on, heat_sp = self.spaces[i].perfect_heating(time_i)
-            cool_on, cool_sp = self.spaces[i].perfect_cooling(time_i)
-            if heat_on and self.T_spaces[i] < heat_sp:
-                return False
-            if cool_on and self.T_spaces[i] > cool_sp:
-                return False
-        return True
+        if not self._perfect_conditioning:
+            return True
+        else:
+            for i in range(self._n_spaces):
+                control_param = self.spaces[i].get_control_param(time_i) # T_cool_sp, T_heat_sp, cool_on, heat_on, perfect_conditioning    
+                cool_sp = control_param["T_cool_sp"]
+                heat_sp = control_param["T_heat_sp"]
+                cool_on = control_param["cool_on"]
+                heat_on = control_param["heat_on"]
+                perfect = control_param["perfect_conditioning"] 
+                if perfect:
+                    if heat_on and self.T_spaces[i] < heat_sp:
+                        return False
+                    if cool_on and self.T_spaces[i] > cool_sp:
+                        return False
+            return True
 
     def _calculate_T_Q(self, time_i):
-        self.T_spaces = self.TZ_vector.copy()
         unknown_T = []
-        for i in range(len(self.spaces)):
-            heat_on, heat_sp = self.spaces[i].perfect_heating(time_i)
-            cool_on, cool_sp = self.spaces[i].perfect_cooling(time_i)
+        for i in range(self._n_spaces):
+            control_param = self.spaces[i].get_control_param(time_i) # T_cool_sp, T_heat_sp, cool_on, heat_on, perfect_conditioning    
+            cool_sp = control_param["T_cool_sp"]
+            heat_sp = control_param["T_heat_sp"]
+            cool_on = control_param["cool_on"]
+            heat_on = control_param["heat_on"]
+            perfect = control_param["perfect_conditioning"] 
             unknown_T.append(True)
-            if heat_on and self.TZ_vector[i] < heat_sp:
-                unknown_T[i] = False
-                self.T_spaces[i] = heat_sp
-            if cool_on and self.TZ_vector[i] > cool_sp:
-                unknown_T[i] = False
-                self.T_spaces[i] = cool_sp
+            if perfect:
+                if heat_on and self.TZ_vector[i] < heat_sp:
+                    unknown_T[i] = False
+                    self.T_spaces[i] = heat_sp
+                if cool_on and self.TZ_vector[i] > cool_sp:
+                    unknown_T[i] = False
+                    self.T_spaces[i] = cool_sp
         n_unknown_T = sum(unknown_T)  # N. of True
         if n_unknown_T > 0:
             K = np.zeros((n_unknown_T, n_unknown_T))
             F = np.zeros(n_unknown_T)
             i0 = 0
             j0 = 0
-            for i in range(len(self.spaces)):
+            for i in range(self._n_spaces):
                 if unknown_T[i]:
                     F[i0] = self.FFIN_vector[i]
-                    for j in range(len(self.spaces)):
+                    for j in range(self._n_spaces):
                         if unknown_T[j]:
                             K[i0][j0] = self.KFIN_matrix[i][j]
                             j0 += 1
                         else:
-                            F[i0] -= self.KFIN_matrix[i][j]*self.T_spaces[j]
+                            F[i0] -= self.KFIN_matrix[i][j] * self.T_spaces[j]
                     i0 += 1
 
             T = np.linalg.solve(K, F)
             i0 = 0
-            for i in range(len(self.spaces)):
+            for i in range(self._n_spaces):
                 if unknown_T[i]:
                     self.T_spaces[i] = T[i0]
                     i0 += 1
 
-        # Calculate P
-        for i in range(len(self.spaces)):
+        # Calculate Q
+        for i in range(self._n_spaces)):
             if unknown_T[i]:
                 self.Q_spaces[i] = 0
             else:
-                self.Q_spaces[i] = - self.FFIN_vector[i]
-                for j in range(len(self.spaces)):
-                    self.Q_spaces[i] += self.KFIN_matrix[i][j] * \
-                        self.T_spaces[j]
-
+                self.Q_spaces[i] = -self.FFIN_vector[i]
+                for j in range(self._n_spaces):
+                    self.Q_spaces[i] += self.KFIN_matrix[i][j] * self.T_spaces[j]
 
     def humidity_balance(self, time_i):
-        for i in range(len(self.spaces)):
-           self.spaces[i].humidity_balance(time_i)
+        for i in range(self._n_spaces):
+            self.spaces[i].humidity_balance(time_i)
 
     def _store_spaces_values(self, time_i):
         # Store TZ y PZ
-        for i in range(len(self.spaces)):
+        for i in range(self._n_spaces):
             self.spaces[i].variable("temperature").values[time_i] = self.T_spaces[i]
-
             self.spaces[i].variable("Q_heating").values[time_i] = 0
             self.spaces[i].variable("Q_cooling").values[time_i] = 0
 
             if self.Q_spaces[i] > 0:
                 self.spaces[i].variable("Q_heating").values[time_i] = self.Q_spaces[i]
             elif self.Q_spaces[i] < 0:
-                self.spaces[i].variable("Q_cooling").values[time_i] = - self.Q_spaces[i]
+                self.spaces[i].variable("Q_cooling").values[time_i] = -self.Q_spaces[i]
 
     def _store_surfaces_values(self, time_i):
         # Calculate TS,
         self.TS_vector = np.matmul(self.KS_inv_matrix, self.FS_vector) - np.matmul(
-            self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.T_spaces))
+            self.KS_inv_matrix, np.matmul(self.KSZ_matrix, self.T_spaces)
+        )
         # Store TS
-        for i in range(len(self.surfaces)):
+        for i in range(self._n_surfaces):
             if self.surfaces[i].parameter("type").value != "Virtual_surface":
-                if (self.sides[i] == 0):
-                    self.surfaces[i].variable(
-                        "T_s0").values[time_i] = self.TS_vector[i]
+                if self.sides[i] == 0:
+                    self.surfaces[i].variable("T_s0").values[time_i] = self.TS_vector[i]
                 else:
-                    self.surfaces[i].variable(
-                        "T_s1").values[time_i] = self.TS_vector[i]
+                    self.surfaces[i].variable("T_s1").values[time_i] = self.TS_vector[i]
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
@@ -623,9 +749,14 @@ class Building(Component):
                 opacity = [opacity] * len(self.building_3D.polygons)
             i = 0
             for surface in [*self.surfaces, *self.shadow_surfaces]:
-                if surface.parameter("type").value == "Interior_surface" or surface.parameter("type").value == "Virtual_surface":
-                    is_my_space = surface.space(0).parameter(
-                        "name").value == space or surface.space(1).parameter("name").value == space
+                if (
+                    surface.parameter("type").value == "Interior_surface"
+                    or surface.parameter("type").value == "Virtual_surface"
+                ):
+                    is_my_space = (
+                        surface.space(0).parameter("name").value == space
+                        or surface.space(1).parameter("name").value == space
+                    )
                 elif surface.parameter("type").value == "Shadow_surface":
                     is_my_space = False
                 else:
@@ -644,7 +775,8 @@ class Building(Component):
             self.building_3D.show_shadows(cos)
         else:
             self._sim_.print(
-                "Warning: " + date.strftime('%H:%M,  %d/%m/%Y') + " is night")
+                "Warning: " + date.strftime("%H:%M,  %d/%m/%Y") + " is night"
+            )
 
     def get_direct_sunny_fraction(self, surface):
         if self.parameter("shadow_calculation").value == "NO":
