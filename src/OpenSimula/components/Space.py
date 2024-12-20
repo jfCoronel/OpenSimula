@@ -193,7 +193,7 @@ class Space(Component):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        self._shadow_calculated = False
+        self._first_iteration = True
 
         # People
         self.variable("people_convective").values[time_index] = self._area * \
@@ -234,9 +234,9 @@ class Space(Component):
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
         # Calculate shadows only once
-        if not self._shadow_calculated:
+        if self._first_iteration:
             self._calculate_solar_direct_gains(time_index)
-            self._shadow_calculated = True
+            self._first_iteration = False
         return True
 
     def _calculate_solar_direct_gains(self, time_i):
@@ -294,13 +294,14 @@ class Space(Component):
         self.variable("delta_int_energy").values[time_i] = ( self._volume * rho * c_p + self._m_furniture * c_pf) * (T_pre - T) / self._Dt
         self.variable("infiltration_sensible_heat").values[time_i] = V_inf * rho * c_p * (T_ext - T)
         self.variable("infiltration_sensible_heat").values[time_i] = V_inf * rho * c_p * (T_ext - T)
-
-        self.variable("surfaces_convective").values[time_i] = -self.variable("people_convective").values[time_i] - self.variable(
-            "light_convective").values[time_i] - self.variable("other_gains_convective").values[time_i] - self.variable("infiltration_sensible_heat").values[time_i] - self.variable("delta_int_energy").values[time_i]
+        
+        # TODO: Q_heating, Q_cooling, system_sensible_heat
+        #self.variable("surfaces_convective").values[time_i] = -self.variable("people_convective").values[time_i] - self.variable(
+        #    "light_convective").values[time_i] - self.variable("other_gains_convective").values[time_i] - self.variable("infiltration_sensible_heat").values[time_i] - self.variable("delta_int_energy").values[time_i]
         
         # infiltration latent
         self.variable("infiltration_latent_heat").values[time_i] = V_inf * building.RHO * building.LAMBDA * (new_humidity - w_pre)
-
+        # TODO: system_latent_heat
 
     def humidity_balance(self, time_i):
         building = self.parameter("building").component
