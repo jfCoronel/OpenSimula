@@ -21,4 +21,5 @@ from OpenSimula.components.Opening import Opening
 from OpenSimula.components.Calculator import Calculator
 from OpenSimula.components.HVAC_DX_equipment import HVAC_DX_equipment
 from OpenSimula.components.HVAC_DX_system import HVAC_DX_system
+from OpenSimula.components.HVAC_perfect_system import HVAC_perfect_system
 

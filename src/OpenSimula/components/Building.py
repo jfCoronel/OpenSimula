@@ -48,32 +48,10 @@ class Building(Component):
             errors.append(
                 f"Error: {self.parameter('name').value}, file_met must be defined."
             )
-        self._create_spaces_surfaces_list()
-        self._create_shadow_surfaces_list()
+        self._create_lists()
         return errors
 
-    def pre_simulation(self, n_time_steps, delta_t):
-        super().pre_simulation(n_time_steps, delta_t)
-        self._file_met = self.parameter("file_met").component
-        sicro.SetUnitSystem(sicro.SI)
-        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
-        # Density for convert volumetric to mass flows
-        self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
-        self._create_spaces_surfaces_list()
-        self._create_shadow_surfaces_list()
-        self._create_ff_matrix()
-        self._create_B_matrix()
-        self._create_SW_matrices()
-        self._create_LW_matrices()
-        self._create_K_matrices()
-        if self.parameter("shadow_calculation").value != "NO":
-            self._create_building_3D()
-            self._sim_.print("Calculating solar direct shadows ...")
-            self._create_shadow_interpolation_table()
-            self._sim_.print("Calculating solar diffuse shadows ...")
-            self._create_diffuse_shadow()
-
-    def _create_spaces_surfaces_list(self):
+    def _create_lists(self):
         project_spaces_list = self.project().component_list(comp_type="Space")
         self.spaces = []
         self.surfaces = []
@@ -87,27 +65,30 @@ class Building(Component):
                     self.sides.append(side)
         self._n_spaces = len(self.spaces)
         self._n_surfaces = len(self.surfaces)
-
-    def _create_shadow_surfaces_list(self):
+        # Shadow_surfaces
         self.shadow_surfaces = self.project().component_list(comp_type="Shadow_surface")
 
-    def _create_building_3D(self, coordinate_system="global"):
-        self.building_3D = Building_3D()
-        for surface in [*self.surfaces, *self.shadow_surfaces]:
-            azimuth = surface.orientation_angle("azimuth", 0, coordinate_system)
-            altitude = surface.orientation_angle("altitude", 0, coordinate_system)
-            origin = surface.get_origin(coordinate_system)
-            pol_2D = surface.get_polygon_2D()
-            s_type = surface.parameter("type").value
-
-            if s_type == "Exterior_surface":
-                holes_2D = []
-                for opening in surface.openings:
-                    holes_2D.append(opening.get_polygon_2D())
-                polygon = Polygon_3D(origin, azimuth, altitude, pol_2D, holes_2D)
-            else:
-                polygon = Polygon_3D(origin, azimuth, altitude, pol_2D)
-            self.building_3D.add_polygon(polygon, s_type, surface)
+    # pre_simulation
+    # _______________
+    # _______________
+    def pre_simulation(self, n_time_steps, delta_t):
+        super().pre_simulation(n_time_steps, delta_t)
+        self._file_met = self.parameter("file_met").component
+        sicro.SetUnitSystem(sicro.SI)
+        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
+        self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
+        self._create_lists()
+        self._create_ff_matrix() # View Factors ff_matrix
+        self._create_B_matrix() # Conectivity B_matrix
+        self._create_SW_matrices() # SWDIF_matrix, SWDIR_matrix, SWIG_matrix
+        self._create_LW_matrices() # LWIG_matrix, LWSUR_matrix
+        self._create_K_matrices() # KS_matrix, KS_inv_matrix, KSZ_matrix, KZS_matrix, KZ_matrix
+        if self.parameter("shadow_calculation").value != "NO":
+            self._create_building_3D()
+            self._sim_.print("Calculating solar direct shadows ...")
+            self._create_shadow_interpolation_table()
+            self._sim_.print("Calculating solar diffuse shadows ...")
+            self._create_diffuse_shadow()
 
     def _create_ff_matrix(self):
         self.ff_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
@@ -125,36 +106,25 @@ class Building(Component):
                     self.B_matrix[i][j] = 1
 
     def _create_SW_matrices(self):
-        self.SWR_matrix = np.identity(self._n_surfaces)
+        SWR_matrix = np.identity(self._n_surfaces)
         rho_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
         tau_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
         alpha_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
         area_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
 
         for i in range(self._n_surfaces):
-            rho_matrix[i][i] = self.surfaces[i].radiant_property(
-                "rho", "solar_diffuse", self.sides[i]
-            )
-            tau_matrix[i][i] = self.surfaces[i].radiant_property(
-                "tau", "solar_diffuse", self.sides[i]
-            )
+            rho_matrix[i][i] = self.surfaces[i].radiant_property("rho", "solar_diffuse", self.sides[i])
+            tau_matrix[i][i] = self.surfaces[i].radiant_property("tau", "solar_diffuse", self.sides[i])
             # Negative (absortion)
-            alpha_matrix[i][i] = -1 * self.surfaces[i].radiant_property(
-                "alpha", "solar_diffuse", self.sides[i]
-            )
+            alpha_matrix[i][i] = -1 * self.surfaces[i].radiant_property("alpha", "solar_diffuse", self.sides[i])
             area_matrix[i][i] = self.surfaces[i].area
 
-        self.SWR_matrix = (
-            self.SWR_matrix
-            - np.matmul(self.ff_matrix, rho_matrix)
-            - np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix))
-        )
+        SWR_matrix = (SWR_matrix - np.matmul(self.ff_matrix, rho_matrix)
+            - np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix)))
 
-        self.SWR_matrix = np.linalg.inv(self.SWR_matrix)
-        aux_matrix = np.matmul(area_matrix, np.matmul(alpha_matrix, self.SWR_matrix))
-        self.SWDIF_matrix = np.matmul(
-            aux_matrix, np.matmul(self.ff_matrix, tau_matrix)
-        )  # SW Solar Diffuse
+        SWR_matrix = np.linalg.inv(SWR_matrix)
+        aux_matrix = np.matmul(area_matrix, np.matmul(alpha_matrix, SWR_matrix))
+        self.SWDIF_matrix = np.matmul(aux_matrix, np.matmul(self.ff_matrix, tau_matrix))  # SW Solar Diffuse
 
        
         dsr_dist_matrix = np.zeros((self._n_surfaces, self._n_spaces))
@@ -170,33 +140,24 @@ class Building(Component):
         self.SWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
 
     def _create_LW_matrices(self):
-        self.LWR_matrix = np.identity(self._n_surfaces)
+        LWR_matrix = np.identity(self._n_surfaces)
         rho_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
         tau_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
         alpha_matrix = np.zeros((self._n_surfaces, self._n_surfaces))
         area_matrix = np.zeros((self._n_surfaces,self._n_surfaces))
 
         for i in range(self._n_surfaces):
-            rho_matrix[i][i] = self.surfaces[i].radiant_property(
-                "rho", "long_wave", self.sides[i]
-            )
-            tau_matrix[i][i] = self.surfaces[i].radiant_property(
-                "tau", "long_wave", self.sides[i]
-            )
+            rho_matrix[i][i] = self.surfaces[i].radiant_property("rho", "long_wave", self.sides[i])
+            tau_matrix[i][i] = self.surfaces[i].radiant_property("tau", "long_wave", self.sides[i])
             # Negative (absortion)
-            alpha_matrix[i][i] = -1 * self.surfaces[i].radiant_property(
-                "alpha", "long_wave", self.sides[i]
-            )
+            alpha_matrix[i][i] = -1 * self.surfaces[i].radiant_property("alpha", "long_wave", self.sides[i])
             area_matrix[i][i] = self.surfaces[i].area
 
-        self.LWR_matrix = (
-            self.LWR_matrix
-            - np.matmul(self.ff_matrix, rho_matrix)
-            - np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix))
-        )
+        LWR_matrix = (LWR_matrix - np.matmul(self.ff_matrix, rho_matrix)
+            - np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix)))
 
-        self.LWR_matrix = np.linalg.inv(self.LWR_matrix)
-        aux_matrix = np.matmul(area_matrix, np.matmul(alpha_matrix, self.LWR_matrix))
+        LWR_matrix = np.linalg.inv(LWR_matrix)
+        aux_matrix = np.matmul(area_matrix, np.matmul(alpha_matrix,LWR_matrix))
 
         ig_dist_matrix = np.zeros((self._n_surfaces, self._n_spaces))
         i_glob = 0
@@ -208,15 +169,15 @@ class Building(Component):
         self.LWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
 
         # Temperature matrix
-        self.KTEMP_matrix = np.matmul(area_matrix, -1 * alpha_matrix) - np.matmul(
+        self.LWSUR_matrix = np.matmul(area_matrix, -1 * alpha_matrix) - np.matmul(
             aux_matrix, np.matmul(self.ff_matrix, alpha_matrix)
         )
 
         H_RD = 5.705  # 4*sigma*(293^3)
-        self.KTEMP_matrix = H_RD * self.KTEMP_matrix
+        self.LWSUR_matrix = H_RD * self.LWSUR_matrix
 
     def _create_K_matrices(self):
-        self.KS_matrix = np.copy(-self.KTEMP_matrix)
+        self.KS_matrix = np.copy(-self.LWSUR_matrix)
         self.KSZ_matrix = np.zeros((self._n_surfaces, self._n_spaces))
         self.KZ_matrix = np.zeros((self._n_spaces, self._n_spaces))
 
@@ -286,8 +247,10 @@ class Building(Component):
                         )
 
         self.KS_inv_matrix = np.linalg.inv(self.KS_matrix)
-
-        # KZ_matrix without air movement
+        # KZS
+        self.KZS_matrix = -1 * self.KSZ_matrix.transpose()
+        
+        # KZ_matrix without air movement or systems
         for i in range(self._n_spaces):
             self.KZ_matrix[i][i] = (
                 self.spaces[i].parameter("volume").value * self.RHO * self.C_P
@@ -296,8 +259,25 @@ class Building(Component):
             ) / self.project().parameter("time_step").value
             for j in range(self._n_surfaces):
                 self.KZ_matrix[i][i] += self.KSZ_matrix[j][i]
-        # KZS
-        self.KZS_matrix = -1 * self.KSZ_matrix.transpose()
+       
+
+    def _create_building_3D(self, coordinate_system="global"):
+        self.building_3D = Building_3D()
+        for surface in [*self.surfaces, *self.shadow_surfaces]:
+            azimuth = surface.orientation_angle("azimuth", 0, coordinate_system)
+            altitude = surface.orientation_angle("altitude", 0, coordinate_system)
+            origin = surface.get_origin(coordinate_system)
+            pol_2D = surface.get_polygon_2D()
+            s_type = surface.parameter("type").value
+
+            if s_type == "Exterior_surface":
+                holes_2D = []
+                for opening in surface.openings:
+                    holes_2D.append(opening.get_polygon_2D())
+                polygon = Polygon_3D(origin, azimuth, altitude, pol_2D, holes_2D)
+            else:
+                polygon = Polygon_3D(origin, azimuth, altitude, pol_2D)
+            self.building_3D.add_polygon(polygon, s_type, surface)
 
     def _create_shadow_interpolation_table(self):
         self.shadow_azimuth_grid = np.linspace(0, 350, 36)
@@ -358,15 +338,19 @@ class Building(Component):
         for i in range(0, len(self.building_3D.sunny_surface)):
             self.shadow_diffuse_fraction.append(integral(i))
 
+    # pre_iteration
+    # _______________
+    # _______________
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        self._calculate_shadows(time_index)
+        self._calculate_shadows(time_index) # sunny_fractions
         self._first_iteration = True
         self._calculate_Q_igsw(time_index)
         self._calculate_Q_iglw(time_index)
         self._calculate_Q_dif(time_index)
         self._calculate_FZ_vector(time_index)
         self._update_K_matrices(time_index)
+        
         # Any perfect conditioning
         self._perfect_conditioning  = False
         for i in range(self._n_spaces):
@@ -700,7 +684,7 @@ class Building(Component):
                     i0 += 1
 
         # Calculate Q
-        for i in range(self._n_spaces)):
+        for i in range(self._n_spaces):
             if unknown_T[i]:
                 self.Q_spaces[i] = 0
             else:
