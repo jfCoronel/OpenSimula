@@ -18,6 +18,8 @@ class Space(Component):
         self.add_parameter(Parameter_float("volume", 1, "m³", min=0.0))
         self.add_parameter(Parameter_float("furniture_weight", 10, "kg/m²", min=0.0))
         self.add_parameter(Parameter_boolean("perfect_conditioning", False))
+        self.add_parameter(Parameter_float("convergence_DT", 0.01, "°C", min=0.0))
+        self.add_parameter(Parameter_float("convergence_Dw", 0.01, "g/kg", min=0.0))
 
         # Variables
         self.add_variable(Variable("temperature", unit="°C"))
@@ -41,6 +43,8 @@ class Space(Component):
         self.add_variable(Variable("Q_cooling", unit="W"))
         self.add_variable(Variable("system_sensible_heat", unit="W"))
         self.add_variable(Variable("system_latent_heat", unit="W"))
+        self.add_variable(Variable("u_system_sensible_heat", unit="W"))
+        self.add_variable(Variable("u_system_latent_heat", unit="W"))
 
         # Sicro
         sicro.SetUnitSystem(sicro.SI)
@@ -69,9 +73,9 @@ class Space(Component):
         self._volume = self.parameter("volume").value
         self._m_furniture = self._area * self.parameter("furniture_weight").value
         self._Dt = self.project().parameter("time_step").value
-        self._create_surfaces_list()
-        self._create_ff_matrix()
-        self._create_dist_vectors()
+        self._create_surfaces_list() # surfaces, sides
+        self._create_ff_matrix() # ff_matrix
+        self._create_dist_vectors() # dsr_dist_vector, ig_dist_vector
 
     def _create_surfaces_list(self):
         self.surfaces = []
@@ -196,136 +200,161 @@ class Space(Component):
         self._first_iteration = True
 
         # People
-        self.variable("people_convective").values[time_index] = self._area * \
-            self._space_type_comp.variable(
-                "people_convective").values[time_index]
-        self.variable("people_latent").values[time_index] = self._area * \
-            self._space_type_comp.variable("people_latent").values[time_index]
-        self.variable("people_radiant").values[time_index] = self._area * \
-            self._space_type_comp.variable(
-                "people_radiant").values[time_index]
+        exp = self._space_type_comp.variable("people_convective").values[time_index] 
+        self.variable("people_convective").values[time_index] = self._area * exp
+        exp = self._space_type_comp.variable("people_latent").values[time_index] 
+        self.variable("people_latent").values[time_index] = self._area * exp
+        exp = self._space_type_comp.variable("people_radiant").values[time_index]         
+        self.variable("people_radiant").values[time_index] = self._area * exp
 
         # Light
-        self.variable("light_convective").values[time_index] = self._area * \
-            self._space_type_comp.variable(
-                "light_convective").values[time_index]
-        self.variable("light_radiant").values[time_index] = self._area * \
-            self._space_type_comp.variable("light_radiant").values[time_index]
+        exp = self._space_type_comp.variable("light_convective").values[time_index]                
+        self.variable("light_convective").values[time_index] = self._area * exp
+        exp = self._space_type_comp.variable("light_radiant").values[time_index]                
+        self.variable("light_radiant").values[time_index] = self._area * exp
 
         # Other gains
-        self.variable("other_gains_convective").values[time_index] = self._area * \
-            self._space_type_comp.variable(
-                "other_gains_convective").values[time_index]
-        self.variable("other_gains_latent").values[time_index] = self._area * \
-            self._space_type_comp.variable(
-                "other_gains_latent").values[time_index]
-        self.variable("other_gains_radiant").values[time_index] = self._area * \
-            self._space_type_comp.variable(
-                "other_gains_radiant").values[time_index]
+        exp = self._space_type_comp.variable("other_gains_convective").values[time_index]                
+        self.variable("other_gains_convective").values[time_index] = self._area * exp
+        exp = self._space_type_comp.variable("other_gains_latent").values[time_index]                
+        self.variable("other_gains_latent").values[time_index] = self._area * exp
+        exp = self._space_type_comp.variable("other_gains_radiant").values[time_index]                
+        self.variable("other_gains_radiant").values[time_index] = self._area * exp
 
         # Infiltration
-        self.variable("infiltration_flow").values[time_index] = self._volume * \
-            self._space_type_comp.variable(
-                "infiltration_rate").values[time_index] / 3600
+        exp = self._space_type_comp.variable("infiltration_rate").values[time_index]                
+        self.variable("infiltration_flow").values[time_index] = self._volume * exp / 3600
         
         # Systems air flows
-        self.system_air_flows = []
+        self.uncontrol_system_air_flows = []
+        self.control_system_air_flow = {"V": 0, "T": 0, "w":0}
 
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
         # Calculate shadows only once
         if self._first_iteration:
             self._calculate_solar_direct_gains(time_index)
+            self._estimate_T_w(time_index)
             self._first_iteration = False
-        return True
+            return False
+        else: 
+            self._acumlate_u_systems(time_index)
+            self._calculate_T(time_index)
+            self._calculate_w(time_index)
+            # Test convergence
+            return self._converged(time_index)
 
     def _calculate_solar_direct_gains(self, time_i):
         solar_gain = 0
-        for i in range(len(self.surfaces)):
-            s_type = self.surfaces[i].parameter("type").value
-            if s_type == "Opening":
-                solar_gain += self.surfaces[i].area * \
-                    self.surfaces[i].variable("E_dir_tra").values[time_i]
+        for surf in self.surfaces:
+            if surf.parameter("type").value == "Opening":
+                solar_gain += surf.area * surf.variable("E_dir_tra").values[time_i]
 
         self.variable("solar_direct_gains").values[time_i] = solar_gain
 
-    def add_system_air_flow(self,air_flow):
+    def update_K_F(self, K_F):
+        self.K_F = K_F
+
+    def _estimate_T_w(self, time_i):
+        if time_i == 0:
+            self.T_pre = self.building().parameter("initial_temperature").value
+            self.w_pre = self.building().parameter("initial_humidity").value
+        else:
+            self.T_pre = self.variable("temperature").values[time_i-1]
+            self.w_pre = self.variable("abs_humidity").values[time_i-1]
+        self.variable("temperature").values[time_i] = self.T_pre
+        self.variable("abs_humidity").values[time_i] = self.w_pre
+        self.T = self.T_pre
+        self.w = self.w_pre
+
+    def _acumulate_u_systems(self, time_i):
+        self._V_u_systems = 0
+        self._V_T_u_systems = 0
+        self._V_w_u_systems = 0
+        for system in self.uncontrol_system_air_flows:
+            self._V_u_systems += system["V"]
+            self._V_T_u_systems += system["V"]*system["T"]
+            self._V_w_u_systems += system["V"]*system["w"]
+
+    def _calculate_T(self, time_i):
+        rho = self.building().RHO
+        c_p = self.building().C_P
+        F_tot = self.K_F["F"]+self.K_F["F_OS"]
+        F_tot += self.control_system_air_flow["V"]*rho*c_p*self.control_system_air_flow["T"]
+        F_tot += self._V_T_u_systems * rho * c_p
+        K_tot = self.K_F["K"] + self.control_system_air_flow["V"]*rho*c_p + self._V_u_systems * rho * c_p
+        self.variable("temperature").values[time_i] = F_tot/ K_tot
+
+    def _calculate_w(self, time_i):
+        rho = self.building().RHO
+        lam = self.building().LAMBDA
+        V_inf = self.variable("infiltration_flow").values[time_i]
+        Q_lat = (self.variable("people_latent").values[time_i] + self.variable("other_gains_latent").values[time_i])/(rho*lam)
+        k_hum = self._volume / self._Dt + V_inf + self.control_system_air_flow["V"] + self._V_u_systems
+        f_hum = self._volume / self._Dt *self.w_pre + V_inf * self._file_met.variable("abs_humidity").values[time_i] + Q_lat
+        f_hum += self.control_system_air_flow["V"]*self.control_system_air_flow["w"]  
+        f_hum += self._V_w_u_systems
+        new_humidity = f_hum/k_hum
+        max_hum = sicro.GetHumRatioFromRelHum(self.variable("temperature").values[time_i], 1, self.building().ATM_PRESSURE)*1000
+        if (new_humidity > max_hum):
+            self.variable("abs_humidity").values[time_i] = max_hum
+        else:
+            self.variable("abs_humidity").values[time_i] = new_humidity
+
+    def _converged(self, time_i):
+        converged = True
+        if abs(self.T -self.variable("temperature").values[time_i]) > self.parameter("convergence_DT").value:
+            converged = False
+        if abs(self.w -self.variable("abs_humidity").values[time_i]) > self.parameter("convergence_Dw").value:
+            converged = False
+        self.T = self.variable("temperature").values[time_i]
+        self.w = self.variable("abs_humidity").values[time_i] 
+        return converged
+
+    def add_uncontrol_system_air_flow(self,air_flow):
         # Delete if exist
-        self.system_air_flows = [air for air in self.system_air_flows if air['name'] != air_flow["name"] ]
+        self.uncontrol_system_air_flows = [air for air in self.uncontrol_system_air_flows if air['name'] != air_flow["name"] ]
         # Append
-        self.system_air_flows.append(air_flow)
-
-    def get_control_param(self,time_i):
-        control = {"T_cool_sp": self._space_type_comp.variable("cooling_setpoint").values[time_i],
-                   "T_heat_sp": self._space_type_comp.variable("heating_setpoint").values[time_i],
-                    "cool_on":  bool(self._space_type_comp.variable("cooling_on_off").values[time_i]),
-                    "heat_on":  bool(self._space_type_comp.variable("heating_on_off").values[time_i]),
-                    "perfect_conditioning":  self.parameter("perfect_conditioning").value
-                    }
-        return control
-    
-    def get_systems_acumulated(self):
-        V_tot = 0
-        V_T_tot = 0
-        for system in self.system_air_flows:
-            V_tot += system["V"]
-            V_T_tot += system["V"]*system["T"]
-        return (V_tot, V_T_tot)
-
+        self.uncontrol_system_air_flows.append(air_flow)
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
+        rh = sicro.GetRelHumFromHumRatio(self.T, self.w/1000, self.building().ATM_PRESSURE)*100
+        self.variable("rel_humidity").values[time_index] = rh
         self._calculate_heat_fluxes(time_index)
 
     def _calculate_heat_fluxes(self, time_i):
-        building = self.parameter("building").component
-        rho = building.RHO
-        c_p = building.C_P
-        c_pf = building.C_P_FURNITURE
-        if time_i == 0:
-            T_pre = building.parameter("initial_temperature").value
-        else:
-            T_pre = self.variable("temperature").values[time_i-1]
-        T = self.variable("temperature").values[time_i] 
+        rho = self.building().RHO
+        c_p = self.building().C_P
+        c_pf = self.building().C_P_FURNITURE
+        lam = self.building().LAMBDA
         V_inf = self.variable("infiltration_flow").values[time_i]
         T_ext = self._file_met.variable("temperature").values[time_i]
+        w_ext = self._file_met.variable("abs_humidity").values[time_i]
 
         # Sensibles
-        self.variable("delta_int_energy").values[time_i] = ( self._volume * rho * c_p + self._m_furniture * c_pf) * (T_pre - T) / self._Dt
-        self.variable("infiltration_sensible_heat").values[time_i] = V_inf * rho * c_p * (T_ext - T)
-        self.variable("infiltration_sensible_heat").values[time_i] = V_inf * rho * c_p * (T_ext - T)
-        
-        # TODO: Q_heating, Q_cooling, system_sensible_heat
-        #self.variable("surfaces_convective").values[time_i] = -self.variable("people_convective").values[time_i] - self.variable(
-        #    "light_convective").values[time_i] - self.variable("other_gains_convective").values[time_i] - self.variable("infiltration_sensible_heat").values[time_i] - self.variable("delta_int_energy").values[time_i]
-        
-        # infiltration latent
-        self.variable("infiltration_latent_heat").values[time_i] = V_inf * building.RHO * building.LAMBDA * (new_humidity - w_pre)
-        # TODO: system_latent_heat
-
-    def humidity_balance(self, time_i):
-        building = self.parameter("building").component
-        if time_i == 0:
-            w_pre = building.parameter("initial_humidity").value
+        self.variable("delta_int_energy").values[time_i] = ( self._volume * rho * c_p + self._m_furniture * c_pf) * (self.T - self.T_pre) / self._Dt
+        self.variable("infiltration_sensible_heat").values[time_i] = V_inf * rho * c_p * (T_ext - self.T)
+        self.variable("u_system_sensible_heat").values[time_i] = rho * c_p * (self._V_T_u_systems - self._V_u_systems * self.T)
+        Q = self.control_system_air_flow["V"]*rho*c_p*(self.control_system_air_flow["T"] - self.T)
+        self.variable("system_sensible_heat").values[time_i] = Q
+        if (Q > 0):
+            self.variable("Q_heating").values[time_i] = Q
         else:
-            w_pre = self.variable("abs_humidity").values[time_i-1]
+            self.variable("Q_cooling").values[time_i] = -Q
 
-        V_inf = self.variable("infiltration_flow").values[time_i]
-        Q_lat = self.variable("people_latent").values[time_i] + self.variable("other_gains_latent").values[time_i]/(building.RHO*building.LAMBDA)
-        k_hum = self._volume / self._Dt + V_inf
-        c_hum = self._volume / self._Dt * w_pre + V_inf * self._file_met.variable("abs_humidity").values[time_i] + Q_lat 
-        self._systems_V = 0
-        self._systems_V_w = 0
-        for system in self.system_air_flows:
-            self._systems_V += system["V"]
-            self._systems_V_w += system["V"]*system["w"]
-        new_humidity = (c_hum + self._systems_V_w)/(k_hum+self._systems_V)
-        max_hum = sicro.GetHumRatioFromRelHum(self.variable("temperature").values[time_i], 1, building.ATM_PRESSURE)*1000
-        if (new_humidity > max_hum):
-            self.variable("abs_humidity").values[time_i] = max_hum
-            self.variable("rel_humidity").values[time_i] = 100
-            new_humidity = max_hum
-        else:
-            self.variable("abs_humidity").values[time_i] = new_humidity
-            self.variable("rel_humidity").values[time_i] = sicro.GetRelHumFromHumRatio(self.variable(
-                "temperature").values[time_i], new_humidity/1000, building.ATM_PRESSURE)*100
+        Q_rest =  self.variable("delta_int_energy").values[time_i] 
+        - self.variable("people_convective").values[time_i]
+        - self.variable("light_convective").values[time_i]
+        - self.variable("other_gains_convective").values[time_i]
+        - self.variable("infiltration_sensible_heat").values[time_i]
+        - self.variable("u_system_sensible_heat").values[time_i]
+        - Q
+
+        self.variable("surfaces_convective").values[time_i] = Q_rest
+        
+        # Latents
+        self.variable("infiltration_latent_heat").values[time_i] = V_inf * rho * lam * (w_ext - self.w)
+        self.variable("u_system_latent_heat").values[time_i] = rho * lam * (self._V_w_u_systems - self._V_u_systems * self.w)
+        self.variable("system_latent_heat").values[time_i] = self.control_system_air_flow["V"]*rho*lam*(self.control_system_air_flow["w"] - self.w)
+
