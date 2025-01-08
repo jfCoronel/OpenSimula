@@ -350,13 +350,6 @@ class Building(Component):
         self._calculate_Q_dif(time_index)
         self._calculate_FZ_vector(time_index)
         self._update_K_matrices(time_index)
-        
-        # Any perfect conditioning
-        self._perfect_conditioning  = False
-        for i in range(self._n_spaces):
-            if self.spaces[i].parameter("perfect_conditioning").value:
-                self._perfect_conditioning  = True
-
 
     def _calculate_shadows(self, time_i):
         self.sunny_fractions = [1] * len(self.building_3D.sunny_list)
@@ -458,6 +451,7 @@ class Building(Component):
             self._first_iteration = False
             return False # Force iteration
         else:
+            self._store_surfaces_values(time_index)
             return True
 
     def _calculate_Q_dir(self, time_i):
@@ -612,11 +606,11 @@ class Building(Component):
                 if i != j:
                     F_spaces -= self.KFIN_WS_matrix[i][j]* self.spaces[j].variable("temperature").values[time_i]
             K_F={"K": self.KFIN_WS_matrix[i][i], "F":self.FFIN_WS_vector[i], "F_OS": F_spaces}
-            self.spaces[i].updade_K_F(K_F)
+            self.spaces[i].update_K_F(K_F)
     
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
-        self._store_surfaces_values(time_index)
+        #self._store_surfaces_values(time_index)
 
     def _store_surfaces_values(self, time_i):
         # T_spaces

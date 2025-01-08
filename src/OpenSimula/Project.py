@@ -51,7 +51,7 @@ class Project(Parameter_container):
                     "Opening",
                     "Space",
                     "Building",
-                    "HVAC_perfect_system"
+                    "HVAC_perfect_system",
                     "HVAC_DX_system",
                     "Calculator"
                 ],
@@ -376,6 +376,9 @@ class Project(Parameter_container):
 
         self._set_ordered_component_list_()
         self._pre_simulation_(n, delta_t)
+        self._sim_df = pd.DataFrame({"dates":self.dates()})
+        self._sim_df["n_iterations"] = 0
+        self._sim_df["last_component"] = "None"
 
         self._sim_.print(
             f"Simulating {self.parameter('name').value}: ", add_new_line=False
@@ -399,6 +402,7 @@ class Project(Parameter_container):
                 n_iter += 1
                 if self._iteration_(i, date, daylight_saving):
                     converge = True
+            self._sim_df.at[i, "n_iterations"] = n_iter
             self._post_iteration_(i, date, daylight_saving, converge)
             date = date + dt.timedelta(0, delta_t)
 
@@ -421,6 +425,7 @@ class Project(Parameter_container):
         converge = True
         for comp in self._ordered_component_list_:
             if not comp.iteration(time_index, date, dayligth_saving):
+                self._sim_df.at[time_index, "last_component"] = comp.parameter("name").value
                 converge = False
         return converge
 
@@ -450,6 +455,9 @@ class Project(Parameter_container):
         html += "<br/><strong>Components list:</strong>"
         html += self.component_dataframe().to_html()
         return html
+    
+    def simulation_dataframe(self):
+        return self._sim_df
 
     def component_editor(self, comp_type="all"):
         editor = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
