@@ -1,7 +1,5 @@
 from OpenSimula.components.Surface import Surface
 from OpenSimula.Parameters import Parameter_component
-from OpenSimula.Variable import Variable
-
 
 class Shadow_surface(Surface):
     def __init__(self, name, project):
