@@ -11,20 +11,17 @@ class HVAC_perfect_system(Component):
         self.parameter("description").value = "HVAC Perfect system for cooling and heating load"
         self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
         self.add_parameter(Parameter_component("file_met", "not_defined", ["File_met"]))
-        self.add_parameter(Parameter_float("outdoor_air_flow", 0, "m³/s", min=0))
         self.add_parameter(Parameter_variable_list("input_variables", []))
+        self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
         self.add_parameter(Parameter_math_exp("cooling_setpoint", "25", "°C"))
         self.add_parameter(Parameter_math_exp("humidifying_setpoint", "0", "%"))
         self.add_parameter(Parameter_math_exp("dehumidifying_setpoint", "100", "%"))
         self.add_parameter(Parameter_math_exp("system_on_off", "1", "on/off"))
         # Variables
-        self.add_variable(Variable("Q_sensible_space", unit="W"))
-        self.add_variable(Variable("Q_latent_space", unit="W"))
-        self.add_variable(Variable("Q_sensible_vent", unit="W"))
-        self.add_variable(Variable("Q_latent_vent", unit="W"))
-        self.add_variable(Variable("Q_sensible_system", unit="W"))
-        self.add_variable(Variable("Q_latent_system", unit="W"))
+        self.add_variable(Variable("Q_sensible", unit="W"))
+        self.add_variable(Variable("Q_latent", unit="W"))
+        self.add_variable(Variable("outdoor_air_flow", unit="m³/s"))
         self.add_variable(Variable("heating_setpoint", unit="°C"))
         self.add_variable(Variable("cooling_setpoint", unit="°C"))
         self.add_variable(Variable("humidifying_setpoint", unit="%"))
@@ -51,7 +48,6 @@ class HVAC_perfect_system(Component):
         super().pre_simulation(n_time_steps, delta_t)
         self._space = self.parameter("space").component
         self._file_met = self.parameter("file_met").component
-        self._outdoor_air_flow = self.parameter("outdoor_air_flow").value
         self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
         self.RHO_A = sicro.GetMoistAirDensity(20,0.0073,self.ATM_PRESSURE)
         # input_varibles symbol and variable
@@ -70,6 +66,9 @@ class HVAC_perfect_system(Component):
         for i in range(len(self.input_var_symbol)):
             var_dic[self.input_var_symbol[i]] = self.input_var_variable[i].values[time_index]
 
+        # outdoor air flow
+        self._outdoor_air_flow = self.parameter("outdoor_air_flow").evaluate(var_dic)
+        self.variable("heating_setpoint").values[time_index] = self._outdoor_air_flow
         # setpoints
         self.variable("heating_setpoint").values[time_index] = self.parameter("heating_setpoint").evaluate(var_dic)
         self.variable("cooling_setpoint").values[time_index] = self.parameter("cooling_setpoint").evaluate(var_dic)
@@ -108,12 +107,7 @@ class HVAC_perfect_system(Component):
         if self._system_on:
             T_space = self._space.variable("temperature").values[time_index]
             w_space = self._space.variable("abs_humidity").values[time_index]
-            self.variable("Q_sensible_system").values[time_index] = self._control_system["Q"]   
-            self.variable("Q_latent_system").values[time_index] = self._control_system["M"] * self.LAMBDA
-            self.variable("Q_sensible_vent").values[time_index] =self._outdoor_air_flow * self.RHO_A * self.CP_A * ( T_space - self._T_odb)
-            self.variable("Q_latent_vent").values[time_index] =self._outdoor_air_flow * self.RHO_A * self.LAMBDA * ( w_space - self._w_o)
-            self.variable("Q_sensible_space").values[time_index] = self.variable("Q_sensible_system").values[time_index] - self.variable("Q_sensible_vent").values[time_index]
-            self.variable("Q_latent_space").values[time_index] = self.variable("Q_latent_system").values[time_index] - self.variable("Q_latent_vent").values[time_index]
-
+            self.variable("Q_sensible").values[time_index] = self._control_system["Q"]   
+            self.variable("Q_latent").values[time_index] = self._control_system["M"] * self.LAMBDA
 
 

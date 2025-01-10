@@ -447,10 +447,11 @@ class Building(Component):
             self._calculate_Q_dir(time_index)
             self._calculate_FS_vector(time_index)
             self._calculate_FIN_WS_matrices(time_index)
-            self._calculate_space_K_F(time_index)
+            self._update_space_K_F(time_index)
             self._first_iteration = False
             return False # Force iteration
         else:
+            self._update_space_K_F(time_index)
             self._store_surfaces_values(time_index)
             return True
 
@@ -599,7 +600,7 @@ class Building(Component):
             self.KZS_matrix, np.matmul(self.KS_inv_matrix, self.FS_vector)
         )
     
-    def _calculate_space_K_F(self, time_i):
+    def _update_space_K_F(self, time_i):
         for i in range(self._n_spaces):
             F_spaces = 0
             for j in range(self._n_spaces):
