@@ -11,7 +11,7 @@
     <link rel="shortcut icon" href="../img/favicon.ico">
 
     
-    <title>Component list - OpenSimula</title>
+    <title>component list HVAC systems - OpenSimula</title>
     
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
@@ -87,8 +87,8 @@
                 
                 
                 
-                    <li class="active">
-                        <a href="./">Component list</a>
+                    <li >
+                        <a href="../component_list/">Component list</a>
                     </li>
                 
                 
@@ -106,16 +106,6 @@
                             <i class="fas fa-search"></i> Search
                         </a>
                     </li>
-                    <li >
-                        <a rel="prev" href="../user_guide/">
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="next" href="../developer_guide/">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </li>
             </ul>
         </div>
     </div>
@@ -126,29 +116,61 @@
         
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#component-list">Component List</a></li>
-            <li class="second-level"><a href="#common-parameters">Common parameters</a></li>
+        <li class="first-level active"><a href="#component-list-for-hvac-system-definition">Component List for HVAC system definition</a></li>
+            <li class="second-level"><a href="#hvac_perfect_system">HVAC_perfect_system</a></li>
                 
+                <li class="third-level"><a href="#parameters">Parameters</a></li>
+                <li class="third-level"><a href="#variables">Variables</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<h2 id="component-list">Component List</h2>
-<h3 id="common-parameters">Common parameters</h3>
-<p>All the components include these three parameters:</p>
+<h2 id="component-list-for-hvac-system-definition">Component List for HVAC system definition</h2>
+<h3 id="hvac_perfect_system">HVAC_perfect_system</h3>
+<p>Component for the perfect conditioning of a space. With this component we can obtain the heating and cooling loads (sensible and latent).</p>
+<h4 id="parameters">Parameters</h4>
 <ul>
-<li><strong>name</strong> [<em>string</em>]: Name of the component.</li>
-<li><strong>type</strong> [<em>string</em>]: Type of the component.</li>
-<li><strong>description</strong> [<em>string</em>]: Description of the component.</li>
+<li><strong>file_met</strong> [<em>component</em>, default = "not_defined", component type = File_met]: Reference to the component where the weather file is defined.</li>
+<li><strong>space</strong> [<em>component</em>, default = "not_defined", component type = Space]: Reference to the "Space" component to be controlled by this system.</li>
+<li><strong>input_variables</strong> [<em>variable_list</em>, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.</li>
+<li><strong>outdoor_air_flow</strong> [<em>math_exp</em>, unit = "m³/s", default = "0"]: Outside air flow rate (ventilation) supplied to the space. This flow rate is only entered if the system is in operation. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+<li><strong>heating_setpoint</strong> [<em>math_exp</em>, unit = "°C", default = "20"]: Space heating setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+<li><strong>cooling_setpoint</strong> [<em>math_exp</em>, unit = "°C", default = "25"]: Space Cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+<li><strong>humidifying_setpoint</strong> [<em>math_exp</em>, unit = "%", default = "0"]: Space relative humidity setpoint for humidification. If the relative humidity of the space is below this value, latent heat is added to maintain the relative humidity. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+<li><strong>dehumidifying_setpoint</strong> [<em>math_exp</em>, unit = "%", default = "100"]: Space relative humidity setpoint for dehumidification. If the relative humidity of the space is higher this value, latent heat is removed to maintain the relative humidity. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
+<li><strong>sytem_on_off</strong> [<em>math_exp</em>, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
 </ul>
-<p>We have divided the list of all components into several groups of related components:</p>
+<p>If outside air (ventilation) is present, it is introduced into the space as ‘uncontrolled system heat’, and the load values associated with the ventilation can be viewed in the space. The load supplied by the system is that required to maintain the space within the specified temperature and humidity set points, including ventilation if present.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+system = osm.components.HVAC_perfect_system("system",project)
+param = {
+        "space": "space_1",
+        "file_met": "Denver",
+        "outdoor_air_flow": "0.1",
+        "heating_setpoint": "20",
+        "cooling_setpoint": "27",
+        "humidifying_setpoint": "30",
+        "dehumidifying_setpoint": "70",
+        "input_variables":["f = HVAC_schedule.values"],
+        "system_on_off": "f"
+}
+system.set_parameters(param)
+</code></pre>
+
+<h4 id="variables">Variables</h4>
+<p>After the simulation we will have the following variables of this component:</p>
 <ul>
-<li><a href="../component_list_schedules/">Components to define shedules</a>: Day_schedule, Week_schedule, Year_schedule.</li>
-<li><a href="../component_list_files/">Components for reading files</a>: File_met, File_data.</li>
-<li><a href="../component_list_constructions/">Constructive components</a>: Material, Construction, Glazing, Frame, Opening_type.</li>
-<li><a href="../component_list_building/">Building definition components</a>: Building, Space_type, Space, Exterior_surface, Interior_surface, Underground_surface, Virtual_surface, Opening, Shadow_surface.</li>
-<li><a href="../component_list_HVAC_systems/">HVAC systems components</a>: HVAC_perfect_system.</li>
-<li><a href="../component_list_utils/">Components for various utilities</a>: Calculator.</li>
+<li><strong>Q_sensible</strong> [W]: Sensible heat supplied by the system.</li>
+<li><strong>Q_latent</strong> [W]: Latent heat supplied by the system.</li>
+<li><strong>outdoor_air_flow</strong> [m³/s]: Outside air flow rate (ventilation) supplied to the space.</li>
+<li><strong>heating_setpoint</strong> [°C]: Heating setpoint temperature.</li>
+<li><strong>cooling_setpoint</strong> [°C]: Cooling setpoint temperature.</li>
+<li><strong>humififying_setpoint</strong> [%]: Low relative humidity setpoint.</li>
+<li><strong>dehumidifying_setpoint</strong> [%]: High relative humidity setpoint.</li>
+<li><strong>system_on_off</strong> [on/off]: Operation of the system, on (1), off (0).</li>
 </ul></div>
         
         

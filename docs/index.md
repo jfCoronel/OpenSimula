@@ -2,7 +2,7 @@
 ![Logo](img/logo_opensimula.png) 
 
 This site contains the documentation for the
-___OpenSimula___ project.
+___OpenSimula___ project. Github site [![Github logo](img/github_logo.png)](https://github.com/jfCoronel/OpenSimula)
 
 `OpenSimula` is a component-based time simulation environment in Python. 
 
@@ -39,14 +39,20 @@ information generated during the simulation.
 
 ![Variables](img/variables.png)
 
-
 ## Documentation
-
 
 1. [Getting started](getting_started.md)
 2. [User guide](user_guide.md)
 3. [Component list](component_list.md)
 3. [Developer guide](developer_guide.md)
+
+## Release notes
+
+This is the list of changes to OpenSimula between each release. For full details, see the commit logs.
+
+ __Version 0.2__
+
+- 0.2.0 (January 1, 2025): First implementation for the building definition components and the HVAC_perfect_system
 
 
 _© JFC 2024_

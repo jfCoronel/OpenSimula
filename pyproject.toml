@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "OpenSimula"
-version = "0.0.5"
+version = "0.2.0"
 authors = [
   { name="Juan F. Coronel", email="jfc@us.es" },
 ]
@@ -30,7 +30,10 @@ dependencies = [
   "trame-vtk>=2.8.5",
   "trame-vuetify>=2.4.3",
   "plotly>=5.17.0",
-  "triangle>=20230923"
+  "triangle>=20230923",
+  "dash>=2.0.0",
+  "dash-bootstrap-components>=1.0.0",
+  "dash-ag-grid>=31.0.0",
 ]
 
 [project.optional-dependencies]

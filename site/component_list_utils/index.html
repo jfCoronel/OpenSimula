@@ -11,7 +11,7 @@
     <link rel="shortcut icon" href="../img/favicon.ico">
 
     
-    <title>Component list - OpenSimula</title>
+    <title>Component list utils - OpenSimula</title>
     
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
@@ -87,8 +87,8 @@
                 
                 
                 
-                    <li class="active">
-                        <a href="./">Component list</a>
+                    <li >
+                        <a href="../component_list/">Component list</a>
                     </li>
                 
                 
@@ -106,16 +106,6 @@
                             <i class="fas fa-search"></i> Search
                         </a>
                     </li>
-                    <li >
-                        <a rel="prev" href="../user_guide/">
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="next" href="../developer_guide/">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </li>
             </ul>
         </div>
     </div>
@@ -126,30 +116,42 @@
         
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#component-list">Component List</a></li>
-            <li class="second-level"><a href="#common-parameters">Common parameters</a></li>
+        <li class="first-level active"><a href="#component-list-for-various-utilities">Component List for various utilities</a></li>
+            <li class="second-level"><a href="#calculator">Calculator</a></li>
                 
+                <li class="third-level"><a href="#parameters">Parameters</a></li>
+                <li class="third-level"><a href="#variables">Variables</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<h2 id="component-list">Component List</h2>
-<h3 id="common-parameters">Common parameters</h3>
-<p>All the components include these three parameters:</p>
+<h2 id="component-list-for-various-utilities">Component List for various utilities</h2>
+<h3 id="calculator">Calculator</h3>
+<p>Component to perform calculations with the variables of other components.</p>
+<h4 id="parameters">Parameters</h4>
 <ul>
-<li><strong>name</strong> [<em>string</em>]: Name of the component.</li>
-<li><strong>type</strong> [<em>string</em>]: Type of the component.</li>
-<li><strong>description</strong> [<em>string</em>]: Description of the component.</li>
+<li><strong>input_variables</strong> [<em>variable_list</em>, default = []]: List of variables from other components used in this component. They can appear in the expressions of the “output_expressions” parameter.</li>
+<li><strong>output_variables</strong> [<em>string_list</em>, default = []]: List of output variable names.</li>
+<li><strong>output_units</strong> [<em>string_list</em>, default = []]: List of output variable units.</li>
+<li><strong>output_expressions</strong> [<em>math_exp_list</em>, default = []]: List of output variable mathematical expressions.</li>
 </ul>
-<p>We have divided the list of all components into several groups of related components:</p>
-<ul>
-<li><a href="../component_list_schedules/">Components to define shedules</a>: Day_schedule, Week_schedule, Year_schedule.</li>
-<li><a href="../component_list_files/">Components for reading files</a>: File_met, File_data.</li>
-<li><a href="../component_list_constructions/">Constructive components</a>: Material, Construction, Glazing, Frame, Opening_type.</li>
-<li><a href="../component_list_building/">Building definition components</a>: Building, Space_type, Space, Exterior_surface, Interior_surface, Underground_surface, Virtual_surface, Opening, Shadow_surface.</li>
-<li><a href="../component_list_HVAC_systems/">HVAC systems components</a>: HVAC_perfect_system.</li>
-<li><a href="../component_list_utils/">Components for various utilities</a>: Calculator.</li>
-</ul></div>
+<h4 id="variables">Variables</h4>
+<p>The component will generate a variable for each of the input variables specified in "input_variables" and "output_variables" using the mathematical expressions for the calculation in each time step.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+calc = osm.new_component("Calculator","unit_change")
+param = {
+    "input_variables": ["T = met.temperature", "w = met.abs_humidity"],
+    "output_variables": ["T_F","W_kg"],
+    "output_units": ["ºF","kg/kg a.s."],
+    "output_expressions": ["T * 9/5 + 32", "w / 1000"]
+}
+calc.set_parameters(param)
+</code></pre>
+
+<p>Four variables will be created with names: T, w, T_F and W_kg, two from input_variables and two from output_variables.</p></div>
         
         
     </div>

@@ -134,7 +134,7 @@
 <p>component used to read and manage weather files. Creating the necessary weather variables to be used by other components.</p>
 <h4 id="parameters">Parameters</h4>
 <ul>
-<li><strong>file_type</strong> [<em>option</em>, default = "MET", options = ["MET","TMY3"]]: Weather file type. "MET": MET format. <a href="https://www.codigotecnico.org/pdf/Documentos/HE/20170202-DOC-DB-HE-0-Climas%20de%20referencia.pdf">.MET format (CTE documentation)</a>. "TMY3" TMY3 format <a href="https://www.nrel.gov/docs/fy08osti/43156.pdf">TMY format description</a></li>
+<li><strong>file_type</strong> [<em>option</em>, default = "MET", options = ["MET","TMY3"]]: Weather file type. "MET": MET format. <a href="https://www.codigotecnico.org/pdf/Documentos/HE/20170202-DOC-DB-HE-0-Climas%20de%20referencia.pdf">.MET format (CTE documentation)</a>, "TMY3" TMY3 format <a href="https://www.nrel.gov/docs/fy08osti/43156.pdf">TMY3 format description</a>, "TMY2" TMY2 format <a href="https://www.nrel.gov/docs/legosti/old/7668.pdf">TMY2 format description</a></li>
 <li><strong>file_name</strong> [<em>string</em>, default = "name.met"]: Name of the weather file containing the data. </li>
 <li><strong>tilted_diffuse_model</strong> [<em>option</em>, default = "PEREZ", options = ["PEREZ","REINDL","HAY-DAVIES", "ISOTROPIC"]]: Model used for the calculation of diffuse solar radiation on inclined surfaces. The simplest model is the isotropic model (“ISOTROPIC”) which only takes into account uniform diffuse radiation. The Hay-Davies model (default value) includes the influence of the circumsolar component and the Reindl and Perez model also includes the effect of the horizon brightening component. <a href="https://pvpmc.sandia.gov/modeling-guide/1-weather-design-inputs/plane-of-array-poa-irradiance/calculating-poa-irradiance/poa-sky-diffuse/">More information about diffuse models on tilted surface</a></li>
 </ul>
@@ -152,14 +152,14 @@ met.parameter("file_name").value = "examples/met_files/sevilla.met"
 <li><strong>temperature</strong> [°C]: Dry bulb temperature.</li>
 <li><strong>sky_temperature</strong> [°C]: Sky temperature, for radiant heat exchange (read from MET files, calculated in TMY3 files).</li>
 <li><strong>underground_temperature</strong> [°C]: Ground temperature, to be used as the temperature imposed on the outer surface of the enclosures in contact with the ground (currently not read from the file, it is calculated as the annual average air temperature).</li>
-<li><strong>abs_humidity</strong> [g/kg]: Air relative humidity (calculated).</li>
+<li><strong>abs_humidity</strong> [g/kg]: Air absolute humidity (calculated).</li>
 <li><strong>rel_humidity</strong> [%]: Air relative humidity.</li>
 <li><strong>dew_point_temp</strong> [°C]: Dew point air temperature (calculated).</li>
 <li><strong>wet_bulb_temp</strong> [°C]: Wet bulb air temperature (calculated).</li>
 <li><strong>sol_hour</strong> [h]: Solar hour of the day (calculated).</li>
 <li><strong>sol_direct</strong> [W/m²]: Direct solar irradiance over horizontal surface.</li>
 <li><strong>sol_diffuse</strong> [W/m²]: Diffuse solar irradiance over horizontal surface.</li>
-<li><strong>sol_azimut</strong> [°]: Solar azimut (degrees from south: E-, W+) (calculated).</li>
+<li><strong>sol_azimuth</strong> [°]: Solar azimuth (degrees from south: E-, W+) (calculated).</li>
 <li><strong>sol_altitude</strong> [°]: Solar altitude (degrees) (calculated).</li>
 <li><strong>wind_speed</strong> [m/s]: Wind speed.</li>
 <li><strong>wind_direction</strong> [°]: Wind direction (degrees from north: E+, W-).</li>
