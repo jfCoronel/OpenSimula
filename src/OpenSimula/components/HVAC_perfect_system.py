@@ -68,7 +68,7 @@ class HVAC_perfect_system(Component):
 
         # outdoor air flow
         self._outdoor_air_flow = self.parameter("outdoor_air_flow").evaluate(var_dic)
-        self.variable("heating_setpoint").values[time_index] = self._outdoor_air_flow
+        self.variable("outdoor_air_flow").values[time_index] = self._outdoor_air_flow
         # setpoints
         self.variable("heating_setpoint").values[time_index] = self.parameter("heating_setpoint").evaluate(var_dic)
         self.variable("cooling_setpoint").values[time_index] = self.parameter("cooling_setpoint").evaluate(var_dic)
