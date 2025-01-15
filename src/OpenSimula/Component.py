@@ -36,14 +36,15 @@ class Component(Parameter_container):
     def variable_dict(self):
         return self._variables_
 
-    def variable_dataframe(self, units=False, frequency=None, value="mean", interval=None):
+    def variable_dataframe(self, units=False, frequency=None, value="mean", interval=None, pos_neg_columns=[]):
         """_summary_
 
         Args:
             units (bool, optional): Includes unit in the name of the variable. Defaults to True.
             frequency (None or str, optional): frequency of the values: None, "H" Hour, "D" Day, "M" Month, "Y" Year . Defaults to None.
-            value (str, optional): "mean", "sum", "max" or "min". Defaults to "mean".
+            value (str, optional): "mean", "sum", "sum_pos", "sum_neg", "max" or "min". Defaults to "mean".
             interval (None or list of two dates): List with the start and end dates of the period to be included in the dataframe, if the value is None all values are included.
+            pos_neg_columns (list of str, optional): List of variables that will be included in separate columns positive and negative values. Defaults to [].
 
         Returns:
             pandas DataFrame: Returns all the variables 
@@ -59,6 +60,10 @@ class Component(Parameter_container):
                 else:
                     series[key] = var.values
         data = pd.DataFrame(series)
+        if pos_neg_columns != []:
+            for col in pos_neg_columns:
+                data[col + "_pos"] = data[col].apply(lambda x: x if x > 0 else 0)
+                data[col + "_neg"] = data[col].apply(lambda x: x if x < 0 else 0)
         if frequency != None:
             if value == "mean":
                 data = data.resample(frequency, on='date').mean()
