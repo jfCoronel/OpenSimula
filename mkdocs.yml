@@ -1,8 +1,10 @@
 site_name: OpenSimula
+docs_dir: "mkdocs"
+site_dir: "docs"
 
 theme:
     name: null
-    custom_dir: "docs/cinder"
+    custom_dir: "mkdocs/cinder"
     logo: img/logo_opensimula.png
 
 nav:
