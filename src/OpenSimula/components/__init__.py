@@ -23,3 +23,18 @@ from OpenSimula.components.HVAC_DX_equipment import HVAC_DX_equipment
 from OpenSimula.components.HVAC_DX_system import HVAC_DX_system
 from OpenSimula.components.HVAC_perfect_system import HVAC_perfect_system
 
+DEFAULT_COMPONENTS_ORDER = [
+                    "Space_type",
+                    "Exterior_surface",
+                    "Underground_surface",
+                    "Interior_surface",
+                    "Virtual_surface",
+                    "Shadow_surface",
+                    "Opening",
+                    "Space",
+                    "Building",
+                    "HVAC_perfect_system",
+                    "HVAC_DX_system",
+                    "Calculator"
+                ]
+

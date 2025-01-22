@@ -37,26 +37,7 @@ class Project(Parameter_container):
         self.add_parameter(Parameter_string(
             "daylight_saving_end_time", "28/10/2001 02:00:00"))
         self.add_parameter(Parameter_int("n_max_iteration", 1000, min=1))
-
-        self.add_parameter(
-            Parameter_string_list(
-                "simulation_order",
-                [
-                    "Space_type",
-                    "Exterior_surface",
-                    "Underground_surface",
-                    "Interior_surface",
-                    "Virtual_surface",
-                    "Shadow_surface",
-                    "Opening",
-                    "Space",
-                    "Building",
-                    "HVAC_perfect_system",
-                    "HVAC_DX_system",
-                    "Calculator"
-                ],
-            )
-        )
+        self.add_parameter(Parameter_string_list("simulation_order",DEFAULT_COMPONENTS_ORDER))
         self._sim_ = sim
         self._components_ = []
 

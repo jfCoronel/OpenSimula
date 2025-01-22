@@ -345,7 +345,7 @@ def test_HVAC_perfect_system():
     pro.read_dict(case610_dict)
     pro.simulate()
 
-    load = pro.component("system").variable("Q_sensible_system").values
+    load = pro.component("system").variable("Q_sensible").values
     annual_heating = np.where(load>0,load,0).sum()/1e6
     annual_cooling = np.where(load<0,-load,0).sum()/1e6
     peak_heating = load.max()/1000
