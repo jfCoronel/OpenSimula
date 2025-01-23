@@ -26,7 +26,8 @@ class HVAC_perfect_system(Component):
         self.add_variable(Variable("cooling_setpoint", unit="°C"))
         self.add_variable(Variable("humidifying_setpoint", unit="%"))
         self.add_variable(Variable("dehumidifying_setpoint", unit="%"))
-        self.add_variable(Variable("system_on_off", unit="on/off"))
+        self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Cooling, 3: Venting 
+
          # Sicro
         sicro.SetUnitSystem(sicro.SI)
         self.CP_A = 1007 # (J/kg·K)
@@ -75,9 +76,12 @@ class HVAC_perfect_system(Component):
         self.variable("humidifying_setpoint").values[time_index] = self.parameter("humidifying_setpoint").evaluate(var_dic)
         self.variable("dehumidifying_setpoint").values[time_index] = self.parameter("dehumidifying_setpoint").evaluate(var_dic)
          # on/off
-        self.variable("system_on_off").values[time_index] = self.parameter("system_on_off").evaluate(var_dic)
-        if self.variable("system_on_off").values[time_index] != 0:
-            self.variable("system_on_off").values[time_index] = 1
+        self._on_off = self.parameter("system_on_off").evaluate(var_dic)
+        if self._on_off == 0:
+            self.variable("state").values[time_index] = 0
+            self._on_off = False
+        else:
+            self._on_off = True
 
         self._T_odb = self._file_met.variable("temperature").values[time_index]
         self._w_o = self._file_met.variable("abs_humidity").values[time_index]
@@ -85,10 +89,10 @@ class HVAC_perfect_system(Component):
         self._T_heat_sp = self.variable("heating_setpoint").values[time_index]
         self._HR_min = self.variable("humidifying_setpoint").values[time_index] 
         self._HR_max = self.variable("dehumidifying_setpoint").values[time_index] 
-        self._system_on = self.variable("system_on_off").values[time_index]
+
 
         # Add uncontrolled vantilation to the space
-        if self._system_on:
+        if self._on_off:
             air_flow = {"name": self.parameter("name").value, "V": self._outdoor_air_flow, "T":self._T_odb, "w": self._w_o}
             self._space.add_uncontrol_system_air_flow(air_flow)
 
@@ -96,7 +100,7 @@ class HVAC_perfect_system(Component):
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
         self._control_system = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }      
-        if self._system_on: 
+        if self._on_off: 
             self._control_system["Q"] = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
             self._control_system["M"] = self._space.get_M_required(self._HR_min, self._HR_max)
         self._space.set_control_system(self._control_system)
@@ -104,10 +108,15 @@ class HVAC_perfect_system(Component):
         
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
-        if self._system_on:
-            T_space = self._space.variable("temperature").values[time_index]
-            w_space = self._space.variable("abs_humidity").values[time_index]
-            self.variable("Q_sensible").values[time_index] = self._control_system["Q"]   
+        if self._on_off:
+            Q = self._control_system["Q"]
+            self.variable("Q_sensible").values[time_index] = Q   
             self.variable("Q_latent").values[time_index] = self._control_system["M"] * self.LAMBDA
+            if Q > 0: # Heating, Cooling or Venting
+                self.variable("state").values[time_index] = 1
+            elif Q < 0:
+                self.variable("state").values[time_index] = 2
+            else:
+                self.variable("state").values[time_index] = 3
 
 
