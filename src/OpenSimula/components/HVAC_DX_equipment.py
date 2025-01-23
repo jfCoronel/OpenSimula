@@ -11,7 +11,7 @@ class HVAC_DX_equipment(Component):
         self.add_parameter(Parameter_float("nominal_total_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_sensible_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_cooling_power", 0, "W", min=0))
-        self.add_parameter(Parameter_float("no_load_cooling_power", 0, "W", min=0))
+        self.add_parameter(Parameter_float("no_load_power", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_cooling_conditions", [27, 19, 35], "ºC"))
         self.add_parameter(Parameter_math_exp("total_cooling_capacity_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("sensible_cooling_capacity_expression", "1", "frac"))
@@ -19,7 +19,6 @@ class HVAC_DX_equipment(Component):
         self.add_parameter(Parameter_math_exp("EER_expression", "1", "frac"))
         self.add_parameter(Parameter_float("nominal_heating_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_heating_power", 0, "W", min=0))
-        self.add_parameter(Parameter_float("no_load_heating_power", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_heating_conditions", [20, 7, 6], "ºC"))
         self.add_parameter(Parameter_math_exp("heating_capacity_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("heating_power_expression", "1", "frac"))
@@ -82,7 +81,7 @@ class HVAC_DX_equipment(Component):
                 power = total_capacity*F_load/EER
                 return (total_capacity*F_load, sensible_capacity*F_load, power)
             else:
-                return ( 0 , 0 , self.parameter("no_load_cooling_power").value )
+                return ( 0 , 0 , self.parameter("no_load_power").value )
         else:
             return (0,0,0)
         
@@ -118,7 +117,7 @@ class HVAC_DX_equipment(Component):
                 power = capacity*F_load/COP
                 return (capacity*F_load, power)
             else:
-                return (0,self.parameter("no_load_heating_power").value)
+                return (0,self.parameter("no_load_power").value)
         else:
             return (0,0)
 
