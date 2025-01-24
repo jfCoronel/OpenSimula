@@ -344,12 +344,17 @@ class Building(Component):
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
         self._calculate_shadows(time_index) # sunny_fractions
-        self._first_iteration = True
+        #self._first_iteration = True
         self._calculate_Q_igsw(time_index)
         self._calculate_Q_iglw(time_index)
         self._calculate_Q_dif(time_index)
         self._calculate_FZ_vector(time_index)
         self._update_K_matrices(time_index)
+        self._calculate_Q_dir(time_index)
+        self._calculate_FS_vector(time_index)
+        self._calculate_FIN_WS_matrices(time_index)
+        self._update_space_K_F(time_index)
+
 
     def _calculate_shadows(self, time_i):
         self.sunny_fractions = [1] * len(self.building_3D.sunny_list)
@@ -440,24 +445,13 @@ class Building(Component):
                 * self.RHO
                 * self.C_P
             )
-
-    def iteration(self, time_index, date, daylight_saving):
-        super().iteration(time_index, date, daylight_saving)
-        if self._first_iteration:  # Only in the 1st iteration
-            self._calculate_Q_dir(time_index)
-            self._calculate_FS_vector(time_index)
-            self._calculate_FIN_WS_matrices(time_index)
-            self._update_space_K_F(time_index)
-            self._first_iteration = False
-            return False # Force iteration
-        else:
-            self._update_space_K_F(time_index)
-            self._store_surfaces_values(time_index)
-            return True
-
+    
     def _calculate_Q_dir(self, time_i):
+        for i in range(self._n_surfaces):
+            self.surfaces[i]._calculate_solar_direct(time_i)
         E_dir = np.zeros(self._n_spaces)
         for i in range(self._n_spaces):
+            self.spaces[i]._calculate_solar_direct(time_i)
             E_dir[i] = self.spaces[i].variable("solar_direct_gains").values[time_i]
         self.Q_dir = np.matmul(self.SWDIR_matrix, E_dir)
 
@@ -599,6 +593,20 @@ class Building(Component):
         self.FFIN_WS_vector = self.FZ_vector - np.matmul(
             self.KZS_matrix, np.matmul(self.KS_inv_matrix, self.FS_vector)
         )
+
+    def iteration(self, time_index, date, daylight_saving):
+        super().iteration(time_index, date, daylight_saving)
+        # if self._first_iteration:  # Only in the 1st iteration
+        #     #self._calculate_Q_dir(time_index)
+        #     self._calculate_FS_vector(time_index)
+        #     self._calculate_FIN_WS_matrices(time_index)
+        #     self._update_space_K_F(time_index)
+        #     self._first_iteration = False
+        #     return False # Force iteration
+        # else:
+        self._update_space_K_F(time_index)
+        self._store_surfaces_values(time_index)
+        return True
     
     def _update_space_K_F(self, time_i):
         for i in range(self._n_spaces):

@@ -66,7 +66,7 @@ class Exterior_surface(Real_surface):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        self._shadow_calculated = False
+        #self._shadow_calculated = False
         self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_variables_pre_iteration(self, time_i):
@@ -94,24 +94,35 @@ class Exterior_surface(Real_surface):
         self.variable("p_0").values[time_i] = p_0
         self.variable("p_1").values[time_i] = p_1
 
+    def _calculate_solar_direct(self, time_index):
+        direct_sunny_fracion = self.building().get_direct_sunny_fraction(self)
+        E_dir = self.variable("E_dir_sunny").values[time_index] * direct_sunny_fracion
+        self.variable("E_dir").values[time_index] = E_dir
+        self.variable("q_sol0").values[time_index] += self.radiant_property("alpha", "solar_diffuse", 0) * E_dir
+        q_sol = self.variable("q_sol0").values[time_index]
+        p_0 = self.variable("p_0").values[time_index]
+        h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+        T_rm = self.variable("T_rm").values[time_index]
+        self.f_0 = self.area * (- p_0 - self.parameter("h_cv").value[0] * self._T_ext - h_rd * T_rm - q_sol)
+
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
         # Calculate shadows only once
-        if not self._shadow_calculated:
-            direct_sunny_fracion = self.building().get_direct_sunny_fraction(self)
-            E_dir = self.variable(
-                "E_dir_sunny").values[time_index] * direct_sunny_fracion
-            self.variable("E_dir").values[time_index] = E_dir
-            self.variable(
-                "q_sol0").values[time_index] += self.radiant_property("alpha", "solar_diffuse", 0) * E_dir
-            q_sol = self.variable("q_sol0").values[time_index]
-            p_0 = self.variable("p_0").values[time_index]
-            h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
-            T_rm = self.variable("T_rm").values[time_index]
-            self.f_0 = self.area * \
-                (- p_0 - self.parameter("h_cv").value[0]
-                 * self._T_ext - h_rd * T_rm - q_sol)
-            self._shadow_calculated = True
+        # if not self._shadow_calculated:
+        #     direct_sunny_fracion = self.building().get_direct_sunny_fraction(self)
+        #     E_dir = self.variable(
+        #         "E_dir_sunny").values[time_index] * direct_sunny_fracion
+        #     self.variable("E_dir").values[time_index] = E_dir
+        #     self.variable(
+        #         "q_sol0").values[time_index] += self.radiant_property("alpha", "solar_diffuse", 0) * E_dir
+        #     q_sol = self.variable("q_sol0").values[time_index]
+        #     p_0 = self.variable("p_0").values[time_index]
+        #     h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+        #     T_rm = self.variable("T_rm").values[time_index]
+        #     self.f_0 = self.area * \
+        #         (- p_0 - self.parameter("h_cv").value[0]
+        #          * self._T_ext - h_rd * T_rm - q_sol)
+        #     self._shadow_calculated = True
         return True
 
     def post_iteration(self, time_index, date, daylight_saving, converged):

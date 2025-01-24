@@ -110,8 +110,8 @@ class HVAC_DX_equipment(Component):
                 # variables dictonary
                 var_dic = {"T_idb":T_idb,"T_iwb":T_iwb,"T_odb":T_odb,"T_owb":T_owb,"F_air":F_air,"F_load":F_load}
                 # Compressor
-                power_full = self.parameter("nominal_compressor_heating_power").value
-                power_full = power_full * self.parameter("power_heating_expression").evaluate(var_dic)
+                power_full = self.parameter("nominal_heating_power").value
+                power_full = power_full * self.parameter("heating_power_expression").evaluate(var_dic)
                 COP_full = capacity/power_full
                 COP = COP_full * self.parameter("COP_expression").evaluate(var_dic) 
                 power = capacity*F_load/COP

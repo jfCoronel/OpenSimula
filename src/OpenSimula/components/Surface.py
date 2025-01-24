@@ -125,3 +125,7 @@ class Surface(Component):
                 polygon2D.append([self.parameter("x_polygon").value[i],
                                   self.parameter("y_polygon").value[i]])
             return polygon2D
+    
+    def _calculate_solar_direct(self, time_index):
+        pass # To be overwritten
+

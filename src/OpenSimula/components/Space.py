@@ -194,7 +194,7 @@ class Space(Component):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        self._first_iteration = True
+        #self._first_iteration = True
         # People
         exp = self._space_type_comp.variable("people_convective").values[time_index] 
         self.variable("people_convective").values[time_index] = self._area * exp
@@ -245,27 +245,30 @@ class Space(Component):
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
         # Calculate shadows only once
-        if self._first_iteration:
-            self._calculate_solar_direct_gains(time_index)
-            self._first_iteration = False
-            return False
+        # if self._first_iteration:
+        #     self._calculate_solar_direct_gains(time_index)
+        #     self._first_iteration = False
+        #     return False
+        # else:
+        # Calculate temperature
+        K_tot,F_tot = self._calculate_K_F_tot(True)
+        self.variable("temperature").values[time_index] =F_tot/K_tot
+        # Calculate humidity
+        K_hum, F_hum = self._calculate_K_F_hum(True)
+        w = F_hum/K_hum
+        max_hum = sicro.GetHumRatioFromRelHum(self.variable("temperature").values[time_index], 1, self.building().ATM_PRESSURE)*1000
+        if (w > max_hum):
+            self.variable("abs_humidity").values[time_index] = max_hum
         else:
-            self.variable("temperature").values[time_index] = self._calculate_T(True)["T"]
-            w = self._calculate_w(True)["w"]
-            max_hum = sicro.GetHumRatioFromRelHum(self.variable("temperature").values[time_index], 1, self.building().ATM_PRESSURE)*1000
-            if (w > max_hum):
-                self.variable("abs_humidity").values[time_index] = max_hum
-            else:
-                self.variable("abs_humidity").values[time_index] = w
-            # Test convergence
-            return self._converged(time_index)
+            self.variable("abs_humidity").values[time_index] = w
+        # Test convergence
+        return self._converged(time_index)
 
-    def _calculate_solar_direct_gains(self, time_i):
+    def _calculate_solar_direct(self, time_i):
         solar_gain = 0
         for surf in self.surfaces:
             if surf.parameter("type").value == "Opening":
                 solar_gain += surf.area * surf.variable("E_dir_tra").values[time_i]
-
         self.variable("solar_direct_gains").values[time_i] = solar_gain
 
     def update_K_F(self, K_F):
@@ -280,26 +283,26 @@ class Space(Component):
             self._V_T_u_systems += system["V"]*system["T"]
             self._V_w_u_systems += system["V"]*system["w"]
 
-    def _calculate_T(self, control):
+    def _calculate_K_F_tot(self, include_control_system):
         rho = self.building().RHO
         c_p = self.building().C_P
         self._acumulate_u_systems()
         F_tot = self.K_F["F"]+self.K_F["F_OS"] + self._V_T_u_systems * rho * c_p
         K_tot = self.K_F["K"] + self._V_u_systems * rho * c_p
-        if control:
+        if include_control_system:
             K_tot += self.control_system["V"]*rho*c_p
             F_tot += self.control_system["V"]*rho*c_p*self.control_system["T"] + self.control_system["Q"]
-        return {"T": F_tot/ K_tot, "K": K_tot, "F": F_tot}
+        return (K_tot, F_tot)
 
-    def _calculate_w(self, control):
+    def _calculate_K_F_hum(self, include_control_system):
         rho = self.building().RHO
         self._acumulate_u_systems()
         K_hum = self._K_hum + rho * self._V_u_systems
         F_hum = self._F_hum + rho * self._V_w_u_systems
-        if control:
+        if include_control_system:
             K_hum += self.control_system["V"]*rho
             F_hum += self.control_system["V"]*rho*self.control_system["w"]  + self.control_system["M"]
-        return {"w": F_hum/K_hum , "K": K_hum, "F": F_hum}
+        return (K_hum, F_hum)
 
     def _converged(self, time_i):
         converged = True
@@ -312,23 +315,25 @@ class Space(Component):
         return converged
 
     def get_Q_required(self, T_cool_sp, T_heat_sp):
-        dic =  self._calculate_T(False)
-        if dic["T"] > T_cool_sp:
-            return dic["K"]*T_cool_sp - dic["F"]
-        elif dic["T"] < T_heat_sp:
-             return dic["K"]*T_heat_sp - dic["F"]
+        K_tot, F_tot =  self._calculate_K_F_tot(False)
+        T = F_tot/K_tot
+        if T > T_cool_sp:
+            return K_tot * T_cool_sp - F_tot
+        elif T < T_heat_sp:
+             return K_tot * T_heat_sp - F_tot
         else:
             return 0
     
     def get_M_required(self,HR_min, HR_max):
-        dic = self._calculate_w(False)
-        hr = sicro.GetRelHumFromHumRatio(self._T, dic["w"]/1000, self.building().ATM_PRESSURE)*100
+        K_hum, F_hum= self._calculate_K_F_hum(False)
+        w = F_hum/K_hum
+        hr = sicro.GetRelHumFromHumRatio(self._T,w/1000, self.building().ATM_PRESSURE)*100
         if hr < HR_min:
             w_min = sicro.GetHumRatioFromRelHum(self._T, HR_min/100, self.building().ATM_PRESSURE)*1000
-            return dic["K"] * w_min - dic["F"]
+            return K_hum * w_min - F_hum
         elif hr > HR_max:
             w_max = sicro.GetHumRatioFromRelHum(self._T, HR_max/100, self.building().ATM_PRESSURE)*1000
-            return dic["K"] * w_max - dic["F"]
+            return K_hum * w_max - F_hum
         else:
             return 0
 

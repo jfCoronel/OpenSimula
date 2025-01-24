@@ -397,13 +397,14 @@ array([  0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
 Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
 </code></pre>
 
-<p>The <code>variable_dataframe(units, frequency, value, interval)</code> method of the components returns a pandas dataframe with all the variables of the component.</p>
+<p>The <code>variable_dataframe(units, frequency, value, interval, pos_neg_columns)</code> method of the components returns a pandas dataframe with all the variables of the component.</p>
 <p>with the following possible arguments (In bold the default values):</p>
 <ul>
 <li>units [<strong>False</strong>/True]: Include de units in the name of the variable.</li>
 <li>frequency [<strong>None</strong>, "H", "D", "M", "Y"]: Frequency of the data, that of the simulation (None), hourly ("H"), daily ("D"), monthly ("M") or yearly ("Y").</li>
 <li>value [<strong>"mean"</strong>,"max","min","sum"]: If we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each row (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min") or the sum ("sum").</li>
 <li>interval [<strong>None</strong>,[start_date, end_date]]: List with the start and end dates of the period to be included in the dataframe, if the value is None all values are included.</li>
+<li>pos_neg_columns [[]]: List of variables that will be included in separate columns positive and negative values, with "column_name"_pos and "column_name"_neg as names.</li>
 </ul>
 <p>As an example we can see how to obtain the monthly average values of the variables of a meteorological file (File_met component):</p>
 <pre><code class="python">

@@ -91,7 +91,7 @@ class HVAC_perfect_system(Component):
         self._HR_max = self.variable("dehumidifying_setpoint").values[time_index] 
 
 
-        # Add uncontrolled vantilation to the space
+        # Add uncontrolled ventilation to the space
         if self._on_off:
             air_flow = {"name": self.parameter("name").value, "V": self._outdoor_air_flow, "T":self._T_odb, "w": self._w_o}
             self._space.add_uncontrol_system_air_flow(air_flow)
