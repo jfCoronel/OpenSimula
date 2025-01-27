@@ -25,6 +25,8 @@ class HVAC_DX_equipment(Component):
         self.add_parameter(Parameter_math_exp("COP_expression", "1", "frac"))
         self.add_parameter(Parameter_options("dry_coil_model", "SENSIBLE", ["TOTAL", "SENSIBLE"]))
         self.add_parameter(Parameter_boolean("power_dry_coil_correction", True))
+        self.add_parameter(Parameter_float_list("expression_max_values", [60,30,60,30,1.5,1], "-"))
+        self.add_parameter(Parameter_float_list("expression_min_values", [0,0,-30,-30,0,0], "-"))
 
     def check(self):
         errors = super().check()
@@ -39,7 +41,7 @@ class HVAC_DX_equipment(Component):
         total_capacity = self.parameter("nominal_total_cooling_capacity").value
         if total_capacity > 0:
             # variables dictonary
-            var_dic = {"T_idb":T_idb,"T_iwb":T_iwb,"T_odb":T_odb,"T_owb":T_owb,"F_air":F_air}
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,0])
             # Total
             f = self.parameter("total_cooling_capacity_expression").evaluate(var_dic)
             total_capacity = total_capacity * f
@@ -60,7 +62,7 @@ class HVAC_DX_equipment(Component):
         capacity = self.parameter("nominal_heating_capacity").value
         if capacity > 0:
             # variables dictonary
-            var_dic = {"T_idb":T_idb,"T_iwb":T_iwb,"T_odb":T_odb,"T_owb":T_owb,"F_air":F_air}
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,0])
             # Capacity
             capacity = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
             return capacity
@@ -72,7 +74,7 @@ class HVAC_DX_equipment(Component):
         if total_capacity > 0:
             if (F_load > 0):
                 # variables dictonary
-                var_dic = {"T_idb":T_idb,"T_iwb":T_iwb,"T_odb":T_odb,"T_owb":T_owb,"F_air":F_air,"F_load":F_load}
+                var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
                 # con
                 power_full = self._get_correct_cooling_power(total_capacity,sensible_capacity,var_dic)
 
@@ -108,7 +110,7 @@ class HVAC_DX_equipment(Component):
         if capacity > 0:
             if (F_load > 0):
                 # variables dictonary
-                var_dic = {"T_idb":T_idb,"T_iwb":T_iwb,"T_odb":T_odb,"T_owb":T_owb,"F_air":F_air,"F_load":F_load}
+                var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
                 # Compressor
                 power_full = self.parameter("nominal_heating_power").value
                 power_full = power_full * self.parameter("heating_power_expression").evaluate(var_dic)
@@ -120,6 +122,22 @@ class HVAC_DX_equipment(Component):
                 return (0,self.parameter("no_load_power").value)
         else:
             return (0,0)
+    
+    def _var_state_dic(self, values):
+        max = self.parameter("expression_max_values").value
+        min = self.parameter("expression_min_values").value
+        for i in range(len(values)):
+            if (values[i] > max[i]):
+                values[i] = max[i]
+            elif (values[i] < min[i]):
+                values[i] = min[i]
+        return {"T_idb":values[0],
+                "T_iwb":values[1],
+                "T_odb":values[2],
+                "T_owb":values[3],
+                "F_air":values[4],
+                "F_load":values[5]}
+
 
 
 

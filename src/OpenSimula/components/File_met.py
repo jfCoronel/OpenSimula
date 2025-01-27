@@ -155,6 +155,7 @@ class File_met(Component):
             self.temperature = data["DryBulb"].to_numpy()/10
             self.sol_diffuse = data["DHI"].to_numpy()
             self.sol_direct = data["GHI"].to_numpy() - self.sol_diffuse
+            self.sol_direct[self.sol_direct < 0] = 0 # Eliminate negative values if exist
             self.rel_humidity = data["RHum"].to_numpy()
 
             self.wind_speed = data["Wspd"].to_numpy()/10

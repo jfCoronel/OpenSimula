@@ -252,13 +252,19 @@ class Space(Component):
         # else:
         # Calculate temperature
         K_tot,F_tot = self._calculate_K_F_tot(True)
-        self.variable("temperature").values[time_index] =F_tot/K_tot
+        T = F_tot/K_tot
+        self.variable("temperature").values[time_index] = T
         # Calculate humidity
         K_hum, F_hum = self._calculate_K_F_hum(True)
         w = F_hum/K_hum
-        max_hum = sicro.GetHumRatioFromRelHum(self.variable("temperature").values[time_index], 1, self.building().ATM_PRESSURE)*1000
-        if (w > max_hum):
-            self.variable("abs_humidity").values[time_index] = max_hum
+        if (w < 0):
+            w = 0
+        if (T< 100): # Sicro limits
+            max_hum = sicro.GetHumRatioFromRelHum(T, 1, self.building().ATM_PRESSURE)*1000
+            if (w > max_hum):
+                self.variable("abs_humidity").values[time_index] = max_hum
+            else:
+                self.variable("abs_humidity").values[time_index] = w
         else:
             self.variable("abs_humidity").values[time_index] = w
         # Test convergence
@@ -327,6 +333,8 @@ class Space(Component):
     def get_M_required(self,HR_min, HR_max):
         K_hum, F_hum= self._calculate_K_F_hum(False)
         w = F_hum/K_hum
+        if w < 0:
+            w = 0
         hr = sicro.GetRelHumFromHumRatio(self._T,w/1000, self.building().ATM_PRESSURE)*100
         if hr < HR_min:
             w_min = sicro.GetHumRatioFromRelHum(self._T, HR_min/100, self.building().ATM_PRESSURE)*1000
@@ -348,8 +356,9 @@ class Space(Component):
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
-        rh = sicro.GetRelHumFromHumRatio(self._T, self._w/1000, self.building().ATM_PRESSURE)*100
-        self.variable("rel_humidity").values[time_index] = rh
+        if (self._T < 100): # Sicro limit
+            rh = sicro.GetRelHumFromHumRatio(self._T, self._w/1000, self.building().ATM_PRESSURE)*100
+            self.variable("rel_humidity").values[time_index] = rh
         self._calculate_heat_fluxes(time_index)
 
     def _calculate_heat_fluxes(self, time_i):

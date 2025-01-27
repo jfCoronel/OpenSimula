@@ -271,7 +271,7 @@ class Parameter_int_list(Parameter):
 
 
 class Parameter_float(Parameter_int):
-    def __init__(self, key, value=0.0, unit="", min=0.0, max=float("inf")):
+    def __init__(self, key, value=0.0, unit="", min=float("-inf"), max=float("inf")):
         Parameter_int.__init__(self, key, float(
             value), unit, float(min), float(max))
 
@@ -297,7 +297,7 @@ class Parameter_float(Parameter_int):
 
 
 class Parameter_float_list(Parameter_int_list):
-    def __init__(self, key, value=[0.0], unit="", min=0.0, max=float("inf")):
+    def __init__(self, key, value=[0.0], unit="", min=float("-inf"), max=float("inf")):
         Parameter_int_list.__init__(
             self, key, value, unit, float(min), float(max))
 

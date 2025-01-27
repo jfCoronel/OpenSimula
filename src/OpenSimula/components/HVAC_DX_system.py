@@ -116,6 +116,7 @@ class HVAC_DX_system(Component):
         # on/off
         self._on_off = self.parameter("system_on_off").evaluate(var_dic)
         if self._on_off == 0:
+            self._state = 0
             self.variable("state").values[time_index] = 0
             self._on_off = False
         else:
