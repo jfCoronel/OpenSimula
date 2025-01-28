@@ -122,23 +122,25 @@ class HVAC_DX_system(Component):
         else:
             self._on_off = True
         self._f_load_pre = self._f_load
+        # Add uncontrolled ventilation to the space for perfect control
+        if self._on_off and self.parameter("control_type").value == "PERFECT":
+            air_flow = {"name": self.parameter("name").value, "V": self._outdoor_air_flow, "T":self._T_odb, "w": self._w_o}
+            self._space.add_uncontrol_system_air_flow(air_flow)
+            self._M_w_pre = 0
+
     
     def iteration(self, time_index, date, daylight_saving):
         super().iteration(time_index, date, daylight_saving)
         if self._on_off:
-            self._control_system = {"V": self._supply_air_flow, "T": 0, "w":0, "Q":0, "M":0 }
             self._T_space = self._space.variable("temperature").values[time_index]
             self._w_space = self._space.variable("abs_humidity").values[time_index]
             # Mix air
             self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_space, self._w_space)
             if self.parameter("control_type").value == "PERFECT":
-                Q_required = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
-                self._perfect_control(Q_required)    
+                control= self._perfect_control()    
             elif self.parameter("control_type").value == "TEMPERATURE":
-                self._air_temperature_control()
-            self._control_system["T"] = self._T_supply
-            self._control_system["w"] = self._w_supply
-            self._space.set_control_system(self._control_system)
+                control = self._air_temperature_control()
+            self._space.set_control_system(control)
         return True
 
     def _mix_air(self, f, T1, w1, T2, w2):
@@ -146,38 +148,42 @@ class HVAC_DX_system(Component):
         w = f * w1 + (1-f)*w2
         return (T,w,sicro.GetTWetBulbFromHumRatio(T,w/1000,self.ATM_PRESSURE))        
     
-    def _perfect_control(self, Q_required):
+    def _perfect_control(self):
+        Q_required = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
+        control = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }
         # Venting
         self._f_load = 0
         self._state = 3
-        self._T_supply = self._T_idb
-        self._w_supply = self._w_i
         self._Q_sen = 0
+        M_w = 0
         if Q_required > 0: # Heating    
             heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
             if heat_cap > 0:
-                self._T_supply = Q_required / self._mrcp + self._T_space
-                self._Q_sen = self._mrcp * (self._T_supply - self._T_idb)
-                self._f_load = self._Q_sen/heat_cap
                 self._state = 1
+                self._f_load = Q_required/heat_cap
                 if self._f_load > 1:
                     self._Q_sen = heat_cap
                     self._f_load = 1
-                    self._T_supply = self._T_idb + self._Q_sen / self._mrcp
-                self._w_supply = self._w_i
+                else:
+                    self._Q_sen = Q_required
         elif Q_required < 0: # Cooling
             tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb,self._f_air)
             if sen_cool_cap > 0:
-                self._T_supply = self._T_space + Q_required / self._mrcp
-                self._Q_sen  = self._mrcp * (self._T_idb - self._T_supply)
-                self._f_load = -self._Q_sen/sen_cool_cap
                 self._state = 2
+                self._f_load = Q_required/sen_cool_cap
                 if self._f_load < -1:
-                    self._Q_sen = sen_cool_cap
+                    self._Q_sen = -sen_cool_cap
                     self._f_load = -1
-                    self._T_supply = self._T_idb - self._Q_sen / self._mrcp
-                self._Q_total = -tot_cool_cap*self._f_load
-                self._w_supply = self._w_i - (self._Q_total - self._Q_sen) / self._mrdh         
+                else:
+                    self._Q_sen = Q_required     
+                   
+                self._Q_total = tot_cool_cap*self._f_load
+                M_w = (self._Q_total - self._Q_sen) / self.DH_W
+        self._M_w = self._r_coef * M_w + (1-self._r_coef)*self._M_w_pre
+        self._M_w_pre = self._M_w
+        control["Q"] = self._Q_sen
+        control["M"] = self._M_w
+        return control    
                         
     def _air_temperature_control(self):
         if (self._T_space >= self._T_cool_sp + self._cool_band/2):
@@ -221,10 +227,15 @@ class HVAC_DX_system(Component):
             else:
                 self._state = 3
                 self._f_load = 0
+        control = {"V": self._supply_air_flow, "T": self._T_supply, "w":self.w_supply, "Q":0, "M":0 }
+        return control
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
         self.variable("state").values[time_index] = self._state
+        if self.parameter("control_type").value == "PERFECT":
+            self._T_supply = self._Q_sen/self._mrcp + self._T_idb
+            self._w_supply = self._M_w/self._supply_air_flow +self._w_i 
         if self._state != 0 : # on
             self.variable("T_idb").values[time_index] = self._T_idb
             self.variable("T_iwb").values[time_index] = self._T_iwb
