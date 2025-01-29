@@ -380,9 +380,9 @@ class Project(Parameter_container):
             converge = False
             n_iter = 0
             while (not converge and n_iter < self.parameter("n_max_iteration").value):
-                n_iter += 1
-                if self._iteration_(i, date, daylight_saving):
+                if self._iteration_(i, date, daylight_saving,n_iter):
                     converge = True
+                n_iter += 1
             self._sim_df.at[i, "n_iterations"] = n_iter
             self._post_iteration_(i, date, daylight_saving, converge)
             date = date + dt.timedelta(0, delta_t)
@@ -402,10 +402,10 @@ class Project(Parameter_container):
         for comp in self._ordered_component_list_:
             comp.pre_iteration(time_index, date, dayligth_saving)
 
-    def _iteration_(self, time_index, date, dayligth_saving):
+    def _iteration_(self, time_index, date, dayligth_saving, n_iter):
         converge = True
         for comp in self._ordered_component_list_:
-            if not comp.iteration(time_index, date, dayligth_saving):
+            if not comp.iteration(time_index, date, dayligth_saving, n_iter):
                 self._sim_df.at[time_index, "last_component"] = comp.parameter("name").value
                 converge = False
         return converge

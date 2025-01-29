@@ -164,7 +164,7 @@ class Component(Parameter_container):
                         self.variable(
                             value.symbol[i]).values[time_index] = value.variable[i].values[time_index]
 
-    def iteration(self, time_index, date, daylight_saving):
+    def iteration(self, time_index, date, daylight_saving, n_iter):
         return True
 
     def post_iteration(self, time_index, date, daylight_saving, converged):

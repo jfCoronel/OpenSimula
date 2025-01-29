@@ -594,16 +594,9 @@ class Building(Component):
             self.KZS_matrix, np.matmul(self.KS_inv_matrix, self.FS_vector)
         )
 
-    def iteration(self, time_index, date, daylight_saving):
-        super().iteration(time_index, date, daylight_saving)
-        # if self._first_iteration:  # Only in the 1st iteration
-        #     #self._calculate_Q_dir(time_index)
-        #     self._calculate_FS_vector(time_index)
-        #     self._calculate_FIN_WS_matrices(time_index)
-        #     self._update_space_K_F(time_index)
-        #     self._first_iteration = False
-        #     return False # Force iteration
-        # else:
+    def iteration(self, time_index, date, daylight_saving, n_iter):
+        super().iteration(time_index, date, daylight_saving, n_iter)
+      
         self._update_space_K_F(time_index)
         self._store_surfaces_values(time_index)
         return True

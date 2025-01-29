@@ -97,8 +97,8 @@ class HVAC_perfect_system(Component):
             self._space.add_uncontrol_system_air_flow(air_flow)
 
 
-    def iteration(self, time_index, date, daylight_saving):
-        super().iteration(time_index, date, daylight_saving)
+    def iteration(self, time_index, date, daylight_saving, n_iter):
+        super().iteration(time_index, date, daylight_saving, n_iter)
         self._control_system = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }      
         if self._on_off: 
             self._control_system["Q"] = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)

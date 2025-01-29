@@ -123,14 +123,16 @@ class HVAC_DX_system(Component):
             self._on_off = True
         self._f_load_pre = self._f_load
         # Add uncontrolled ventilation to the space for perfect control
-        if self._on_off and self.parameter("control_type").value == "PERFECT":
+        #if self._on_off and self.parameter("control_type").value == "PERFECT":
+        if self._on_off:
             air_flow = {"name": self.parameter("name").value, "V": self._outdoor_air_flow, "T":self._T_odb, "w": self._w_o}
             self._space.add_uncontrol_system_air_flow(air_flow)
             self._M_w_pre = 0
 
     
-    def iteration(self, time_index, date, daylight_saving):
-        super().iteration(time_index, date, daylight_saving)
+    def iteration(self, time_index, date, daylight_saving, n_iter):
+        super().iteration(time_index, date, daylight_saving, n_iter)
+        control = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }
         if self._on_off:
             self._T_space = self._space.variable("temperature").values[time_index]
             self._w_space = self._space.variable("abs_humidity").values[time_index]
@@ -140,7 +142,7 @@ class HVAC_DX_system(Component):
                 control= self._perfect_control()    
             elif self.parameter("control_type").value == "TEMPERATURE":
                 control = self._air_temperature_control()
-            self._space.set_control_system(control)
+        self._space.set_control_system(control)
         return True
 
     def _mix_air(self, f, T1, w1, T2, w2):
@@ -186,56 +188,82 @@ class HVAC_DX_system(Component):
         return control    
                         
     def _air_temperature_control(self):
-        if (self._T_space >= self._T_cool_sp + self._cool_band/2):
-            f_load = -1
-        elif (self._T_space >= self._T_cool_sp - self._cool_band/2):
-            f_load = ((self._T_cool_sp - self._cool_band/2)-self._T_space ) / self._cool_band    
-        elif (self._T_space >= self._T_heat_sp + self._heat_band/2):
-            f_load = 0
-        elif (self._T_space >= self._T_heat_sp - self._heat_band/2):
-            f_load = ((self._T_heat_sp + self._heat_band/2) - self._T_space) / self._heat_band
-        else:
-            f_load = 1
+        K_tot, F_tot =  self._space._calculate_K_F_tot(False) # Space Equation
+        T_flo = F_tot/K_tot
+        self._M_w = 0
 
-        self._f_load = self._r_coef * f_load + (1-self._r_coef)*self._f_load_pre
-        self._f_load_pre = self._f_load
+        if (T_flo >= self._T_cool_sp - self._cool_band/2):
+            tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb, self._f_air)
+            T_max_cap = (F_tot - sen_cool_cap) / K_tot
+            self._state = 2
+            if T_max_cap > self._T_cool_sp + self._cool_band/2:
+                self._f_load = -1 
+                self._Q_sen = sen_cool_cap
+            else:
+                T_c = (F_tot+sen_cool_cap*(self._T_cool_sp - self._cool_band/2)/self._cool_band)/(K_tot + sen_cool_cap /self._cool_band)
+                self._Q_sen = K_tot * T_c - F_tot
+                self._f_load = self._Q_sen / sen_cool_cap
+            self._Q_tot = tot_cool_cap*self._f_load 
+            self._M_w = (self._Q_tot - self._Q_sen) / self.DH_W  
+        elif (T_flo >= self._T_heat_sp + self._heat_band/2):
+            self._f_load = 0
+            self._state = 3
+        else:
+            heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
+            T_max_cap = (F_tot + heat_cap) / K_tot
+            self._state = 1
+            if T_max_cap < self._T_heat_sp - self._heat_band/2:
+                self._f_load = 1 
+                self._Q_sen = heat_cap
+            else:
+                T_c = (F_tot+heat_cap*(self._T_heat_sp + self._heat_band/2)/self._heat_band)/(K_tot + heat_cap /self._heat_band)
+                self._Q_sen = K_tot * T_c - F_tot
+                self._f_load = self._Q_sen / heat_cap
+
+           
+
+        #self._f_load = self._r_coef * f_load + (1-self._r_coef)*self._f_load_pre
+        #self._f_load_pre = self._f_load
 
         # Supply air
+        control = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }
         # Venting
-        self._T_supply = self._T_idb
-        self._w_supply = self._w_i
-        self._Q_sen = 0
-        self._state = 3
-        if self._f_load > 0: # Heating
-            heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
-            if heat_cap > 0:
-                self._Q_sen = heat_cap * self._f_load
-                self._T_supply = self._Q_sen / self._mrcp + self._T_idb
-                self._w_supply = self._w_i
-                self._state = 1
-            else:
-                self._state = 3
-                self._f_load = 0
-        elif self._f_load < 0: # Cooling
-            tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb, self._f_air)
-            if sen_cool_cap > 0:
-                self._Q_sen = -sen_cool_cap * self._f_load
-                self._Q_tot = -tot_cool_cap*self._f_load           
-                self._T_supply = self._T_idb - self._Q_sen / self._mrcp
-                self._w_supply = self._w_i - (self._Q_tot - self._Q_sen) / self._mrdh 
-                self._state = 2
-            else:
-                self._state = 3
-                self._f_load = 0
-        control = {"V": self._supply_air_flow, "T": self._T_supply, "w":self.w_supply, "Q":0, "M":0 }
+        # self._T_supply = self._T_idb
+        # self._w_supply = self._w_i
+        # self._Q_sen = 0
+        # self._state = 3
+        # if self._f_load > 0: # Heating
+        #     heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
+        #     if heat_cap > 0:
+        #         self._Q_sen = heat_cap * self._f_load
+        #         #self._T_supply = self._Q_sen / self._mrcp + self._T_idb
+        #         #self._w_supply = self._w_i
+        #         self._state = 1
+        #     else:
+        #         self._state = 3
+        #         self._f_load = 0
+        # elif self._f_load < 0: # Cooling
+        #     tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb, self._f_air)
+        #     if sen_cool_cap > 0:
+        #         self._Q_sen = sen_cool_cap * self._f_load
+            #     self._Q_tot = tot_cool_cap*self._f_load   
+
+            #     #self._T_supply = self._T_idb - self._Q_sen / self._mrcp
+            #     #self._w_supply = self._w_i - (self._Q_tot - self._Q_sen) / self._mrdh 
+            #     self._M_w = (self._Q_tot - self._Q_sen) / self.DH_W
+            #     self._state = 2
+            # else:
+            #     self._state = 3
+            #     self._f_load = 0
+        control["Q"] = self._Q_sen
+        control["M"] = self._M_w
         return control
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
         self.variable("state").values[time_index] = self._state
-        if self.parameter("control_type").value == "PERFECT":
-            self._T_supply = self._Q_sen/self._mrcp + self._T_idb
-            self._w_supply = self._M_w/self._supply_air_flow +self._w_i 
+        self._T_supply = self._Q_sen/self._mrcp + self._T_idb
+        self._w_supply = self._M_w/self._supply_air_flow +self._w_i 
         if self._state != 0 : # on
             self.variable("T_idb").values[time_index] = self._T_idb
             self.variable("T_iwb").values[time_index] = self._T_iwb

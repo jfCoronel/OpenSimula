@@ -73,6 +73,8 @@ class Space(Component):
         self._create_surfaces_list() # surfaces, sides
         self._create_ff_matrix() # ff_matrix
         self._create_dist_vectors() # dsr_dist_vector, ig_dist_vector
+        self.uncontrol_systems = []
+        self.control_system = {"V": 0, "T": 0, "w":0, "Q": 0, "M": 0} # V (m^3/s), T (°C), w (g/kg), Q (W), M (gr H2O)
 
     def _create_surfaces_list(self):
         self.surfaces = []
@@ -218,9 +220,10 @@ class Space(Component):
         exp = self._space_type_comp.variable("infiltration_rate").values[time_index]     
         V_inf = self._volume * exp / 3600          
         self.variable("infiltration_flow").values[time_index] = V_inf
+        # Usar inicialmente el mismo sistema del instante anterior
         # Systems air flows
-        self.uncontrol_systems = []
-        self.control_system = {"V": 0, "T": 0, "w":0, "Q": 0, "M": 0} # V (m^3/s), T (°C), w (g/kg), Q (W), M (gr H2O)
+        # self.uncontrol_systems = []
+        # self.control_system = {"V": 0, "T": 0, "w":0, "Q": 0, "M": 0} # V (m^3/s), T (°C), w (g/kg), Q (W), M (gr H2O)
         # Initial values
         self._estimate_T_w(time_index)
         # Humidity balance
@@ -242,14 +245,9 @@ class Space(Component):
         self._T = self._T_pre
         self._w = self._w_pre
 
-    def iteration(self, time_index, date, daylight_saving):
-        super().iteration(time_index, date, daylight_saving)
-        # Calculate shadows only once
-        # if self._first_iteration:
-        #     self._calculate_solar_direct_gains(time_index)
-        #     self._first_iteration = False
-        #     return False
-        # else:
+    def iteration(self, time_index, date, daylight_saving, n_iter):
+        super().iteration(time_index, date, daylight_saving, n_iter)
+
         # Calculate temperature
         K_tot,F_tot = self._calculate_K_F_tot(True)
         T = F_tot/K_tot
@@ -293,6 +291,7 @@ class Space(Component):
         rho = self.building().RHO
         c_p = self.building().C_P
         self._acumulate_u_systems()
+        # F_OS may be updated by de building in each iteration
         F_tot = self.K_F["F"]+self.K_F["F_OS"] + self._V_T_u_systems * rho * c_p
         K_tot = self.K_F["K"] + self._V_u_systems * rho * c_p
         if include_control_system:

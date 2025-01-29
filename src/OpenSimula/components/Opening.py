@@ -136,27 +136,6 @@ class Opening(Component):
         else:
             self.variable("E_dir_tra").values[time_index] = 0
 
-
-    def iteration(self, time_index, date, daylight_saving):
-        super().iteration(time_index, date, daylight_saving)
-        # Calculate shadows only once
-        # if not self._shadow_calculated:
-        #     sunny_fracion = self.building().get_direct_sunny_fraction(self)
-        #     E_dir = self.variable("E_dir").values[time_index] * sunny_fracion
-        #     theta = self.variable("theta_sun").values[time_index]
-        #     self.variable("E_dir").values[time_index] = E_dir
-        #     if E_dir > 0:
-        #         self.variable("E_dir_tra").values[time_index] = E_dir * \
-        #             self.radiant_property("tau", "solar_direct", 0, theta)
-        #         self.variable("q_sol0").values[time_index] += self.radiant_property(
-        #             "alpha", "solar_direct", 0, theta) * E_dir
-        #         self.variable("q_sol1").values[time_index] += self.radiant_property(
-        #             "alpha_other_side", "solar_direct", 0, theta) * E_dir
-        #     else:
-        #         self.variable("E_dir_tra").values[time_index] = 0
-        #     self._shadow_calculated = True
-        return True
-
     def _f_setback_(self, time_i, azimuth_sur, altitude_sur):
         theta_h = math.fabs(self._file_met.variable(
             "sol_azimuth").values[time_i] - azimuth_sur)
