@@ -18,7 +18,7 @@ class Space(Component):
         self.add_parameter(Parameter_float("volume", 1, "m³", min=0.0))
         self.add_parameter(Parameter_float("furniture_weight", 10, "kg/m²", min=0.0))
         self.add_parameter(Parameter_float("convergence_DT", 0.01, "°C", min=0.0))
-        self.add_parameter(Parameter_float("convergence_Dw", 0.01, "g/kg", min=0.0))
+        self.add_parameter(Parameter_float("convergence_Dw", 0.001, "g/kg", min=0.0))
 
         # Variables
         self.add_variable(Variable("temperature", unit="°C"))

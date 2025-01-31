@@ -127,7 +127,7 @@ class Project(Parameter_container):
                     else:
                         msg = self._get_error_header_(
                         ) + f'Component does not contain "type" parameter {component}'
-                        self._sim_print(msg)
+                        self._sim_.print(msg)
             else:
                 if key in self._parameters_:
                     self.parameter(key).value = value

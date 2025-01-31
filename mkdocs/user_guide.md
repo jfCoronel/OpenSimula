@@ -207,7 +207,7 @@ The parameters will be defined as Python dictionary keys (or json format files),
 - Parameter_string: String of characters, e.g.: `"name": "Project 1"`.
 - Parameter_boolean: True or False value, e.g.: `"simplified_definition": False`.
 - Parameter_int: Integer value, e.g.: `"time_step": 3600`.
-- Parameter_float: Floating point value, e.g.: `"conducticity": 1.8`.
+- Parameter_float: Floating point value, e.g.: `"conductivity": 1.8`.
 - Parameter_options: character string included in a closed option list, e.g.: `"file_type": "EXCEL"`.
 - Parameter_component: Reference to another component, e.g.: `"meteo_file": "Sevilla"`.
 - Parameter_variable: This parameter is used to create a variable in the component by copying it from another component. A new name is defined and the unit will be taken from the original variable. e.g.: `"input_variables": "t_1 = meteo.temperature"`, a variable called "t_1" will be created which is a copy of the variable "temperature" of the component "meteo".  

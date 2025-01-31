@@ -21,7 +21,7 @@ class HVAC_DX_system(Component):
         self.add_parameter(Parameter_options("control_type", "PERFECT", ["PERFECT", "TEMPERATURE"]))
         self.add_parameter(Parameter_float("cooling_bandwidth", 1, "ºC", min=0))
         self.add_parameter(Parameter_float("heating_bandwidth", 1, "ºC", min=0))
-        self.add_parameter(Parameter_float("relaxing_coefficient", 0.1, "frac", min=0, max=1))
+        self.add_parameter(Parameter_float("relaxing_coefficient", 0.5, "frac", min=0, max=1))
 
         # Variables
         self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Cooling, 3: Venting 
@@ -122,8 +122,8 @@ class HVAC_DX_system(Component):
         else:
             self._on_off = True
         self._f_load_pre = self._f_load
-        # Add uncontrolled ventilation to the space for perfect control
-        #if self._on_off and self.parameter("control_type").value == "PERFECT":
+
+        # Add uncontrolled ventilation to the space
         if self._on_off:
             air_flow = {"name": self.parameter("name").value, "V": self._outdoor_air_flow, "T":self._T_odb, "w": self._w_o}
             self._space.add_uncontrol_system_air_flow(air_flow)
@@ -191,6 +191,7 @@ class HVAC_DX_system(Component):
         K_tot, F_tot =  self._space._calculate_K_F_tot(False) # Space Equation
         T_flo = F_tot/K_tot
         self._M_w = 0
+        self._Q_sen = 0
 
         if (T_flo >= self._T_cool_sp - self._cool_band/2):
             tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb, self._f_air)
@@ -207,11 +208,14 @@ class HVAC_DX_system(Component):
             self._M_w = (self._Q_tot - self._Q_sen) / self.DH_W  
         elif (T_flo >= self._T_heat_sp + self._heat_band/2):
             self._f_load = 0
+            self._Q_sen = 0
+            self._M_w = 0
             self._state = 3
         else:
             heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
             T_max_cap = (F_tot + heat_cap) / K_tot
             self._state = 1
+            self._M_w = 0
             if T_max_cap < self._T_heat_sp - self._heat_band/2:
                 self._f_load = 1 
                 self._Q_sen = heat_cap
@@ -220,41 +224,8 @@ class HVAC_DX_system(Component):
                 self._Q_sen = K_tot * T_c - F_tot
                 self._f_load = self._Q_sen / heat_cap
 
-           
-
-        #self._f_load = self._r_coef * f_load + (1-self._r_coef)*self._f_load_pre
-        #self._f_load_pre = self._f_load
-
         # Supply air
         control = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }
-        # Venting
-        # self._T_supply = self._T_idb
-        # self._w_supply = self._w_i
-        # self._Q_sen = 0
-        # self._state = 3
-        # if self._f_load > 0: # Heating
-        #     heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
-        #     if heat_cap > 0:
-        #         self._Q_sen = heat_cap * self._f_load
-        #         #self._T_supply = self._Q_sen / self._mrcp + self._T_idb
-        #         #self._w_supply = self._w_i
-        #         self._state = 1
-        #     else:
-        #         self._state = 3
-        #         self._f_load = 0
-        # elif self._f_load < 0: # Cooling
-        #     tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb, self._f_air)
-        #     if sen_cool_cap > 0:
-        #         self._Q_sen = sen_cool_cap * self._f_load
-            #     self._Q_tot = tot_cool_cap*self._f_load   
-
-            #     #self._T_supply = self._T_idb - self._Q_sen / self._mrcp
-            #     #self._w_supply = self._w_i - (self._Q_tot - self._Q_sen) / self._mrdh 
-            #     self._M_w = (self._Q_tot - self._Q_sen) / self.DH_W
-            #     self._state = 2
-            # else:
-            #     self._state = 3
-            #     self._f_load = 0
         control["Q"] = self._Q_sen
         control["M"] = self._M_w
         return control

@@ -73,13 +73,15 @@ This equipment can be used for one or more HVAC systems.
 - **COP_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the COP, defined as heating load supplied by de equipment divided by de electric power consumption, of the equipment in conditions different from the nominal ones. This expression should reflect the partial load behavior of the equipment.
 - **dry_coil_model** [_option_, default = "SENSIBLE", options = ["SENSIBLE","TOTAL","INTERPOLATION"]]: When calculating the total and sensible capacity of the equipment under non-nominal conditions, it is possible that the total capacity is lower than the sensible capacity. In such a case it will be assumed that the coil does not dehumidify and that the total capacity is equal to the sensible capacity. We will use for both values the value of the sensible if the chosen option is “SENSIBLE” and the total if the chosen option is “TOTAL”.
 - **power_dry_coil_correction** [_boolean_, default = True]: When the total and sensible power are equal, dry coil, the power expression may be incorrect. If this parameter is activated the simulation will look for the wet bulb temperature that makes the total and sensible capacities equal and use that temperature in the expression that corrects the cooling power.
+- **expression_max_values** [_float-list_, unit = "-", default = [60,30,60,30,1.5,1]]: Maximum values allowed in the mathematical expressions. The order is [ _T_idb_ [ºC] , _T_iwb_ [ºC] ,_T_odb_ [ºC], _T_owb_ [ºC], _F_air_ [frac], _F_load_ [frac] ]. If any variable exceeds these values, the maximum value is taken.
+- **expression_min_values** [_float-list_, unit = "-", default = [0,0,-30,-30,0,0]]: Minimum values allowed in the mathematical expressions. The order is [ _T_idb_ [ºC] , _T_iwb_ [ºC] ,_T_odb_ [ºC], _T_owb_ [ºC], _F_air_ [frac], _F_load_ [frac] ]. If any variable is lower than these values, the minimum value is taken.
 
 All mathematical expressions can include the following independent variables.
 
-- _T_odb_ [ºC]: Outdoor dry bulb temperature.
-- _T_owb_ [ºC]: Outdoor wet bulb temperature.
 - _T_idb_ [ºC]: Indoor dry bulb temperature, at the coil inlet of the indoor unit.
 - _T_iwb_ [ºC]: Indoor wet bulb temperature, at the coil inlet of the indoor unit.
+- _T_odb_ [ºC]: Outdoor dry bulb temperature.
+- _T_owb_ [ºC]: Outdoor wet bulb temperature.
 - _F_air_ [frac]: Actual supply air flow divided by nominal supply air flow.
 
 "EER_expression" and "COP_expression" may also include the variable _F_load_, 
@@ -128,7 +130,11 @@ Component for the simulation of an air-conditioning system for a space and using
 - **control_type** [_option_, default = "PERFECT", options = ["PERFECT","TEMPERATURE"]]: Type of control used, for the case ‘PERFECT’ the system will maintain exactly the desired temperature in the space, provided it has sufficient capacity. For the ‘TEMPERATURE’ case the power supplied by the system is calculated through a linear regulation law with the room temperature using the thermostat bandwidths, see figure below.
 - **cooling_bandwidth** [_float_, unit = "ºC", default = 1, min = 0]: Bandwidth used in case _control_type_ is set to "TEMPERATURE" for the cooling setpoint.
 - **heating_bandwidth** [_float_, unit = "ºC", default = 1, min = 0]: Bandwidth used in case _control_type_ is set to "TEMPERATURE" for the heating setpoint.
-- **relaxing_coefficient** [_float_, unit = "frac", default = 0.1, min = 0, max =1]: Relaxation coefficient used for convergence in the case where ‘control_type’ is set to ‘TEMPERATURE’, causing the load variation supplied by the system to change more slowly between each of the iterations within the same time step.
+- **relaxing_coefficient** [_float_, unit = "frac", default = 0.5, min = 0, max =1]: Relaxation coefficient used for space humidity convergence in the case where ‘control_type’ is set to ‘PERFECT’, accelerating convergence as a function of the latent load supplied by the equipment.
+
+If outside air (ventilation) is present, it is introduced into the space as ‘uncontrolled system heat’, and the load values associated with the ventilation can be viewed in the space.
+
+The following figure shows the control equations used for the different ranges as a function of space temperature. This control is the one used if the parameter ‘control_type’ is set to ‘TEMPERATURE’.
 
 ![control_type_temperature](img/control_type_temperature.png)
 
