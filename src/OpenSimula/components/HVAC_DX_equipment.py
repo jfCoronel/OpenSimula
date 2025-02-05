@@ -79,13 +79,14 @@ class HVAC_DX_equipment(Component):
                 power_full = self._get_correct_cooling_power(total_capacity,sensible_capacity,var_dic)
 
                 EER_full = total_capacity/power_full
-                EER = EER_full * self.parameter("EER_expression").evaluate(var_dic) 
+                F_EER = self.parameter("EER_expression").evaluate(var_dic) 
+                EER = EER_full * F_EER 
                 power = total_capacity*F_load/EER
-                return (total_capacity*F_load, sensible_capacity*F_load, power)
+                return (total_capacity*F_load, sensible_capacity*F_load, power, F_EER)
             else:
-                return ( 0 , 0 , self.parameter("no_load_power").value )
+                return ( 0 , 0 , self.parameter("no_load_power").value, 0 )
         else:
-            return (0,0,0)
+            return (0,0,0,0)
         
     def _get_correct_cooling_power(self,total_capacity, sensible_capacity, var_dic):
         power = self.parameter("nominal_cooling_power").value
@@ -115,13 +116,14 @@ class HVAC_DX_equipment(Component):
                 power_full = self.parameter("nominal_heating_power").value
                 power_full = power_full * self.parameter("heating_power_expression").evaluate(var_dic)
                 COP_full = capacity/power_full
-                COP = COP_full * self.parameter("COP_expression").evaluate(var_dic) 
+                F_COP = self.parameter("COP_expression").evaluate(var_dic) 
+                COP = COP_full * F_COP
                 power = capacity*F_load/COP
-                return (capacity*F_load, power)
+                return (capacity*F_load, power, F_COP)
             else:
-                return (0,self.parameter("no_load_power").value)
+                return (0,self.parameter("no_load_power").value, 0)
         else:
-            return (0,0)
+            return (0,0,0)
     
     def _var_state_dic(self, values):
         max = self.parameter("expression_max_values").value

@@ -40,6 +40,7 @@ class HVAC_DX_system(Component):
         self.add_variable(Variable("cooling_setpoint", unit="°C"))
         self.add_variable(Variable("EER", unit="frac"))
         self.add_variable(Variable("COP", unit="frac"))
+        self.add_variable(Variable("efficiency_degradation", unit="frac"))
 
 
          # Sicro
@@ -148,7 +149,11 @@ class HVAC_DX_system(Component):
     def _mix_air(self, f, T1, w1, T2, w2):
         T = f * T1 + (1-f)*T2
         w = f * w1 + (1-f)*w2
-        return (T,w,sicro.GetTWetBulbFromHumRatio(T,w/1000,self.ATM_PRESSURE))        
+        if (T > 100):
+            T_wb = 50 # Inventado
+        else:
+            T_wb = sicro.GetTWetBulbFromHumRatio(T,w/1000,self.ATM_PRESSURE)
+        return (T,w,T_wb)        
     
     def _perfect_control(self):
         Q_required = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
@@ -243,15 +248,18 @@ class HVAC_DX_system(Component):
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
             if self._state == 1: # Heating
-                Q,power = self._equipment.get_heating_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,self._f_load)
+                Q,power,F_COP = self._equipment.get_heating_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,self._f_load)
                 self.variable("Q_sensible").values[time_index] = Q
                 self.variable("power").values[time_index] = power
                 if power>0:
                     self.variable("COP").values[time_index] = Q/power
+                    self.variable("efficiency_degradation").values[time_index] = F_COP
+                    
             elif self._state == 2: #Cooling
-                Q_t,Q_s,power = self._equipment.get_cooling_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,-self._f_load)
+                Q_t,Q_s,power,F_EER = self._equipment.get_cooling_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,-self._f_load)
                 self.variable("Q_sensible").values[time_index] = -Q_s
                 self.variable("Q_latent").values[time_index] = -(Q_t - Q_s)
                 self.variable("power").values[time_index] = power
-                if power>0:
+                if power>0: 
                     self.variable("EER").values[time_index] = Q_t/power
+                    self.variable("efficiency_degradation").values[time_index] = F_EER
