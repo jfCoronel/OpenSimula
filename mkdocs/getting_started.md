@@ -31,7 +31,7 @@ OpenSimula uses in different parts of the code the following Python packages, wh
 First we are going to define a Python dictionary that contains the information of our project:
 
 <pre><code class="python">
-project_dic = {
+project_dict = {
     "name": "First example project",
     "time_step": 3600,
     "n_time_steps": 24*365,
@@ -110,8 +110,8 @@ To simulate this project that we have defined, we first import the OpenSimula.Si
 import OpenSimula.Simulation as Simulation
 
 sim = Simulation()
-pro = sim.new_project("pro")
-pro.read_dict(project_dic)
+pro = sim.new_project("First example project")
+pro.read_dict(project_dict)
 pro.simulate()
 </code></pre>
 
@@ -122,7 +122,18 @@ Reading project data from dictonary
 Reading completed.
 Checking project: First example project
 ok
-Simulation: 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%  End
+Simulating First example project: ...
+10%: N_iter: 1.00
+20%: N_iter: 1.00
+30%: N_iter: 1.00
+40%: N_iter: 1.00
+50%: N_iter: 1.00
+60%: N_iter: 1.00
+70%: N_iter: 1.00
+80%: N_iter: 1.00
+90%: N_iter: 1.00
+100%: N_iter: 1.00
+Simulation completed.
 </code></pre>
 
 After the simulation, each of the components will have its time variables calculated. In our case the `year` component has a temporary variable called `values` that we can obtain. the Simulation.plot function can be used to draw an interactive graph (plotly library), the first argument are the dates of the simulation steps (pro.dates() return the array of simulated dates) and the second a list of the varibles to draw.

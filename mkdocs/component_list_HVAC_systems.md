@@ -46,7 +46,7 @@ After the simulation we will have the following variables of this component:
 - __cooling_setpoint__ [°C]: Cooling setpoint temperature.
 - __humififying_setpoint__ [%]: Low relative humidity setpoint.
 - __dehumidifying_setpoint__ [%]: High relative humidity setpoint.
-- __state__ [flag]: Operation of the system: off (0), heating (1), colling (2), venting (3).
+- __state__ [flag]: Operation of the system: off (0), heating (1), colling (-1), venting (3).
 
 ### HVAC_DX_equipment
 
@@ -130,7 +130,7 @@ Component for the simulation of an air-conditioning system for a space and using
 - **control_type** [_option_, default = "PERFECT", options = ["PERFECT","TEMPERATURE"]]: Type of control used, for the case ‘PERFECT’ the system will maintain exactly the desired temperature in the space, provided it has sufficient capacity. For the ‘TEMPERATURE’ case the power supplied by the system is calculated through a linear regulation law with the room temperature using the thermostat bandwidths, see figure below.
 - **cooling_bandwidth** [_float_, unit = "ºC", default = 1, min = 0]: Bandwidth used in case _control_type_ is set to "TEMPERATURE" for the cooling setpoint.
 - **heating_bandwidth** [_float_, unit = "ºC", default = 1, min = 0]: Bandwidth used in case _control_type_ is set to "TEMPERATURE" for the heating setpoint.
-- **relaxing_coefficient** [_float_, unit = "frac", default = 0.5, min = 0, max =1]: Relaxation coefficient used for space humidity convergence in the case where ‘control_type’ is set to ‘PERFECT’, accelerating convergence as a function of the latent load supplied by the equipment.
+- **relaxing_coefficient** [_float_, unit = "frac", default = 0.5, min = 0, max =1]: Relaxation coefficient used for space temperature and humidity convergence in the case where ‘control_type’ is set to ‘PERFECT’. The equipment provides a sensible and latent power the average between the one obtained in the previous iteration and the one obtained in the current iteration. Thus for a relaxing coefficient of 1 the last calculated power will be used and for 0.5 an average between the previous iteration and the current one. The use of this coefficient smoothes the change in system operation between iteration and iteration. If it is detected that the instant does not converge, the system will progressively reduce the coefficient to help convergence.
 
 If outside air (ventilation) is present, it is introduced into the space as ‘uncontrolled system heat’, and the load values associated with the ventilation can be viewed in the space.
 
@@ -165,7 +165,7 @@ After the simulation we will have the following variables of this component:
 - __Q_latent__ [W]: Latent heat supplied by the system, negative for dehumidification.
 - __heating_setpoint__ [°C]: Heating setpoint temperature.
 - __cooling_setpoint__ [°C]: Cooling setpoint temperature.
-- __state__ [flag]: Operation of the system: off (0), heating (1), colling (2), venting (3).
+- __state__ [flag]: Operation of the system: off (0), heating (1), heating at maximum capacity (2), colling (-1), cooling at maximum capacity (-2), venting (3).
 - __power__ [W]: Electrical power consumed by the system.
 - __EER__ [frac]: System efficiency ratio for cooling, defined as the total thermal load supplied divided by the electrical power consumed.
 - __COP__ [frac]: System efficiency ratio for heating, defined as the thermal load supplied divided by the electrical power consumed.
@@ -175,9 +175,10 @@ After the simulation we will have the following variables of this component:
 - __T_iwb__ [ºC]: Indoor wet bulb temperature, at the coil inlet of the indoor unit.
 - __F_air__ [frac]: Actual supply air flow divided by nominal supply air flow.
 - __F_load__ [frac]: Partial load state of the system, calculated as the thermal power 
-supplied at a given instant divided by the cooling or heating capacity at the current operation conditions.
+supplied at a given instant divided by the cooling or heating capacity at the current operation conditions. Positive for heating and negative for cooling
 - __T_supply__ [ºC]: Supply air dry bulb temperature.
 - __w_supply__ [g/kg]: Supply air absolute humidity.
+- __efficiency_degradation__ [frac]: EER or COP degradation factor obtained from the _EER_expression_ or _COP_expression_ of the equipment.
 
 
 

@@ -24,7 +24,7 @@ class HVAC_DX_system(Component):
         self.add_parameter(Parameter_float("relaxing_coefficient", 0.5, "frac", min=0, max=1))
 
         # Variables
-        self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Cooling, 3: Venting 
+        self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Heating max cap, -1:Cooling, -2:Cooling max cap, 3: Venting 
         self.add_variable(Variable("T_odb", unit="°C"))
         self.add_variable(Variable("T_owb", unit="°C"))
         self.add_variable(Variable("T_idb", unit="°C"))
@@ -94,6 +94,7 @@ class HVAC_DX_system(Component):
                 self.parameter("input_variables").variable[i])
         self._f_load = 0
         self._r_coef = self.parameter("relaxing_coefficient").value
+        self._n_max_iter = self.project().parameter("n_max_iteration").value
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -129,7 +130,8 @@ class HVAC_DX_system(Component):
             air_flow = {"name": self.parameter("name").value, "V": self._outdoor_air_flow, "T":self._T_odb, "w": self._w_o}
             self._space.add_uncontrol_system_air_flow(air_flow)
             self._M_w_pre = 0
-
+            self._Q_sen_pre = 0
+            self._f_load_pre = 0
     
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
@@ -140,7 +142,7 @@ class HVAC_DX_system(Component):
             # Mix air
             self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_space, self._w_space)
             if self.parameter("control_type").value == "PERFECT":
-                control= self._perfect_control()    
+                control= self._perfect_control(n_iter)    
             elif self.parameter("control_type").value == "TEMPERATURE":
                 control = self._air_temperature_control()
         self._space.set_control_system(control)
@@ -155,39 +157,48 @@ class HVAC_DX_system(Component):
             T_wb = sicro.GetTWetBulbFromHumRatio(T,w/1000,self.ATM_PRESSURE)
         return (T,w,T_wb)        
     
-    def _perfect_control(self):
+    def _perfect_control(self, n_iter):
         Q_required = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
         control = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }
         # Venting
-        self._f_load = 0
-        self._state = 3
-        self._Q_sen = 0
+        state = 3
+        f_load = 0
+        Q_sen = 0
         M_w = 0
         if Q_required > 0: # Heating    
             heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
             if heat_cap > 0:
-                self._state = 1
-                self._f_load = Q_required/heat_cap
-                if self._f_load > 1:
-                    self._Q_sen = heat_cap
-                    self._f_load = 1
+                if Q_required > heat_cap:
+                    state = 1
+                    Q_sen = heat_cap
+                    f_load = Q_sen/heat_cap
                 else:
-                    self._Q_sen = Q_required
+                    state = 2
+                    Q_sen = Q_required
+                    f_load = 1
         elif Q_required < 0: # Cooling
             tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb,self._f_air)
             if sen_cool_cap > 0:
-                self._state = 2
-                self._f_load = Q_required/sen_cool_cap
-                if self._f_load < -1:
-                    self._Q_sen = -sen_cool_cap
-                    self._f_load = -1
+                if -Q_required > sen_cool_cap:
+                    state = -2
+                    Q_sen = -sen_cool_cap
+                    Q_tot = -tot_cool_cap
+                    f_load = -1
                 else:
-                    self._Q_sen = Q_required     
-                   
-                self._Q_total = tot_cool_cap*self._f_load
-                M_w = (self._Q_total - self._Q_sen) / self.DH_W
-        self._M_w = self._r_coef * M_w + (1-self._r_coef)*self._M_w_pre
+                    state = -1
+                    Q_sen = Q_required  
+                    f_load = Q_sen/sen_cool_cap                     
+                    Q_tot = tot_cool_cap*f_load
+                M_w = (Q_tot - Q_sen) / self.DH_W
+        # relaxing coef        
+        r_coef = (0.01-self._r_coef)/self._n_max_iter * n_iter + self._r_coef
+        self._M_w = r_coef * M_w + (1-r_coef)*self._M_w_pre # Always relaxing
+        self._Q_sen = r_coef * Q_sen + (1-r_coef)*self._Q_sen_pre
+        self._f_load = r_coef * f_load + (1-r_coef)*self._f_load_pre
+        self._state = state
         self._M_w_pre = self._M_w
+        self._Q_sen_pre = self._Q_sen
+        self._f_load_pre = self._f_load
         control["Q"] = self._Q_sen
         control["M"] = self._M_w
         return control    
@@ -201,11 +212,12 @@ class HVAC_DX_system(Component):
         if (T_flo >= self._T_cool_sp - self._cool_band/2):
             tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb, self._f_air)
             T_max_cap = (F_tot - sen_cool_cap) / K_tot
-            self._state = 2
             if T_max_cap > self._T_cool_sp + self._cool_band/2:
+                self._state = -2
                 self._f_load = -1 
                 self._Q_sen = sen_cool_cap
             else:
+                self._state = -1
                 T_c = (F_tot+sen_cool_cap*(self._T_cool_sp - self._cool_band/2)/self._cool_band)/(K_tot + sen_cool_cap /self._cool_band)
                 self._Q_sen = K_tot * T_c - F_tot
                 self._f_load = self._Q_sen / sen_cool_cap
@@ -219,15 +231,16 @@ class HVAC_DX_system(Component):
         else:
             heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
             T_max_cap = (F_tot + heat_cap) / K_tot
-            self._state = 1
             self._M_w = 0
             if T_max_cap < self._T_heat_sp - self._heat_band/2:
+                self._state = 2
                 self._f_load = 1 
                 self._Q_sen = heat_cap
             else:
                 T_c = (F_tot+heat_cap*(self._T_heat_sp + self._heat_band/2)/self._heat_band)/(K_tot + heat_cap /self._heat_band)
                 self._Q_sen = K_tot * T_c - F_tot
                 self._f_load = self._Q_sen / heat_cap
+                self._state = 1
 
         # Supply air
         control = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }
@@ -247,7 +260,7 @@ class HVAC_DX_system(Component):
             self.variable("w_supply").values[time_index] = self._w_supply
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
-            if self._state == 1: # Heating
+            if self._state == 1 or self._state == 2: # Heating
                 Q,power,F_COP = self._equipment.get_heating_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,self._f_load)
                 self.variable("Q_sensible").values[time_index] = Q
                 self.variable("power").values[time_index] = power
@@ -255,7 +268,7 @@ class HVAC_DX_system(Component):
                     self.variable("COP").values[time_index] = Q/power
                     self.variable("efficiency_degradation").values[time_index] = F_COP
                     
-            elif self._state == 2: #Cooling
+            elif self._state == -1 or self._state == -2: #Cooling
                 Q_t,Q_s,power,F_EER = self._equipment.get_cooling_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,-self._f_load)
                 self.variable("Q_sensible").values[time_index] = -Q_s
                 self.variable("Q_latent").values[time_index] = -(Q_t - Q_s)

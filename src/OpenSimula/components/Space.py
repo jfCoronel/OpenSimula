@@ -222,8 +222,8 @@ class Space(Component):
         self.variable("infiltration_flow").values[time_index] = V_inf
         # Usar inicialmente el mismo sistema del instante anterior
         # Systems air flows
-        # self.uncontrol_systems = []
-        # self.control_system = {"V": 0, "T": 0, "w":0, "Q": 0, "M": 0} # V (m^3/s), T (°C), w (g/kg), Q (W), M (gr H2O)
+        self.uncontrol_systems = []
+        self.control_system = {"V": 0, "T": 0, "w":0, "Q": 0, "M": 0} # V (m^3/s), T (°C), w (g/kg), Q (W), M (gr H2O)
         # Initial values
         self._estimate_T_w(time_index)
         # Humidity balance
@@ -247,6 +247,7 @@ class Space(Component):
 
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
+        force_iteration = False
 
         # Calculate temperature
         K_tot,F_tot = self._calculate_K_F_tot(True)
@@ -261,12 +262,17 @@ class Space(Component):
             max_hum = sicro.GetHumRatioFromRelHum(T, 1, self.building().ATM_PRESSURE)*1000
             if (w > max_hum):
                 self.variable("abs_humidity").values[time_index] = max_hum
+                force_iteration = True
             else:
                 self.variable("abs_humidity").values[time_index] = w
         else:
             self.variable("abs_humidity").values[time_index] = w
         # Test convergence
-        return self._converged(time_index)
+        converged = self._converged(time_index)
+        if force_iteration:
+            return False
+        else:
+            return converged
 
     def _calculate_solar_direct(self, time_i):
         solar_gain = 0

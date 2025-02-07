@@ -26,7 +26,7 @@ class HVAC_perfect_system(Component):
         self.add_variable(Variable("cooling_setpoint", unit="°C"))
         self.add_variable(Variable("humidifying_setpoint", unit="%"))
         self.add_variable(Variable("dehumidifying_setpoint", unit="%"))
-        self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Cooling, 3: Venting 
+        self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, -1: Cooling, 3: Venting 
 
          # Sicro
         sicro.SetUnitSystem(sicro.SI)
@@ -115,7 +115,7 @@ class HVAC_perfect_system(Component):
             if Q > 0: # Heating, Cooling or Venting
                 self.variable("state").values[time_index] = 1
             elif Q < 0:
-                self.variable("state").values[time_index] = 2
+                self.variable("state").values[time_index] = -1
             else:
                 self.variable("state").values[time_index] = 3
 

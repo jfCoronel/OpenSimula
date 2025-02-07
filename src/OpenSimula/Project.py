@@ -341,7 +341,7 @@ class Project(Parameter_container):
 
         return errors
 
-    def simulate(self):
+    def simulate(self, show_percentage = 10):
         """Project Time Simulation"""
         n = self.parameter("n_time_steps").value
         date = dt.datetime.strptime(
@@ -361,16 +361,15 @@ class Project(Parameter_container):
         self._sim_df["n_iterations"] = 0
         self._sim_df["last_component"] = "None"
 
-        self._sim_.print(
-            f"Simulating {self.parameter('name').value}: ", add_new_line=False
-        )
+        self._sim_.print(f"Simulating {self.parameter('name').value}: ...")
 
-        show_percent = 10.0
+        show_percent = show_percentage
+        n_iter_acum = 0
         for i in range(n):
             if ((100.0*(i+1) / n) >= show_percent):
-                self._sim_.print(str(int(show_percent)) +
-                                 "% ", add_new_line=False)
-                show_percent = show_percent + 10.0
+                self._sim_.print(f"{int(show_percent)}%: N_iter: {(n_iter_acum/(n*show_percentage/100)):.2f}")
+                show_percent = show_percent + show_percentage
+                n_iter_acum = 0
             daylight_saving = False
             if (self.parameter("daylight_saving").value):
                 if (date > date_dls_start and date < date_dls_end):
@@ -384,10 +383,11 @@ class Project(Parameter_container):
                     converge = True
                 n_iter += 1
             self._sim_df.at[i, "n_iterations"] = n_iter
+            n_iter_acum += n_iter
             self._post_iteration_(i, date, daylight_saving, converge)
             date = date + dt.timedelta(0, delta_t)
 
-        self._sim_.print(" End")
+        self._sim_.print("Simulation completed.")
         self._post_simulation_()
 
     def _pre_simulation_(self, n_time_steps, delta_t):

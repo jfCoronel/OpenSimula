@@ -50,9 +50,9 @@ information generated during the simulation.
 
 This is the list of changes to OpenSimula between each release. For full details, see the commit logs.
 
- __Version 0.2__
+ __Current Version 0.3.1__
 
-- 0.2.0 (January 1, 2025): First implementation for the building definition components and the HVAC_perfect_system
 - 0.3.1 (January 24, 2025): Implementation HVAC_DX_system and HVAC_DX_equipment
+- 0.2.0 (January 1, 2025): First implementation for the building definition components and the HVAC_perfect_system
 
 _© JFC 2025_

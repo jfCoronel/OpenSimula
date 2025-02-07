@@ -1,8 +1,9 @@
 import OpenSimula as osm
 import pandas as pd
+import numpy as np
 
-case_ce100_dict = {
-    "name": "Case CE100",
+case_ce200_dict = {
+    "name": "Case CE200",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -11,7 +12,7 @@ case_ce100_dict = {
             "type": "File_met",
             "name": "T_ext_cte",
             "file_type": "TMY2",
-            "file_name": "test/CE100A.TM2"
+            "file_name": "test/CE200A.TM2"
         },    
         {
             "type": "Material",
@@ -37,8 +38,9 @@ case_ce100_dict = {
             "name": "constant_gain_space",
             "people_density": "0",
             "light_density": "0",
-            "other_gains_density": "112.5",
+            "other_gains_density": "165.35",
             "other_gains_radiant_fraction": 0,
+            "other_gains_latent_fraction": 0.22893,
             "infiltration": "0"
         },
         {
@@ -196,17 +198,16 @@ case_ce100_dict = {
             "supply_air_flow": 0.4248,
             "outdoor_air_flow": 0,
             "heating_setpoint": "20",
-            "cooling_setpoint": "22.2",
+            "cooling_setpoint": "26.7",
             "system_on_off": "1",
             "control_type": "PERFECT",
-            "relaxing_coefficient": 0.1
+            "relaxing_coefficient": 0.2
         }
     ]
 }
 
 
-
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case_ce100_dict)
-pro.simulate()
+pro.read_dict(case_ce200_dict)
+pro.simulate(1)
