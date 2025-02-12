@@ -260,6 +260,8 @@ class HVAC_DX_system(Component):
             self.variable("w_supply").values[time_index] = self._w_supply
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
+            self.variable("power").values[time_index] = self._equipment.parameter("no_load_power").value
+
             if self._state == 1 or self._state == 2: # Heating
                 Q,power,F_COP = self._equipment.get_heating_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,self._f_load)
                 self.variable("Q_sensible").values[time_index] = Q

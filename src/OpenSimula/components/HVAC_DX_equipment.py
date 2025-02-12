@@ -81,7 +81,7 @@ class HVAC_DX_equipment(Component):
                 EER_full = total_capacity/power_full
                 F_EER = self.parameter("EER_expression").evaluate(var_dic) 
                 EER = EER_full * F_EER 
-                power = total_capacity*F_load/EER
+                power = total_capacity*F_load/EER + self.parameter("no_load_power").value
                 return (total_capacity*F_load, sensible_capacity*F_load, power, F_EER)
             else:
                 return ( 0 , 0 , self.parameter("no_load_power").value, 0 )
@@ -118,7 +118,7 @@ class HVAC_DX_equipment(Component):
                 COP_full = capacity/power_full
                 F_COP = self.parameter("COP_expression").evaluate(var_dic) 
                 COP = COP_full * F_COP
-                power = capacity*F_load/COP
+                power = capacity*F_load/COP + + self.parameter("no_load_power").value
                 return (capacity*F_load, power, F_COP)
             else:
                 return (0,self.parameter("no_load_power").value, 0)
