@@ -58,15 +58,16 @@ This equipment can be used for one or more HVAC systems.
 - **nominal_air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Nominal supply air flow.
 - **nominal_total_cooling_capacity** [_float_, unit = "W", default = 0, min = 0]: Total cooling capacity at nominal cooling conditions.
 - **nominal_sensible_cooling_capacity** [_float_, unit = "W", default = 0, min = 0]: Sensible cooling capacity at nominal cooling conditions.
-- **nominal_cooling_power** [_float_, unit = "W", default = 0, min = 0]: Electrical power consumed by the equipment at nominal cooling conditions. It must include all the consumptions: compressor, external fan, internal fan, etc.
-- **no_load_power** [_float_, unit = "W", default = 0, min = 0]: Electrical power consumed by the equipment at times when it does not supply thermal load.
+- **nominal_cooling_power** [_float_, unit = "W", default = 0, min = 0]: Electrical power consumed by the equipment at nominal cooling conditions. It must include all the consumptions: compressor, external fan, etc. except the power specified in “no_load_power”.
+- **no_load_power** [_float_, unit = "W", default = 0, min = 0]: Electrical power consumed by the equipment at all times (even when the coil is not operating). This consumption is added to that obtained with the mathematical expressions when there is a load.
+- **no_load_heat** [_float_, unit = "W", default = 0, min = 0]: Heat added to the air stream at all times (even when the coil is not operating), e.g., heat added by the supply fan.
 - **nominal_cooling_conditions** [_float-list_, unit = "ºC", default = [27, 19, 35]]: Nominal cooling conditions, in order: indoor dry bulb temperature, indoor wet bulb temperature, outdoor dry bulb temperature.
 - **total_cooling_capacity_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the total cooling capacity of the equipment in conditions different from the nominal ones. 
 - **sensible_cooling_capacity_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the sensible cooling capacity of the equipment in conditions different from the nominal ones.
 - **cooling_power_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the electric power consumption at cooling full load operation of the equipment in conditions different from the nominal ones.
 - **EER_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the EER, defined as cooling total load supplied by de equipment divided by de electric power consumption, of the equipment in conditions different from the nominal ones. This expression should reflect the partial load behavior of the equipment.
 - **nominal_heating_capacity** [_float_, unit = "W", default = 0, min = 0]: Heating capacity at nominal heating conditions.
-- **nominal_heating_power** [_float_, unit = "W", default = 0, min = 0]: Electrical power consumed by the equipment at nominal heating conditions. It must include all the consumptions: compressor, external fan, internal fan, etc.
+- **nominal_heating_power** [_float_, unit = "W", default = 0, min = 0]: Electrical power consumed by the equipment at nominal heating conditions. It must include all the consumptions: compressor, external fan, etc, except the power specified in “no_load_power”.
 - **nominal_heating_conditions** [_float-list_, unit = "ºC", default = [20, 7, 6]]: Nominal heating conditions, in order: indoor dry bulb temperature, outdoor dry bulb temperature, outdoor wet bulb temperature.
 - **heating_capacity_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the heating capacity of the equipment in conditions different from the nominal ones. 
 - **heating_power_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the electric power consumption at heating full load operation of the equipment in conditions different from the nominal ones.
@@ -100,6 +101,7 @@ param = {
             "nominal_sensible_cooling_capacity": 4800,
             "nominal_cooling_power": 2400,
             "no_load_power": 240,
+            "no_load_heat": 240,
             "total_cooling_capacity_expression": "0.88078 + 0.014248 * T_iwb + 0.00055436 * T_iwb^2 - 0.0075581 * T_odb +	3.2983E-05 * T_odb^2 - 0.00019171 * T_odb * T_iwb",
             "sensible_cooling_capacity_expression": "0.50060 - 0.046438 * T_iwb - 0.00032472 * T_iwb^2 - 0.013202 * T_odb + 7.9307E-05 * T_odb^2 + 0.069958 * T_idb - 3.4276E-05 * T_idb^2",
             "cooling_power_expression": "0.11178 + 0.028493 * T_iwb - 0.00041116 * T_iwb^2 + 0.021414 * T_odb + 0.00016113 * T_odb^2 - 0.00067910 * T_odb * T_iwb",
@@ -132,7 +134,7 @@ Component for the simulation of an air-conditioning system for a space and using
 - **heating_bandwidth** [_float_, unit = "ºC", default = 1, min = 0]: Bandwidth used in case _control_type_ is set to "TEMPERATURE" for the heating setpoint.
 - **relaxing_coefficient** [_float_, unit = "frac", default = 0.5, min = 0, max =1]: Relaxation coefficient used for space temperature and humidity convergence in the case where ‘control_type’ is set to ‘PERFECT’. The equipment provides a sensible and latent power the average between the one obtained in the previous iteration and the one obtained in the current iteration. Thus for a relaxing coefficient of 1 the last calculated power will be used and for 0.5 an average between the previous iteration and the current one. The use of this coefficient smoothes the change in system operation between iteration and iteration. If it is detected that the instant does not converge, the system will progressively reduce the coefficient to help convergence.
 
-If outside air (ventilation) is present, it is introduced into the space as ‘uncontrolled system heat’, and the load values associated with the ventilation can be viewed in the space.
+If outside air (ventilation) is present, and the "no_load_heat" specified at the equipment, it is introduced into the space as ‘uncontrolled system heat’, so these loads can be viewed at the space.
 
 The following figure shows the control equations used for the different ranges as a function of space temperature. This control is the one used if the parameter ‘control_type’ is set to ‘TEMPERATURE’.
 

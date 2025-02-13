@@ -1,200 +1,153 @@
 import OpenSimula.Simulation as Simulation
-import pandas as pd
-import numpy as np
-
-case_ce300_dict = {
-    "name": "Case CE300",
+case610_dict = {
+    "name": "Case 610",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
     "components": [
         {
             "type": "File_met",
-            "name": "meteo",
-            "file_type": "TMY2",
-            "file_name": "test/CE300.TM2"
-        },    
+            "name": "Denver",
+            "file_type": "TMY3",
+            "file_name": "test/WD100.tmy3"
+        },
+        {
+            "type": "Material",
+            "name": "Plasterboard",
+            "conductivity": 0.16,
+            "density": 950,
+            "specific_heat": 840
+        },
+        {
+            "type": "Material",
+            "name": "Fiberglass_quilt",
+            "conductivity": 0.04,
+            "density": 12,
+            "specific_heat": 840
+        },
+        {
+            "type": "Material",
+            "name": "Wood_siding",
+            "conductivity": 0.14,
+            "density": 530,
+            "specific_heat": 900
+        },
         {
             "type": "Material",
             "name": "Insulation",
-            "conductivity": 0.00308,
-            "density": 1,
-            "specific_heat": 1
+            "conductivity": 0.04,
+            "density": 0.1,
+            "specific_heat": 0.1
+        },
+        {
+            "type": "Material",
+            "name": "Timber_flooring",
+            "conductivity": 0.14,
+            "density": 650,
+            "specific_heat": 1200
+        },
+        {
+            "type": "Material",
+            "name": "Roofdeck",
+            "conductivity": 0.14,
+            "density": 530,
+            "specific_heat": 900
         },
         {
             "type": "Construction",
-            "name": "Adiabatic_Wall",
-            "solar_alpha": [0.1,0.6],
-            "lw_epsilon": [0.9,0.9],
+            "name": "Wall",
+            "solar_alpha": [
+                0.6,
+                0.6
+            ],
             "materials": [
-                "Insulation"
+                "Wood_siding",
+                "Fiberglass_quilt",
+                "Plasterboard"
             ],
             "thicknesses": [
-                1.0
+                0.009,
+                0.066,
+                0.012
             ]
         },
         {
-            "type": "Day_schedule",
-            "name": "latent_day_1",
-            "time_steps": [8*3600, 12*3600],
-            "values": [0, 0.25, 0],
-            "interpolation": "STEP",
+            "type": "Construction",
+            "name": "Floor",
+            "solar_alpha": [
+                0,
+                0.6
+            ],
+            "materials": [
+                "Insulation",
+                "Timber_flooring"
+            ],
+            "thicknesses": [
+                1.003,
+                0.025
+            ]
         },
         {
-            "type": "Day_schedule",
-            "name": "latent_day_2",
-            "time_steps": [9*3600, 9*3600],
-            "values": [0, 1, 0],
-            "interpolation": "STEP",
+            "type": "Construction",
+            "name": "Roof",
+            "solar_alpha": [
+                0.6,
+                0.6
+            ],
+            "materials": [
+                "Roofdeck",
+                "Fiberglass_quilt",
+                "Plasterboard"
+            ],
+            "thicknesses": [
+                0.019,
+                0.1118,
+                0.010
+            ]
         },
         {
-            "type": "Day_schedule",
-            "name": "latent_day_3",
-            "time_steps": [8*3600, 11*3600],
-            "values": [0, 1, 0],
-            "interpolation": "STEP",
+            "type": "Glazing",
+            "name": "double_glazing",
+            "solar_tau": 0.703,
+            "solar_rho": [
+                0.128,
+                0.128
+            ],
+            "g": [
+                0.769,
+                0.769
+            ],
+            "lw_epsilon": [
+                0.84,
+                0.84
+            ],
+            "U": 2.722,
+            "f_tau_nor": "-0.1175 * cos_theta^3 - 1.0295 * cos_theta^2 + 2.1354 * cos_theta",
+            "f_1_minus_rho_nor": [
+                "1.114 * cos_theta^3 - 3.209 * cos_theta^2 + 3.095 * cos_theta",
+                "1.114 * cos_theta^3 - 3.209 * cos_theta^2 + 3.095 * cos_theta"
+            ]
         },
         {
-            "type": "Day_schedule",
-            "name": "latent_day_4",
-            "time_steps": [8*3600, 12*3600],
-            "values": [0, 1, 0],
-            "interpolation": "STEP",
-        },
-        {
-            "type": "Day_schedule",
-            "name": "latent_day_5",
-            "time_steps": [8*3600, 8*3600],
-            "values": [0, 1, 0],
-            "interpolation": "STEP",
-        },
-        {
-            "type": "Day_schedule",
-            "name": "sensible_day_1",
-            "time_steps": [],
-            "values": [0.15625],
-            "interpolation": "STEP",
-        },
-        {
-            "type": "Day_schedule",
-            "name": "sensible_day_2",
-            "time_steps": [9*3600, 9*3600],
-            "values": [0.15625, 0.375, 0.15625],
-            "interpolation": "STEP",
-        },
-        {
-            "type": "Day_schedule",
-            "name": "sensible_day_3",
-            "time_steps": [8*3600, 11*3600],
-            "values": [0.15625, 0.5, 0.15625],
-            "interpolation": "STEP",
-        },
-        {
-            "type": "Day_schedule",
-            "name": "sensible_day_4",
-            "time_steps": [8*3600, 4*3600, 2*3600, 2*3600, 4*3600],
-            "values": [0.375, 0.5, 0.75, 1, 0.5, 0.375],
-            "interpolation": "STEP",
-        },
-        {
-            "type": "Day_schedule",
-            "name": "sensible_day_5",
-            "time_steps": [8*3600, 8*3600],
-            "values": [0.15625, 0.5, 0.15625],
-            "interpolation": "STEP",
-        },
-        {
-            "type": "Week_schedule",
-            "name": "latent_week_1",
-            "days_schedules": ["latent_day_1"],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "latent_week_2",
-            "days_schedules": ["latent_day_2"],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "latent_week_3",
-            "days_schedules": ["latent_day_3"],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "latent_week_4",
-            "days_schedules": ["latent_day_4"],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "latent_week_5",
-            "days_schedules": ["latent_day_5"],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "sensible_week_1",
-            "days_schedules": ["sensible_day_1"],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "sensible_week_2",
-            "days_schedules": ["sensible_day_2"],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "sensible_week_3",
-            "days_schedules": ["sensible_day_3"],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "sensible_week_4",
-            "days_schedules": ["sensible_day_4"],
-        },
-        {
-            "type": "Week_schedule",
-            "name": "sensible_week_5",
-            "days_schedules": ["sensible_day_5"],
-        },
-        {
-            "type": "Year_schedule",
-            "name": "latent_schedule",
-            "periods": ["11/03", "11/04","12/04","21/04","13/10","19/10","06/11"],
-            "weeks_schedules": ["latent_week_1"
-                                , "latent_week_2"
-                                , "latent_week_1"
-                                , "latent_week_3"
-                                , "latent_week_4"
-                                , "latent_week_5"
-                                , "latent_week_4"
-                                , "latent_week_1"],
-        },
-        {
-            "type": "Year_schedule",
-            "name": "sensible_schedule",
-            "periods": ["11/03", "11/04","12/04","21/04","13/10","19/10","06/11"],
-            "weeks_schedules": ["sensible_week_1"
-                                , "sensible_week_2"
-                                , "sensible_week_1"
-                                , "sensible_week_3"
-                                , "sensible_week_4"
-                                , "sensible_week_5"
-                                , "sensible_week_4"
-                                , "sensible_week_1"],
+            "type": "Opening_type",
+            "name": "Window",
+            "glazing": "double_glazing",
+            "frame_fraction": 0,
+            "glazing_fraction": 1
         },
         {
             "type": "Space_type",
-            "name": "space_gains",
-            "input_variables": ["f_l = latent_schedule.values","f_s = sensible_schedule.values"],
-            "people_density": "f_l",
-            "people_sensible": 0,
-            "people_latent": 7.4796,            
+            "name": "constant_gain_space",
+            "people_density": "0",
             "light_density": "0",
-            "other_gains_density": "95.704*f_s",
-            "other_gains_radiant_fraction": 0,
-            "infiltration": "0"
+            "other_gains_density": "4.1667",
+            "other_gains_radiant_fraction": 0.6,
+            "infiltration": "0.5"
         },
         {
             "type": "Building",
             "name": "Building",
-            "file_met": "meteo",
+            "file_met": "Denver",
             "albedo": 0.2,
             "azimuth": 0,
             "shadow_calculation": "INSTANT"
@@ -203,159 +156,208 @@ case_ce300_dict = {
             "type": "Space",
             "name": "space_1",
             "building": "Building",
-            "space_type": "space_gains",
-            "floor_area": 196,
-            "volume": 588,
+            "space_type": "constant_gain_space",
+            "floor_area": 48,
+            "volume": 129.6,
             "furniture_weight": 0
         },
         {
             "type": "Exterior_surface",
             "name": "north_wall",
-            "construction": "Adiabatic_Wall",
+            "construction": "Wall",
             "space": "space_1",
             "ref_point": [
-                14,
-                14,
+                8,
+                6,
                 0
             ],
-            "width": 14,
-            "height": 3,
+            "width": 8,
+            "height": 2.7,
             "azimuth": 180,
             "altitude": 0,
             "h_cv": [
-                24.17,
-                3.16
+                11.9,
+                2.2
             ]
         },
         {
             "type": "Exterior_surface",
             "name": "east_wall",
-            "construction": "Adiabatic_Wall",
+            "construction": "Wall",
             "space": "space_1",
             "ref_point": [
-                14,
+                8,
                 0,
                 0
             ],
-            "width": 14,
-            "height": 3,
+            "width": 6,
+            "height": 2.7,
             "azimuth": 90,
             "altitude": 0,
-             "h_cv": [
-                24.17,
-                3.16
+            "h_cv": [
+                11.9,
+                2.2
             ]
         },
         {
             "type": "Exterior_surface",
             "name": "south_wall",
-            "construction": "Adiabatic_Wall",
+            "construction": "Wall",
             "space": "space_1",
             "ref_point": [
                 0,
                 0,
                 0
             ],
-            "width": 14,
-            "height": 3,
+            "width": 8,
+            "height": 2.7,
             "azimuth": 0,
             "altitude": 0,
-             "h_cv": [
-                24.17,
-                3.16
+            "h_cv": [
+                11.9,
+                2.2
+            ]
+        },
+        {
+            "type": "Opening",
+            "name": "south_window_1",
+            "surface": "south_wall",
+            "opening_type": "Window",
+            "ref_point": [
+                0.5,
+                0.2
+            ],
+            "width": 3,
+            "height": 2,
+            "h_cv": [
+                8.0,
+                2.4
+            ]
+        },
+        {
+            "type": "Opening",
+            "name": "south_window_2",
+            "surface": "south_wall",
+            "opening_type": "Window",
+            "ref_point": [
+                4.5,
+                0.2
+            ],
+            "width": 3,
+            "height": 2,
+            "h_cv": [
+                8.0,
+                2.4
             ]
         },
         {
             "type": "Exterior_surface",
             "name": "west_wall",
-            "construction": "Adiabatic_Wall",
+            "construction": "Wall",
             "space": "space_1",
             "ref_point": [
                 0,
-                14,
+                6,
                 0
             ],
-            "width": 14,
-            "height": 3,
+            "width": 6,
+            "height": 2.7,
             "azimuth": -90,
             "altitude": 0,
-             "h_cv": [
-                24.17,
-                3.16
+            "h_cv": [
+                11.9,
+                2.2
             ]
         },
         {
             "type": "Exterior_surface",
             "name": "roof_wall",
-            "construction": "Adiabatic_Wall",
+            "construction": "Roof",
             "space": "space_1",
             "ref_point": [
                 0,
                 0,
-                3
+                2.7
             ],
-            "width": 14,
-            "height": 14,
+            "width": 8,
+            "height": 6,
             "azimuth": 0,
             "altitude": 90,
             "h_cv": [
-                24.17,
-                1.0
+                14.4,
+                1.8
             ]
         },
         {
             "type": "Exterior_surface",
             "name": "floor_wall",
-            "construction": "Adiabatic_Wall",
+            "construction": "Floor",
             "space": "space_1",
             "ref_point": [
                 0,
-                14,
+                6,
                 0
             ],
-            "width": 14,
-            "height": 14,
+            "width": 8,
+            "height": 6,
             "azimuth": 0,
             "altitude": -90,
             "h_cv": [
-                24.17,
-                4.13
+                0.8,
+                2.2
             ]
+        },
+        {
+            "type": "Shadow_surface",
+            "name": "overhang",
+            "building": "Building",
+            "ref_point": [
+                0,
+                -1,
+                2.7
+            ],
+            "width": 8,
+            "height": 1,
+            "azimuth": 0,
+            "altitude": 90
         },
         {
             "type": "HVAC_DX_equipment",
             "name": "HVAC_equipment",
-            "nominal_air_flow": 1.888,
-            "nominal_total_cooling_capacity": 32035,
-            "nominal_sensible_cooling_capacity": 24800,
-            "nominal_cooling_power": 12179,
-            "no_load_power": 1242,
-            "nominal_cooling_conditions": [26.67,19.44,35],
-            "total_cooling_capacity_expression": "-3.9082e-03 * T_odb + 2.0166e-02 * T_iwb + 4.968e-03 * T_idb -2.634e-05 * T_odb^2 + 1.279e-03 * T_iwb^2 + 4.621e-04 * T_idb^2 -2.861e-04 * T_odb * T_iwb + 6.208e-05 * T_odb * T_idb -1.384e-03 * T_iwb * T_idb + 6.729e-01",
-            "sensible_cooling_capacity_expression": "-6.176e-03 * T_odb -6.233e-02 * T_iwb + 1.277e-01 * T_idb -2.294e-05 * T_odb^2 -2.687e-03 * T_iwb^2 -2.359e-03 * T_idb^2 + 3.739e-04 * T_odb * T_iwb -2.134e-04 * T_odb * T_idb + 3.316e-03 * T_iwb * T_idb  -7.535e-03",
-            "cooling_power_expression": "7.175e-03 * T_odb +6.088e-05 * T_iwb + 4.794e-04 * T_idb -1.909e-05 * T_odb^2 +4.443e-04 * T_iwb^2 +1.781e-04 * T_idb^2 + 1.734e-04 * T_odb * T_iwb +6.944e-05 * T_odb * T_idb -5.117e-04 * T_iwb * T_idb +5.490e-01",
-            "EER_expression": "1 - 0.229*(1-F_load)",
-            "expression_max_values": [27,22,50,30,1.5,1]
+            "nominal_air_flow": 0.417,
+            "nominal_total_cooling_capacity": 6900,
+            "nominal_sensible_cooling_capacity": 4800,
+            "nominal_cooling_power": 2400,
+            "no_load_power": 240,
+            "total_cooling_capacity_expression": "0.88078 + 0.014248 * T_iwb + 0.00055436 * T_iwb^2 - 0.0075581 * T_odb +	3.2983E-05 * T_odb^2 - 0.00019171 * T_odb * T_iwb",
+            "sensible_cooling_capacity_expression": "0.50060 - 0.046438 * T_iwb - 0.00032472 * T_iwb^2 - 0.013202 * T_odb + 7.9307E-05 * T_odb^2 + 0.069958 * T_idb - 3.4276E-05 * T_idb^2",
+            "cooling_power_expression": "0.11178 + 0.028493 * T_iwb - 0.00041116 * T_iwb^2 + 0.021414 * T_odb + 0.00016113 * T_odb^2 - 0.00067910 * T_odb * T_iwb",
+            "EER_expression": "0.20123 - 0.031218 * F_load + 1.9505 * F_load^2 - 1.1205 * F_load^3",
+            "nominal_heating_capacity": 6500,
+            "nominal_heating_power": 2825,
+            "heating_capacity_expression": "0.81474	+ 0.030682602 * T_owb + 3.2303E-05 * T_owb^2",
+            "heating_power_expression": "1.2012 - 0.040063 * T_owb + 0.0010877 * T_owb^2",
+            "COP_expression": "0.085652 + 0.93881 * F_load - 0.18344 * F_load^2 + 0.15897 * F_load^3"
         },
         {
             "type": "HVAC_DX_system",
             "name": "system",
             "space": "space_1",
-            "file_met": "meteo",
+            "file_met": "Denver",
             "equipment": "HVAC_equipment",
-            "supply_air_flow": 1.888,
-            "outdoor_air_flow": 0.2832,
+            "supply_air_flow": 0.417,
+            "outdoor_air_flow": 0,
             "heating_setpoint": "20",
-            "cooling_setpoint": "25",
+            "cooling_setpoint": "27",
             "system_on_off": "1",
             "control_type": "PERFECT",
-            "relaxing_coefficient": 1
         }
     ]
 }
 
 
 sim = Simulation()
+
 pro = sim.new_project("pro")
-pro.read_dict(case_ce300_dict)
-pro.simulate(5)
+pro.read_dict(case610_dict)
+pro.simulate()

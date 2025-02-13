@@ -332,6 +332,7 @@ case610_dict = {
             "nominal_sensible_cooling_capacity": 4800,
             "nominal_cooling_power": 2400,
             "no_load_power": 240,
+            "no_load_heat": 240,
             "total_cooling_capacity_expression": "0.88078 + 0.014248 * T_iwb + 0.00055436 * T_iwb^2 - 0.0075581 * T_odb +	3.2983E-05 * T_odb^2 - 0.00019171 * T_odb * T_iwb",
             "sensible_cooling_capacity_expression": "0.50060 - 0.046438 * T_iwb - 0.00032472 * T_iwb^2 - 0.013202 * T_odb + 7.9307E-05 * T_odb^2 + 0.069958 * T_idb - 3.4276E-05 * T_idb^2",
             "cooling_power_expression": "0.11178 + 0.028493 * T_iwb - 0.00041116 * T_iwb^2 + 0.021414 * T_odb + 0.00016113 * T_odb^2 - 0.00067910 * T_odb * T_iwb",
@@ -372,11 +373,11 @@ def test_HVAC_DX_system_perfect_control():
     peak_cooling = -load.min()/1000
     power = pro.component("system").variable("power").values.sum()/1e6
 
-    assert annual_heating == pytest.approx(4.6044372)
-    assert annual_cooling == pytest.approx(4.1749923)
-    assert peak_heating == pytest.approx(3.2190824)
-    assert peak_cooling == pytest.approx(5.4548135)
-    assert power == pytest.approx(13.20726)
+    assert annual_heating == pytest.approx(3.6560304331937825)
+    assert annual_cooling == pytest.approx(4.995925158420846)
+    assert peak_heating == pytest.approx(2.7618068481952265)
+    assert peak_cooling == pytest.approx(5.697458594846174)
+    assert power == pytest.approx(14.6153929785614)
 
 def test_HVAC_DX_system_temperature_control():
     sim = osm.Simulation()
@@ -392,8 +393,8 @@ def test_HVAC_DX_system_temperature_control():
     peak_cooling = -load.min()/1000
     power = pro.component("system").variable("power").values.sum()/1e6
 
-    assert annual_heating == pytest.approx(4.73364817)
-    assert annual_cooling == pytest.approx(4.308516099)
-    assert peak_heating == pytest.approx(3.21908248)
-    assert peak_cooling == pytest.approx(5.4211613)
-    assert power == pytest.approx(13.6156710)
+    assert annual_heating == pytest.approx(3.7697541890295887)
+    assert annual_cooling == pytest.approx(5.136670296818455)
+    assert peak_heating == pytest.approx(2.749886298191046)
+    assert peak_cooling == pytest.approx(5.665426376809872)
+    assert power == pytest.approx(14.998125240565537)

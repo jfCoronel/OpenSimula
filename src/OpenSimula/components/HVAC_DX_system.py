@@ -178,11 +178,11 @@ class HVAC_DX_system(Component):
                 if Q_required > heat_cap:
                     state = 1
                     Q_sen = heat_cap
-                    f_load = Q_sen/heat_cap
+                    f_load = 1
                 else:
                     state = 2
                     Q_sen = Q_required
-                    f_load = 1
+                    f_load = Q_sen/heat_cap
         elif Q_required < 0: # Cooling
             tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb,self._f_air)
             if sen_cool_cap > 0:
