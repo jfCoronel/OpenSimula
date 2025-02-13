@@ -95,6 +95,8 @@ class HVAC_DX_system(Component):
         self._f_load = 0
         self._r_coef = self.parameter("relaxing_coefficient").value
         self._n_max_iter = self.project().parameter("n_max_iteration").value
+        self._no_load_heat = self._equipment.parameter("no_load_heat").value
+        self._no_load_power = self._equipment.parameter("no_load_power").value
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -127,8 +129,13 @@ class HVAC_DX_system(Component):
 
         # Add uncontrolled ventilation to the space
         if self._on_off:
-            air_flow = {"name": self.parameter("name").value, "V": self._outdoor_air_flow, "T":self._T_odb, "w": self._w_o}
-            self._space.add_uncontrol_system_air_flow(air_flow)
+            system_dic = {"name": self.parameter("name").value, 
+                          "V": self._outdoor_air_flow, 
+                          "T":self._T_odb, 
+                          "w": self._w_o, 
+                          "Q":self._no_load_heat,
+                          "M": 0}
+            self._space.add_uncontrol_system(system_dic)
             self._M_w_pre = 0
             self._Q_sen_pre = 0
             self._f_load_pre = 0
@@ -260,7 +267,7 @@ class HVAC_DX_system(Component):
             self.variable("w_supply").values[time_index] = self._w_supply
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
-            self.variable("power").values[time_index] = self._equipment.parameter("no_load_power").value
+            self.variable("power").values[time_index] = self._no_load_power
 
             if self._state == 1 or self._state == 2: # Heating
                 Q,power,F_COP = self._equipment.get_heating_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,self._f_load)

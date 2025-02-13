@@ -1,23 +1,23 @@
-import OpenSimula as osm
+import OpenSimula.Simulation as Simulation
 import pandas as pd
 import numpy as np
 
-case_ce200_dict = {
-    "name": "Case CE200",
+case_ce300_dict = {
+    "name": "Case CE300",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
     "components": [
         {
             "type": "File_met",
-            "name": "T_ext_cte",
+            "name": "meteo",
             "file_type": "TMY2",
-            "file_name": "test/CE200A.TM2"
+            "file_name": "test/CE300.TM2"
         },    
         {
             "type": "Material",
             "name": "Insulation",
-            "conductivity": 0.01,
+            "conductivity": 0.00308,
             "density": 1,
             "specific_heat": 1
         },
@@ -34,19 +34,167 @@ case_ce200_dict = {
             ]
         },
         {
+            "type": "Day_schedule",
+            "name": "latent_day_1",
+            "time_steps": [8*3600, 12*3600],
+            "values": [0, 0.25, 0],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "latent_day_2",
+            "time_steps": [9*3600, 9*3600],
+            "values": [0, 1, 0],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "latent_day_3",
+            "time_steps": [8*3600, 11*3600],
+            "values": [0, 1, 0],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "latent_day_4",
+            "time_steps": [8*3600, 12*3600],
+            "values": [0, 1, 0],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "latent_day_5",
+            "time_steps": [8*3600, 8*3600],
+            "values": [0, 1, 0],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "sensible_day_1",
+            "time_steps": [],
+            "values": [0.15625],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "sensible_day_2",
+            "time_steps": [9*3600, 9*3600],
+            "values": [0.15625, 0.375, 0.15625],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "sensible_day_3",
+            "time_steps": [8*3600, 11*3600],
+            "values": [0.15625, 0.5, 0.15625],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "sensible_day_4",
+            "time_steps": [8*3600, 4*3600, 2*3600, 2*3600, 4*3600],
+            "values": [0.375, 0.5, 0.75, 1, 0.5, 0.375],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "sensible_day_5",
+            "time_steps": [8*3600, 8*3600],
+            "values": [0.15625, 0.5, 0.15625],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Week_schedule",
+            "name": "latent_week_1",
+            "days_schedules": ["latent_day_1"],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "latent_week_2",
+            "days_schedules": ["latent_day_2"],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "latent_week_3",
+            "days_schedules": ["latent_day_3"],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "latent_week_4",
+            "days_schedules": ["latent_day_4"],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "latent_week_5",
+            "days_schedules": ["latent_day_5"],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "sensible_week_1",
+            "days_schedules": ["sensible_day_1"],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "sensible_week_2",
+            "days_schedules": ["sensible_day_2"],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "sensible_week_3",
+            "days_schedules": ["sensible_day_3"],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "sensible_week_4",
+            "days_schedules": ["sensible_day_4"],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "sensible_week_5",
+            "days_schedules": ["sensible_day_5"],
+        },
+        {
+            "type": "Year_schedule",
+            "name": "latent_schedule",
+            "periods": ["11/03", "11/04","12/04","21/04","13/10","19/10","06/11"],
+            "weeks_schedules": ["latent_week_1"
+                                , "latent_week_2"
+                                , "latent_week_1"
+                                , "latent_week_3"
+                                , "latent_week_4"
+                                , "latent_week_5"
+                                , "latent_week_4"
+                                , "latent_week_1"],
+        },
+        {
+            "type": "Year_schedule",
+            "name": "sensible_schedule",
+            "periods": ["11/03", "11/04","12/04","21/04","13/10","19/10","06/11"],
+            "weeks_schedules": ["sensible_week_1"
+                                , "sensible_week_2"
+                                , "sensible_week_1"
+                                , "sensible_week_3"
+                                , "sensible_week_4"
+                                , "sensible_week_5"
+                                , "sensible_week_4"
+                                , "sensible_week_1"],
+        },
+        {
             "type": "Space_type",
-            "name": "constant_gain_space",
-            "people_density": "0",
+            "name": "space_gains",
+            "input_variables": ["f_l = latent_schedule.values","f_s = sensible_schedule.values"],
+            "people_density": "f_l",
+            "people_sensible": 0,
+            "people_latent": 7.4796,            
             "light_density": "0",
-            "other_gains_density": "165.35",
+            "other_gains_density": "95.704*f_s",
             "other_gains_radiant_fraction": 0,
-            "other_gains_latent_fraction": 0.22893,
             "infiltration": "0"
         },
         {
             "type": "Building",
             "name": "Building",
-            "file_met": "T_ext_cte",
+            "file_met": "meteo",
             "albedo": 0.2,
             "azimuth": 0,
             "shadow_calculation": "INSTANT"
@@ -55,9 +203,9 @@ case_ce200_dict = {
             "type": "Space",
             "name": "space_1",
             "building": "Building",
-            "space_type": "constant_gain_space",
-            "floor_area": 48,
-            "volume": 129.6,
+            "space_type": "space_gains",
+            "floor_area": 196,
+            "volume": 588,
             "furniture_weight": 0
         },
         {
@@ -66,12 +214,12 @@ case_ce200_dict = {
             "construction": "Adiabatic_Wall",
             "space": "space_1",
             "ref_point": [
-                8,
-                6,
+                14,
+                14,
                 0
             ],
-            "width": 8,
-            "height": 2.7,
+            "width": 14,
+            "height": 3,
             "azimuth": 180,
             "altitude": 0,
             "h_cv": [
@@ -85,12 +233,12 @@ case_ce200_dict = {
             "construction": "Adiabatic_Wall",
             "space": "space_1",
             "ref_point": [
-                8,
+                14,
                 0,
                 0
             ],
-            "width": 6,
-            "height": 2.7,
+            "width": 14,
+            "height": 3,
             "azimuth": 90,
             "altitude": 0,
              "h_cv": [
@@ -108,8 +256,8 @@ case_ce200_dict = {
                 0,
                 0
             ],
-            "width": 8,
-            "height": 2.7,
+            "width": 14,
+            "height": 3,
             "azimuth": 0,
             "altitude": 0,
              "h_cv": [
@@ -124,11 +272,11 @@ case_ce200_dict = {
             "space": "space_1",
             "ref_point": [
                 0,
-                6,
+                14,
                 0
             ],
-            "width": 6,
-            "height": 2.7,
+            "width": 14,
+            "height": 3,
             "azimuth": -90,
             "altitude": 0,
              "h_cv": [
@@ -144,10 +292,10 @@ case_ce200_dict = {
             "ref_point": [
                 0,
                 0,
-                2.7
+                3
             ],
-            "width": 8,
-            "height": 6,
+            "width": 14,
+            "height": 14,
             "azimuth": 0,
             "altitude": 90,
             "h_cv": [
@@ -162,11 +310,11 @@ case_ce200_dict = {
             "space": "space_1",
             "ref_point": [
                 0,
-                6,
+                14,
                 0
             ],
-            "width": 8,
-            "height": 6,
+            "width": 14,
+            "height": 14,
             "azimuth": 0,
             "altitude": -90,
             "h_cv": [
@@ -177,37 +325,37 @@ case_ce200_dict = {
         {
             "type": "HVAC_DX_equipment",
             "name": "HVAC_equipment",
-            "nominal_air_flow": 0.4248,
-            "nominal_total_cooling_capacity": 7951,
-            "nominal_sensible_cooling_capacity": 6136,
-            "nominal_cooling_power": 2198,
-            "no_load_power": 230,
-            "nominal_cooling_conditions": [26.7,19.4,35],
-            "total_cooling_capacity_expression": "9.099e-04 * T_odb + 4.351e-02 * T_iwb -3.475e-05 * T_odb^2 + 1.512e-04 * T_iwb^2 -4.703e-04 * T_odb * T_iwb + 4.281e-01",
-            "sensible_cooling_capacity_expression": "1.148e-03 * T_odb - 7.886e-02 * T_iwb + 1.044e-01 * T_idb - 4.117e-05 * T_odb^2 - 3.917e-03 * T_iwb^2 - 2.450e-03 * T_idb^2 + 4.042e-04 * T_odb * T_iwb - 4.762e-04 * T_odb * T_idb + 5.503e-03 * T_iwb * T_idb  + 2.903e-01",
-            "cooling_power_expression": "1.198e-02 * T_odb + 1.432e-02 * T_iwb + 5.656e-05 * T_odb^2 + 3.725e-05 * T_iwb^2 - 1.840e-04 * T_odb * T_iwb + 3.454e-01",
+            "nominal_air_flow": 1.888,
+            "nominal_total_cooling_capacity": 32035,
+            "nominal_sensible_cooling_capacity": 24800,
+            "nominal_cooling_power": 12179,
+            "no_load_power": 1242,
+            "nominal_cooling_conditions": [26.67,19.44,35],
+            "total_cooling_capacity_expression": "-3.9082e-03 * T_odb + 2.0166e-02 * T_iwb + 4.968e-03 * T_idb -2.634e-05 * T_odb^2 + 1.279e-03 * T_iwb^2 + 4.621e-04 * T_idb^2 -2.861e-04 * T_odb * T_iwb + 6.208e-05 * T_odb * T_idb -1.384e-03 * T_iwb * T_idb + 6.729e-01",
+            "sensible_cooling_capacity_expression": "-6.176e-03 * T_odb -6.233e-02 * T_iwb + 1.277e-01 * T_idb -2.294e-05 * T_odb^2 -2.687e-03 * T_iwb^2 -2.359e-03 * T_idb^2 + 3.739e-04 * T_odb * T_iwb -2.134e-04 * T_odb * T_idb + 3.316e-03 * T_iwb * T_idb  -7.535e-03",
+            "cooling_power_expression": "7.175e-03 * T_odb +6.088e-05 * T_iwb + 4.794e-04 * T_idb -1.909e-05 * T_odb^2 +4.443e-04 * T_iwb^2 +1.781e-04 * T_idb^2 + 1.734e-04 * T_odb * T_iwb +6.944e-05 * T_odb * T_idb -5.117e-04 * T_iwb * T_idb +5.490e-01",
             "EER_expression": "1 - 0.229*(1-F_load)",
-            "expression_max_values": [27,22,50,30,1,1]
+            "expression_max_values": [27,22,50,30,1.5,1]
         },
         {
             "type": "HVAC_DX_system",
             "name": "system",
             "space": "space_1",
-            "file_met": "T_ext_cte",
+            "file_met": "meteo",
             "equipment": "HVAC_equipment",
-            "supply_air_flow": 0.4248,
-            "outdoor_air_flow": 0,
+            "supply_air_flow": 1.888,
+            "outdoor_air_flow": 0.2832,
             "heating_setpoint": "20",
-            "cooling_setpoint": "26.7",
+            "cooling_setpoint": "25",
             "system_on_off": "1",
             "control_type": "PERFECT",
-            "relaxing_coefficient": 0.2
+            "relaxing_coefficient": 1
         }
     ]
 }
 
 
-sim = osm.Simulation()
+sim = Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case_ce200_dict)
-pro.simulate(1)
+pro.read_dict(case_ce300_dict)
+pro.simulate(5)

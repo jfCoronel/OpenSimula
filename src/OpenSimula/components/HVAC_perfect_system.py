@@ -93,8 +93,13 @@ class HVAC_perfect_system(Component):
 
         # Add uncontrolled ventilation to the space
         if self._on_off:
-            air_flow = {"name": self.parameter("name").value, "V": self._outdoor_air_flow, "T":self._T_odb, "w": self._w_o}
-            self._space.add_uncontrol_system_air_flow(air_flow)
+            system_dic = {"name": self.parameter("name").value, 
+                          "V": self._outdoor_air_flow, 
+                          "T":self._T_odb, 
+                          "w": self._w_o,
+                          "Q": 0,
+                          "M": 0}
+            self._space.add_uncontrol_system(system_dic)
 
 
     def iteration(self, time_index, date, daylight_saving, n_iter):

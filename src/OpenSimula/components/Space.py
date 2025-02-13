@@ -288,17 +288,21 @@ class Space(Component):
         self._V_u_systems = 0
         self._V_T_u_systems = 0
         self._V_w_u_systems = 0
+        self._Q_u_systems = 0
+        self._M_u_systems = 0
         for system in self.uncontrol_systems:
             self._V_u_systems += system["V"]
             self._V_T_u_systems += system["V"]*system["T"]
             self._V_w_u_systems += system["V"]*system["w"]
+            self._Q_u_systems += system["Q"]
+            self._M_u_systems += system["M"]
 
     def _calculate_K_F_tot(self, include_control_system):
         rho = self.building().RHO
         c_p = self.building().C_P
         self._acumulate_u_systems()
         # F_OS may be updated by de building in each iteration
-        F_tot = self.K_F["F"]+self.K_F["F_OS"] + self._V_T_u_systems * rho * c_p
+        F_tot = self.K_F["F"]+self.K_F["F_OS"] + self._V_T_u_systems * rho * c_p + self._Q_u_systems
         K_tot = self.K_F["K"] + self._V_u_systems * rho * c_p
         if include_control_system:
             K_tot += self.control_system["V"]*rho*c_p
@@ -309,7 +313,7 @@ class Space(Component):
         rho = self.building().RHO
         self._acumulate_u_systems()
         K_hum = self._K_hum + rho * self._V_u_systems
-        F_hum = self._F_hum + rho * self._V_w_u_systems
+        F_hum = self._F_hum + rho * self._V_w_u_systems + self._M_u_systems
         if include_control_system:
             K_hum += self.control_system["V"]*rho
             F_hum += self.control_system["V"]*rho*self.control_system["w"]  + self.control_system["M"]
@@ -350,11 +354,11 @@ class Space(Component):
         else:
             return 0
 
-    def add_uncontrol_system_air_flow(self,air_flow):
+    def add_uncontrol_system(self,system_dic):
         # Delete if exist
-        self.uncontrol_systems = [air for air in self.uncontrol_systems if air['name'] != air_flow["name"] ]
+        self.uncontrol_systems = [air for air in self.uncontrol_systems if air['name'] != system_dic["name"] ]
         # Append
-        self.uncontrol_systems.append(air_flow)
+        self.uncontrol_systems.append(system_dic)
     
     def set_control_system(self,system_dic):
         self.control_system = system_dic
