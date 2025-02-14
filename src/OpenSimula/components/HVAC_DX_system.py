@@ -13,7 +13,7 @@ class HVAC_DX_system(Component):
         self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
         self.add_parameter(Parameter_component("file_met", "not_defined", ["File_met"]))
         self.add_parameter(Parameter_float("supply_air_flow", 1, "m³/s", min=0))
-        self.add_parameter(Parameter_float("outdoor_air_flow", 0, "m³/s", min=0))
+        self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
         self.add_parameter(Parameter_math_exp("cooling_setpoint", "25", "°C"))
@@ -31,6 +31,7 @@ class HVAC_DX_system(Component):
         self.add_variable(Variable("T_iwb", unit="°C"))
         self.add_variable(Variable("F_air", unit="frac"))
         self.add_variable(Variable("F_load", unit="frac"))
+        self.add_variable(Variable("outdoor_air_flow", unit="m³/s"))
         self.add_variable(Variable("T_supply", unit="°C"))
         self.add_variable(Variable("w_supply", unit="°C"))
         self.add_variable(Variable("Q_sensible", unit="W"))
@@ -62,10 +63,6 @@ class HVAC_DX_system(Component):
         if self.parameter("file_met").value == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, file_met must be defined.")
-         # Test outdoor_air_flow
-        if self.parameter("outdoor_air_flow").value > self.parameter("supply_air_flow").value:
-            errors.append(
-                f"Error: {self.parameter('name').value}, outdoor_air_flow must be less than supply_air_flow.")
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -74,9 +71,7 @@ class HVAC_DX_system(Component):
         self._space = self.parameter("space").component
         self._file_met = self.parameter("file_met").component
         self._supply_air_flow = self.parameter("supply_air_flow").value
-        self._outdoor_air_flow = self.parameter("outdoor_air_flow").value
         self._f_air = self._supply_air_flow / self._equipment.parameter("nominal_air_flow").value
-        self._f_oa = self._outdoor_air_flow/self._supply_air_flow
         self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
         self.RHO_A = sicro.GetMoistAirDensity(20,0.0073,self.ATM_PRESSURE)
         self._m_supply =  self.RHO_A * self._supply_air_flow # V_imp * rho 
@@ -111,6 +106,11 @@ class HVAC_DX_system(Component):
         var_dic = {}
         for i in range(len(self.input_var_symbol)):
             var_dic[self.input_var_symbol[i]] = self.input_var_variable[i].values[time_index]
+
+        # outdoor air flow
+        self._outdoor_air_flow = self.parameter("outdoor_air_flow").evaluate(var_dic)
+        self.variable("outdoor_air_flow").values[time_index] = self._outdoor_air_flow
+        self._f_oa = self._outdoor_air_flow/self._supply_air_flow
 
         # setpoints
         self._T_heat_sp = self.parameter("heating_setpoint").evaluate(var_dic)
