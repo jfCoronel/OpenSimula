@@ -28,7 +28,7 @@ class Component(Parameter_container):
         self._variables_[variable.key] = variable
 
     def del_variable(self, variable):
-        self._variables_.remove(variable)
+        self._variables_.pop(variable.key,None)
 
     def variable(self, key):
         return self._variables_[key]

@@ -11,7 +11,7 @@ case600FF_dict = {
             "type": "File_met",
             "name": "Denver",
             "file_type": "TMY3",
-            "file_name": "test/WD100.tmy3"
+            "file_name": "mets/WD100.tmy3"
         },
         {
             "type": "Material",
