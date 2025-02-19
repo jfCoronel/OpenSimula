@@ -3,7 +3,6 @@ In a clean python version:
 - numpy
 - pandas
 - scipy
-- py-expression-eval
 - shapely
 - psychrolib
 - pyvista: 

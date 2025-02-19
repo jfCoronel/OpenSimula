@@ -1,5 +1,6 @@
 import sys
 #from py_expression_eval import Parser
+import math
 from OpenSimula.Child import Child
 
 # ___________________ Parameter _________________________
@@ -712,7 +713,7 @@ class Parameter_math_exp(Parameter):
 
     def evaluate(self, values_dic):
         try:
-            val = eval(self.value,values_dic)
+            val = eval(self.value,globals(),values_dic)
             return val
         except Exception as error:
             self._sim_.print(self._get_error_header_()+str(error))
@@ -757,7 +758,7 @@ class Parameter_math_exp_list(Parameter):
 
     def evaluate(self, i, values_dic):
         try:
-            val = eval(self.value[i],values_dic)
+            val = eval(self.value[i],globals(),values_dic)
             return val
         except Exception as error:
             self._sim_.print(self._get_error_header_()+str(error))

@@ -15,7 +15,6 @@ OpenSimula uses in different parts of the code the following Python packages, wh
 - NumPy
 - pandas
 - SciPy
-- py-expression-eval
 - shapely
 - psychrolib
 - pyvista[jupyter]

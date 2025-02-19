@@ -11,7 +11,6 @@ Component-based time simulation environment in Python
 - numpy
 - pandas
 - scipy
-- py-expression-eval
 - shapely
 - psychrolib
 - plotly

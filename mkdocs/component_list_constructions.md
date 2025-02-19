@@ -58,8 +58,8 @@ Component to describe the glazings. Default values are those of a clear single p
 - **lw_epsilon** [_float-list_, unit = "frac", default = [0.837,0.837], min = 0, max = 1]: Long wave emissivity, for surfaces 1 and 2.
 - **g** [_float-list_, unit = "frac", default = [0.867093,0.867093], min = 0, max = 1]: Solar factor at normal incidence, calculated according to EN 410:2011, for surfaces 1 and 2.
 - **U** [_float_, unit = "W/m²K", default = 5.686, min = 0]: Thermal transmittance of glazing calculated according to EN 673:2011.
-- **f_tau_nor** [[_math-exp_, default = "1.3186 * cos_theta^3 - 3.5251 * cos_theta^2 + 3.2065 * cos_theta"]: Normalised curve of the variation of solar transmittance, depending on the cosine of the angle of incidence, _cos_theta_ (0º, at normal incidence).
-- **f_1_minus_rho_nor** [[_math-exp-list_, default = ["1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta", "1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta"]]: Normalised curve of the variation for (1 - solar reflectance), depending on the cosine of the angle of incidence, _cos_theta_ (0º, at normal incidence).
+- **f_tau_nor** [[_math-exp_, default = "1.3186 * cos_theta ** 3 - 3.5251 * cos_theta **2 + 3.2065 * cos_theta"]: Normalised curve of the variation of solar transmittance, depending on the cosine of the angle of incidence, _cos_theta_ (0º, at normal incidence).
+- **f_1_minus_rho_nor** [[_math-exp-list_, default = ["1.8562 * cos_theta ** 3 - 4.4739 * cos_theta ** 2 + 3.6177 * cos_theta", "1.8562 * cos_theta ** 3 - 4.4739 * cos_theta ** 2 + 3.6177 * cos_theta"]]: Normalised curve of the variation for (1 - solar reflectance), depending on the cosine of the angle of incidence, _cos_theta_ (0º, at normal incidence).
 
 To obtain the solar transmittance at an angle of incidence theta, the component shall multiply the value at normal incidence _solar_tau_ by the value of the curve _f_tau_nor_.
 
@@ -86,8 +86,8 @@ param = {
     "solar_rho": [0.133,0.133],
     "g": [0.776, 0.776],
     "U": 2.914,
-    "f_tau_nor": "-0.3516 * cos_theta^3 - 0.6031 * cos_theta^2 +1.9424 * cos_theta",
-    "f_1_minus_rho_nor: ["0.9220 * cos_theta^3 - 2.8551 * cos_theta^2 + 2.9327 * cos_theta", "0.9220 * cos_theta^3 - 2.8551 * cos_theta^2 + 2.9327 * cos_theta"]
+    "f_tau_nor": "-0.3516 * cos_theta ** 3 - 0.6031 * cos_theta ** 2 +1.9424 * cos_theta",
+    "f_1_minus_rho_nor: ["0.9220 * cos_theta ** 3 - 2.8551 * cos_theta ** 2 + 2.9327 * cos_theta", "0.9220 * cos_theta ** 3 - 2.8551 * cos_theta ** 2 + 2.9327 * cos_theta"]
 }
 glazing.set_parameters(param)
 </code></pre>

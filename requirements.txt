@@ -5,7 +5,6 @@ numpy==1.25.2
 pandas==2.2.2
 plotly==5.23.0
 PsychroLib==2.5.0
-py_expression_eval==0.3.14
 pytest==8.3.2
 pyvista==0.43.4
 scipy==1.14.0
