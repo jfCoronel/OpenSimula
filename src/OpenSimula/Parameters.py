@@ -1,5 +1,5 @@
 import sys
-from py_expression_eval import Parser
+#from py_expression_eval import Parser
 from OpenSimula.Child import Child
 
 # ___________________ Parameter _________________________
@@ -689,7 +689,7 @@ class Parameter_math_exp(Parameter):
     def __init__(self, key, value="0.0", unit=""):
         Parameter.__init__(self, key, value)
         self._unit_ = unit
-        self._parser_ = Parser()
+        #self._parser_ = Parser()
 
     @property
     def unit(self):
@@ -703,22 +703,27 @@ class Parameter_math_exp(Parameter):
     def value(self, value):
         self._value_ = str(value)
 
-    def check(self):
-        try:
-            self._parser_.parse(self.value)
-        except Exception as error:
-            return [self._get_error_header_()+f"{str(error)}"]
-        return []
+#    def check(self):
+#        try:
+#            self._parser_.parse(self.value)
+#        except Exception as error:
+#            return [self._get_error_header_()+f"{str(error)}"]
+#        return []
 
     def evaluate(self, values_dic):
-        return self._parser_.parse(self.value).evaluate(values_dic)
+        try:
+            val = eval(self.value,values_dic)
+            return val
+        except Exception as error:
+            self._sim_.print(self._get_error_header_()+str(error))
+            return 0
 
 
 class Parameter_math_exp_list(Parameter):
     def __init__(self, key, value=["0.0"], unit=""):
         Parameter.__init__(self, key, value)
         self._unit_ = unit
-        self._parser_ = Parser()
+        #self._parser_ = Parser()
 
     @property
     def unit(self):
@@ -741,14 +746,19 @@ class Parameter_math_exp_list(Parameter):
             el = str(el)
         self._value_ = value
 
-    def check(self):
-        errors = []
-        for n in self.value:
-            try:
-                self._parser_.parse(n)
-            except Exception as error:
-                errors.append(self._get_error_header_()+f"{str(error)}")
-        return errors
+#    def check(self):
+#        errors = []
+#        for n in self.value:
+#            try:
+#                self._parser_.parse(n)
+#            except Exception as error:
+#                errors.append(self._get_error_header_()+f"{str(error)}")
+#        return errors
 
     def evaluate(self, i, values_dic):
-        return self._parser_.parse(self.value[i]).evaluate(values_dic)
+        try:
+            val = eval(self.value[i],values_dic)
+            return val
+        except Exception as error:
+            self._sim_.print(self._get_error_header_()+str(error))
+            return 0

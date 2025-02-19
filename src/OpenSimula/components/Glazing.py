@@ -20,8 +20,8 @@ class Glazing(Component):
         self.add_parameter(Parameter_float(
             "U", 5.686, "W/m²K", min=0))
         self.add_parameter(Parameter_math_exp(
-            "f_tau_nor", "1.3186 * cos_theta^3 - 3.5251 * cos_theta^2 + 3.2065 * cos_theta", "frac"))
-        f_rho = "1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta"
+            "f_tau_nor", "1.3186 * cos_theta**3 - 3.5251 * cos_theta**2 + 3.2065 * cos_theta", "frac"))
+        f_rho = "1.8562 * cos_theta**3 - 4.4739 * cos_theta**2 + 3.6177 * cos_theta"
         self.add_parameter(Parameter_math_exp_list(
             "f_1_minus_rho_nor", [f_rho, f_rho], "frac"))
 

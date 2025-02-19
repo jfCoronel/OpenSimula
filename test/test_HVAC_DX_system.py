@@ -125,10 +125,10 @@ case610_dict = {
                 0.84
             ],
             "U": 2.722,
-            "f_tau_nor": "-0.1175 * cos_theta^3 - 1.0295 * cos_theta^2 + 2.1354 * cos_theta",
+            "f_tau_nor": "-0.1175 * cos_theta**3 - 1.0295 * cos_theta**2 + 2.1354 * cos_theta",
             "f_1_minus_rho_nor": [
-                "1.114 * cos_theta^3 - 3.209 * cos_theta^2 + 3.095 * cos_theta",
-                "1.114 * cos_theta^3 - 3.209 * cos_theta^2 + 3.095 * cos_theta"
+                "1.114 * cos_theta**3 - 3.209 * cos_theta**2 + 3.095 * cos_theta",
+                "1.114 * cos_theta**3 - 3.209 * cos_theta**2 + 3.095 * cos_theta"
             ]
         },
         {
@@ -333,15 +333,15 @@ case610_dict = {
             "nominal_cooling_power": 2400,
             "no_load_power": 240,
             "no_load_heat": 240,
-            "total_cooling_capacity_expression": "0.88078 + 0.014248 * T_iwb + 0.00055436 * T_iwb^2 - 0.0075581 * T_odb +	3.2983E-05 * T_odb^2 - 0.00019171 * T_odb * T_iwb",
-            "sensible_cooling_capacity_expression": "0.50060 - 0.046438 * T_iwb - 0.00032472 * T_iwb^2 - 0.013202 * T_odb + 7.9307E-05 * T_odb^2 + 0.069958 * T_idb - 3.4276E-05 * T_idb^2",
-            "cooling_power_expression": "0.11178 + 0.028493 * T_iwb - 0.00041116 * T_iwb^2 + 0.021414 * T_odb + 0.00016113 * T_odb^2 - 0.00067910 * T_odb * T_iwb",
-            "EER_expression": "0.20123 - 0.031218 * F_load + 1.9505 * F_load^2 - 1.1205 * F_load^3",
+            "total_cooling_capacity_expression": "0.88078 + 0.014248 * T_iwb + 0.00055436 * T_iwb**2 - 0.0075581 * T_odb +	3.2983E-05 * T_odb**2 - 0.00019171 * T_odb * T_iwb",
+            "sensible_cooling_capacity_expression": "0.50060 - 0.046438 * T_iwb - 0.00032472 * T_iwb**2 - 0.013202 * T_odb + 7.9307E-05 * T_odb**2 + 0.069958 * T_idb - 3.4276E-05 * T_idb**2",
+            "cooling_power_expression": "0.11178 + 0.028493 * T_iwb - 0.00041116 * T_iwb**2 + 0.021414 * T_odb + 0.00016113 * T_odb**2 - 0.00067910 * T_odb * T_iwb",
+            "EER_expression": "0.20123 - 0.031218 * F_load + 1.9505 * F_load**2 - 1.1205 * F_load**3",
             "nominal_heating_capacity": 6500,
             "nominal_heating_power": 2825,
-            "heating_capacity_expression": "0.81474	+ 0.030682602 * T_owb + 3.2303E-05 * T_owb^2",
-            "heating_power_expression": "1.2012 - 0.040063 * T_owb + 0.0010877 * T_owb^2",
-            "COP_expression": "0.085652 + 0.93881 * F_load - 0.18344 * F_load^2 + 0.15897 * F_load^3"
+            "heating_capacity_expression": "0.81474	+ 0.030682602 * T_owb + 3.2303E-05 * T_owb**2",
+            "heating_power_expression": "1.2012 - 0.040063 * T_owb + 0.0010877 * T_owb**2",
+            "COP_expression": "0.085652 + 0.93881 * F_load - 0.18344 * F_load**2 + 0.15897 * F_load**3"
         },
         {
             "type": "HVAC_DX_system",
@@ -373,11 +373,11 @@ def test_HVAC_DX_system_perfect_control():
     peak_cooling = -load.min()/1000
     power = pro.component("system").variable("power").values.sum()/1e6
 
-    assert annual_heating == pytest.approx(3.6560304331937825)
-    assert annual_cooling == pytest.approx(4.995925158420846)
-    assert peak_heating == pytest.approx(2.7618068481952265)
-    assert peak_cooling == pytest.approx(5.697458594846174)
-    assert power == pytest.approx(14.6153929785614)
+    assert annual_heating == pytest.approx(3.655853476364096)
+    assert annual_cooling == pytest.approx(5.000289768492602)
+    assert peak_heating == pytest.approx(2.759217209791339)
+    assert peak_cooling == pytest.approx(5.7011764129806615)
+    assert power == pytest.approx(14.617316165668345)
 
 def test_HVAC_DX_system_temperature_control():
     sim = osm.Simulation()
@@ -394,7 +394,7 @@ def test_HVAC_DX_system_temperature_control():
     power = pro.component("system").variable("power").values.sum()/1e6
 
     assert annual_heating == pytest.approx(3.7697541890295887)
-    assert annual_cooling == pytest.approx(5.136670296818455)
+    assert annual_cooling == pytest.approx(5.136863358434801)
     assert peak_heating == pytest.approx(2.749886298191046)
     assert peak_cooling == pytest.approx(5.665426376809872)
-    assert power == pytest.approx(14.998125240565537)
+    assert power == pytest.approx(14.99793571450998)

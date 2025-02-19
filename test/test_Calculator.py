@@ -18,7 +18,7 @@ calculator_dict = {
            "input_variables": ["T = Denver.temperature", "w = Denver.abs_humidity"],
             "output_variables": ["T_F","W_kg", "degree_hour_20"],
             "output_units": ["ºF","kg/kg a.s.","ºC"],
-            "output_expressions": ["T * 9/5 + 32", "w / 1000", "if(T < 20, 20 - T, 0)"],
+            "output_expressions": ["T * 9/5 + 32", "w / 1000", "0.0 if T > 20 else (20 - T)"],
         }
     ]
 }

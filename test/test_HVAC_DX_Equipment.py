@@ -13,9 +13,9 @@ case_dict = {
             "nominal_cooling_power": 2198,
             "no_load_cooling_power": 230,
             "nominal_cooling_conditions": [26.7,19.4,35],
-            "total_cooling_capacity_expression": "9.099e-04 * T_odb + 4.351e-02 * T_iwb -3.475e-05 * T_odb^2 + 1.512e-04 * T_iwb^2 -4.703e-04 * T_odb * T_iwb + 4.281e-01",
-            "sensible_cooling_capacity_expression": "1.148e-03 * T_odb - 7.886e-02 * T_iwb + 1.044e-01 * T_idb - 4.117e-05 * T_odb^2 - 3.917e-03 * T_iwb^2 - 2.450e-03 * T_idb^2 + 4.042e-04 * T_odb * T_iwb - 4.762e-04 * T_odb * T_idb + 5.503e-03 * T_iwb * T_idb  + 2.903e-01",
-            "cooling_power_expression": "1.198e-02 * T_odb + 1.432e-02 * T_iwb + 5.656e-05 * T_odb^2 + 3.725e-05 * T_iwb^2 - 1.840e-04 * T_odb * T_iwb + 3.454e-01",
+            "total_cooling_capacity_expression": "9.099e-04 * T_odb + 4.351e-02 * T_iwb -3.475e-05 * T_odb**2 + 1.512e-04 * T_iwb**2 -4.703e-04 * T_odb * T_iwb + 4.281e-01",
+            "sensible_cooling_capacity_expression": "1.148e-03 * T_odb - 7.886e-02 * T_iwb + 1.044e-01 * T_idb - 4.117e-05 * T_odb**2 - 3.917e-03 * T_iwb**2 - 2.450e-03 * T_idb**2 + 4.042e-04 * T_odb * T_iwb - 4.762e-04 * T_odb * T_idb + 5.503e-03 * T_iwb * T_idb  + 2.903e-01",
+            "cooling_power_expression": "1.198e-02 * T_odb + 1.432e-02 * T_iwb + 5.656e-05 * T_odb**2 + 3.725e-05 * T_iwb**2 - 1.840e-04 * T_odb * T_iwb + 3.454e-01",
             "EER_expression": "1 - 0.229*(1-F_load)"
         }
     ]

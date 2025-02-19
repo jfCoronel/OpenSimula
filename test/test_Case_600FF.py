@@ -124,10 +124,10 @@ case600FF_dict = {
                 0.84
             ],
             "U": 2.722,
-            "f_tau_nor": "-0.1175 * cos_theta^3 - 1.0295 * cos_theta^2 + 2.1354 * cos_theta",
+            "f_tau_nor": "-0.1175 * cos_theta**3 - 1.0295 * cos_theta**2 + 2.1354 * cos_theta",
             "f_1_minus_rho_nor": [
-                "1.114 * cos_theta^3 - 3.209 * cos_theta^2 + 3.095 * cos_theta",
-                "1.114 * cos_theta^3 - 3.209 * cos_theta^2 + 3.095 * cos_theta"
+                "1.114 * cos_theta**3 - 3.209 * cos_theta**2 + 3.095 * cos_theta",
+                "1.114 * cos_theta**3 - 3.209 * cos_theta**2 + 3.095 * cos_theta"
             ]
         },
         {
