@@ -22,6 +22,7 @@ class HVAC_DX_system(Component):
         self.add_parameter(Parameter_float("cooling_bandwidth", 1, "ºC", min=0))
         self.add_parameter(Parameter_float("heating_bandwidth", 1, "ºC", min=0))
         self.add_parameter(Parameter_float("relaxing_coefficient", 1, "frac", min=0, max=1))
+        self.add_parameter(Parameter_options("economizer", "NO", ["NO", "TEMPERATURE"]))
 
         # Variables
         self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Heating max cap, -1:Cooling, -2:Cooling max cap, 3: Venting 
@@ -92,6 +93,7 @@ class HVAC_DX_system(Component):
         self._n_max_iter = self.project().parameter("n_max_iteration").value
         self._no_load_heat = self._equipment.parameter("no_load_heat").value
         self._no_load_power = self._equipment.parameter("no_load_power").value
+        self._economizer = self.parameter("economizer").value == "TEMPERATURE"
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -146,8 +148,6 @@ class HVAC_DX_system(Component):
         if self._on_off:
             self._T_space = self._space.variable("temperature").values[time_index]
             self._w_space = self._space.variable("abs_humidity").values[time_index]
-            # Mix air
-            self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_space, self._w_space)
             if self.parameter("control_type").value == "PERFECT":
                 control= self._perfect_control(n_iter)    
             elif self.parameter("control_type").value == "TEMPERATURE":
@@ -165,12 +165,18 @@ class HVAC_DX_system(Component):
         return (T,w,T_wb)        
     
     def _perfect_control(self, n_iter):
-        Q_required = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
         # Venting
         state = 3
         f_load = 0
         Q_sen = 0
         M_w = 0
+        
+        # Economizer
+        Q_required = self._economizer_perfect()
+
+        # Mix air
+        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_space, self._w_space)
+
         if Q_required > 0: # Heating    
             heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
             if heat_cap > 0:
@@ -208,7 +214,44 @@ class HVAC_DX_system(Component):
 
         control = {"V": 0, "T": 0, "w":0, "Q":self._Q_sen, "M":self._M_w }
         return control    
-                        
+    
+    def _economizer_perfect(self):
+        Q_required = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
+        if (self._economizer):
+            if (Q_required < 0 and self._T_odb < self._T_space):
+                Q_rest_ae = self._mrcp * (1-self._f_oa)*(self._T_odb - self._T_space)
+                if  Q_rest_ae < Q_required:
+                    self._f_oa += Q_required/(self._mrcp*(self._T_odb-self._T_space))
+                    Q_required = 0
+                    system_dic = {"name": self.parameter("name").value, 
+                                  "V": self._supply_air_flow*self._f_oa, 
+                                "T":self._T_odb, 
+                                "w": self._w_o, 
+                                "Q":self._no_load_heat,
+                            "M": 0}
+                    self._space.add_uncontrol_system(system_dic)
+                else:        
+                    self._f_oa = 1
+                    system_dic = {"name": self.parameter("name").value, 
+                              "V": self._supply_air_flow, 
+                              "T":self._T_odb, 
+                             "w": self._w_o, 
+                              "Q":self._no_load_heat,
+                             "M": 0}
+                    self._space.add_uncontrol_system(system_dic)
+                    Q_required = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
+            else:
+                self._f_oa = self._outdoor_air_flow/self._supply_air_flow
+                system_dic = {"name": self.parameter("name").value, 
+                                  "V": self._supply_air_flow*self._f_oa, 
+                                "T":self._T_odb, 
+                                "w": self._w_o, 
+                                "Q":self._no_load_heat,
+                            "M": 0}
+                self._space.add_uncontrol_system(system_dic)
+        return Q_required
+
+            
     def _air_temperature_control(self, n_iter):
         K_tot, F_tot =  self._space._calculate_K_F_tot(False) # Space Equation
         T_flo = F_tot/K_tot
@@ -217,6 +260,11 @@ class HVAC_DX_system(Component):
         f_load = 0
         Q_sen = 0
         M_w = 0
+
+        # Economizer
+
+        # Mix air
+        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_space, self._w_space)
 
         if (T_flo >= self._T_cool_sp - self._cool_band/2):
             tot_cool_cap, sen_cool_cap = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb, self._T_odb,self._T_owb, self._f_air)
@@ -274,6 +322,7 @@ class HVAC_DX_system(Component):
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
             self.variable("power").values[time_index] = self._no_load_power
+            self.variable("outdoor_air_flow").values[time_index] = self._supply_air_flow * self._f_oa
 
             if self._state == 1 or self._state == 2: # Heating
                 Q,power,F_COP = self._equipment.get_heating_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,self._f_load)
