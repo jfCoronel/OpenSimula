@@ -4,4 +4,4 @@ OpenSimula is a Python Package for perform time simulations
 
 """
 from OpenSimula.Simulation import Simulation
-VERSION = "0.3.1"
+VERSION = "0.3.2"

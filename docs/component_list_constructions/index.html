@@ -191,8 +191,8 @@ construction.set_parameters(param)
 <li><strong>lw_epsilon</strong> [<em>float-list</em>, unit = "frac", default = [0.837,0.837], min = 0, max = 1]: Long wave emissivity, for surfaces 1 and 2.</li>
 <li><strong>g</strong> [<em>float-list</em>, unit = "frac", default = [0.867093,0.867093], min = 0, max = 1]: Solar factor at normal incidence, calculated according to EN 410:2011, for surfaces 1 and 2.</li>
 <li><strong>U</strong> [<em>float</em>, unit = "W/m²K", default = 5.686, min = 0]: Thermal transmittance of glazing calculated according to EN 673:2011.</li>
-<li><strong>f_tau_nor</strong> [[<em>math-exp</em>, default = "1.3186 * cos_theta^3 - 3.5251 * cos_theta^2 + 3.2065 * cos_theta"]: Normalised curve of the variation of solar transmittance, depending on the cosine of the angle of incidence, <em>cos_theta</em> (0º, at normal incidence).</li>
-<li><strong>f_1_minus_rho_nor</strong> [[<em>math-exp-list</em>, default = ["1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta", "1.8562 * cos_theta^3 - 4.4739 * cos_theta^2 + 3.6177 * cos_theta"]]: Normalised curve of the variation for (1 - solar reflectance), depending on the cosine of the angle of incidence, <em>cos_theta</em> (0º, at normal incidence).</li>
+<li><strong>f_tau_nor</strong> [[<em>math-exp</em>, default = "1.3186 * cos_theta ** 3 - 3.5251 * cos_theta **2 + 3.2065 * cos_theta"]: Normalised curve of the variation of solar transmittance, depending on the cosine of the angle of incidence, <em>cos_theta</em> (0º, at normal incidence).</li>
+<li><strong>f_1_minus_rho_nor</strong> [[<em>math-exp-list</em>, default = ["1.8562 * cos_theta ** 3 - 4.4739 * cos_theta ** 2 + 3.6177 * cos_theta", "1.8562 * cos_theta ** 3 - 4.4739 * cos_theta ** 2 + 3.6177 * cos_theta"]]: Normalised curve of the variation for (1 - solar reflectance), depending on the cosine of the angle of incidence, <em>cos_theta</em> (0º, at normal incidence).</li>
 </ul>
 <p>To obtain the solar transmittance at an angle of incidence theta, the component shall multiply the value at normal incidence <em>solar_tau</em> by the value of the curve <em>f_tau_nor</em>.</p>
 <p>The following pictures show the solar transmittance of a single glazing as a function of the angle of incidence, and the normalised curve as a function of the cosine of the angle of incidence.
@@ -213,8 +213,8 @@ param = {
     "solar_rho": [0.133,0.133],
     "g": [0.776, 0.776],
     "U": 2.914,
-    "f_tau_nor": "-0.3516 * cos_theta^3 - 0.6031 * cos_theta^2 +1.9424 * cos_theta",
-    "f_1_minus_rho_nor: ["0.9220 * cos_theta^3 - 2.8551 * cos_theta^2 + 2.9327 * cos_theta", "0.9220 * cos_theta^3 - 2.8551 * cos_theta^2 + 2.9327 * cos_theta"]
+    "f_tau_nor": "-0.3516 * cos_theta ** 3 - 0.6031 * cos_theta ** 2 +1.9424 * cos_theta",
+    "f_1_minus_rho_nor: ["0.9220 * cos_theta ** 3 - 2.8551 * cos_theta ** 2 + 2.9327 * cos_theta", "0.9220 * cos_theta ** 3 - 2.8551 * cos_theta ** 2 + 2.9327 * cos_theta"]
 }
 glazing.set_parameters(param)
 </code></pre>
