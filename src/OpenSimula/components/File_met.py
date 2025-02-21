@@ -239,17 +239,21 @@ class File_met(Component):
             variable).values[time_i] = array[i] * (1 - f) + array[j] * f
 
     def _get_solar_interpolation_tuple_(self, datetime, solar_hour):
-        day = datetime.timetuple().tm_yday  # Día del año
+        day = datetime.timetuple().tm_yday  # Day of the year
+        if (solar_hour - datetime.hour > 10): # solar hour from previous day
+            day = day - 1
+        elif (solar_hour - datetime.hour < -10): # solar hour next day
+            day = day + 1
         # El primer valor es a las 00:30
         index = solar_hour + (day-1)*24
         if index < 0:
-            index = index + 8760
+            index = 0
         elif index >= 8760:
-            index = index - 8760
+            index = 8760
         i = math.floor(index)
         j = i + 1
         if j >= 8760:
-            j = 0
+            j = 8760
         f = index - i
         return (i, j, f)
 
