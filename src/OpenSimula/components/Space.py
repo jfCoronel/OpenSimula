@@ -1,6 +1,7 @@
 from OpenSimula.Component import Component
-from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_boolean
+from OpenSimula.Parameters import Parameter_component, Parameter_float
 from OpenSimula.Variable import Variable
+from OpenSimula.Iterative_process import Iterative_process
 import numpy as np
 import psychrolib as sicro
 import math
@@ -18,7 +19,7 @@ class Space(Component):
         self.add_parameter(Parameter_float("volume", 1, "m³", min=0.0))
         self.add_parameter(Parameter_float("furniture_weight", 10, "kg/m²", min=0.0))
         self.add_parameter(Parameter_float("convergence_DT", 0.01, "°C", min=0.0))
-        self.add_parameter(Parameter_float("convergence_Dw", 0.001, "g/kg", min=0.0))
+        self.add_parameter(Parameter_float("convergence_Dw", 0.01, "g/kg", min=0.0))
 
         # Variables
         self.add_variable(Variable("temperature", unit="°C"))
@@ -226,12 +227,17 @@ class Space(Component):
         self.control_system = {"V": 0, "T": 0, "w":0, "Q": 0, "M": 0} # V (m^3/s), T (°C), w (g/kg), Q (W), M (gr H2O)
         # Initial values
         self._estimate_T_w(time_index)
+        # Iterative Process
+        self.itera_T = Iterative_process(self._T,tol=self.parameter("convergence_DT").value,n_ini_relax=3,rel_vel=0.9)
+        self.itera_w = Iterative_process(self._w,tol=self.parameter("convergence_Dw").value,n_ini_relax=3,rel_vel=0.9)
+
         # Humidity balance
         rho = self.building().RHO
         lam = self.building().LAMBDA
         self._K_hum = rho * (self._volume / self._Dt + V_inf)
         self._F_hum = (self.variable("people_latent").values[time_index] + self.variable("other_gains_latent").values[time_index])/lam
         self._F_hum += rho * self._volume / self._Dt * self._w_pre + rho * V_inf * self._file_met.variable("abs_humidity").values[time_index]
+
        
     def _estimate_T_w(self, time_i):
         if time_i == 0:
@@ -252,7 +258,8 @@ class Space(Component):
         # Calculate temperature
         K_tot,F_tot = self._calculate_K_F_tot(True)
         T = F_tot/K_tot
-        self.variable("temperature").values[time_index] = T
+        self.variable("temperature").values[time_index] = self.itera_T.x_next(T)
+        
         # Calculate humidity
         K_hum, F_hum = self._calculate_K_F_hum(True)
         w = F_hum/K_hum
@@ -261,14 +268,13 @@ class Space(Component):
         if (T< 100): # Sicro limits
             max_hum = sicro.GetHumRatioFromRelHum(T, 1, self.building().ATM_PRESSURE)*1000
             if (w > max_hum):
-                self.variable("abs_humidity").values[time_index] = max_hum
-                force_iteration = True
-            else:
-                self.variable("abs_humidity").values[time_index] = w
-        else:
-            self.variable("abs_humidity").values[time_index] = w
+                w = max_hum
+                force_iteration = True           
+
+        self.variable("abs_humidity").values[time_index] = self.itera_w.x_next(w)
+        
         # Test convergence
-        converged = self._converged(time_index)
+        converged = self.itera_T.converged() and self.itera_w.converged()
         if force_iteration:
             return False
         else:
@@ -318,16 +324,6 @@ class Space(Component):
             K_hum += self.control_system["V"]*rho
             F_hum += self.control_system["V"]*rho*self.control_system["w"]  + self.control_system["M"]
         return (K_hum, F_hum)
-
-    def _converged(self, time_i):
-        converged = True
-        if abs(self._T -self.variable("temperature").values[time_i]) > self.parameter("convergence_DT").value:
-            converged = False
-        if abs(self._w -self.variable("abs_humidity").values[time_i]) > self.parameter("convergence_Dw").value:
-            converged = False
-        self._T = self.variable("temperature").values[time_i]
-        self._w = self.variable("abs_humidity").values[time_i] 
-        return converged
 
     def get_Q_required(self, T_cool_sp, T_heat_sp):
         K_tot, F_tot =  self._calculate_K_F_tot(False)
