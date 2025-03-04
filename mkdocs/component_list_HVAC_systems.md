@@ -132,12 +132,24 @@ Component for the simulation of an air-conditioning system for a space and using
 - **control_type** [_option_, default = "PERFECT", options = ["PERFECT","TEMPERATURE"]]: Type of control used, for the case ‘PERFECT’ the system will maintain exactly the desired temperature in the space, provided it has sufficient capacity. For the ‘TEMPERATURE’ case the power supplied by the system is calculated through a linear regulation law with the room temperature using the thermostat bandwidths, see figure below.
 - **cooling_bandwidth** [_float_, unit = "ºC", default = 1, min = 0]: Bandwidth used in case _control_type_ is set to "TEMPERATURE" for the cooling setpoint.
 - **heating_bandwidth** [_float_, unit = "ºC", default = 1, min = 0]: Bandwidth used in case _control_type_ is set to "TEMPERATURE" for the heating setpoint.
+- **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE"]]: Free cooling using outside air (economizer). If the option selected is “NO” no economizer will be used, for the option “TEMPERATURE” a temperature controlled economizer will be implemented that will operate differently depending on the selected control_type, see explanation below
 
 If outside air (ventilation) is present, and the "no_load_heat" specified at the equipment, it is introduced into the space as ‘uncontrolled system heat’, so these loads can be viewed at the space.
 
 The following figure shows the control equations used for the different ranges as a function of space temperature. This control is the one used if the parameter ‘control_type’ is set to ‘TEMPERATURE’.
 
 ![control_type_temperature](img/control_type_temperature.png)
+
+The operation of the economizer for "PERFECT" control_type is as follows:
+
+* If the outdoor air temperature is higher than the room temperature, the economizer does not operate and the outdoor air flow rate is nominal. 
+* If the room has cooling load and by increasing the outside air flow rate, with outside air colder than that of the space, the entire room load can be provided, the outside air flow rate will be the one required for this purpose.
+* If the cooling load of the space cannot be provided only with outdoor air and the outdoor air is colder than the room air, then all the supply air will be outdoor and the coil will provide the remaining sensible cooling load.
+
+The operation of the economizer for "TEMPERATURE" control_type is shown in the following figure, the outdoor air fraction, _F~OA~_, changes as a function of the outside air temperature along the green line in the figure.
+
+![economizer_control_type_temperature](img/economizer_control_type_temperature.png)
+
 
 **Example:**
 <pre><code class="python">
@@ -170,6 +182,7 @@ After the simulation we will have the following variables of this component:
 - __power__ [W]: Electrical power consumed by the system.
 - __EER__ [frac]: System efficiency ratio for cooling, defined as the total thermal load supplied divided by the electrical power consumed.
 - __COP__ [frac]: System efficiency ratio for heating, defined as the thermal load supplied divided by the electrical power consumed.
+- __outdoor_air_flow__ [m³/s]: Outside air flow rate (ventilation) supplied to the space.       
 - __T_odb__ [ºC]: Outdoor dry bulb temperature.
 - __T_owb__ [ºC]: Outdoor wet bulb temperature.
 - __T_idb__ [ºC]: Indoor dry bulb temperature, at the coil inlet of the indoor unit.

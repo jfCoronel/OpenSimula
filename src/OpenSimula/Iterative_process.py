@@ -9,7 +9,7 @@ class Iterative_process:
         x_0: Initial value
         tol: convergence tolerance
         lambda_min, lambda_max: relaxation coefficient range
-        n_ini_relax: Number of iterations in which adaptive relaxationb is initiated, must be greater than 1
+        n_ini_relax: Number of iterations in which adaptive relaxation is initiated, must be greater than 1
         """
         self.x = [x_0]
         self.tol = tol
@@ -37,7 +37,7 @@ class Iterative_process:
             #if abs(x_next - self.x[-1]) > abs(self.x[-1]- self.x[-2]):
                 self.lambda_i = max(self.lambda_min, self.lambda_i * self.rel_vel)  # Reducimos lambda
             #else:
-                #self.lambda_i = min(self.lambda_max, self.lambda_i * 1.05)  # Aumentamos lambda
+                #self.lambda_i = min(self.lambda_max, self.lambda_i * 1/self.rel_vel)  # Aumentamos lambda
 
         self.x.append(x_next)
         return x_next

@@ -21,7 +21,6 @@ class HVAC_DX_system(Component):
         self.add_parameter(Parameter_options("control_type", "PERFECT", ["PERFECT", "TEMPERATURE"]))
         self.add_parameter(Parameter_float("cooling_bandwidth", 1, "ºC", min=0))
         self.add_parameter(Parameter_float("heating_bandwidth", 1, "ºC", min=0))
-        #self.add_parameter(Parameter_float("relaxing_coefficient", 1, "frac", min=0, max=1))
         self.add_parameter(Parameter_options("economizer", "NO", ["NO", "TEMPERATURE"]))
 
         # Variables
