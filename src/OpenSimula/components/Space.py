@@ -228,8 +228,8 @@ class Space(Component):
         # Initial values
         self._estimate_T_w(time_index)
         # Iterative Process
-        self.itera_T = Iterative_process(self._T,tol=self.parameter("convergence_DT").value,n_ini_relax=3,rel_vel=0.9)
-        self.itera_w = Iterative_process(self._w,tol=self.parameter("convergence_Dw").value,n_ini_relax=3,rel_vel=0.9)
+        self.itera_T = Iterative_process(self._T,tol=self.parameter("convergence_DT").value,n_ini_relax=3,rel_vel=0.8)
+        self.itera_w = Iterative_process(self._w,tol=self.parameter("convergence_Dw").value,n_ini_relax=3,rel_vel=0.8)
 
         # Humidity balance
         rho = self.building().RHO

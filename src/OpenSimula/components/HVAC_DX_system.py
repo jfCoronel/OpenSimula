@@ -1,6 +1,7 @@
 from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
+from OpenSimula.Iterative_process import Iterative_process
 import psychrolib as sicro
 
 
@@ -21,8 +22,10 @@ class HVAC_DX_system(Component):
         self.add_parameter(Parameter_options("control_type", "PERFECT", ["PERFECT", "TEMPERATURE"]))
         self.add_parameter(Parameter_float("cooling_bandwidth", 1, "ºC", min=0))
         self.add_parameter(Parameter_float("heating_bandwidth", 1, "ºC", min=0))
-        self.add_parameter(Parameter_options("economizer", "NO", ["NO", "TEMPERATURE"]))
-
+        self.add_parameter(Parameter_options("economizer", "NO", ["NO", "TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]))
+        self.add_parameter(Parameter_float("economizer_DT", 0, "ºC", min=0))
+        self.add_parameter(Parameter_float("economizer_enthalpy_limit", 0, "kJ/kg", min=0))
+        
         # Variables
         self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Heating max cap, -1:Cooling, -2:Cooling max cap, 3: Venting 
         self.add_variable(Variable("T_odb", unit="°C"))
@@ -63,6 +66,11 @@ class HVAC_DX_system(Component):
         if self.parameter("file_met").value == "not_defined":
             errors.append(
                 f"Error: {self.parameter('name').value}, file_met must be defined.")
+        # Test enthalpy economizer not compatible with temperature control type
+        if (self.parameter("economizer").value == "ENTHALPY" or self.parameter("economizer").value == "ENTHALPY_LIMITED") and self.parameter("control_type").value == "TEMPERATURE":
+            errors.append(
+                f"Error: {self.parameter('name').value}, enthalpy economizer not compatible with temperature control type. control typed changed to PERFECT.")
+            self.parameter("control_type").value = "PERFECT"
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -92,7 +100,8 @@ class HVAC_DX_system(Component):
         #self._n_max_iter = self.project().parameter("n_max_iteration").value
         self._no_load_heat = self._equipment.parameter("no_load_heat").value
         self._no_load_power = self._equipment.parameter("no_load_power").value
-        self._economizer = self.parameter("economizer").value == "TEMPERATURE"
+        self._economizer = self.parameter("economizer").value != "NO"
+        self._economizer_DT = self.parameter("economizer_DT").value
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -137,9 +146,9 @@ class HVAC_DX_system(Component):
                           "Q":self._no_load_heat,
                           "M": 0}
             self._space.add_uncontrol_system(system_dic)
-            #self._M_w_pre = 0
-            #self._Q_sen_pre = 0
-            #self._f_load_pre = 0
+            # Iterative Process for outdoor air fraction with economizer
+            self.itera_Foa = Iterative_process(self._outdoor_air_flow/self._supply_air_flow,tol=0.01,n_ini_relax=3,rel_vel=0.8)
+
     
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
@@ -152,7 +161,12 @@ class HVAC_DX_system(Component):
             elif self.parameter("control_type").value == "TEMPERATURE":
                 control = self._air_temperature_control(n_iter)
         self._space.set_control_system(control)
-        return True
+        
+         # Test convergence
+        if self._on_off and self.parameter("control_type").value == "TEMPERATURE" and self._economizer:
+            return self.itera_Foa.converged()
+        else:
+            return True
 
     def _mix_air(self, f, T1, w1, T2, w2):
         T = f * T1 + (1-f)*T2
@@ -222,13 +236,25 @@ class HVAC_DX_system(Component):
     def _economizer_perfect(self): 
         Q_required = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
         if (self._economizer):
-            if (Q_required < 0 and self._T_odb < self._T_space):
+            if (self.parameter("economizer").value == "TEMPERATURE" or self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
+                use_economizer = self._T_odb < self._T_space-self._economizer_DT
+            elif (self.parameter("economizer").value == "ENTHALPY"):
+                h_odb = sicro.GetMoistAirEnthalpy(self._T_odb,self._w_o/1000)
+                h_space = sicro.GetMoistAirEnthalpy(self._T_space,self._w_space/1000)
+                use_economizer = h_odb < h_space
+            elif (self.parameter("economizer").value == "ENTHALPY_LIMITED"):
+                h_odb = sicro.GetMoistAirEnthalpy(self._T_odb,self._w_o/1000)
+                use_economizer = h_odb < self.parameter("economizer_enthalpy_limit").value * 1000
+            if (Q_required < 0 and use_economizer):
                 Q_rest_ae = self._mrcp * (1-self._f_oa)*(self._T_odb - self._T_space)
                 if  Q_rest_ae < Q_required:
                     self._f_oa += Q_required/(self._mrcp*(self._T_odb-self._T_space))
                     Q_required = 0
                 else:        
-                    self._f_oa = 1
+                    if (self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
+                        self._f_oa = self._outdoor_air_flow/self._supply_air_flow
+                    elif (self.parameter("economizer").value == "TEMPERATURE"):
+                        self._f_oa = 1
             else:
                 self._f_oa = self._outdoor_air_flow/self._supply_air_flow
             system_dic = {"name": self.parameter("name").value, 
@@ -308,18 +334,22 @@ class HVAC_DX_system(Component):
         K_tot, F_tot =  self._space._calculate_K_F_tot(False) # Space Equation
         T_flo = F_tot/K_tot   
         if (self._economizer):
-            if (self._T_odb < self._T_space):
+            if (self._T_odb < self._T_space - self._economizer_DT):
                 if (T_flo >= self._T_cool_sp - 1.5*self._cool_band and T_flo < self._T_cool_sp - 0.5*self._cool_band ):
                     f_oa_min = self._outdoor_air_flow/self._supply_air_flow
                     T_min = self._T_cool_sp - 1.5*self._cool_band
-                    self._f_oa = (T_flo - T_min)/self._cool_band*(1-f_oa_min) + f_oa_min
+                    f_oa = (T_flo - T_min)/self._cool_band*(1-f_oa_min) + f_oa_min
                 elif (T_flo >= self._T_cool_sp - 0.5*self._cool_band):
-                    self._f_oa = 1
+                    if (self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
+                        f_oa = self._outdoor_air_flow/self._supply_air_flow
+                    elif (self.parameter("economizer").value == "TEMPERATURE"):
+                        f_oa = 1
                 else: 
-                    self._f_oa = self._outdoor_air_flow/self._supply_air_flow
+                    f_oa = self._outdoor_air_flow/self._supply_air_flow
             else:
-                self._f_oa = self._outdoor_air_flow/self._supply_air_flow
+                f_oa = self._outdoor_air_flow/self._supply_air_flow
             
+            self._f_oa = self.itera_Foa.x_next(f_oa)
             system_dic = {"name": self.parameter("name").value, 
                                   "V": self._supply_air_flow*self._f_oa, 
                                 "T":self._T_odb, 
