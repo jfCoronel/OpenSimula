@@ -11,7 +11,7 @@ case_dict = {
             "nominal_total_cooling_capacity": 7951,
             "nominal_sensible_cooling_capacity": 6136,
             "nominal_cooling_power": 2198,
-            "no_load_cooling_power": 230,
+            "indoor_fan_power": 230,
             "nominal_cooling_conditions": [26.7,19.4,35],
             "total_cooling_capacity_expression": "9.099e-04 * T_odb + 4.351e-02 * T_iwb -3.475e-05 * T_odb**2 + 1.512e-04 * T_iwb**2 -4.703e-04 * T_odb * T_iwb + 4.281e-01",
             "sensible_cooling_capacity_expression": "1.148e-03 * T_odb - 7.886e-02 * T_iwb + 1.044e-01 * T_idb - 4.117e-05 * T_odb**2 - 3.917e-03 * T_iwb**2 - 2.450e-03 * T_idb**2 + 4.042e-04 * T_odb * T_iwb - 4.762e-04 * T_odb * T_idb + 5.503e-03 * T_iwb * T_idb  + 2.903e-01",
@@ -35,17 +35,17 @@ def test_points():
 
     assert nominal[0] == pytest.approx(7951,rel=1e-2)
     assert nominal[1] == pytest.approx(6136,rel=1e-2)
-    assert nominal[2] == pytest.approx(2198,rel=1e-2)
+    assert nominal[2] == pytest.approx(2198+230,rel=1e-2)
 
     assert wet_coil[0] == pytest.approx(7570,rel=1e-2)
     assert wet_coil[1] == pytest.approx(6280,rel=1e-2)
-    assert wet_coil[2] == pytest.approx(2078,rel=1e-2)
+    assert wet_coil[2] == pytest.approx(2078+230,rel=1e-2)
 
     assert dry_coil[0] == pytest.approx(6900,rel=1e-2)
     assert dry_coil[1] == pytest.approx(6900,rel=1e-2)
-    assert dry_coil[2] == pytest.approx(2480,rel=1e-2)
+    assert dry_coil[2] == pytest.approx(2480+230,rel=1e-2)
 
     assert wet_coil_part_load[0] == pytest.approx( wet_coil[0]*.3)
     assert wet_coil_part_load[1] == pytest.approx( wet_coil[1]*.3)
-    assert wet_coil_part_load[2] == pytest.approx( wet_coil[2]*0.3/(1 - 0.229*0.7))
+    assert wet_coil_part_load[2] == pytest.approx( (wet_coil[2]-230)*0.3/(1 - 0.229*0.7) +230)
 

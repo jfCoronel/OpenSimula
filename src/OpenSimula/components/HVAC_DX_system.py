@@ -96,10 +96,8 @@ class HVAC_DX_system(Component):
             self.input_var_variable.append(
                 self.parameter("input_variables").variable[i])
         self._f_load = 0
-        #self._r_coef = self.parameter("relaxing_coefficient").value
-        #self._n_max_iter = self.project().parameter("n_max_iteration").value
-        self._no_load_heat = self._equipment.parameter("no_load_heat").value
-        self._no_load_power = self._equipment.parameter("no_load_power").value
+        
+        self._no_load_power = self._equipment.get_no_load_power()
         self._economizer = self.parameter("economizer").value != "NO"
         self._economizer_DT = self.parameter("economizer_DT").value
 
@@ -143,7 +141,7 @@ class HVAC_DX_system(Component):
                           "V": self._outdoor_air_flow, 
                           "T":self._T_odb, 
                           "w": self._w_o, 
-                          "Q":self._no_load_heat,
+                          "Q":self._no_load_power,
                           "M": 0}
             self._space.add_uncontrol_system(system_dic)
             # Iterative Process for outdoor air fraction with economizer
@@ -261,7 +259,7 @@ class HVAC_DX_system(Component):
                                   "V": self._supply_air_flow*self._f_oa, 
                                 "T":self._T_odb, 
                                 "w": self._w_o, 
-                                "Q":self._no_load_heat,
+                                "Q":self._no_load_power,
                             "M": 0}
             self._space.add_uncontrol_system(system_dic)
             Q_required = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
@@ -354,7 +352,7 @@ class HVAC_DX_system(Component):
                                   "V": self._supply_air_flow*self._f_oa, 
                                 "T":self._T_odb, 
                                 "w": self._w_o, 
-                                "Q":self._no_load_heat,
+                                "Q":self._no_load_power,
                             "M": 0}
             self._space.add_uncontrol_system(system_dic)
             K_tot, F_tot =  self._space._calculate_K_F_tot(False) # Space Equation

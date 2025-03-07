@@ -11,8 +11,7 @@ class HVAC_DX_equipment(Component):
         self.add_parameter(Parameter_float("nominal_total_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_sensible_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_cooling_power", 0, "W", min=0))
-        self.add_parameter(Parameter_float("no_load_power", 0, "W", min=0))
-        self.add_parameter(Parameter_float("no_load_heat", 0, "W", min=0))
+        self.add_parameter(Parameter_float("indoor_fan_power", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_cooling_conditions", [27, 19, 35], "ºC"))
         self.add_parameter(Parameter_math_exp("total_cooling_capacity_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("sensible_cooling_capacity_expression", "1", "frac"))
@@ -25,6 +24,7 @@ class HVAC_DX_equipment(Component):
         self.add_parameter(Parameter_math_exp("heating_power_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("COP_expression", "1", "frac"))
         self.add_parameter(Parameter_options("dry_coil_model", "SENSIBLE", ["TOTAL", "SENSIBLE"]))
+        self.add_parameter(Parameter_options("indoor_fan_operation", "CONTINUOUS", ["CONTINUOUS", "CICLING"]))
         self.add_parameter(Parameter_boolean("power_dry_coil_correction", True))
         self.add_parameter(Parameter_float_list("expression_max_values", [60,30,60,30,1.5,1], "-"))
         self.add_parameter(Parameter_float_list("expression_min_values", [0,0,-30,-30,0,0], "-"))
@@ -55,6 +55,9 @@ class HVAC_DX_equipment(Component):
                     total_capacity = sensible_capacity
                 elif self.parameter("dry_coil_model").value == "TOTAL":
                     sensible_capacity = total_capacity
+            if self.parameter("indoor_fan_operation").value == "CICLING":
+                sensible_capacity = sensible_capacity - self.parameter("indoor_fan_power").value
+                total_capacity = total_capacity - self.parameter("indoor_fan_power").value
             return (total_capacity, sensible_capacity)
         else:
             return (0,0)
@@ -66,6 +69,8 @@ class HVAC_DX_equipment(Component):
             var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,0])
             # Capacity
             capacity = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
+            if self.parameter("indoor_fan_operation").value == "CICLING":
+                capacity = capacity + self.parameter("indoor_fan_power").value
             return capacity
         else:
             return 0
@@ -82,10 +87,13 @@ class HVAC_DX_equipment(Component):
                 EER_full = total_capacity/power_full
                 F_EER = self.parameter("EER_expression").evaluate(var_dic) 
                 EER = EER_full * F_EER 
-                power = total_capacity*F_load/EER + self.parameter("no_load_power").value
+                power = total_capacity*F_load/EER + self.parameter("indoor_fan_power").value
                 return (total_capacity*F_load, sensible_capacity*F_load, power, F_EER)
             else:
-                return ( 0 , 0 , self.parameter("no_load_power").value, 0 )
+                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
+                    return ( 0 , 0 , self.parameter("indoor_fan_power").value, 0 )
+                elif self.parameter("indoor_fan_operation").value == "CICLING":
+                    return ( 0 , 0 , 0, 0 )
         else:
             return (0,0,0,0)
         
@@ -119,12 +127,21 @@ class HVAC_DX_equipment(Component):
                 COP_full = capacity/power_full
                 F_COP = self.parameter("COP_expression").evaluate(var_dic) 
                 COP = COP_full * F_COP
-                power = capacity*F_load/COP + + self.parameter("no_load_power").value
+                power = capacity*F_load/COP + self.parameter("indoor_fan_power").value
                 return (capacity*F_load, power, F_COP)
             else:
-                return (0,self.parameter("no_load_power").value, 0)
+                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
+                    return ( 0 , 0 , self.parameter("indoor_fan_power").value, 0 )
+                elif self.parameter("indoor_fan_operation").value == "CICLING":
+                    return ( 0 , 0 , 0, 0 )
         else:
             return (0,0,0)
+        
+    def get_no_load_power(self):
+        if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
+            return self.parameter("indoor_fan_power").value
+        elif self.parameter("indoor_fan_operation").value == "CICLING":
+            return 0
     
     def _var_state_dic(self, values):
         max = self.parameter("expression_max_values").value
