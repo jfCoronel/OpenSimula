@@ -87,7 +87,10 @@ class HVAC_DX_equipment(Component):
                 EER_full = total_capacity/power_full
                 F_EER = self.parameter("EER_expression").evaluate(var_dic) 
                 EER = EER_full * F_EER 
-                power = total_capacity*F_load/EER + self.parameter("indoor_fan_power").value
+                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
+                    power = total_capacity*F_load/EER + self.parameter("indoor_fan_power").value
+                elif self.parameter("indoor_fan_operation").value == "CICLING":
+                    power = total_capacity*F_load/EER + self.parameter("indoor_fan_power").value*F_load/F_EER
                 return (total_capacity*F_load, sensible_capacity*F_load, power, F_EER)
             else:
                 if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
@@ -127,7 +130,10 @@ class HVAC_DX_equipment(Component):
                 COP_full = capacity/power_full
                 F_COP = self.parameter("COP_expression").evaluate(var_dic) 
                 COP = COP_full * F_COP
-                power = capacity*F_load/COP + self.parameter("indoor_fan_power").value
+                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
+                    power = capacity*F_load/COP + self.parameter("indoor_fan_power").value
+                elif self.parameter("indoor_fan_operation").value == "CICLING":
+                    power = capacity*F_load/COP + self.parameter("indoor_fan_power").value*F_load/F_COP
                 return (capacity*F_load, power, F_COP)
             else:
                 if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
