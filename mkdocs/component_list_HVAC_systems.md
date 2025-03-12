@@ -132,21 +132,35 @@ Component for the simulation of an air-conditioning system for a space and using
 - **control_type** [_option_, default = "PERFECT", options = ["PERFECT","TEMPERATURE"]]: Type of control used, for the case ‘PERFECT’ the system will maintain exactly the desired temperature in the space, provided it has sufficient capacity. For the ‘TEMPERATURE’ case the power supplied by the system is calculated through a linear regulation law with the room temperature using the thermostat bandwidths, see figure below.
 - **cooling_bandwidth** [_float_, unit = "ºC", default = 1, min = 0]: Bandwidth used in case _control_type_ is set to "TEMPERATURE" for the cooling setpoint.
 - **heating_bandwidth** [_float_, unit = "ºC", default = 1, min = 0]: Bandwidth used in case _control_type_ is set to "TEMPERATURE" for the heating setpoint.
-- **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE"]]: Free cooling using outside air (economizer). If the option selected is “NO” no economizer will be used, for the option “TEMPERATURE” a temperature controlled economizer will be implemented that will operate differently depending on the selected control_type, see explanation below
+- **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is “NO” no economizer will be used, for the other options the economizer will be used with different control strategies explained below. 
+- **economizer_DT** [_float_, unit = "ºC", default = 0, min = 0]: For economizers type “TEMPERATURE” and “TEMPERATURE_NOT_INTEGRATED” set the temperature difference between the return air and the outside air at which the economizer starts to operate.
+- **economizer_enthalpy_limit** [_float_, unit = "kJ/kg", default = 0, min = 0]: For economizers type ENTHALPY_LIMITED set the maximun outdoor air enthalpy at which the economizer does not operate.
 
-If outside air (ventilation) is present, and the "no_load_heat" specified at the equipment, it is introduced into the space as ‘uncontrolled system heat’, so these loads can be viewed at the space.
+
+If outside air (ventilation) is present, and the "indoor_fan_operation" is "CONTINUOUS" at the equipment, the ventilation load and the indoor fan heat are introduced into the space as ‘uncontrolled system heat’, so these loads can be viewed at the space.
 
 The following figure shows the control equations used for the different ranges as a function of space temperature. This control is the one used if the parameter ‘control_type’ is set to ‘TEMPERATURE’.
 
 ![control_type_temperature](img/control_type_temperature.png)
 
-The operation of the economizer for "PERFECT" control_type is as follows:
+__Economizer__ 
 
-* If the outdoor air temperature is higher than the room temperature, the economizer does not operate and the outdoor air flow rate is nominal. 
-* If the room has cooling load and by increasing the outside air flow rate, with outside air colder than that of the space, the entire room load can be provided, the outside air flow rate will be the one required for this purpose.
-* If the cooling load of the space cannot be provided only with outdoor air and the outdoor air is colder than the room air, then all the supply air will be outdoor and the coil will provide the remaining sensible cooling load.
+The different types of economizer operation are as follows:
 
-The operation of the economizer for "TEMPERATURE" control_type is shown in the following figure, the outdoor air fraction, _F~OA~_, changes as a function of the outside air temperature along the green line in the figure.
+* "TEMPERATURE": Temperature controlled economizer will be implemented that will operate differently depending on the selected control_type, see explanation below.
+* "TEMPERATURE_NOT_INTEGRATED": Temperature controlled economizer will be implemented, this economizer operates the same as the “TEMPERATURE” type but only works when the economizer is able to give the full sensible load of the space.
+* "ENTHALPY": Enthalpy controlled economizer will be implemented, this type is only available for "PERFECT" control_type. It works in the same way as the “TEMPERATURE” type but compares the enthalpies of the return and outside air instead of the temperatures. 
+* "ENTHALPY_LIMITED": Enthalpy controlled economizer will be implemented, this type is only available for "PERFECT" control_type. It works the same as the “ENTHALPY” type but compares the enthalpy of the outside air with the fixed value set in the “economizer_enthalpy_limit” parameter.
+
+
+
+The operation of the "TEMPERATURE" economizer for "PERFECT" control_type is as follows:
+
+* If the outdoor air temperature is higher than the room temperature minus the value of the parameter “economizer_DT”, the economizer does not operate and the outdoor air flow rate is nominal. 
+* If the room has cooling load, the outdoor air temperature is lower than the room temperature minus the value of the parameter “economizer_DT", and by increasing the outside air flow rate the entire room load can be provided, the outside air flow rate will be the one required for this purpose.
+* If the room has cooling load, the outdoor air temperature is lower than the room temperature minus the value of the parameter “economizer_DT", and the cooling load of the space cannot be provided only with outdoor air, then all the supply air will be outdoor and the coil will provide the remaining sensible cooling load. This mode will not work if the economizer type is “TEMPERATURE_NOT_INTEGRATED”. 
+
+The operation of the economizer for "TEMPERATURE" or “TEMPERATURE_NOT_INTEGRATED” types for "TEMPERATURE" control_type is shown in the following figure, the outdoor air fraction, _F~OA~_, changes as a function of the space air temperature along the continuous green line in the figure when the outdoor air temperature is lower than the return air temperature minus the value of the parameter “economizer_DT”, and the dashed green line will be used when outdoor air temperature is higher than the return air temperature minus the value of the parameter “economizer_DT” 
 
 ![economizer_control_type_temperature](img/economizer_control_type_temperature.png)
 

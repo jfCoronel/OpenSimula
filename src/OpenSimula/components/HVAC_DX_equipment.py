@@ -39,6 +39,11 @@ class HVAC_DX_equipment(Component):
         return errors
     
     def get_cooling_capacity(self,T_idb,T_iwb,T_odb,T_owb,F_air):
+        """
+        Returns (Q_tot,Q_sen) capacities. 
+        If indoor_fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
+        If indoor_fan_operation is CICLING: It returns the expressions minus the indoor fan power (Net capacity = Gross capacity - indoor fan)  
+        """
         total_capacity = self.parameter("nominal_total_cooling_capacity").value
         if total_capacity > 0:
             # variables dictonary
@@ -63,6 +68,10 @@ class HVAC_DX_equipment(Component):
             return (0,0)
     
     def get_heating_capacity(self,T_idb,T_iwb,T_odb,T_owb,F_air):
+        """
+        Returns heat sensible capacity. 
+        If indoor_fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
+        If indoor_fan_operation is CICLING: It returns the expressions plus the indoor fan power (Net capacity = Gross capacity + indoor fan)  """
         capacity = self.parameter("nominal_heating_capacity").value
         if capacity > 0:
             # variables dictonary
@@ -76,8 +85,14 @@ class HVAC_DX_equipment(Component):
             return 0
     
     def get_cooling_state(self,T_idb,T_iwb,T_odb,T_owb,F_air,F_load):
+        """
+        Returns (Q_tot,Q_sen,Power,F_EER).
+        """
         total_capacity, sensible_capacity = self.get_cooling_capacity(T_idb,T_iwb,T_odb,T_owb,F_air)
         if total_capacity > 0:
+            if self.parameter("indoor_fan_operation").value == "CICLING": # Get gross capacities
+                total_capacity= total_capacity + self.parameter("indoor_fan_power").value
+                sensible_capacity= sensible_capacity + self.parameter("indoor_fan_power").value
             if (F_load > 0):
                 # variables dictonary
                 var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
@@ -90,7 +105,7 @@ class HVAC_DX_equipment(Component):
                 if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
                     power = total_capacity*F_load/EER + self.parameter("indoor_fan_power").value
                 elif self.parameter("indoor_fan_operation").value == "CICLING":
-                    power = total_capacity*F_load/EER + self.parameter("indoor_fan_power").value*F_load/F_EER
+                    power = total_capacity*F_load/EER + self.parameter("indoor_fan_power").value*F_load/F_EER 
                 return (total_capacity*F_load, sensible_capacity*F_load, power, F_EER)
             else:
                 if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
@@ -121,6 +136,8 @@ class HVAC_DX_equipment(Component):
     def get_heating_state(self,T_idb, T_iwb,T_odb,T_owb,F_air,F_load):
         capacity = self.get_heating_capacity(T_idb, T_iwb, T_odb,T_owb,F_air)
         if capacity > 0:
+            if self.parameter("indoor_fan_operation").value == "CICLING": # Get gross capacities
+                capacity= capacity - self.parameter("indoor_fan_power").value
             if (F_load > 0):
                 # variables dictonary
                 var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
