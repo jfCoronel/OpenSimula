@@ -360,6 +360,7 @@ class Project(Parameter_container):
         self._sim_df = pd.DataFrame({"dates":self.dates()})
         self._sim_df["n_iterations"] = 0
         self._sim_df["last_component"] = "None"
+        self._sim_df["converged"] = True
 
         self._sim_.print(f"Simulating {self.parameter('name').value}: ...")
 
@@ -383,11 +384,15 @@ class Project(Parameter_container):
                     converge = True
                 n_iter += 1
             self._sim_df.at[i, "n_iterations"] = n_iter
+            self._sim_df.at[i, "converged"] = converge
             n_iter_acum += n_iter
             self._post_iteration_(i, date, daylight_saving, converge)
             date = date + dt.timedelta(0, delta_t)
 
         self._sim_.print("Simulation completed.")
+        n_not_converged = len(self._sim_df["converged"]) - self._sim_df["converged"].sum()
+        if n_not_converged > 0:
+            self._sim_.print(f"Warning: {n_not_converged} time steps did not converge.")
         self._post_simulation_()
 
     def _pre_simulation_(self, n_time_steps, delta_t):

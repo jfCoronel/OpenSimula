@@ -4,7 +4,7 @@ requires = ["setuptools>=61.2", "wheel"]
 
 [project]
 name = "OpenSimula"
-version = "0.3.2"
+version = "0.4.1"
 authors = [
   { name="Juan F. Coronel", email="jfc@us.es" },
 ]

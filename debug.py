@@ -1,7 +1,7 @@
 import OpenSimula as osm
 
-case_ce300_dict = {
-    "name": "Case CE300",
+case_ce500_dict = {
+    "name": "Case CE500",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -35,63 +35,63 @@ case_ce300_dict = {
             "type": "Day_schedule",
             "name": "latent_day_1",
             "time_steps": [8*3600, 12*3600],
-            "values": [0, 0.25, 0],
+            "values": [0, 0, 0],
             "interpolation": "STEP",
         },
         {
             "type": "Day_schedule",
             "name": "latent_day_2",
             "time_steps": [9*3600, 9*3600],
-            "values": [0, 1, 0],
+            "values": [0, 0.375, 0],
             "interpolation": "STEP",
         },
         {
             "type": "Day_schedule",
             "name": "latent_day_3",
             "time_steps": [8*3600, 11*3600],
-            "values": [0, 1, 0],
+            "values": [0, 0.5, 0],
             "interpolation": "STEP",
         },
         {
             "type": "Day_schedule",
             "name": "latent_day_4",
-            "time_steps": [8*3600, 12*3600],
-            "values": [0, 1, 0],
+            "time_steps": [8*3600, 4*3600, 2*3600, 2*3600, 4*3600],
+            "values": [0.375, 0.5, 0.75, 1, 0.5, 0.375],
             "interpolation": "STEP",
         },
         {
             "type": "Day_schedule",
             "name": "latent_day_5",
             "time_steps": [8*3600, 8*3600],
-            "values": [0, 1, 0],
+            "values": [0, 0.5, 0],
             "interpolation": "STEP",
         },
         {
             "type": "Day_schedule",
             "name": "latent_day_6",
-            "time_steps": [8*3600, 12*3600],
-            "values": [0, 1, 0],
+            "time_steps": [8*3600, 4*3600, 2*3600, 2*3600, 4*3600],
+            "values": [0, 0.5, 0.75, 1, 0.5, 0.375],
             "interpolation": "STEP",
         },
         {
             "type": "Day_schedule",
             "name": "sensible_day_1",
             "time_steps": [],
-            "values": [0.15625],
+            "values": [0],
             "interpolation": "STEP",
         },
         {
             "type": "Day_schedule",
             "name": "sensible_day_2",
             "time_steps": [9*3600, 9*3600],
-            "values": [0.15625, 0.375, 0.15625],
+            "values": [0, 0.375, 0],
             "interpolation": "STEP",
         },
         {
             "type": "Day_schedule",
             "name": "sensible_day_3",
             "time_steps": [8*3600, 11*3600],
-            "values": [0.15625, 0.5, 0.15625],
+            "values": [0, 0.5, 0],
             "interpolation": "STEP",
         },
         {
@@ -105,14 +105,14 @@ case_ce300_dict = {
             "type": "Day_schedule",
             "name": "sensible_day_5",
             "time_steps": [8*3600, 8*3600],
-            "values": [0.15625, 0.5, 0.15625],
+            "values": [0, 0.5, 0],
             "interpolation": "STEP",
         },
         {
             "type": "Day_schedule",
             "name": "sensible_day_6",
             "time_steps": [8*3600, 4*3600, 2*3600, 2*3600, 4*3600],
-            "values": [0.15625, 0.5, 0.75, 1, 0.5, 0.375],
+            "values": [0, 0.5, 0.75, 1, 0.5, 0.375],
             "interpolation": "STEP",
         },
         {
@@ -207,7 +207,7 @@ case_ce300_dict = {
             "input_variables": ["f_l = latent_schedule.values","f_s = sensible_schedule.values"],
             "people_density": "f_l",
             "people_sensible": 0,
-            "people_latent": 7.4796,            
+            "people_latent": 38.883,            
             "light_density": "0",
             "other_gains_density": "95.704*f_s",
             "other_gains_radiant_fraction": 0,
@@ -351,8 +351,8 @@ case_ce300_dict = {
             "nominal_total_cooling_capacity": 33277,
             "nominal_sensible_cooling_capacity": 26043,
             "nominal_cooling_power": 10937,
-            "no_load_power": 1242,
-            "no_load_heat": 1242,            
+            "indoor_fan_power": 1242,
+            "indoor_fan_operation": "CICLING",      
             "nominal_cooling_conditions": [26.67,19.44,35],            
             "total_cooling_capacity_expression": "-3.762e-03 * T_odb + 1.941e-02 * T_iwb + 4.783e-03 * T_idb -2.535e-05 * T_odb**2 + 1.232e-03 * T_iwb**2 + 4.448e-04 * T_idb**2 -2.754e-04 * T_odb * T_iwb + 5.977e-05 * T_odb * T_idb -1.297e-03 * T_iwb * T_idb + 6.851e-01",
             "sensible_cooling_capacity_expression": "-4.491e-03*T_odb -3.135e-02*T_iwb -1.011e-01*T_idb -6.467e-05*T_odb**2 -4.991e-03*T_iwb**2 +6.132e-03*T_idb**2 +3.255e-04*T_odb*T_iwb -1.873e-04*T_odb*T_idb +4.163e-03*T_iwb*T_idb +4.984e-07*T_odb**3 +3.308e-05*T_iwb**3 -1.075e-04*T_idb**3 + 1.6552",            
@@ -367,7 +367,7 @@ case_ce300_dict = {
             "file_met": "meteo",
             "equipment": "HVAC_equipment",
             "supply_air_flow": 1.888,
-            "outdoor_air_flow": 0.2832,
+            "outdoor_air_flow": 0,
             "heating_setpoint": "20",
             "cooling_setpoint": "25",
             "system_on_off": "1",
@@ -379,5 +379,5 @@ case_ce300_dict = {
 
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case_ce300_dict)
+pro.read_dict(case_ce500_dict)
 pro.simulate(5)

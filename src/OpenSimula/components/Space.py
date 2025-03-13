@@ -253,7 +253,6 @@ class Space(Component):
 
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
-        force_iteration = False
 
         # Calculate temperature
         K_tot,F_tot = self._calculate_K_F_tot(True)
@@ -269,16 +268,12 @@ class Space(Component):
             max_hum = sicro.GetHumRatioFromRelHum(T, 1, self.building().ATM_PRESSURE)*1000
             if (w > max_hum):
                 w = max_hum
-                force_iteration = True           
 
         self.variable("abs_humidity").values[time_index] = self.itera_w.x_next(w)
         
         # Test convergence
         converged = self.itera_T.converged() and self.itera_w.converged()
-        if force_iteration:
-            return False
-        else:
-            return converged
+        return converged
 
     def _calculate_solar_direct(self, time_i):
         solar_gain = 0

@@ -1,3 +1,21 @@
+Information for building a new version:
+
+Change version number in __init__.py, pyproject.toml, mkdocs/index.md
+
+Test all the cases:
+    > pytest test
+
+Build documentation (source dir: mkdocs, dist dir: docs):
+    > mkdocs build --clean
+
+Deploy to Pypi:
+    > rm -rf build
+	> rm -rf dist
+	> python -m build
+	> twine upload dist/*
+
+Make commit with the name of the version
+
 Python libraries needed for OpenSimula:
 In a clean python version:
 - numpy
@@ -17,15 +35,3 @@ In a clean python version:
     pip install triangle
     pip install git+https://github.com/drufat/triangle.git # For Macos Apple Silicon
 
-For juputer:
-- notebook
-
-
-With Anaconda you must add:
-- py_expression_eval
-- psychrolib
-- pyvista
-- ipywidgets
-- trame
-- trame-vtk
-- trame-vuetify
