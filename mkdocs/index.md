@@ -50,8 +50,9 @@ information generated during the simulation.
 
 This is the list of changes to OpenSimula between each release. For full details, see the commit logs.
 
- __Current Version 0.3.2__
+ __Current Version 0.5.0__
 
+- 0.5.0 (...):
 - 0.4.1 (March 13, 2025): Stable versions of HVAC_DX_system and HVAC_DX_equipment. Passed all cases of section 9. “Space-cooling equipment performance tests” of ASHRAE 140-2023.
 - 0.3.2 (February 20, 2025): Debugging HVAC_DX_system and HVAC_DX_equipment. Passed cases CE100 to CE340 of section 9. “Space-cooling equipment performance tests” of ASHRAE 140-2023.
 - 0.3.1 (January 24, 2025): Implementation HVAC_DX_system and HVAC_DX_equipment
