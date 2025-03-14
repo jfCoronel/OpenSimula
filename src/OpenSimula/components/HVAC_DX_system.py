@@ -40,6 +40,7 @@ class HVAC_DX_system(Component):
         self.add_variable(Variable("Q_sensible", unit="W"))
         self.add_variable(Variable("Q_latent", unit="W"))
         self.add_variable(Variable("power", unit="W"))
+        self.add_variable(Variable("indoor_fan_power", unit="W"))
         self.add_variable(Variable("heating_setpoint", unit="°C"))
         self.add_variable(Variable("cooling_setpoint", unit="°C"))
         self.add_variable(Variable("EER", unit="frac"))
@@ -372,21 +373,24 @@ class HVAC_DX_system(Component):
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
             self.variable("power").values[time_index] = self._no_load_power
+            self.variable("indoor_fan_power").values[time_index] = self._no_load_power
             self.variable("outdoor_air_flow").values[time_index] = self._supply_air_flow * self._f_oa
 
             if self._state == 1 or self._state == 2: # Heating
-                Q,power,F_COP = self._equipment.get_heating_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,self._f_load)
+                Q,power,f_power, F_COP = self._equipment.get_heating_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,self._f_load)
                 self.variable("Q_sensible").values[time_index] = Q
                 self.variable("power").values[time_index] = power
+                self.variable("indoor_fan_power").values[time_index] = f_power
                 if power>0:
                     self.variable("COP").values[time_index] = Q/power
                     self.variable("efficiency_degradation").values[time_index] = F_COP
                     
             elif self._state == -1 or self._state == -2: #Cooling
-                Q_t,Q_s,power,F_EER = self._equipment.get_cooling_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,-self._f_load)
+                Q_t,Q_s,power,f_power,F_EER = self._equipment.get_cooling_state(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,-self._f_load)
                 self.variable("Q_sensible").values[time_index] = -Q_s
                 self.variable("Q_latent").values[time_index] = -(Q_t - Q_s)
                 self.variable("power").values[time_index] = power
+                self.variable("indoor_fan_power").values[time_index] = f_power
                 if power>0: 
                     self.variable("EER").values[time_index] = Q_t/power
                     self.variable("efficiency_degradation").values[time_index] = F_EER

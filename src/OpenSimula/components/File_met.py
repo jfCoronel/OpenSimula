@@ -17,7 +17,7 @@ class File_met(Component):
         # Parameters
         self.add_parameter(Parameter_string("file_name", "name.met"))
         self.add_parameter(Parameter_options(
-            "file_type", "MET", ["MET", "TMY3", "TMY2"]))
+            "file_type", "MET", ["MET", "TMY3", "TMY2", "WYEC2"]))
         self.add_parameter(Parameter_options(
             "tilted_diffuse_model", "PEREZ", ["REINDL", "HAY-DAVIES", "ISOTROPIC", "PEREZ"]))
 
@@ -77,6 +77,13 @@ class File_met(Component):
             errors = self._read_tmy3_file(errors)
         elif self.parameter("file_type").value == "TMY2":
             errors = self._read_tmy2_file(errors)
+        elif self.parameter("file_type").value == "WYEC2":
+            self.latitude = 0
+            self.longitude = 0
+            self.altitude = 0
+            self.reference_time_longitude = 0
+            # These four values must be changed later
+            errors = self._read_wyec2_file(errors)
         return errors
 
     def _read_met_file(self, errors):
@@ -175,6 +182,34 @@ class File_met(Component):
             )
             return errors
 
+    def _read_wyec2_file(self, errors):
+        # Read the file
+        try:
+            data = read_wyec2(self.parameter("file_name").value)
+            self.temperature = data["temperature"].to_numpy()
+            self.sol_diffuse = data["sol_diffuse"].to_numpy()
+            self.sol_direct = data["sol_direct"].to_numpy() 
+            self.rel_humidity = data["rel_humidity"].to_numpy()
+            self.wind_speed = data["wind_speed"].to_numpy()
+            self.wind_direction = data["wind_direction"].to_numpy()
+            self.pressure = data["pressure"].to_numpy()
+            self.total_cloud_cover = data["total_cloud_cover"].to_numpy() 
+            self.opaque_cloud_cover = data["opaque_cloud_cover"].to_numpy()
+            self._t_sky_calculation()
+            self._T_average = np.average(self.temperature)
+            return errors
+        except OSError as error:
+            errors.append(
+                f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
+            )
+            return errors
+
+    def set_location(self, latitude, longitude, altitude, reference_time_longitude) :
+        self.latitude = latitude
+        self.longitude = longitude
+        self.altitude = altitude
+        self.reference_time_longitude = reference_time_longitude
+
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
 
@@ -198,6 +233,8 @@ class File_met(Component):
         elif self.parameter("file_type").value == "TMY3":
             i, j, f = self._get_local_interpolation_tuple_(date)
         elif self.parameter("file_type").value == "TMY2":
+            i, j, f = self._get_local_interpolation_tuple_(date)
+        elif self.parameter("file_type").value == "WYEC2":
             i, j, f = self._get_local_interpolation_tuple_(date)
 
         self._interpolate("temperature", self.temperature, time_index, i, j, f)
@@ -274,7 +311,7 @@ class File_met(Component):
         return (i, j, f)
 
     def _t_sky_calculation(self):
-        """Caclulation of Sky Temperature using the Clark & Allen correlaton (1978) and the correlation of Walton (1983)
+        """Calculation of Sky Temperature using the Clark & Allen correlaton (1978) and the correlation of Walton (1983)
         """
         SIGMA = 5.6697E-8
         for i in range(len(self.temperature)):
@@ -962,3 +999,40 @@ def _read_tmy2(string, columns, hdr_columns, fname):
         columns=columns.split(',')).tz_localize(int(meta['TZ'] * 3600))
 
     return data, meta
+
+def read_wyec2(file_path):
+    """
+    Lee un archivo meteorológico en formato WYEC2 y lo convierte en un DataFrame de pandas.
+    
+    Parámetros:
+        file_path (str): Ruta del archivo WYEC2.
+    
+    Retorna:
+        pd.DataFrame: DataFrame con los datos meteorológicos.
+    """
+    sicro.SetUnitSystem(sicro.SI)
+    data = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            new_line = {"year": int(line[6:8]),
+                       "month": int(line[8:10]),
+                       "day": int(line[10:12]),
+                       "hour": int(line[12:14]),
+                        "temperature": float(line[89:93])*0.1,
+                        "sol_global": float(line[18:22])/3.6,                        
+                        "sol_diffuse": float(line[30:34])/3.6,
+                        "dew_temperature": float(line[94:98])*0.1,
+                        "wind_speed": float(line[103:107])*0.1,
+                        "wind_direction": float(line[99:102]),
+                        "pressure": float(line[83:88])*10,
+                        "total_cloud_cover": float(line[108:110])*10,
+                        "opaque_cloud_cover": float(line[111:113])*10,                        
+                       }
+            data.append(new_line)
+            new_line["sol_direct"]= new_line["sol_global"]-new_line["sol_diffuse"]
+            if new_line["temperature"] < new_line["dew_temperature"]:
+                 new_line["dew_temperature"] = new_line["temperature"]   
+            new_line["rel_humidity"]= sicro.GetRelHumFromTDewPoint(new_line["temperature"], new_line["dew_temperature"])*100
+
+    df = pd.DataFrame(data)
+    return df
