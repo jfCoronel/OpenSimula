@@ -1,3 +1,4 @@
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_component_list
 from OpenSimula.Component import Component
 
@@ -17,10 +18,8 @@ class Week_schedule(Component):
             len(self.parameter("days_schedules").value) != 1
             and len(self.parameter("days_schedules").value) != 7
         ):
-            errors.append(
-                f"Error: {self.parameter('name').value}, days_schedules parameter must contain 1 or 7 Day_schedule components"
-            )
-
+            msg = f"{self.parameter('name').value}, days_schedules parameter must contain 1 or 7 Day_schedule components"
+            errors.append(Message(msg, "ERROR"))
         return errors
 
     def get_value(self, date):

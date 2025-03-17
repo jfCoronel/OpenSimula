@@ -60,8 +60,6 @@ class Test_component(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self.print(
-            f"Component: {self.parameter('name').value} Starting simulation ...")
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -76,7 +74,3 @@ class Test_component(Component):
 
         self.variable("exp_1").values[time_index] = self.parameter(
             "math_exp").evaluate(variables_dic)
-
-    def post_simulation(self):
-        self.print(
-            f"Component: {self.parameter('name').value} Ending simulation ...")

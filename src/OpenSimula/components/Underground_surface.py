@@ -1,3 +1,4 @@
+from OpenSimula.Message import Message
 from OpenSimula.components.Real_surface import Real_surface
 from OpenSimula.Parameters import Parameter_component, Parameter_float
 from OpenSimula.Variable import Variable
@@ -25,8 +26,8 @@ class Underground_surface(Real_surface):
         errors = super().check()
         # Test space defined
         if self.parameter("space").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define its space.")
+            msg = f"{self.parameter('name').value}, must define its space."
+            errors.append(Message(msg, "ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

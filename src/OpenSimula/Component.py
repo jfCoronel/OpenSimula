@@ -18,9 +18,6 @@ class Component(Parameter_container):
     def project(self):
         return self._project_
 
-    def print(self, msg):
-        self._sim_.print(msg)
-
     def add_variable(self, variable):
         """add new Variable"""
         variable.parent = self

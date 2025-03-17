@@ -1,4 +1,5 @@
 from bisect import bisect
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import (
     Parameter_int_list,
     Parameter_float_list,
@@ -26,18 +27,16 @@ class Day_schedule(Component):
             len(self.parameter("time_steps").value)
             != len(self.parameter("values").value) - 1
         ):
-            errors.append(
-                f"Error: {self.parameter('name').value}, time_steps size must be values size minus 1"
-            )
+            msg = f"Error: {self.parameter('name').value}, time_steps size must be values size minus 1"
+            errors.append(Message(msg,"ERROR"))
 
         # Test total time steps
         total_time = 0
         for dt in self.parameter("time_steps").value:
             total_time += dt
         if total_time > 24 * 3600:
-            errors.append(
-                f"Error: {self.parameter('name').value}, the sum of the time_steps is greater than one day (86400 s)"
-            )
+            msg = f"Error: {self.parameter('name').value}, the sum of the time_steps is greater than one day (86400 s)"
+            errors.append(Message(msg,"ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

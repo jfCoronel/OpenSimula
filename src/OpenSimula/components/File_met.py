@@ -4,6 +4,7 @@ import math
 import re  # Regular Expressions
 import pandas as pd
 import psychrolib as sicro
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_string, Parameter_options
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
@@ -91,9 +92,8 @@ class File_met(Component):
         try:
             f = open(self.parameter("file_name").value, "r")
         except OSError as error:
-            errors.append(
-                f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
-            )
+            msg = f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
+            errors.append(Message(msg, "ERROR"))
             return errors
         with f:
             f.readline()
@@ -145,9 +145,8 @@ class File_met(Component):
             self._T_average = np.average(self.temperature)
             return errors
         except OSError as error:
-            errors.append(
-                f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
-            )
+            msg =f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
+            errors.append(Message(msg, "ERROR"))
             return errors
 
     def _read_tmy2_file(self, errors):
@@ -177,9 +176,8 @@ class File_met(Component):
             self._T_average = np.average(self.temperature)
             return errors
         except OSError as error:
-            errors.append(
-                f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
-            )
+            msg = f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
+            errors.append(Message(msg, "ERROR"))
             return errors
 
     def _read_wyec2_file(self, errors):
@@ -199,9 +197,8 @@ class File_met(Component):
             self._T_average = np.average(self.temperature)
             return errors
         except OSError as error:
-            errors.append(
-                f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
-            )
+            msg = f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
+            errors.append(Message(msg, "ERROR"))
             return errors
 
     def set_location(self, latitude, longitude, altitude, reference_time_longitude) :

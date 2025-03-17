@@ -1,3 +1,4 @@
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
@@ -37,12 +38,12 @@ class HVAC_perfect_system(Component):
         errors = super().check()
         # Test space defined
         if self.parameter("space").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define its space.")
+            msg =f"{self.parameter('name').value}, must define its space."
+            errors.append(Message(msg, "ERROR"))
         # Test file_met defined
         if self.parameter("file_met").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, file_met must be defined.")
+            msg = f"{self.parameter('name').value}, file_met must be defined."
+            errors.append(Message(msg, "ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

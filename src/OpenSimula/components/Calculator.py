@@ -1,7 +1,7 @@
 from OpenSimula.Component import Component
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_variable_list, Parameter_math_exp_list, Parameter_string_list
 from OpenSimula.Variable import Variable
-
 
 class Calculator(Component):
     def __init__(self, name, project):
@@ -23,9 +23,8 @@ class Calculator(Component):
             != len(self.parameter("output_expressions").value) or len(self.parameter("output_variables").value)
             != len(self.parameter("output_units").value)
         ):
-            errors.append(
-                f"Error: {self.parameter('name').value}, output_variables, output_units and output_expressions size must be equal"
-            )
+            msg = Message(f"Error: {self.parameter('name').value}, output_variables, output_units and output_expressions size must be equal","ERROR")
+            errors.append(msg)
         else:
             # Create output variables
             for i in range(len(self.parameter("output_variables").value)):

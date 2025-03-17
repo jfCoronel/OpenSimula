@@ -3,59 +3,58 @@ from OpenSimula.Parameters import Parameter_float, Parameter_float_list, Paramet
 from OpenSimula.Component import Component
 from scipy.optimize import fsolve
 
-class HVAC_DX_equipment(Component):
+class HVAC_FC_equipment(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "HVAC_DX_equipment"
-        self.parameter("description").value = "HVAC Direct Expansion equipment manufacturer information"
+        self.parameter("type").value = "HVAC_FC_equipment"
+        self.parameter("description").value = "HVAC Fan-coil equipment manufacturer information"
         self.add_parameter(Parameter_float("nominal_air_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("nominal_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_total_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_sensible_cooling_capacity", 0, "W", min=0))
-        self.add_parameter(Parameter_float("nominal_cooling_power", 0, "W", min=0))
-        self.add_parameter(Parameter_float("indoor_fan_power", 0, "W", min=0))
-        self.add_parameter(Parameter_float_list("nominal_cooling_conditions", [27, 19, 35], "ºC"))
-        self.add_parameter(Parameter_math_exp("total_cooling_capacity_expression", "1", "frac"))
-        self.add_parameter(Parameter_math_exp("sensible_cooling_capacity_expression", "1", "frac"))
-        self.add_parameter(Parameter_math_exp("cooling_power_expression", "1", "frac"))
-        self.add_parameter(Parameter_math_exp("EER_expression", "1", "frac"))
+        self.add_parameter(Parameter_float("fan_power", 0, "W", min=0))
+        self.add_parameter(Parameter_float_list("nominal_cooling_conditions", [27, 19, 7], "ºC"))
         self.add_parameter(Parameter_float("nominal_heating_capacity", 0, "W", min=0))
-        self.add_parameter(Parameter_float("nominal_heating_power", 0, "W", min=0))
-        self.add_parameter(Parameter_float_list("nominal_heating_conditions", [20, 7, 6], "ºC"))
+        self.add_parameter(Parameter_float_list("nominal_heating_conditions", [20, 15, 30], "ºC"))
+        self.add_parameter(Parameter_options("fan_operation", "CONTINUOUS", ["CONTINUOUS", "CYCLING"]))
+        
+        self.add_parameter(Parameter_options("coil_model", "BYPASS_FACTOR", ["BYPASS_FACTOR"]))
+
+        self.add_parameter(Parameter_math_exp("total_cooling_capacity_expression", "1", "frac"))
+        self.add_parameter(Parameter_math_exp("cooling_bypass_factor_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("heating_capacity_expression", "1", "frac"))
-        self.add_parameter(Parameter_math_exp("heating_power_expression", "1", "frac"))
-        self.add_parameter(Parameter_math_exp("COP_expression", "1", "frac"))
-        self.add_parameter(Parameter_options("dry_coil_model", "SENSIBLE", ["TOTAL", "SENSIBLE"]))
-        self.add_parameter(Parameter_options("indoor_fan_operation", "CONTINUOUS", ["CONTINUOUS", "CYCLING"]))
-        self.add_parameter(Parameter_boolean("power_dry_coil_correction", True))
-        self.add_parameter(Parameter_float_list("expression_max_values", [60,30,60,30,1.5,1], "-"))
-        self.add_parameter(Parameter_float_list("expression_min_values", [0,0,-30,-30,0,0], "-"))
+        self.add_parameter(Parameter_float_list("expression_max_values", [60,30,90,2,2,1], "-"))
+        self.add_parameter(Parameter_float_list("expression_min_values", [0,0,0,0,0,0], "-"))
 
     def check(self):
         errors = super().check()
-        # Test Cooling and Heating conditions 3 values
+        # Test Cooling and Heating conditions: 3, 3 values (Entering air and water)
         if len(self.parameter("nominal_cooling_conditions").value)!= 3:
-            msg = f"Error: {self.parameter('name').value}, nominal_cooling_conditions size must be 3"
+            msg = f"{self.parameter('name').value}, nominal_cooling_conditions size must be 3"
             errors.append(Message(msg, "ERROR"))
         if len(self.parameter("nominal_heating_conditions").value)!= 3:
-            msg = f"Error: {self.parameter('name').value}, nominal_heating_conditions size must be 3"
+            msg = f"{self.parameter('name').value}, nominal_heating_conditions size must be 3"
             errors.append(Message(msg, "ERROR"))
         return errors
     
-    def get_cooling_capacity(self,T_idb,T_iwb,T_odb,T_owb,F_air):
+    def _get_nominal_bypass_factor(self):
+        
+
+    def get_cooling_capacity(self,T_idb,T_iwb,T_iw,F_air, F_water):
         """
         Returns (Q_tot,Q_sen) capacities. 
-        If indoor_fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
-        If indoor_fan_operation is CYCLING: It returns the expressions minus the indoor fan power (Net capacity = Gross capacity - indoor fan)  
+        If fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
+        If fan_operation is CYCLING: It returns the expressions minus the indoor fan power (Net capacity = Gross capacity - indoor fan)  
         """
         total_capacity = self.parameter("nominal_total_cooling_capacity").value
         if total_capacity > 0:
             # variables dictonary
-            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,0])
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air, F_water,0])
             # Total
             f = self.parameter("total_cooling_capacity_expression").evaluate(var_dic)
             total_capacity = total_capacity * f
             # Sensible
-            sensible_capacity = self.parameter("nominal_sensible_cooling_capacity").value
+            bf = self.parameter("nominal_sensible_cooling_capacity").value
             f = self.parameter("sensible_cooling_capacity_expression").evaluate(var_dic)
             sensible_capacity = sensible_capacity * f
             if (sensible_capacity > total_capacity):
@@ -70,15 +69,15 @@ class HVAC_DX_equipment(Component):
         else:
             return (0,0)
     
-    def get_heating_capacity(self,T_idb,T_iwb,T_odb,T_owb,F_air):
+    def get_heating_capacity(self,T_idb,T_iwb,T_iw,F_air,F_water):
         """
         Returns heat sensible capacity. 
-        If indoor_fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
-        If indoor_fan_operation is CYCLING: It returns the expressions plus the indoor fan power (Net capacity = Gross capacity + indoor fan)  """
+        If fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
+        If fan_operation is CYCLING: It returns the expressions plus the indoor fan power (Net capacity = Gross capacity + indoor fan)  """
         capacity = self.parameter("nominal_heating_capacity").value
         if capacity > 0:
             # variables dictonary
-            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,0])
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,F_water,0])
             # Capacity
             capacity = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
             if self.parameter("indoor_fan_operation").value == "CYCLING":
@@ -87,19 +86,19 @@ class HVAC_DX_equipment(Component):
         else:
             return 0
     
-    def get_cooling_state(self,T_idb,T_iwb,T_odb,T_owb,F_air,F_load):
+    def get_cooling_state(self,T_idb,T_iwb,T_iw,F_air,F_water,F_load):
         """
-        Returns (Q_tot,Q_sen,power,indoor_fan_power,F_EER).
+        Returns (Q_tot,Q_sen,fan_power).
         """
-        total_capacity, sensible_capacity = self.get_cooling_capacity(T_idb,T_iwb,T_odb,T_owb,F_air)
+        total_capacity, sensible_capacity = self.get_cooling_capacity(T_idb,T_iwb,T_iw,F_air,F_water)
         if total_capacity > 0:
-            if self.parameter("indoor_fan_operation").value == "CYCLING": # Get gross capacities
-                total_capacity= total_capacity + self.parameter("indoor_fan_power").value
-                sensible_capacity= sensible_capacity + self.parameter("indoor_fan_power").value
+            if self.parameter("fan_operation").value == "CYCLING": # Get gross capacities
+                total_capacity= total_capacity + self.parameter("fan_power").value
+                sensible_capacity= sensible_capacity + self.parameter("fan_power").value
             if (F_load > 0):
                 # variables dictonary
-                var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
-                # con
+                var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,F_water,F_load])
+             
                 power_full = self._get_correct_cooling_power(total_capacity,sensible_capacity,var_dic)
 
                 EER_full = total_capacity/power_full
@@ -188,9 +187,9 @@ class HVAC_DX_equipment(Component):
                 values[i] = min[i]
         return {"T_idb":values[0],
                 "T_iwb":values[1],
-                "T_odb":values[2],
-                "T_owb":values[3],
-                "F_air":values[4],
+                "T_iw":values[2],
+                "F_air":values[3],
+                "F_water":values[4],
                 "F_load":values[5]}
 
 

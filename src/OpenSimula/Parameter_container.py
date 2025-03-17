@@ -1,6 +1,6 @@
 import pandas as pd
 from OpenSimula.Parameters import Parameter_string
-
+from OpenSimula.Message import Message
 
 class Parameter_container:
     """Class to manage a list of Paramaters
@@ -41,9 +41,7 @@ class Parameter_container:
             if key in self._parameters_:
                 self.parameter(key).value = value
             else:
-                self._sim_.print(
-                    "Error: Component parameter " + key + " does not exist"
-                )
+                self._sim_.message(Message("Component parameter " + key + " does not exist","ERROR"))
 
     def parameter_dataframe(self, string_format=False):
         keys = []

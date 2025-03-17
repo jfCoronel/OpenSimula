@@ -1,9 +1,9 @@
 import math
 import numpy as np
 from scipy.optimize import brentq
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_component_list, Parameter_float_list
 from OpenSimula.Component import Component
-
 
 class Construction(Component):
     def __init__(self, name, project):
@@ -24,9 +24,8 @@ class Construction(Component):
         errors = super().check()
         # Test if materials an thicknesses size are equals
         if len(self.parameter("materials").value) != len(self.parameter("thicknesses").value):
-            errors.append(
-                f"Error: {self.parameter('name').value}, material and thicknesses parameters must have same length"
-            )
+            msg =f"Error: {self.parameter('name').value}, material and thicknesses parameters must have same length"
+            errors.append(Message(msg, "error"))
         return errors
 
     # Functions for Transfer Function Calculation

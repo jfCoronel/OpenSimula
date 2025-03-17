@@ -1,4 +1,5 @@
 from OpenSimula.Component import Component
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_component, Parameter_float
 from OpenSimula.Variable import Variable
 from OpenSimula.Iterative_process import Iterative_process
@@ -54,12 +55,12 @@ class Space(Component):
         errors = super().check()
         # Test building is defined
         if self.parameter("building").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define its building.")
+            msg = f"{self.parameter('name').value}, must define its building."
+            errors.append(Message(msg, "ERROR"))
         # Test space_type defined
         if self.parameter("space_type").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define its Space_type.")
+            msg = f"{self.parameter('name').value}, must define its Space_type."
+            errors.append(Message(msg, "ERROR"))
         self._create_surfaces_list()
         return errors
 

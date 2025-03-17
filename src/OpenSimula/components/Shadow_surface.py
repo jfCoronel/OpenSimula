@@ -1,3 +1,4 @@
+from OpenSimula.Message import Message
 from OpenSimula.components.Surface import Surface
 from OpenSimula.Parameters import Parameter_component
 
@@ -16,8 +17,8 @@ class Shadow_surface(Surface):
         errors = super().check()
         # Test building is defined
         if self.parameter("building").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define its building.")
+            msg = f"{self.parameter('name').value}, must define its building."
+            errors.append(Message(msg, "ERROR"))
         return errors
 
     def building(self):

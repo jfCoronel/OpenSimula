@@ -1,7 +1,7 @@
 import sys
-#from py_expression_eval import Parser
-import math
+import math  #Needed for expressions
 from OpenSimula.Child import Child
+from OpenSimula.Message import Message
 
 # ___________________ Parameter _________________________
 
@@ -46,7 +46,7 @@ class Parameter(Child):
         return []
 
     def _get_error_header_(self):
-        return f'Error: {self.parent.parameter("name").value}->{self.key}. '
+        return f'{self.parent.parameter("name").value}->{self.key}: '
 
     def _cast_to_bool_(self, input_value):
         if isinstance(input_value, bool):
@@ -116,8 +116,7 @@ class Parameter_boolean(Parameter):
         if (msg == 'ok'):
             self._value_ = val
         else:
-            self._sim_.print(self._get_error_header_()+msg)
-
+            self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
 
 class Parameter_boolean_list(Parameter):
     def __init__(self, key, value=[False]):
@@ -134,7 +133,7 @@ class Parameter_boolean_list(Parameter):
             if (msg == 'ok'):
                 value = val
             else:
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
                 return
         # Is a list
         final_values = []
@@ -142,7 +141,7 @@ class Parameter_boolean_list(Parameter):
             val, msg = self._cast_to_bool_(n)
             final_values.append(val)
             if (msg != 'ok'):
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
         self._value_ = final_values
 
 
@@ -177,7 +176,7 @@ class Parameter_string_list(Parameter):
             if (msg == 'ok'):
                 self._value_ = val
             else:
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
         else:
             for el in value:
                 el = str(el)
@@ -208,16 +207,15 @@ class Parameter_int(Parameter):
         if (msg == 'ok'):
             self._value_ = val
         else:
-            self._sim_.print(self._get_error_header_()+msg)
+            self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
 
     def info(self):
         return self.key + ": " + str(self.value) + " [" + self._unit_ + "]"
 
     def check(self):
         if self.value < self._min_ or self.value > self._max_:
-            msg = self._get_error_header_(
-            )+f"{self.value} is not at [{self._min_},{self._max_}]"
-            return [msg]
+            msg = self._get_error_header_()+f"{self.value} is not at [{self._min_},{self._max_}]"
+            return [Message(msg,"ERROR")]
         else:
             return []
 
@@ -244,7 +242,7 @@ class Parameter_int_list(Parameter):
             if (msg == 'ok'):
                 value = val
             else:
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
                 return
         # Is a list
         final_values = []
@@ -252,16 +250,15 @@ class Parameter_int_list(Parameter):
             val, msg = self._cast_to_int_(n)
             final_values.append(val)
             if (msg != 'ok'):
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
         self._value_ = final_values
 
     def check(self):
         errors = []
         for n in self.value:
             if n < self._min_ or n > self._max_:
-                msg = self._get_error_header_(
-                )+f"{n} is not at [{self._min_},{self._max_}]"
-                errors.append(msg)
+                msg = self._get_error_header_()+f"{n} is not at [{self._min_},{self._max_}]"
+                errors.append(Message(msg,"ERROR"))
         return errors
 
     def info(self):
@@ -286,13 +283,12 @@ class Parameter_float(Parameter_int):
         if (msg == 'ok'):
             self._value_ = val
         else:
-            self._sim_.print(self._get_error_header_()+msg)
+            self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
 
     def check(self):
         if self.value < self._min_ or self.value > self._max_:
-            msg = self._get_error_header_(
-            )+f"{self.value} is not at [{self._min_},{self._max_}]"
-            return [msg]
+            msg = self._get_error_header_()+f"{self.value} is not at [{self._min_},{self._max_}]"
+            return [Message(msg,"ERROR")]
         else:
             return []
 
@@ -313,7 +309,7 @@ class Parameter_float_list(Parameter_int_list):
             if (msg == 'ok'):
                 value = val
             else:
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
                 return
         # Is a list
         final_values = []
@@ -321,16 +317,15 @@ class Parameter_float_list(Parameter_int_list):
             val, msg = self._cast_to_float_(n)
             final_values.append(val)
             if (msg != 'ok'):
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
         self._value_ = final_values
 
     def check(self):
         errors = []
         for n in self.value:
             if n < self._min_ or n > self._max_:
-                msg = self._get_error_header_(
-                )+f"{n} is not at [{self._min_},{self._max_}]"
-                errors.append(msg)
+                msg = self._get_error_header_()+f"{n} is not at [{self._min_},{self._max_}]"
+                errors.append(Message(msg,"ERROR"))
         return errors
 
 
@@ -358,7 +353,7 @@ class Parameter_options(Parameter):
     def check(self):
         if self.value not in self.options:
             msg = self._get_error_header_()+f"{self.value} is not in options."
-            return [msg]
+            return [Message(msg,"ERROR")]
         else:
             return []
 
@@ -380,7 +375,7 @@ class Parameter_options_list(Parameter):
             if (msg == 'ok'):
                 self._value_ = val
             else:
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
         else:
             for el in value:
                 el = str(el)
@@ -395,7 +390,7 @@ class Parameter_options_list(Parameter):
         for el in self.value:
             if el not in self.options:
                 msg = self._get_error_header_()+f"{el} is not in options."
-                errors.append(msg)
+                errors.append(Message(msg,"ERROR"))
         return errors
 
 
@@ -445,13 +440,11 @@ class Parameter_component(Parameter):
         comp = self.component
         if len(self.allowed_types) > 0 and self.value != "not_defined":
             if type(comp).__name__ not in self.allowed_types:
-                msg = self._get_error_header_(
-                )+f"{self.value} component is not of one of the allowed types."
-                errors.append(msg)
+                msg = self._get_error_header_()+f"{self.value} component is not of one of the allowed types."
+                errors.append(Message(msg,"ERROR"))
         if comp == None and self.value != "not_defined":
-            msg = self._get_error_header_(
-            ) + f"{self.value} component not found."
-            errors.append(msg)
+            msg = self._get_error_header_() + f"{self.value} component not found."
+            errors.append(Message(msg,"ERROR"))
         return errors
 
 
@@ -471,7 +464,7 @@ class Parameter_component_list(Parameter):
             val, msg = self._cast_to_string_list_(value)
             value = val
             if (msg != 'ok'):
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
                 return
         # Is a list
         for el in value:
@@ -514,13 +507,11 @@ class Parameter_component_list(Parameter):
         for i in range(len(comps)):
             if len(self.allowed_types) > 0 and self.value[i] != "not_defined":
                 if type(comps[i]).__name__ not in self.allowed_types:
-                    msg = self._get_error_header_(
-                    )+f"{self.value[i]} component is not of one of the allowed types."
-                    errors.append(msg)
+                    msg = self._get_error_header_()+f"{self.value[i]} component is not of one of the allowed types."
+                    errors.append(Message(msg,"ERROR"))
             if comps[i] == None and self.value[i] != "not_defined":
-                msg = self._get_error_header_(
-                ) + f"{self.value[i]} component not found."
-                errors.append(msg)
+                msg = self._get_error_header_() + f"{self.value[i]} component not found."
+                errors.append(Message(msg,"ERROR"))
         return errors
 
 
@@ -558,9 +549,8 @@ class Parameter_variable(Parameter):
             self._external_ = False
 
         if format_error:
-            msg = self._get_error_header_(
-            )+'Incorrect format. Expected format "symbol = component.variable"'
-            self._sim_.print(msg)
+            msg = 'Incorrect format. Expected format "symbol = component.variable"'
+            self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
 
     @property
     def external(self):
@@ -590,9 +580,8 @@ class Parameter_variable(Parameter):
         errors = []
         var = self.variable
         if var == None and self._symbol_ != "not_defined":
-            msg = self._get_error_header_(
-            ) + f"{self.value} component or variable not found."
-            errors.append(msg)
+            msg = self._get_error_header_() + f"{self.value} component or variable not found."
+            errors.append(Message(msg,"ERROR"))
         return errors
 
 
@@ -611,7 +600,7 @@ class Parameter_variable_list(Parameter):
             val, msg = self._cast_to_string_list_(value)
             value = val
             if (msg != 'ok'):
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
                 return
         # Is a list
         for el in value:
@@ -641,9 +630,8 @@ class Parameter_variable_list(Parameter):
                 self._external_.append(False)
 
         if format_error:
-            msg = self._get_error_header_(
-            )+'Incorrect format. Expected format "symbol = component.variable"'
-            self._sim_.print(msg)
+            msg = 'Incorrect format. Expected format "symbol = component.variable"'
+            self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
 
     @property
     def external(self):
@@ -677,9 +665,8 @@ class Parameter_variable_list(Parameter):
         for i in range(len(self._value_)):
             var = self.variable[i]
             if var == None and self.symbol[i] != "not_defined":
-                msg = self._get_error_header_(
-                ) + f"{self.value} component or variable not found."
-                errors.append(msg)
+                msg = self._get_error_header_() + f"{self.value} component or variable not found."
+                errors.append(Message(msg,"ERROR"))
         return errors
 
 
@@ -704,19 +691,12 @@ class Parameter_math_exp(Parameter):
     def value(self, value):
         self._value_ = str(value)
 
-#    def check(self):
-#        try:
-#            self._parser_.parse(self.value)
-#        except Exception as error:
-#            return [self._get_error_header_()+f"{str(error)}"]
-#        return []
-
     def evaluate(self, values_dic):
         try:
             val = eval(self.value,globals(),values_dic)
             return val
         except Exception as error:
-            self._sim_.print(self._get_error_header_()+str(error))
+            self._sim_.message(Message(self._get_error_header_()+str(error),"ERROR"))
             return 0
 
 
@@ -740,26 +720,17 @@ class Parameter_math_exp_list(Parameter):
             val, msg = self._cast_to_string_list_(value)
             value = val
             if (msg != 'ok'):
-                self._sim_.print(self._get_error_header_()+msg)
+                self._sim_.message(Message(self._get_error_header_()+msg,"ERROR"))
                 return
         # Is a list
         for el in value:
             el = str(el)
         self._value_ = value
 
-#    def check(self):
-#        errors = []
-#        for n in self.value:
-#            try:
-#                self._parser_.parse(n)
-#            except Exception as error:
-#                errors.append(self._get_error_header_()+f"{str(error)}")
-#        return errors
-
     def evaluate(self, i, values_dic):
         try:
             val = eval(self.value[i],globals(),values_dic)
             return val
         except Exception as error:
-            self._sim_.print(self._get_error_header_()+str(error))
+            self._sim_.message(Message(self._get_error_header_()+str(error),"ERROR"))
             return 0

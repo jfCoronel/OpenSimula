@@ -1,3 +1,4 @@
+from OpenSimula.Message import Message
 from OpenSimula.components.Real_surface import Real_surface
 from OpenSimula.Parameters import Parameter_component_list, Parameter_float_list
 from OpenSimula.Variable import Variable
@@ -28,8 +29,8 @@ class Interior_surface(Real_surface):
         errors = super().check()
         # Test spaces defined
         if self.parameter("spaces").value[0] == "not_defined" or self.parameter("spaces").value[1] == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define two spaces.")
+            msg = f"{self.parameter('name').value}, must define two spaces."
+            errors.append(Message(msg, "ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

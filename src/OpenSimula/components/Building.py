@@ -4,6 +4,7 @@ from OpenSimula.Parameters import (
     Parameter_float,
     Parameter_options,
 )
+from OpenSimula.Message import Message
 import numpy as np
 import math
 import psychrolib as sicro
@@ -45,9 +46,8 @@ class Building(Component):
     def check(self):
         errors = super().check()
         if self.parameter("file_met").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, file_met must be defined."
-            )
+            msg = Message(f"{self.parameter('name').value}, file_met must be defined.", "ERROR")
+            errors.append(msg)
         self._create_lists()
         return errors
 
@@ -85,9 +85,9 @@ class Building(Component):
         self._create_K_matrices() # KS_matrix, KS_inv_matrix, KSZ_matrix, KZS_matrix, KZ_matrix
         if self.parameter("shadow_calculation").value != "NO":
             self._create_building_3D()
-            self._sim_.print("Calculating solar direct shadows ...")
+            self._sim_.message(Message("Calculating solar direct shadows ...", "CONSOLE"))
             self._create_shadow_interpolation_table()
-            self._sim_.print("Calculating solar diffuse shadows ...")
+            self._sim_.message(Message("Calculating solar diffuse shadows ...", "CONSOLE"))
             self._create_diffuse_shadow()
 
     def _create_ff_matrix(self):
@@ -663,9 +663,7 @@ class Building(Component):
         if len(cos) == 3:
             self.building_3D.show_shadows(cos)
         else:
-            self._sim_.print(
-                "Warning: " + date.strftime("%H:%M,  %d/%m/%Y") + " is night"
-            )
+            self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
 
     def get_direct_sunny_fraction(self, surface):
         if self.parameter("shadow_calculation").value == "NO":

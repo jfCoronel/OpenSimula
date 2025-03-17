@@ -5,10 +5,10 @@ import pandas as pd
 from dash import Dash, callback, Input, Output, html, State
 import dash_ag_grid as dag
 import dash_bootstrap_components as dbc
+from OpenSimula.Message import Message
 from OpenSimula.Parameter_container import Parameter_container
 from OpenSimula.Parameters import Parameter_int, Parameter_string, Parameter_string_list, Parameter_boolean
 from OpenSimula.components import *
-
 
 class Project(Parameter_container):
     """Project has the following features:
@@ -38,6 +38,7 @@ class Project(Parameter_container):
             "daylight_saving_end_time", "28/10/2001 02:00:00"))
         self.add_parameter(Parameter_int("n_max_iteration", 1000, min=1))
         self.add_parameter(Parameter_string_list("simulation_order",DEFAULT_COMPONENTS_ORDER))
+        self.add_parameter(Parameter_string("simulation_file_met", "None"))
         self._sim_ = sim
         self._components_ = []
 
@@ -107,7 +108,7 @@ class Project(Parameter_container):
             return None
 
     def _get_error_header_(self):
-        return f'Error: Project "{self.parameter("name").value}". '
+        return f'Project "{self.parameter("name").value}". '
 
     def _load_from_dict_(self, dic):
         for key, value in dic.items():
@@ -119,22 +120,19 @@ class Project(Parameter_container):
                             name = component["name"]
                         comp = self.new_component(component["type"], name)
                         if comp == None:
-                            msg = self._get_error_header_(
-                            ) + f'Component type {component["type"]} does not exist.'
-                            self._sim_.print(msg)
+                            msg = self._get_error_header_() + f'Component type {component["type"]} does not exist.'
+                            self._sim_.message(Message(msg, "ERROR"))
                         else:
                             comp.set_parameters(component)
                     else:
-                        msg = self._get_error_header_(
-                        ) + f'Component does not contain "type" parameter {component}'
-                        self._sim_.print(msg)
+                        msg = self._get_error_header_() + f'Component does not contain "type" parameter {component}'
+                        self._sim_.message(Message(msg, "ERROR"))
             else:
                 if key in self._parameters_:
                     self.parameter(key).value = value
                 else:
-                    msg = self._get_error_header_(
-                    ) + f'Parameter {key} does not exist.'
-                    self._sim_.print(msg)
+                    msg = self._get_error_header_() + f'Parameter {key} does not exist.'
+                    self._sim_.message(Message(msg, "ERROR"))
 
     def read_dict(self, dict):
         """Load paramaters an components from dictionary
@@ -143,9 +141,9 @@ class Project(Parameter_container):
             dic (dictionary): dictonary with the parameters and componenets to be loaded in the project
 
         """
-        self._sim_.print("Reading project data from dictonary")
+        self._sim_.message(Message("Reading project data from dictonary", "CONSOLE"))
         self._load_from_dict_(dict)
-        self._sim_.print("Reading completed.")
+        self._sim_.message(Message("Reading completed.", "CONSOLE"))
         self.check()
 
     def write_dict(self):
@@ -176,15 +174,14 @@ class Project(Parameter_container):
         try:
             f = open(json_file, "r")
         except OSError:
-            msg = self._get_error_header_(
-            ) + f'Could not open/read file:  {json_file}.'
-            self._sim_.print(msg)
+            msg = self._get_error_header_() + f'Could not open/read file:  {json_file}.'
+            self._sim_.message(Message(msg, "ERROR"))
             return False
         with f:
             json_dict = json.load(f)
-            self._sim_.print("Reading project data from file: " + json_file)
+            self._sim_.message(Message("Reading project data from file: " + json_file, "CONSOLE"))
             self._load_from_dict_(json_dict)
-            self._sim_.print("Reading completed.")
+            self._sim_.message(Message("Reading completed.", "CONSOLE"))
             self.check()
 
     def write_json(self, json_file):
@@ -197,16 +194,15 @@ class Project(Parameter_container):
         try:
             f = open(json_file, "w")
         except OSError:
-            msg = self._get_error_header_(
-            ) + f'Could not write file:  {json_file}.'
-            self._sim_.print(msg)
+            msg = self._get_error_header_() + f'Could not write file:  {json_file}.'
+            self._sim_.message(Message(msg, "ERROR"))
             return False
         with f:
-            self._sim_.print("Writing project data to file: " + json_file)
+            self._sim_.message(Message("Writing project data to file: " + json_file, "CONSOLE"))
             dict = self.write_dict()
             json.dump(dict, f)
-            self._sim_.print("Writing completed.")
-
+            self._sim_.message(Message("Writing completed.", "CONSOLE"))
+            
     def _read_excel_(self, excel_file):
         """Read paramaters an components from excel file
 
@@ -215,15 +211,14 @@ class Project(Parameter_container):
         """
         try:
             xls_file = pd.ExcelFile(excel_file)
-            self._sim_.print("Reading project data from file: " + excel_file)
+            self._sim_.message(Message("Reading project data from file: " + excel_file, "CONSOLE"))
             json_dict = self._excel_to_json_(xls_file)
             self._load_from_dict_(json_dict)
-            self._sim_.print("Reading completed.")
+            self._sim_.message(Message("Reading completed.", "CONSOLE"))
             self.check()
         except Exception as e:
-            msg = self._get_error_header_(
-            ) + f'Reading file:  {excel_file} -> {e}.'
-            self._sim_.print(msg)
+            msg = self._get_error_header_() + f'Reading file:  {excel_file} -> {e}.'
+            self._sim_.message(Message(msg, "ERROR"))
             return False
 
     def _excel_to_json_(self, xls_file):
@@ -286,38 +281,27 @@ class Project(Parameter_container):
         Returns:
             errors (string list): List of errors
         """
-        self._sim_.print("Checking project: " + self.parameter("name").value)
+        self._sim_.message(Message("Checking project: " + self.parameter("name").value, "CONSOLE"))
         errors = self.check_parameters()  # Parameters
         names = []
         # Check initial time
         try:
-            dt.datetime.strptime(
-                self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
-            )
+            dt.datetime.strptime(self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S")
         except ValueError:
-            error = self._get_error_header_() + \
-                f"Initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
-            errors.append(error)
+            msg = self._get_error_header_() + f"Initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+            errors.append(Message(msg,"ERROR"))
         # Check daylight saving dates
         if (self.parameter("daylight_saving").value):
             try:
-                dt.datetime.strptime(
-                    self.parameter(
-                        "daylight_saving_start_time").value, "%d/%m/%Y %H:%M:%S"
-                )
+                dt.datetime.strptime(self.parameter("daylight_saving_start_time").value, "%d/%m/%Y %H:%M:%S")
             except ValueError:
-                error = self._get_error_header_() + \
-                    f"Initial_time: {self.parameter('daylight_saving_start_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
-                errors.append(error)
+                msg = self._get_error_header_() + f"Initial_time: {self.parameter('daylight_saving_start_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+                errors.append(Message(msg,"ERROR"))
             try:
-                dt.datetime.strptime(
-                    self.parameter(
-                        "daylight_saving_end_time").value, "%d/%m/%Y %H:%M:%S"
-                )
+                dt.datetime.strptime(self.parameter("daylight_saving_end_time").value, "%d/%m/%Y %H:%M:%S")
             except ValueError:
-                error = self._get_error_header_() + \
-                    f"Initial_time: {self.parameter('daylight_saving_end_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
-                errors.append(error)
+                error = self._get_error_header_() + f"Initial_time: {self.parameter('daylight_saving_end_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+                errors.append(Message(msg,"ERROR"))
 
         self._set_ordered_component_list_()
         list = self._ordered_component_list_
@@ -327,17 +311,16 @@ class Project(Parameter_container):
                 for e in error_comp:
                     errors.append(e)
             if comp.parameter("name").value in names:
-                error = self._get_error_header_() + \
-                    f"'{comp.parameter('name').value}' is used by two or more components as name"
-                errors.append(error)
+                msg = self._get_error_header_() + f"'{comp.parameter('name').value}' is used by two or more components as name"
+                errors.append(Message(msg,"ERROR"))
             else:
                 names.append(comp.parameter("name").value)
 
         if len(errors) == 0:
-            self._sim_.print("ok")
+            self._sim_.message(Message("Checking completed.", "CONSOLE"))
         else:
             for error in errors:
-                self._sim_.print(error)
+                self._sim_.message(error)
 
         return errors
 
@@ -362,13 +345,13 @@ class Project(Parameter_container):
         self._sim_df["last_component"] = "None"
         self._sim_df["converged"] = True
 
-        self._sim_.print(f"Simulating {self.parameter('name').value}: ...")
+        self._sim_.message(Message(f"Simulating {self.parameter('name').value}: ...", "CONSOLE"))
 
         show_percent = show_percentage
         n_iter_acum = 0
         for i in range(n):
             if ((100.0*(i+1) / n) >= show_percent):
-                self._sim_.print(f"{int(show_percent)}%: N_iter: {(n_iter_acum/(n*show_percentage/100)):.2f}")
+                self._sim_.message(Message(f"{int(show_percent)}%: N_iter: {(n_iter_acum/(n*show_percentage/100)):.2f}", "CONSOLE"))
                 show_percent = show_percent + show_percentage
                 n_iter_acum = 0
             daylight_saving = False
@@ -389,10 +372,10 @@ class Project(Parameter_container):
             self._post_iteration_(i, date, daylight_saving, converge)
             date = date + dt.timedelta(0, delta_t)
 
-        self._sim_.print("Simulation completed.")
+        self._sim_.message(Message("Simulation completed.", "CONSOLE"))
         n_not_converged = len(self._sim_df["converged"]) - self._sim_df["converged"].sum()
         if n_not_converged > 0:
-            self._sim_.print(f"Warning: {n_not_converged} time steps did not converge.")
+            self._sim_.message(Message(f"{n_not_converged} time steps did not converge.", "WARNING"))
         self._post_simulation_()
 
     def _pre_simulation_(self, n_time_steps, delta_t):

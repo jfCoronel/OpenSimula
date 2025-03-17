@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from OpenSimula.Component import Component
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_options, Parameter_float, Parameter_float_list
 from shapely.geometry import Polygon
 
@@ -32,9 +33,8 @@ class Surface(Component):
         # Test if Polygon shape that x_polygon and y_polygon has the same size
         if self.parameter("shape").value == "POLYGON":
             if len(self.parameter("x_polygon").value) != len(self.parameter("y_polygon").value):
-                errors.append(
-                    f"Error: {self.parameter('name').value}, x_polygo and y_polygon must have the same size."
-                )
+                msg = f"{self.parameter('name').value}, x_polygo and y_polygon must have the same size."
+                errors.append(Message(msg, "ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

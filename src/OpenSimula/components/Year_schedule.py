@@ -1,5 +1,6 @@
 import datetime as dt
 from bisect import bisect
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_component_list, Parameter_string_list
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
@@ -27,9 +28,8 @@ class Year_schedule(Component):
             len(self.parameter("periods").value)
             != len(self.parameter("weeks_schedules").value) - 1
         ):
-            errors.append(
-                f"Error: {self.parameter('name').value}, periods size must be weeks_schedules size minus 1"
-            )
+            msg = f"{self.parameter('name').value}, periods size must be weeks_schedules size minus 1"
+            errors.append(Message(msg, "ERROR"))
         # Check periods format
         try:
             days = []
@@ -37,12 +37,11 @@ class Year_schedule(Component):
                 datetime = dt.datetime.strptime(period, "%d/%m")
                 days.append(datetime.timetuple().tm_yday)
             if sorted(days) != days:
-                errors.append(
-                    f"Error: {self.parameter('name').value}, periods are not ordered"
-                )
+                msg = f"{self.parameter('name').value}, periods are not ordered"
+                errors.append(Message(msg, "ERROR"))
         except ValueError:
-            error = f"Error: {self.parameter('name').value}, periods does not match format (dd/mm)"
-            errors.append(error)
+            msg = f"{self.parameter('name').value}, periods does not match format (dd/mm)"
+            errors.append(Message(msg, "ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

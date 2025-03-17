@@ -1,3 +1,4 @@
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
@@ -57,20 +58,20 @@ class HVAC_DX_system(Component):
         errors = super().check()
         # Test equipment defined
         if self.parameter("equipment").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define its equipment.")
+            msg = f"{self.parameter('name').value}, must define its equipment."
+            errors.append(Message(msg, "ERROR"))
         # Test space defined
         if self.parameter("space").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define its space.")
+            msg = f"{self.parameter('name').value}, must define its space."
+            errors.append(Message(msg, "ERROR"))
         # Test file_met defined
         if self.parameter("file_met").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, file_met must be defined.")
+            msg = f"{self.parameter('name').value}, file_met must be defined."
+            errors.append(Message(msg, "ERROR"))
         # Test enthalpy economizer not compatible with temperature control type
         if (self.parameter("economizer").value == "ENTHALPY" or self.parameter("economizer").value == "ENTHALPY_LIMITED") and self.parameter("control_type").value == "TEMPERATURE":
-            errors.append(
-                f"Error: {self.parameter('name').value}, enthalpy economizer not compatible with temperature control type. control typed changed to PERFECT.")
+            msg = f"{self.parameter('name').value}, enthalpy economizer not compatible with temperature control type. control typed changed to PERFECT."
+            errors.append(Message(msg, "ERROR"))
             self.parameter("control_type").value = "PERFECT"
         return errors
 
