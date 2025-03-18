@@ -7,6 +7,7 @@ case610_dict = {
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "Denver",
     "components": [
         {
             "type": "File_met",
@@ -150,7 +151,6 @@ case610_dict = {
         {
             "type": "Building",
             "name": "Building",
-            "file_met": "Denver",
             "albedo": 0.2,
             "azimuth": 0,
             "shadow_calculation": "INSTANT"
@@ -328,7 +328,6 @@ case610_dict = {
             "type": "HVAC_perfect_system",
             "name": "system",
             "space": "space_1",
-            "file_met": "Denver",
             "outdoor_air_flow": 0,
             "heating_setpoint": "20",
             "cooling_setpoint": "27",

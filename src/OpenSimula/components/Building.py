@@ -21,7 +21,6 @@ class Building(Component):
         self.parameter("type").value = "Building"
         self.parameter("description").value = "Building description"
         # Parameters
-        self.add_parameter(Parameter_component("file_met", "not_defined", ["File_met"]))
         # X-axe vs East angle (0: X->East, 90: x->North)
         self.add_parameter(Parameter_float("azimuth", 0, "°", min=-180, max=180))
         self.add_parameter(Parameter_float("albedo", 0.3, "frac", min=0, max=1))
@@ -45,8 +44,9 @@ class Building(Component):
 
     def check(self):
         errors = super().check()
-        if self.parameter("file_met").value == "not_defined":
-            msg = Message(f"{self.parameter('name').value}, file_met must be defined.", "ERROR")
+        file_met = self.project().parameter("simulation_file_met").value
+        if file_met == "not_defined":
+            msg = Message(f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'.", "ERROR")
             errors.append(msg)
         self._create_lists()
         return errors
@@ -73,7 +73,7 @@ class Building(Component):
     # _______________
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self._file_met = self.parameter("file_met").component
+        self._file_met = self.project().parameter("simulation_file_met").component
         sicro.SetUnitSystem(sicro.SI)
         self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
         self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
@@ -658,7 +658,7 @@ class Building(Component):
 
     def show3D_shadows(self, date):
         self._create_building_3D()
-        self._file_met = self.parameter("file_met").component
+        self._file_met = self.parameter("simulation_file_met").component
         cos = self._file_met.sun_cosines(date)
         if len(cos) == 3:
             self.building_3D.show_shadows(cos)

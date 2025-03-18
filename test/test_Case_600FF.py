@@ -6,6 +6,7 @@ case600FF_dict = {
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "Denver",
     "components": [
         {
             "type": "File_met",
@@ -153,7 +154,6 @@ case600FF_dict = {
         {
             "type": "Building",
             "name": "Building",
-            "file_met": "Denver",
             "albedo": 0.2,
             "azimuth": 0,
             "shadow_calculation": "INSTANT"

@@ -13,7 +13,6 @@ class HVAC_DX_system(Component):
         self.parameter("description").value = "HVAC Direct Expansion system for time simulation"
         self.add_parameter(Parameter_component("equipment", "not_defined", ["HVAC_DX_equipment"]))
         self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
-        self.add_parameter(Parameter_component("file_met", "not_defined", ["File_met"]))
         self.add_parameter(Parameter_float("supply_air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
@@ -65,8 +64,8 @@ class HVAC_DX_system(Component):
             msg = f"{self.parameter('name').value}, must define its space."
             errors.append(Message(msg, "ERROR"))
         # Test file_met defined
-        if self.parameter("file_met").value == "not_defined":
-            msg = f"{self.parameter('name').value}, file_met must be defined."
+        if self.project().parameter("simulation_file_met").value == "not_defined":
+            msg = f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'."
             errors.append(Message(msg, "ERROR"))
         # Test enthalpy economizer not compatible with temperature control type
         if (self.parameter("economizer").value == "ENTHALPY" or self.parameter("economizer").value == "ENTHALPY_LIMITED") and self.parameter("control_type").value == "TEMPERATURE":
@@ -79,7 +78,7 @@ class HVAC_DX_system(Component):
         super().pre_simulation(n_time_steps, delta_t)
         self._equipment = self.parameter("equipment").component
         self._space = self.parameter("space").component
-        self._file_met = self.parameter("file_met").component
+        self._file_met = self.project().parameter("simulation_file_met").component
         self._supply_air_flow = self.parameter("supply_air_flow").value
         self._f_air = self._supply_air_flow / self._equipment.parameter("nominal_air_flow").value
         self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)

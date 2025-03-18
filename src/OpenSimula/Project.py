@@ -7,7 +7,7 @@ import dash_ag_grid as dag
 import dash_bootstrap_components as dbc
 from OpenSimula.Message import Message
 from OpenSimula.Parameter_container import Parameter_container
-from OpenSimula.Parameters import Parameter_int, Parameter_string, Parameter_string_list, Parameter_boolean
+from OpenSimula.Parameters import Parameter_component, Parameter_int, Parameter_string, Parameter_string_list, Parameter_boolean
 from OpenSimula.components import *
 
 class Project(Parameter_container):
@@ -38,7 +38,7 @@ class Project(Parameter_container):
             "daylight_saving_end_time", "28/10/2001 02:00:00"))
         self.add_parameter(Parameter_int("n_max_iteration", 1000, min=1))
         self.add_parameter(Parameter_string_list("simulation_order",DEFAULT_COMPONENTS_ORDER))
-        self.add_parameter(Parameter_string("simulation_file_met", "None"))
+        self.add_parameter(Parameter_component("simulation_file_met", "not_defined", ["File_met"]))
         self._sim_ = sim
         self._components_ = []
 

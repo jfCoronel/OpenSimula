@@ -4,7 +4,6 @@
 Component for the perfect conditioning of a space. With this component we can obtain the heating and cooling loads (sensible and latent).
 
 #### Parameters
-- **file_met** [_component_, default = "not_defined", component type = File_met]: Reference to the component where the weather file is defined.
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be controlled by this system.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
 - **outdoor_air_flow** [_math_exp_, unit = "m³/s", default = "0"]: Outside air flow rate (ventilation) supplied to the space. This flow rate is only entered if the system is in operation. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
@@ -23,7 +22,6 @@ If outside air (ventilation) is present, it is introduced into the space as ‘u
 system = osm.components.HVAC_perfect_system("system",project)
 param = {
         "space": "space_1",
-        "file_met": "Denver",
         "outdoor_air_flow": "0.1",
         "heating_setpoint": "20",
         "cooling_setpoint": "27",
@@ -120,7 +118,6 @@ equipment.set_parameters(param)
 Component for the simulation of an air-conditioning system for a space and using equipment in direct expansion "HVAC_DX_equipment".
 
 #### Parameters
-- **file_met** [_component_, default = "not_defined", component type = File_met]: Reference to the component where the weather file is defined.
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be air-conditioned by this system.
 - **equipment** [_component_, default = "not_defined", component type = HVAC_DX_equipment]: Reference to the "HVAC_DX_equipment" component used by this system.
 - **supply_air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Supply air flow used for all the simulation.
@@ -172,7 +169,6 @@ The operation of the economizer for "TEMPERATURE" or “TEMPERATURE_NOT_INTEGRAT
 system = osm.components.HVAC_DX_system("system",project)
 param = {
         "space": "space_1",
-        "file_met": "Denver",
         "equipment": "HVAC_equipment",
         "supply_air_flow": 0.417,
         "outdoor_air_flow": 0,

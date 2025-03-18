@@ -32,7 +32,7 @@ class Underground_surface(Real_surface):
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self._file_met = self.building().parameter("file_met").component
+        self._file_met = self.project().parameter("simulation_file_met").component
         self._T_ini = self.building().parameter("initial_temperature").value
         self._calculate_K()
 

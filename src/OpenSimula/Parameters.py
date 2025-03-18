@@ -433,7 +433,10 @@ class Parameter_component(Parameter):
             else:
                 return proj.component(splits[1])
         else:
-            return self.parent.project().component(self.value)
+            if self.parent.__class__.__name__== "Project":
+                return self.parent.component(self.value)
+            else:
+                return self.parent.project().component(self.value)
 
     def check(self):
         errors = []

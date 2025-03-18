@@ -66,7 +66,7 @@ class Space(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self._file_met = self.building().parameter("file_met").component
+        self._file_met = self.project().parameter("simulation_file_met").component
         self._space_type_comp = self.parameter("space_type").component
         self._area = self.parameter("floor_area").value
         self._volume = self.parameter("volume").value

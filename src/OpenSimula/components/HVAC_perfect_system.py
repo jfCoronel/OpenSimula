@@ -11,7 +11,6 @@ class HVAC_perfect_system(Component):
         self.parameter("type").value = "HVAC_perfect_system"
         self.parameter("description").value = "HVAC Perfect system for cooling and heating load"
         self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
-        self.add_parameter(Parameter_component("file_met", "not_defined", ["File_met"]))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
@@ -41,15 +40,15 @@ class HVAC_perfect_system(Component):
             msg =f"{self.parameter('name').value}, must define its space."
             errors.append(Message(msg, "ERROR"))
         # Test file_met defined
-        if self.parameter("file_met").value == "not_defined":
-            msg = f"{self.parameter('name').value}, file_met must be defined."
+        if self.project().parameter("simulation_file_met").value == "not_defined":
+            msg = f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'."
             errors.append(Message(msg, "ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         self._space = self.parameter("space").component
-        self._file_met = self.parameter("file_met").component
+        self._file_met = self.project().parameter("simulation_file_met").component
         self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
         self.RHO_A = sicro.GetMoistAirDensity(20,0.0073,self.ATM_PRESSURE)
         # input_varibles symbol and variable
