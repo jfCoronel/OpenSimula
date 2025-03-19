@@ -48,7 +48,7 @@ class HVAC_DX_system(Component):
         self.add_variable(Variable("efficiency_degradation", unit="frac"))
 
 
-         # Sicro
+        # Sicro
         sicro.SetUnitSystem(sicro.SI)
         self.CP_A = 1007 # (J/kg·K)
         self.DH_W = 2501 # (J/g H20)

@@ -1,7 +1,10 @@
+from OpenSimula.Iterative_process import Iterative_process
 from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_float, Parameter_float_list, Parameter_math_exp, Parameter_options, Parameter_boolean
 from OpenSimula.Component import Component
+from OpenSimula.components.utils.fluid_props import rhocp_water
 from scipy.optimize import fsolve
+import psychrolib as sicro
 
 class HVAC_FC_equipment(Component):
     def __init__(self, name, project):
@@ -9,22 +12,26 @@ class HVAC_FC_equipment(Component):
         self.parameter("type").value = "HVAC_FC_equipment"
         self.parameter("description").value = "HVAC Fan-coil equipment manufacturer information"
         self.add_parameter(Parameter_float("nominal_air_flow", 1, "m³/s", min=0))
-        self.add_parameter(Parameter_float("nominal_water_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("nominal_cooling_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_total_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_sensible_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("fan_power", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_cooling_conditions", [27, 19, 7], "ºC"))
+        self.add_parameter(Parameter_float("nominal_heating_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_heating_capacity", 0, "W", min=0))
-        self.add_parameter(Parameter_float_list("nominal_heating_conditions", [20, 15, 30], "ºC"))
+        self.add_parameter(Parameter_float_list("nominal_heating_conditions", [20, 15, 50], "ºC"))
         self.add_parameter(Parameter_options("fan_operation", "CONTINUOUS", ["CONTINUOUS", "CYCLING"]))
-        
-        self.add_parameter(Parameter_options("coil_model", "BYPASS_FACTOR", ["BYPASS_FACTOR"]))
-
-        self.add_parameter(Parameter_math_exp("total_cooling_capacity_expression", "1", "frac"))
-        self.add_parameter(Parameter_math_exp("cooling_bypass_factor_expression", "1", "frac"))
-        self.add_parameter(Parameter_math_exp("heating_capacity_expression", "1", "frac"))
-        self.add_parameter(Parameter_float_list("expression_max_values", [60,30,90,2,2,1], "-"))
+        self.add_parameter(Parameter_math_exp("heating_epsilon_expression", "1", "frac"))
+        self.add_parameter(Parameter_math_exp("cooling_enthalpy_epsilon_expression", "1", "frac"))
+        self.add_parameter(Parameter_math_exp("cooling_adp_epsilon_expression", "1", "frac"))
+        self.add_parameter(Parameter_float_list("expression_max_values", [60,30,99,2,2,1], "-"))
         self.add_parameter(Parameter_float_list("expression_min_values", [0,0,0,0,0,0], "-"))
+
+        # Sicro
+        sicro.SetUnitSystem(sicro.SI)
+        self.CP_A = 1007 # (J/kg·K)
+        self.DH_W = 2501 # (J/g H20)
+
 
     def check(self):
         errors = super().check()
@@ -36,145 +43,135 @@ class HVAC_FC_equipment(Component):
             msg = f"{self.parameter('name').value}, nominal_heating_conditions size must be 3"
             errors.append(Message(msg, "ERROR"))
         return errors
-    
-    def _get_nominal_bypass_factor(self):
-        
 
-    def get_cooling_capacity(self,T_idb,T_iwb,T_iw,F_air, F_water):
-        """
-        Returns (Q_tot,Q_sen) capacities. 
-        If fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
-        If fan_operation is CYCLING: It returns the expressions minus the indoor fan power (Net capacity = Gross capacity - indoor fan)  
-        """
-        total_capacity = self.parameter("nominal_total_cooling_capacity").value
-        if total_capacity > 0:
-            # variables dictonary
-            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air, F_water,0])
-            # Total
-            f = self.parameter("total_cooling_capacity_expression").evaluate(var_dic)
-            total_capacity = total_capacity * f
-            # Sensible
-            bf = self.parameter("nominal_sensible_cooling_capacity").value
-            f = self.parameter("sensible_cooling_capacity_expression").evaluate(var_dic)
-            sensible_capacity = sensible_capacity * f
-            if (sensible_capacity > total_capacity):
-                if self.parameter("dry_coil_model").value == "SENSIBLE":
-                    total_capacity = sensible_capacity
-                elif self.parameter("dry_coil_model").value == "TOTAL":
-                    sensible_capacity = total_capacity
-            if self.parameter("indoor_fan_operation").value == "CYCLING":
-                sensible_capacity = sensible_capacity - self.parameter("indoor_fan_power").value
-                total_capacity = total_capacity - self.parameter("indoor_fan_power").value
-            return (total_capacity, sensible_capacity)
-        else:
-            return (0,0)
+    def pre_simulation(self, n_time_steps, delta_t):
+        super().pre_simulation(n_time_steps, delta_t)
+        self._file_met = self.project().parameter("simulation_file_met").component
+        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
+        self.RHO_A = sicro.GetMoistAirDensity(20,0.0073,self.ATM_PRESSURE)
+
+        self._nominal_air_flow = self.parameter("nominal_air_flow").value
+        self._fan_power = self.parameter("fan_power").value
+        # Heating
+        self._nominal_heating_capacity = self.parameter("nominal_heating_capacity").value
+        self._nominal_heating_water_flow = self.parameter("nominal_heating_water_flow").value
+        self._T_idb_HN = self.parameter("nominal_heating_conditions").value[0]
+        self._T_iw_HN = self.parameter("nominal_heating_conditions").value[2]
+        # Cooling
+        self._nominal_total_cooling_capacity = self.parameter("nominal_total_cooling_capacity").value
+        self._nominal_sensible_cooling_capacity = self.parameter("nominal_sensible_cooling_capacity").value
+        self._nominal_cooling_water_flow = self.parameter("nominal_cooling_water_flow").value
+        self._T_idb_CN = self.parameter("nominal_cooling_conditions").value[0]
+        self._T_iwb_CN = self.parameter("nominal_cooling_conditions").value[1]
+        self._T_iw_CN = self.parameter("nominal_cooling_conditions").value[2]
+        self.calculate_nominal_effectiveness()
     
-    def get_heating_capacity(self,T_idb,T_iwb,T_iw,F_air,F_water):
+    def calculate_nominal_effectiveness(self):
+        # Heating
+        if self._nominal_heating_capacity > 0:
+            C_min = min(self._nominal_air_flow*self.RHO_A*self.CP_A, self._nominal_heating_water_flow*rhocp_water(self._T_iw_HN))
+            Q_max = C_min * (self._T_iw_HN - self._T_idb_HN)
+            self._nominal_heating_epsilon = self._nominal_heating_capacity/Q_max
+            if self._nominal_heating_epsilon > 1:
+                self._sim_.message(Message(f"{self.parameter('name').value} : Nominal heating effectiveness > 1","ERROR"))
+        else:
+            self._nominal_heating_epsilon = 0
+        
+        # Cooling
+        if self._nominal_total_cooling_capacity > 0:
+            w_i = sicro.GetHumRatioFromTWetBulb(self._T_idb_CN,self._T_iwb_CN,self.ATM_PRESSURE)
+            h_ia = sicro.GetMoistAirEnthalpy(self._T_idb_CN,w_i)
+            h_iw = sicro.GetMoistAirEnthalpy(self._T_iw_CN,sicro.GetHumRatioFromRelHum(self._T_iw_CN,1))
+            self._nominal_cooling_enthalpy_epsilon = self._nominal_total_cooling_capacity / (self._nominal_air_flow*self.RHO_A*(h_ia-h_iw))
+            if (self._nominal_cooling_enthalpy_epsilon > 1):
+                self._sim_.message(Message(f"{self.parameter('name').value} : Nominal cooling enthalpy effectiveness > 1","ERROR"))
+            h_oa = h_ia - self._nominal_total_cooling_capacity/(self._nominal_air_flow*self.RHO_A)
+            T_odb = self._T_idb_CN - self._nominal_sensible_cooling_capacity/(self._nominal_air_flow*self.RHO_A*self.CP_A)
+            w_o = sicro.GetHumRatioFromEnthalpyAndTDryBulb(h_oa,T_odb)
+            # Calculate ADP
+            self._nominal_T_adp = self.calculate_ADP(self._T_idb_CN,w_i,T_odb,w_o)
+            self._nominal_cooling_adp_epsilon = (self._T_idb_CN - T_odb)/(self._T_idb_CN - self._nominal_T_adp)
+            if (self._nominal_cooling_adp_epsilon > 1):
+                self._sim_.message(Message(f"{self.parameter('name').value} : Nominal cooling ADP effectiveness > 1","ERROR"))
+        else:
+            self._nominal_cooling_enthalpy_epsilon = 0
+            self._nominal_cooling_adp_epsilon = 0
+
+
+    def calculate_ADP(self,T_i,w_i,T_o,w_o):
+        T_apd = T_o - 1
+        iteration = Iterative_process(T_apd,tol=1e-3,n_ini_relax=3,rel_vel=0.8)
+        while not iteration.converged():
+            w_adp = sicro.GetHumRatioFromRelHum(T_adp,1,self.ATM_PRESSURE)
+            T_adp = T_i - (w_i -w_adp) * (T_i - T_o)/(w_i-w_o)
+            T_adp = iteration.x_next(T_adp)
+        return T_adp
+
+
+
+    def get_heating_state(self,T_idb,T_iwb,T_iw,F_air,F_water,F_load):
         """
-        Returns heat sensible capacity. 
+        Returns (Q,epsilon,fan_power). 
         If fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
         If fan_operation is CYCLING: It returns the expressions plus the indoor fan power (Net capacity = Gross capacity + indoor fan)  """
-        capacity = self.parameter("nominal_heating_capacity").value
-        if capacity > 0:
+       
+        if self._nominal_heating_capacity > 0:
             # variables dictonary
             var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,F_water,0])
             # Capacity
-            capacity = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
-            if self.parameter("indoor_fan_operation").value == "CYCLING":
-                capacity = capacity + self.parameter("indoor_fan_power").value
-            return capacity
+            epsilon = self._nominal_heating_epsilon * self.parameter("heating_epsilon_expression").evaluate(var_dic)
+            C_min = min(self._nominal_air_flow*F_air*self.RHO_A*self.CP_A, self._nominal_heating_water_flow*F_water*rhocp_water(T_iw))
+            capacity = epsilon * C_min * (T_iw - T_idb)
+            if self.parameter("fan_operation").value == "CYCLING":
+                capacity = capacity + self.parameter("fan_power").value
+                return (capacity*F_load, epsilon,self._fan_power*F_load)
+            elif self.parameter("fan_operation").value == "CONTINUOUS":
+                return (capacity*F_load, epsilon, self._fan_power)
         else:
-            return 0
-    
-    def get_cooling_state(self,T_idb,T_iwb,T_iw,F_air,F_water,F_load):
-        """
-        Returns (Q_tot,Q_sen,fan_power).
-        """
-        total_capacity, sensible_capacity = self.get_cooling_capacity(T_idb,T_iwb,T_iw,F_air,F_water)
-        if total_capacity > 0:
-            if self.parameter("fan_operation").value == "CYCLING": # Get gross capacities
-                total_capacity= total_capacity + self.parameter("fan_power").value
-                sensible_capacity= sensible_capacity + self.parameter("fan_power").value
-            if (F_load > 0):
-                # variables dictonary
-                var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,F_water,F_load])
-             
-                power_full = self._get_correct_cooling_power(total_capacity,sensible_capacity,var_dic)
+            return (0,0,0)
 
-                EER_full = total_capacity/power_full
-                F_EER = self.parameter("EER_expression").evaluate(var_dic) 
-                EER = EER_full * F_EER 
-                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
-                    fan_power = self.parameter("indoor_fan_power").value
-                    power = total_capacity*F_load/EER + fan_power
-                elif self.parameter("indoor_fan_operation").value == "CYCLING":
-                    fan_power = self.parameter("indoor_fan_power").value*F_load/F_EER
-                    power = total_capacity*F_load/EER + fan_power 
-                return (total_capacity*F_load, sensible_capacity*F_load, power, fan_power, F_EER)
-            else:
-                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
-                    fan_power = self.parameter("indoor_fan_power").value
-                    return ( 0 , 0 , fan_power, fan_power, 0 )
-                elif self.parameter("indoor_fan_operation").value == "CYCLING":
-                    return ( 0 , 0 , 0, 0, 0 )
+
+    def get_cooling_state(self,T_idb,T_iwb,T_iw,F_air, F_water,F_load):
+        """
+        Returns (Q_tot,Q_sen,ent_epsilon,adp_epsilon,fan_power). 
+        If fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
+        If fan_operation is CYCLING: It returns the expressions minus the indoor fan power (Net capacity = Gross capacity - indoor fan)  
+        """
+        if self._nominal_total_cooling_capacity > 0:
+            # variables dictonary
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air, F_water,0])
+            # epsilons
+            ent_epsilon = self._nominal_cooling_enthalpy_epsilon * self.parameter("cooling_enthalpy_epsilon_expression").evaluate(var_dic)
+            adp_epsilon = self._nominal_cooling_adp_epsilon * self.parameter("cooling_adp_epsilon_expression").evaluate(var_dic)
+            w_i = sicro.GetHumRatioFromTWetBulb(T_idb,T_iwb,self.ATM_PRESSURE)
+            h_ia = sicro.GetMoistAirEnthalpy(T_idb,w_i)
+            h_iw = sicro.GetMoistAirEnthalpy(T_iw,sicro.GetHumRatioFromRelHum(T_iw,1))
+            Q_tot = ent_epsilon * self._nominal_air_flow*self.RHO_A * (h_ia - h_iw)
+            h_oa = h_ia - Q_tot/(self._nominal_air_flow*self.RHO_A)
+            h_adp = h_ia - (h_ia -h_oa)/adp_epsilon
+            T_adp = self.get_T_adp_from_h_adp(h_adp,T_iw + 4)
+            Q_sen = self._nominal_air_flow*self.RHO_A*self.CP_A*(T_idb-T_adp)*adp_epsilon
+            if (Q_sen > Q_tot):
+                Q_sen = Q_tot
+            if self.parameter("fan_operation").value == "CYCLING":
+                Q_tot = Q_tot - self.parameter("fan_power").value
+                Q_sen = Q_sen - self.parameter("fan_power").value
+                return (Q_tot*F_load,Q_sen*F_load,ent_epsilon,adp_epsilon,self._fan_power*F_load)
+            elif self.parameter("fan_operation").value == "CONTINUOUS":
+                return (Q_tot*F_load,Q_sen*F_load,ent_epsilon,adp_epsilon,self._fan_power)
         else:
             return (0,0,0,0,0)
-        
-    def _get_correct_cooling_power(self,total_capacity, sensible_capacity, var_dic):
-        power = self.parameter("nominal_cooling_power").value
-        if (sensible_capacity == total_capacity and self.parameter("power_dry_coil_correction").value):
-            T_iwb_min = self._get_min_T_iwb(var_dic)
-            var_dic["T_iwb"] = T_iwb_min
-        f = self.parameter("cooling_power_expression").evaluate(var_dic)
-        return (power * f)
-                  
-    def _get_min_T_iwb(self,var_dic):
-        total_capacity = self.parameter("nominal_total_cooling_capacity").value
-        sensible_capacity = self.parameter("nominal_sensible_cooling_capacity").value
-        def func(T_iwb):
-            var_dic["T_iwb"] = T_iwb
-            return (sensible_capacity*self.parameter("sensible_cooling_capacity_expression").evaluate(var_dic)-
-                    total_capacity*self.parameter("total_cooling_capacity_expression").evaluate(var_dic))
-        root = fsolve(func, var_dic["T_iwb"],xtol=1e-3)
-        return root[0]
     
-    def get_heating_state(self,T_idb, T_iwb,T_odb,T_owb,F_air,F_load):
-        """
-        Returns (Q_sen,power,indoor_fan_power,F_COP).
-        """
-        capacity = self.get_heating_capacity(T_idb, T_iwb, T_odb,T_owb,F_air)
-        if capacity > 0:
-            if self.parameter("indoor_fan_operation").value == "CYCLING": # Get gross capacities
-                capacity= capacity - self.parameter("indoor_fan_power").value
-            if (F_load > 0):
-                # variables dictonary
-                var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
-                # Compressor
-                power_full = self.parameter("nominal_heating_power").value
-                power_full = power_full * self.parameter("heating_power_expression").evaluate(var_dic)
-                COP_full = capacity/power_full
-                F_COP = self.parameter("COP_expression").evaluate(var_dic) 
-                COP = COP_full * F_COP
-                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
-                    fan_power = self.parameter("indoor_fan_power").value
-                    power = capacity*F_load/COP + fan_power
-                elif self.parameter("indoor_fan_operation").value == "CYCLING":
-                    fan_power = self.parameter("indoor_fan_power").value*F_load/F_COP
-                    power = capacity*F_load/COP + fan_power
-                return (capacity*F_load, power, fan_power, F_COP)
-            else:
-                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
-                    fan_power = self.parameter("indoor_fan_power").value
-                    return (0,fan_power,fan_power,0)
-                elif self.parameter("indoor_fan_operation").value == "CYCLING":
-                    return (0,0,0,0)
-        else:
-            return (0,0,0,0)
+    def get_T_adp_from_h_adp(self,h_adp,T_ini):
+        def func(x):
+            return (h_adp - sicro.GetSatAirEnthalpy(x,self.ATM_PRESSURE))
+        solucion = fsolve(func, x0=T_ini,xtol=1e-3)
+        return solucion[0]      
         
     def get_no_load_power(self):
-        if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
-            return self.parameter("indoor_fan_power").value
-        elif self.parameter("indoor_fan_operation").value == "CYCLING":
+        if self.parameter("fan_operation").value == "CONTINUOUS":
+            return self.parameter("fan_power").value
+        elif self.parameter("fan_operation").value == "CYCLING":
             return 0
     
     def _var_state_dic(self, values):
