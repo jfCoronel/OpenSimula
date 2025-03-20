@@ -22,6 +22,7 @@ from OpenSimula.components.Calculator import Calculator
 from OpenSimula.components.HVAC_DX_equipment import HVAC_DX_equipment
 from OpenSimula.components.HVAC_FC_equipment import HVAC_FC_equipment
 from OpenSimula.components.HVAC_DX_system import HVAC_DX_system
+from OpenSimula.components.HVAC_FC_system import HVAC_FC_system
 from OpenSimula.components.HVAC_perfect_system import HVAC_perfect_system
 
 DEFAULT_COMPONENTS_ORDER = [
@@ -36,6 +37,7 @@ DEFAULT_COMPONENTS_ORDER = [
                     "Building",
                     "HVAC_perfect_system",
                     "HVAC_DX_system",
+                    "HVAC_FC_system",
                     "Calculator"
                 ]
 
