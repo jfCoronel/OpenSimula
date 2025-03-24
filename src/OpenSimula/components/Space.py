@@ -45,9 +45,6 @@ class Space(Component):
         self.add_variable(Variable("u_system_sensible_heat", unit="W"))
         self.add_variable(Variable("u_system_latent_heat", unit="W"))
 
-        # Sicro
-        sicro.SetUnitSystem(sicro.SI)
-
     def building(self):
         return self.parameter("building").component
 
@@ -63,10 +60,19 @@ class Space(Component):
             errors.append(Message(msg, "ERROR"))
         self._create_surfaces_list()
         return errors
+    
+    def _create_air_props(self):
+        self._file_met = self.project().parameter("simulation_file_met").component
+        sicro.SetUnitSystem(sicro.SI)
+        self.RHO = self.building().RHO
+        self.C_P = self.building().C_P
+        self.C_P_FURNITURE = self.building().C_P_FURNITURE
+        self.LAMBDA = self.building().LAMBDA
+        self.ATM_PRESSURE = self.building().ATM_PRESSURE
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self._file_met = self.project().parameter("simulation_file_met").component
+        self._create_air_props()
         self._space_type_comp = self.parameter("space_type").component
         self._area = self.parameter("floor_area").value
         self._volume = self.parameter("volume").value
@@ -233,11 +239,9 @@ class Space(Component):
         self.itera_w = Iterative_process(self._w,tol=self.parameter("convergence_Dw").value,n_ini_relax=3,rel_vel=0.8)
 
         # Humidity balance
-        rho = self.building().RHO
-        lam = self.building().LAMBDA
-        self._K_hum = rho * (self._volume / self._Dt + V_inf)
-        self._F_hum = (self.variable("people_latent").values[time_index] + self.variable("other_gains_latent").values[time_index])/lam
-        self._F_hum += rho * self._volume / self._Dt * self._w_pre + rho * V_inf * self._file_met.variable("abs_humidity").values[time_index]
+        self._K_hum = self.RHO * (self._volume / self._Dt + V_inf)
+        self._F_hum = (self.variable("people_latent").values[time_index] + self.variable("other_gains_latent").values[time_index])/self.LAMBDA
+        self._F_hum += self.RHO * self._volume / self._Dt * self._w_pre + self.RHO * V_inf * self._file_met.variable("abs_humidity").values[time_index]
 
        
     def _estimate_T_w(self, time_i):
@@ -256,17 +260,17 @@ class Space(Component):
         super().iteration(time_index, date, daylight_saving, n_iter)
 
         # Calculate temperature
-        K_tot,F_tot = self._calculate_K_F_tot(True)
+        K_tot,F_tot = self.get_thermal_equation(True)
         T = F_tot/K_tot
         self.variable("temperature").values[time_index] = self.itera_T.x_next(T)
         
         # Calculate humidity
-        K_hum, F_hum = self._calculate_K_F_hum(True)
+        K_hum, F_hum = self.get_humidity_equation(True)
         w = F_hum/K_hum
         if (w < 0):
             w = 0
         if (T< 100): # Sicro limits
-            max_hum = sicro.GetHumRatioFromRelHum(T, 1, self.building().ATM_PRESSURE)*1000
+            max_hum = sicro.GetHumRatioFromRelHum(T, 1, self.ATM_PRESSURE)*1000
             if (w > max_hum):
                 w = max_hum
 
@@ -299,30 +303,27 @@ class Space(Component):
             self._Q_u_systems += system["Q"]
             self._M_u_systems += system["M"]
 
-    def _calculate_K_F_tot(self, include_control_system):
-        rho = self.building().RHO
-        c_p = self.building().C_P
+    def get_thermal_equation(self, include_control_system):
         self._acumulate_u_systems()
-        # F_OS may be updated by de building in each iteration
-        F_tot = self.K_F["F"]+self.K_F["F_OS"] + self._V_T_u_systems * rho * c_p + self._Q_u_systems
-        K_tot = self.K_F["K"] + self._V_u_systems * rho * c_p
+        # F_OS may be updated by the building in each iteration
+        F_tot = self.K_F["F"]+self.K_F["F_OS"] + self._V_T_u_systems * self.RHO * self.C_P + self._Q_u_systems
+        K_tot = self.K_F["K"] + self._V_u_systems * self.RHO * self.C_P
         if include_control_system:
-            K_tot += self.control_system["V"]*rho*c_p
-            F_tot += self.control_system["V"]*rho*c_p*self.control_system["T"] + self.control_system["Q"]
+            K_tot += self.control_system["V"] * self.RHO * self.C_P
+            F_tot += self.control_system["V"] * self.RHO * self.C_P * self.control_system["T"] + self.control_system["Q"]
         return (K_tot, F_tot)
 
-    def _calculate_K_F_hum(self, include_control_system):
-        rho = self.building().RHO
+    def get_humidity_equation(self, include_control_system):
         self._acumulate_u_systems()
-        K_hum = self._K_hum + rho * self._V_u_systems
-        F_hum = self._F_hum + rho * self._V_w_u_systems + self._M_u_systems
+        K_hum = self._K_hum + self.RHO * self._V_u_systems
+        F_hum = self._F_hum + self.RHO * self._V_w_u_systems + self._M_u_systems
         if include_control_system:
-            K_hum += self.control_system["V"]*rho
-            F_hum += self.control_system["V"]*rho*self.control_system["w"]  + self.control_system["M"]
+            K_hum += self.control_system["V"] * self.RHO
+            F_hum += self.control_system["V"] * self.RHO * self.control_system["w"]  + self.control_system["M"]
         return (K_hum, F_hum)
 
     def get_Q_required(self, T_cool_sp, T_heat_sp):
-        K_tot, F_tot =  self._calculate_K_F_tot(False)
+        K_tot, F_tot =  self.get_thermal_equation(False)
         T = F_tot/K_tot
         if T > T_cool_sp:
             return K_tot * T_cool_sp - F_tot
@@ -332,16 +333,16 @@ class Space(Component):
             return 0
     
     def get_M_required(self,HR_min, HR_max):
-        K_hum, F_hum= self._calculate_K_F_hum(False)
+        K_hum, F_hum= self.get_humidity_equation(False)
         w = F_hum/K_hum
         if w < 0:
             w = 0
-        hr = sicro.GetRelHumFromHumRatio(self._T,w/1000, self.building().ATM_PRESSURE)*100
+        hr = sicro.GetRelHumFromHumRatio(self._T,w/1000, self.ATM_PRESSURE)*100
         if hr < HR_min:
-            w_min = sicro.GetHumRatioFromRelHum(self._T, HR_min/100, self.building().ATM_PRESSURE)*1000
+            w_min = sicro.GetHumRatioFromRelHum(self._T, HR_min/100, self.ATM_PRESSURE)*1000
             return K_hum * w_min - F_hum
         elif hr > HR_max:
-            w_max = sicro.GetHumRatioFromRelHum(self._T, HR_max/100, self.building().ATM_PRESSURE)*1000
+            w_max = sicro.GetHumRatioFromRelHum(self._T, HR_max/100, self.ATM_PRESSURE)*1000
             return K_hum * w_max - F_hum
         else:
             return 0
@@ -358,24 +359,20 @@ class Space(Component):
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
         if (self._T < 100): # Sicro limit
-            rh = sicro.GetRelHumFromHumRatio(self._T, self._w/1000, self.building().ATM_PRESSURE)*100
+            rh = sicro.GetRelHumFromHumRatio(self._T, self._w/1000, self.ATM_PRESSURE)*100
             self.variable("rel_humidity").values[time_index] = rh
         self._calculate_heat_fluxes(time_index)
 
     def _calculate_heat_fluxes(self, time_i):
-        rho = self.building().RHO
-        c_p = self.building().C_P
-        c_pf = self.building().C_P_FURNITURE
-        lam = self.building().LAMBDA
         V_inf = self.variable("infiltration_flow").values[time_i]
         T_ext = self._file_met.variable("temperature").values[time_i]
         w_ext = self._file_met.variable("abs_humidity").values[time_i]
 
         # Sensibles
-        self.variable("delta_int_energy").values[time_i] = ( self._volume * rho * c_p + self._m_furniture * c_pf) * (self._T - self._T_pre) / self._Dt
-        self.variable("infiltration_sensible_heat").values[time_i] = V_inf * rho * c_p * (T_ext - self._T)
-        self.variable("u_system_sensible_heat").values[time_i] = rho * c_p * (self._V_T_u_systems - self._V_u_systems * self._T)
-        Q = self.control_system["V"]*rho*c_p*(self.control_system["T"] - self._T) + self.control_system["Q"]
+        self.variable("delta_int_energy").values[time_i] = ( self._volume * self.RHO * self.C_P + self._m_furniture * self.C_P_FURNITURE) * (self._T - self._T_pre) / self._Dt
+        self.variable("infiltration_sensible_heat").values[time_i] = V_inf * self.RHO * self.C_P * (T_ext - self._T)
+        self.variable("u_system_sensible_heat").values[time_i] = self.RHO * self.C_P * (self._V_T_u_systems - self._V_u_systems * self._T)
+        Q = self.control_system["V"] * self.RHO * self.C_P * (self.control_system["T"] - self._T) + self.control_system["Q"]
         self.variable("system_sensible_heat").values[time_i] = Q
 
         Q_rest =  self.variable("delta_int_energy").values[time_i] 
@@ -389,7 +386,7 @@ class Space(Component):
         self.variable("surfaces_convective").values[time_i] = Q_rest
         
         # Latents
-        self.variable("infiltration_latent_heat").values[time_i] = V_inf * rho * lam * (w_ext - self._w)
-        self.variable("u_system_latent_heat").values[time_i] = rho * lam * (self._V_w_u_systems - self._V_u_systems * self._w)
-        self.variable("system_latent_heat").values[time_i] = self.control_system["V"]*rho*lam*(self.control_system["w"] - self._w) + self.control_system["M"]*lam
+        self.variable("infiltration_latent_heat").values[time_i] = V_inf * self.RHO * self.LAMBDA * (w_ext - self._w)
+        self.variable("u_system_latent_heat").values[time_i] = self.RHO * self.LAMBDA * (self._V_w_u_systems - self._V_u_systems * self._w)
+        self.variable("system_latent_heat").values[time_i] = self.control_system["V"] * self.RHO * self.LAMBDA * (self.control_system["w"] - self._w) + self.control_system["M"] * self.LAMBDA
 

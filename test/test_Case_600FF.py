@@ -146,10 +146,6 @@ case600FF_dict = {
             "other_gains_density": "4.1667",
             "other_gains_radiant_fraction": 0.6,
             "infiltration": "0.5",
-            "heating_setpoint": "20",
-            "cooling_setpoint": "27",
-            "heating_on_off": "0",
-            "cooling_on_off": "0"
         },
         {
             "type": "Building",
@@ -166,7 +162,6 @@ case600FF_dict = {
             "floor_area": 48,
             "volume": 129.6,
             "furniture_weight": 0,
-            "perfect_conditioning": False
         },
         {
             "type": "Exterior_surface",
@@ -325,6 +320,6 @@ def test_ff_temperature():
 
     T = pro.component("space_1").variable("temperature").values
 
-    assert T.mean() == pytest.approx(25.167184227)
-    assert T.max() == pytest.approx(65.70555480)
-    assert T.min() == pytest.approx(-13.368846)
+    assert T.mean() == pytest.approx(25.185475599)
+    assert T.max() == pytest.approx(65.74609)
+    assert T.min() == pytest.approx(-13.365134)

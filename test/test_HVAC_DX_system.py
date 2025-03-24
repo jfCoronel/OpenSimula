@@ -371,11 +371,11 @@ def test_HVAC_DX_system_perfect_control():
     peak_cooling = -load.min()/1000
     power = pro.component("system").variable("power").values.sum()/1e6
 
-    assert annual_heating == pytest.approx(3.655853476364096)
-    assert annual_cooling == pytest.approx(5.000289768492602)
-    assert peak_heating == pytest.approx(2.759217209791339)
-    assert peak_cooling == pytest.approx(5.7011764129806615)
-    assert power == pytest.approx(14.617316165668345)
+    assert annual_heating == pytest.approx(3.648553)
+    assert annual_cooling == pytest.approx(5.00363006)
+    assert peak_heating == pytest.approx(2.75092863)
+    assert peak_cooling == pytest.approx(5.7020798)
+    assert power == pytest.approx(14.611176)
 
 def test_HVAC_DX_system_temperature_control():
     sim = osm.Simulation()
@@ -391,8 +391,8 @@ def test_HVAC_DX_system_temperature_control():
     peak_cooling = -load.min()/1000
     power = pro.component("system").variable("power").values.sum()/1e6
 
-    assert annual_heating == pytest.approx(3.7697541890295887)
-    assert annual_cooling == pytest.approx(5.136863358434801)
-    assert peak_heating == pytest.approx(2.749886298191046)
-    assert peak_cooling == pytest.approx(5.665426376809872)
-    assert power == pytest.approx(14.99793571450998)
+    assert annual_heating == pytest.approx(3.762374149)
+    assert annual_cooling == pytest.approx(5.140133987)
+    assert peak_heating == pytest.approx(2.74988629)
+    assert peak_cooling == pytest.approx(5.66634855)
+    assert power == pytest.approx(14.991602489)

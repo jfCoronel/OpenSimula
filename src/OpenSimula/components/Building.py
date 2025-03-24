@@ -32,13 +32,6 @@ class Building(Component):
             )
         )
 
-        # Constant values
-        self.C_P = 1006  # J/kg·K
-        self.C_P_FURNITURE = 1000  # J/kg·K
-        self.LAMBDA = 2501  # J/g Latent heat of water at 0ºC
-
-        # Variables
-
         # Building_3D
         self.building_3D = None
 
@@ -48,9 +41,21 @@ class Building(Component):
         if file_met == "not_defined":
             msg = Message(f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'.", "ERROR")
             errors.append(msg)
+        self._create_air_props()
         self._create_lists()
         return errors
 
+    def _create_air_props(self):
+        # Constant values
+        self.C_P = 1006  # J/kg·K
+        self.C_P_FURNITURE = 1000  # J/kg·K
+        self.LAMBDA = 2501  # J/g Latent heat of water at 0ºC
+        sicro.SetUnitSystem(sicro.SI)
+        self._file_met = self.project().parameter("simulation_file_met").component
+        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
+        w_50 = sicro.GetHumRatioFromRelHum(22.5,0.5,self.ATM_PRESSURE)
+        self.RHO = sicro.GetMoistAirDensity(22.5,w_50,self.ATM_PRESSURE)
+    
     def _create_lists(self):
         project_spaces_list = self.project().component_list(comp_type="Space")
         self.spaces = []
@@ -73,10 +78,7 @@ class Building(Component):
     # _______________
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self._file_met = self.project().parameter("simulation_file_met").component
-        sicro.SetUnitSystem(sicro.SI)
-        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
-        self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
+        self._create_air_props()
         self._create_lists()
         self._create_ff_matrix() # View Factors ff_matrix
         self._create_B_matrix() # Conectivity B_matrix

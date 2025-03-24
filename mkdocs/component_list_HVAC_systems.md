@@ -13,7 +13,7 @@ Component for the perfect conditioning of a space. With this component we can ob
 - **dehumidifying_setpoint** [_math_exp_, unit = "%", default = "100"]: Space relative humidity setpoint for dehumidification. If the relative humidity of the space is higher this value, latent heat is removed to maintain the relative humidity. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
 - **sytem_on_off** [_math_exp_, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
 
-If outside air (ventilation) is present, it is introduced into the space as ‘uncontrolled system heat’, and the load values associated with the ventilation can be viewed in the space. The load supplied by the system is that required to maintain the space within the specified temperature and humidity set points, including ventilation if present.
+The load supplied by the system is that required to maintain the space within the specified temperature and humidity set points, including ventilation if present.
 
 **Example:**
 <pre><code class="python">
@@ -39,6 +39,10 @@ After the simulation we will have the following variables of this component:
 
 - __Q_sensible__ [W]: Sensible heat supplied by the system, positive for heating and negative for cooling.
 - __Q_latent__ [W]: Latent heat supplied by the system, positive for humidification, negative for dehumidification.
+- __Q_total__ [W]: Total heat supplied by the system, sum of latent and sensible.
+- __Q_space_sensible__ [W]: Sensible heat delivered to space, positive for heating and negative for cooling.
+- __Q_space_latent__ [W]: Latent heat delivered to space, positive for humidification, negative for dehumidification.
+- __Q_space_total__ [W]: Total heat delivered to space, sum of latent and sensible.
 - __outdoor_air_flow__ [m³/s]: Outside air flow rate (ventilation) supplied to the space.
 - __heating_setpoint__ [°C]: Heating setpoint temperature.
 - __cooling_setpoint__ [°C]: Cooling setpoint temperature.

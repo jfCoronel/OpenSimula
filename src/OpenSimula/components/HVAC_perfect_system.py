@@ -19,20 +19,19 @@ class HVAC_perfect_system(Component):
         self.add_parameter(Parameter_math_exp("dehumidifying_setpoint", "100", "%"))
         self.add_parameter(Parameter_math_exp("system_on_off", "1", "on/off"))
         # Variables
+        self.add_variable(Variable("Q_total", unit="W"))
         self.add_variable(Variable("Q_sensible", unit="W"))
         self.add_variable(Variable("Q_latent", unit="W"))
+        self.add_variable(Variable("Q_space_total", unit="W"))
+        self.add_variable(Variable("Q_space_sensible", unit="W"))
+        self.add_variable(Variable("Q_space_latent", unit="W"))
         self.add_variable(Variable("outdoor_air_flow", unit="m³/s"))
         self.add_variable(Variable("heating_setpoint", unit="°C"))
         self.add_variable(Variable("cooling_setpoint", unit="°C"))
         self.add_variable(Variable("humidifying_setpoint", unit="%"))
         self.add_variable(Variable("dehumidifying_setpoint", unit="%"))
         self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, -1: Cooling, 3: Venting 
-
-         # Sicro
-        sicro.SetUnitSystem(sicro.SI)
-        self.CP_A = 1007 # (J/kg·K)
-        self.LAMBDA = 2501 # (J/g H20)
-
+    
     def check(self):
         errors = super().check()
         # Test space defined
@@ -49,8 +48,7 @@ class HVAC_perfect_system(Component):
         super().pre_simulation(n_time_steps, delta_t)
         self._space = self.parameter("space").component
         self._file_met = self.project().parameter("simulation_file_met").component
-        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
-        self.RHO_A = sicro.GetMoistAirDensity(20,0.0073,self.ATM_PRESSURE)
+        self._create_air_props()
         # input_varibles symbol and variable
         self.input_var_symbol = []
         self.input_var_variable = []
@@ -59,6 +57,13 @@ class HVAC_perfect_system(Component):
                 self.parameter("input_variables").symbol[i])
             self.input_var_variable.append(
                 self.parameter("input_variables").variable[i])
+
+    def _create_air_props(self):
+        sicro.SetUnitSystem(sicro.SI)
+        self.ATM_PRESSURE = self._space.ATM_PRESSURE
+        self.RHO = self._space.RHO
+        self.C_P = self._space.C_P
+        self.LAMBDA = self._space.LAMBDA
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -90,36 +95,63 @@ class HVAC_perfect_system(Component):
         self._HR_min = self.variable("humidifying_setpoint").values[time_index] 
         self._HR_max = self.variable("dehumidifying_setpoint").values[time_index] 
 
-
-        # Add uncontrolled ventilation to the space
-        if self._on_off:
-            system_dic = {"name": self.parameter("name").value, 
-                          "V": self._outdoor_air_flow, 
-                          "T":self._T_odb, 
-                          "w": self._w_o,
-                          "Q": 0,
-                          "M": 0}
-            self._space.add_uncontrol_system(system_dic)
-
-
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
         self._control_system = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }      
-        if self._on_off: 
-            self._control_system["Q"] = self._space.get_Q_required(self._T_cool_sp, self._T_heat_sp)
-            self._control_system["M"] = self._space.get_M_required(self._HR_min, self._HR_max)
+        if self._on_off:
+            self._calculate_required_Q()
+            self._calculate_required_M()
+            self._control_system["Q"] = self._Q_spa
+            self._control_system["M"] = self._M_spa
         self._space.set_control_system(self._control_system)
         return True
-        
+    
+    def _calculate_required_Q(self):
+        K_t,F_t = self._space.get_thermal_equation(False)
+        K_ts = K_t + self._outdoor_air_flow * self.RHO * self.C_P
+        F_ts = F_t + self._outdoor_air_flow * self.RHO * self.C_P * self._T_odb
+        self._T_space = F_ts/K_ts
+        if self._T_space > self._T_cool_sp:
+            self._T_space = self._T_cool_sp
+            self._Q_sys =  K_ts * self._T_space - F_ts
+        elif self._T_space < self._T_heat_sp:
+            self._T_space = self._T_heat_sp
+            self._Q_sys =  K_ts * self._T_space - F_ts
+        else: 
+            self._Q_sys = 0
+        self._Q_spa = K_t * self._T_space - F_t
+    
+    def _calculate_required_M(self):
+        K_h,F_h = self._space.get_humidity_equation(False)
+        K_hs = K_h + self._outdoor_air_flow * self.RHO
+        F_hs = F_h + self._outdoor_air_flow * self.RHO * self._w_o 
+        self._w_space = F_hs/K_hs
+        if self._w_space < 0:
+            self._w_space = 0
+        hr_space = sicro.GetRelHumFromHumRatio(self._T_space, self._w_space/1000, self.ATM_PRESSURE)*100
+        if hr_space < self._HR_min:
+            self._w_space = sicro.GetHumRatioFromRelHum(self._T_space, self._HR_min/100, self.ATM_PRESSURE)*1000
+            self._M_sys =  K_hs * self._w_space - F_hs
+        elif hr_space > self._HR_max:
+            self._w_space = sicro.GetHumRatioFromRelHum(self._T_space, self._HR_max/100, self.ATM_PRESSURE)*1000
+            self._M_sys =  K_hs * self._w_space - F_hs
+        else:
+            self._M_sys = 0
+        self._M_spa = K_h * self._w_space - F_h
+
+
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
         if self._on_off:
-            Q = self._control_system["Q"]
-            self.variable("Q_sensible").values[time_index] = Q   
-            self.variable("Q_latent").values[time_index] = self._control_system["M"] * self.LAMBDA
-            if Q > 0: # Heating, Cooling or Venting
+            self.variable("Q_sensible").values[time_index] = self._Q_sys  
+            self.variable("Q_latent").values[time_index] = self._M_sys * self.LAMBDA
+            self.variable("Q_total").values[time_index] = self._Q_sys + self._M_sys * self.LAMBDA
+            self.variable("Q_space_sensible").values[time_index] = self._Q_spa 
+            self.variable("Q_space_latent").values[time_index] = self._M_spa * self.LAMBDA
+            self.variable("Q_space_total").values[time_index] = self._Q_spa + self._M_spa * self.LAMBDA
+            if self._Q_sys > 0: # Heating, Cooling or Venting
                 self.variable("state").values[time_index] = 1
-            elif Q < 0:
+            elif self._Q_sys < 0:
                 self.variable("state").values[time_index] = -1
             else:
                 self.variable("state").values[time_index] = 3

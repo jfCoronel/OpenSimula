@@ -231,7 +231,7 @@ class HVAC_FC_system(Component):
         Q_sen = 0
         M_w = 0
 
-        K_tot, F_tot =  self._space._calculate_K_F_tot(False) # Space Equation
+        K_tot, F_tot =  self._space.get_thermal_equation(False) # Space Equation
         T_flo = F_tot/K_tot   
 
         # Mix air
