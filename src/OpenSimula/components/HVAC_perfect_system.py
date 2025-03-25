@@ -22,9 +22,6 @@ class HVAC_perfect_system(Component):
         self.add_variable(Variable("Q_total", unit="W"))
         self.add_variable(Variable("Q_sensible", unit="W"))
         self.add_variable(Variable("Q_latent", unit="W"))
-        self.add_variable(Variable("Q_space_total", unit="W"))
-        self.add_variable(Variable("Q_space_sensible", unit="W"))
-        self.add_variable(Variable("Q_space_latent", unit="W"))
         self.add_variable(Variable("outdoor_air_flow", unit="m³/s"))
         self.add_variable(Variable("heating_setpoint", unit="°C"))
         self.add_variable(Variable("cooling_setpoint", unit="°C"))
@@ -146,9 +143,6 @@ class HVAC_perfect_system(Component):
             self.variable("Q_sensible").values[time_index] = self._Q_sys  
             self.variable("Q_latent").values[time_index] = self._M_sys * self.LAMBDA
             self.variable("Q_total").values[time_index] = self._Q_sys + self._M_sys * self.LAMBDA
-            self.variable("Q_space_sensible").values[time_index] = self._Q_spa 
-            self.variable("Q_space_latent").values[time_index] = self._M_spa * self.LAMBDA
-            self.variable("Q_space_total").values[time_index] = self._Q_spa + self._M_spa * self.LAMBDA
             if self._Q_sys > 0: # Heating, Cooling or Venting
                 self.variable("state").values[time_index] = 1
             elif self._Q_sys < 0:

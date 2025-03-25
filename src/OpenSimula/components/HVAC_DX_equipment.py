@@ -64,8 +64,8 @@ class HVAC_DX_equipment(Component):
                 elif self.parameter("dry_coil_model").value == "TOTAL":
                     sensible_capacity = total_capacity
             if self.parameter("indoor_fan_operation").value == "CYCLING":
-                sensible_capacity = sensible_capacity - self.parameter("indoor_fan_power").value
-                total_capacity = total_capacity - self.parameter("indoor_fan_power").value
+                sensible_capacity = sensible_capacity - self.get_fan_heat(1)
+                total_capacity = total_capacity - self.get_fan_heat(1)
             return (total_capacity, sensible_capacity)
         else:
             return (0,0)
@@ -82,7 +82,7 @@ class HVAC_DX_equipment(Component):
             # Capacity
             capacity = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
             if self.parameter("indoor_fan_operation").value == "CYCLING":
-                capacity = capacity + self.parameter("indoor_fan_power").value
+                capacity = capacity + self.get_fan_heat(1)
             return capacity
         else:
             return 0
@@ -94,8 +94,8 @@ class HVAC_DX_equipment(Component):
         total_capacity, sensible_capacity = self.get_cooling_capacity(T_idb,T_iwb,T_odb,T_owb,F_air)
         if total_capacity > 0:
             if self.parameter("indoor_fan_operation").value == "CYCLING": # Get gross capacities
-                total_capacity= total_capacity + self.parameter("indoor_fan_power").value
-                sensible_capacity= sensible_capacity + self.parameter("indoor_fan_power").value
+                total_capacity= total_capacity + self.get_fan_heat(1)
+                sensible_capacity= sensible_capacity + self.get_fan_heat(1)
             if (F_load > 0):
                 # variables dictonary
                 var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
@@ -113,11 +113,8 @@ class HVAC_DX_equipment(Component):
                     power = total_capacity*F_load/EER + fan_power 
                 return (total_capacity*F_load, sensible_capacity*F_load, power, fan_power, F_EER)
             else:
-                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
-                    fan_power = self.parameter("indoor_fan_power").value
-                    return ( 0 , 0 , fan_power, fan_power, 0 )
-                elif self.parameter("indoor_fan_operation").value == "CYCLING":
-                    return ( 0 , 0 , 0, 0, 0 )
+                fan_power = self.get_fan_power(0)
+                return (0,fan_power,fan_power,0)
         else:
             return (0,0,0,0,0)
         
@@ -144,9 +141,9 @@ class HVAC_DX_equipment(Component):
         Returns (Q_sen,power,indoor_fan_power,F_COP).
         """
         capacity = self.get_heating_capacity(T_idb, T_iwb, T_odb,T_owb,F_air)
+        if self.parameter("indoor_fan_operation").value == "CYCLING": # Get gross capacities
+            capacity= capacity - self.get_fan_heat(1)
         if capacity > 0:
-            if self.parameter("indoor_fan_operation").value == "CYCLING": # Get gross capacities
-                capacity= capacity - self.parameter("indoor_fan_power").value
             if (F_load > 0):
                 # variables dictonary
                 var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
@@ -164,20 +161,20 @@ class HVAC_DX_equipment(Component):
                     power = capacity*F_load/COP + fan_power
                 return (capacity*F_load, power, fan_power, F_COP)
             else:
-                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
-                    fan_power = self.parameter("indoor_fan_power").value
-                    return (0,fan_power,fan_power,0)
-                elif self.parameter("indoor_fan_operation").value == "CYCLING":
-                    return (0,0,0,0)
+                fan_power = self.get_fan_power(0)
+                return (0,fan_power,fan_power,0)
         else:
             return (0,0,0,0)
         
-    def get_no_load_power(self):
+    def get_fan_power(self, f_load):
         if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
             return self.parameter("indoor_fan_power").value
         elif self.parameter("indoor_fan_operation").value == "CYCLING":
-            return 0
-    
+            return self.parameter("indoor_fan_power").value * f_load
+
+    def get_fan_heat(self, f_load):
+        return self.get_fan_power(f_load)
+
     def _var_state_dic(self, values):
         max = self.parameter("expression_max_values").value
         min = self.parameter("expression_min_values").value
