@@ -660,7 +660,7 @@ class Building(Component):
 
     def show3D_shadows(self, date):
         self._create_building_3D()
-        self._file_met = self.parameter("simulation_file_met").component
+        self._file_met = self.project().parameter("simulation_file_met").component
         cos = self._file_met.sun_cosines(date)
         if len(cos) == 3:
             self.building_3D.show_shadows(cos)

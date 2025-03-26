@@ -20,8 +20,8 @@ class HVAC_DX_system(Component):
         self.add_parameter(Parameter_math_exp("cooling_setpoint", "25", "°C"))
         self.add_parameter(Parameter_math_exp("system_on_off", "1", "on/off"))
         #self.add_parameter(Parameter_options("control_type", "PERFECT", ["PERFECT", "TEMPERATURE"]))
-        self.add_parameter(Parameter_float("cooling_bandwidth", 1, "ºC", min=0))
-        self.add_parameter(Parameter_float("heating_bandwidth", 1, "ºC", min=0))
+        #self.add_parameter(Parameter_float("cooling_bandwidth", 1, "ºC", min=0))
+        #self.add_parameter(Parameter_float("heating_bandwidth", 1, "ºC", min=0))
         self.add_parameter(Parameter_options("economizer", "NO", ["NO", "TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]))
         self.add_parameter(Parameter_float("economizer_DT", 0, "ºC", min=0))
         self.add_parameter(Parameter_float("economizer_enthalpy_limit", 0, "kJ/kg", min=0))
@@ -81,8 +81,8 @@ class HVAC_DX_system(Component):
         self._m_supply =  self.RHO * self._supply_air_flow # V_imp * rho 
         self._mrcp =  self.RHO * self._supply_air_flow * self.C_P # V_imp * rho * c_p
         self._mrdh =  self.RHO * self._supply_air_flow * self.LAMBDA # V_imp * rho * Dh
-        self._cool_band = self.parameter("cooling_bandwidth").value
-        self._heat_band = self.parameter("heating_bandwidth").value
+        #self._cool_band = self.parameter("cooling_bandwidth").value
+        #self._heat_band = self.parameter("heating_bandwidth").value
         # input_varibles symbol and variable
         self.input_var_symbol = []
         self.input_var_variable = []
@@ -179,9 +179,9 @@ class HVAC_DX_system(Component):
         F_ts = F_t + self._supply_air_flow * self._f_oa * self.RHO * self.C_P * self._T_odb + self._no_load_heat
         T_flo = F_ts/K_ts
         if T_flo > self._T_cool_sp:
-            self._Q_required =  K_ts * T_flo - F_ts
+            self._Q_required =  K_ts * self._T_cool_sp - F_ts
         elif T_flo < self._T_heat_sp:
-            self._Q_required =  K_ts * T_flo - F_ts
+            self._Q_required =  K_ts * self._T_heat_sp - F_ts
         else: 
             self._Q_required = 0
     
@@ -247,10 +247,8 @@ class HVAC_DX_system(Component):
         self._Q_sen = Q_sen
         self._M_w = M_w
         self._f_load = f_load
-        self._T_supply = (self._Q_sen + self._no_load_heat)/self._mrcp + self._T_idb
-        self._w_supply = self._M_w/self._supply_air_flow +self._w_i 
 
-        air_flow = {"V": self._supply_air_flow, "T": self._T_supply, "w":self._w_supply, "Q":0, "M":0 }
+        air_flow = {"V": self._supply_air_flow*self._f_oa, "T": self._T_odb, "w":self._w_o, "Q":Q_sen+self._no_load_heat, "M":0 }
         return air_flow  
 
     def _mix_air(self, f, T1, w1, T2, w2):
@@ -395,11 +393,11 @@ class HVAC_DX_system(Component):
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
         self.variable("state").values[time_index] = self._state
-        if self._state != 0 : # on
+        if self._state != 0 : # onq
             self.variable("T_idb").values[time_index] = self._T_idb
             self.variable("T_iwb").values[time_index] = self._T_iwb
-            self.variable("T_supply").values[time_index] = self._T_supply
-            self.variable("w_supply").values[time_index] = self._w_supply
+            self.variable("T_supply").values[time_index] = (self._Q_sen + self._no_load_heat)/self._mrcp + self._T_idb
+            self.variable("w_supply").values[time_index] = self._M_w/self._supply_air_flow +self._w_i
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
             self.variable("outdoor_air_flow").values[time_index] = self._supply_air_flow * self._f_oa

@@ -352,13 +352,12 @@ case610_dict = {
             "heating_setpoint": "20",
             "cooling_setpoint": "27",
             "system_on_off": "1",
-            "control_type": "PERFECT",
         }
     ]
 }
 
 
-def test_HVAC_DX_system_perfect_control():
+def test_HVAC_DX_system_without_vent():
     sim = osm.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case610_dict)
@@ -372,16 +371,16 @@ def test_HVAC_DX_system_perfect_control():
     power = pro.component("system").variable("power").values.sum()/1e6
 
     assert annual_heating == pytest.approx(3.648553)
-    assert annual_cooling == pytest.approx(5.00363006)
+    assert annual_cooling == pytest.approx(5.003493)
     assert peak_heating == pytest.approx(2.75092863)
     assert peak_cooling == pytest.approx(5.7020798)
-    assert power == pytest.approx(14.611176)
+    assert power == pytest.approx(14.630173)
 
-def test_HVAC_DX_system_temperature_control():
+def test_HVAC_DX_system_with_vent():
     sim = osm.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case610_dict)
-    pro.component("system").parameter("control_type").value = "TEMPERATURE"
+    pro.component("system").parameter("outdoor_air_flow").value = 0.0417
     pro.simulate()
 
     load = pro.component("system").variable("Q_sensible").values
@@ -391,8 +390,8 @@ def test_HVAC_DX_system_temperature_control():
     peak_cooling = -load.min()/1000
     power = pro.component("system").variable("power").values.sum()/1e6
 
-    assert annual_heating == pytest.approx(3.762374149)
-    assert annual_cooling == pytest.approx(5.140133987)
-    assert peak_heating == pytest.approx(2.74988629)
-    assert peak_cooling == pytest.approx(5.66634855)
-    assert power == pytest.approx(14.991602489)
+    assert annual_heating == pytest.approx(6.520483)
+    assert annual_cooling == pytest.approx(4.084756)
+    assert peak_heating == pytest.approx(3.9481729)
+    assert peak_cooling == pytest.approx(5.3796972)
+    assert power == pytest.approx(16.724354)
