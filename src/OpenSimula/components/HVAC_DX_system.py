@@ -248,7 +248,7 @@ class HVAC_DX_system(Component):
         self._M_w = M_w
         self._f_load = f_load
 
-        air_flow = {"V": self._supply_air_flow*self._f_oa, "T": self._T_odb, "w":self._w_o, "Q":Q_sen+self._no_load_heat, "M":0 }
+        air_flow = {"V": self._supply_air_flow*self._f_oa, "T": self._T_odb, "w":self._w_o, "Q":Q_sen+self._no_load_heat, "M":M_w }
         return air_flow  
 
     def _mix_air(self, f, T1, w1, T2, w2):
