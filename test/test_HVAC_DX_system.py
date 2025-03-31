@@ -374,7 +374,10 @@ def test_HVAC_DX_system_without_vent():
     assert annual_cooling == pytest.approx(5.003493)
     assert peak_heating == pytest.approx(2.75092863)
     assert peak_cooling == pytest.approx(5.7020798)
-    assert power == pytest.approx(14.630173)
+    assert power == pytest.approx(14.61111)
+    annual_latent = -pro.component("system").variable("Q_latent").values.sum()/1e6
+    assert annual_latent == pytest.approx(0.05586481)
+    
 
 def test_HVAC_DX_system_with_vent():
     sim = osm.Simulation()
@@ -394,4 +397,7 @@ def test_HVAC_DX_system_with_vent():
     assert annual_cooling == pytest.approx(4.084756)
     assert peak_heating == pytest.approx(3.9481729)
     assert peak_cooling == pytest.approx(5.3796972)
-    assert power == pytest.approx(16.724354)
+    assert power == pytest.approx(16.716598)
+    annual_latent = -pro.component("system").variable("Q_latent").values.sum()/1e6
+    assert annual_latent == pytest.approx(0.078517787)
+

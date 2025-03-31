@@ -196,16 +196,19 @@ class HVAC_DX_system(Component):
             h_odb = sicro.GetMoistAirEnthalpy(self._T_odb,self._w_o/1000)
             on_economizer = h_odb < self.parameter("economizer_enthalpy_limit").value * 1000
             
-        if (self._Q_required < 0 and on_economizer):
-            Q_rest_ae = self._mrcp * (1-self._f_oa)*(self._T_odb - self._T_space)
-            if  Q_rest_ae < self._Q_required:
-                self._f_oa += self._Q_required/(self._mrcp*(self._T_odb-self._T_space))
-                self._Q_required = 0
-            else:        
-                if (self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
-                    self._f_oa = self._outdoor_air_flow/self._supply_air_flow
-                elif (self.parameter("economizer").value == "TEMPERATURE"):
-                    self._f_oa = 1
+        if (on_economizer):
+            if (self._Q_required < 0):
+                Q_rest_ae = self._mrcp * (1-self._f_oa)*(self._T_odb - self._T_space)
+                if  Q_rest_ae < self._Q_required:
+                    self._f_oa += self._Q_required/(self._mrcp*(self._T_odb-self._T_space))
+                    self._Q_required = 0
+                else:        
+                    if (self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
+                        self._f_oa = self._outdoor_air_flow/self._supply_air_flow
+                    elif (self.parameter("economizer").value == "TEMPERATURE"):
+                        self._f_oa = 1
+            elif (self._Q_required > 0): # Heating 
+                self._f_oa = self._outdoor_air_flow/self._supply_air_flow
         else:
             self._f_oa = self._outdoor_air_flow/self._supply_air_flow
     
