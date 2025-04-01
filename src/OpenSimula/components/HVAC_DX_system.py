@@ -1,3 +1,4 @@
+import math
 from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options
 from OpenSimula.Component import Component
@@ -183,6 +184,8 @@ class HVAC_DX_system(Component):
         elif T_flo < self._T_heat_sp:
             self._Q_required =  K_ts * self._T_heat_sp - F_ts
         else: 
+            self._Q_required = 0
+        if abs(self._Q_required) < 0.0001: # Problems with convergence
             self._Q_required = 0
     
     def _simulate_economizer(self): 
