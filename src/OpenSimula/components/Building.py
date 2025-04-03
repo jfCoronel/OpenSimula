@@ -64,7 +64,8 @@ class Building(Component):
     # _______________
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self.props = self.project().props
+        self._file_met = self.project().parameter("simulation_file_met").component
+        self.props = self._sim_.props
         self._create_lists()
         self._create_ff_matrix() # View Factors ff_matrix
         self._create_B_matrix() # Conectivity B_matrix
@@ -241,9 +242,9 @@ class Building(Component):
         # KZ_matrix without air movement or systems
         for i in range(self._n_spaces):
             self.KZ_matrix[i][i] = (
-                self.spaces[i].parameter("volume").value * self.props.RHO_A * self.props.C_PA
+                self.spaces[i].parameter("volume").value * self.props["RHO_A"] * self.props["C_PA"]
                 + self.spaces[i].parameter("furniture_weight").value
-                * self.props.C_P_FURNITURE
+                * self.props["C_P_FURNITURE"]
             ) / self.project().parameter("time_step").value
             for j in range(self._n_surfaces):
                 self.KZ_matrix[i][i] += self.KSZ_matrix[j][i]
@@ -409,17 +410,17 @@ class Building(Component):
             )
             self.FZ_vector[i] += (
                 (
-                    self.spaces[i].parameter("volume").value * self.props.RHO_A * self.props.C_PA
+                    self.spaces[i].parameter("volume").value * self.props["RHO_A"] * self.props["C_PA"]
                     + self.spaces[i].parameter("furniture_weight").value
-                    * self.props.C_P_FURNITURE
+                    * self.props["C_P_FURNITURE"]
                 )
                 * T_pre
                 / self.project().parameter("time_step").value
             )
             self.FZ_vector[i] += (
                 self.spaces[i].variable("infiltration_flow").values[time_i]
-                * self.props.RHO_A
-                * self.props.C_PA
+                * self.props["RHO_A"]
+                * self.props["C_PA"]
                 * self._file_met.variable("temperature").values[time_i]
             )
 
@@ -430,8 +431,8 @@ class Building(Component):
         for i in range(self._n_spaces):
             self.KZFIN_matrix[i][i] += (
                 self.spaces[i].variable("infiltration_flow").values[time_i]
-                * self.props.RHO_A
-                * self.props.C_PA
+                * self.props["RHO_A"]
+                * self.props["C_PA"]
             )
     
     def _calculate_Q_dir(self, time_i):

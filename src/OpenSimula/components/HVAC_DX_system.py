@@ -72,12 +72,12 @@ class HVAC_DX_system(Component):
         self._space = self.parameter("space").component
         self._file_met = self.project().parameter("simulation_file_met").component
         sicro.SetUnitSystem(sicro.SI)
-        self.props = self.project().props
+        self.props = self._sim_.props
         self._supply_air_flow = self.parameter("supply_air_flow").value
         self._f_air = self._supply_air_flow / self._equipment.parameter("nominal_air_flow").value
-        self._m_supply =  self.props.RHO_A * self._supply_air_flow # V_imp * rho 
-        self._mrcp =  self.props.RHO_A * self._supply_air_flow * self.props.C_PA # V_imp * rho * c_p
-        self._mrdh =  self.props.RHO_A * self._supply_air_flow * self.props.LAMBDA # V_imp * rho * Dh
+        self._m_supply =  self.props["RHO_A"] * self._supply_air_flow # V_imp * rho 
+        self._mrcp =  self.props["RHO_A"] * self._supply_air_flow * self.props["C_PA"] # V_imp * rho * c_p
+        self._mrdh =  self.props["RHO_A"] * self._supply_air_flow * self.props["LAMBDA"] # V_imp * rho * Dh
         # input_varibles symbol and variable
         self.input_var_symbol = []
         self.input_var_variable = []
@@ -151,8 +151,8 @@ class HVAC_DX_system(Component):
 
     def _calculate_required_Q(self):
         K_t,F_t = self._space.get_thermal_equation(False)
-        K_ts = K_t + self._supply_air_flow * self._f_oa * self.props.RHO_A * self.props.C_PA
-        F_ts = F_t + self._supply_air_flow * self._f_oa * self.props.RHO_A * self.props.C_PA * self._T_odb + self._no_load_heat
+        K_ts = K_t + self._supply_air_flow * self._f_oa * self.props["RHO_A"] * self.props["C_PA"]
+        F_ts = F_t + self._supply_air_flow * self._f_oa * self.props["RHO_A"] * self.props["C_PA"] * self._T_odb + self._no_load_heat
         T_flo = F_ts/K_ts
         if T_flo > self._T_cool_sp:
             self._Q_required =  K_ts * self._T_cool_sp - F_ts
@@ -222,7 +222,7 @@ class HVAC_DX_system(Component):
                     Q_sen = self._Q_required  
                     f_load = Q_sen/sen_cool_cap                     
                     Q_tot = tot_cool_cap*f_load
-                M_w = (Q_tot - Q_sen) / self.props.LAMBDA
+                M_w = (Q_tot - Q_sen) / self.props["LAMBDA"]
 
         self._state = state
         self._Q_sen = Q_sen
@@ -238,7 +238,7 @@ class HVAC_DX_system(Component):
         if (T > 100):
             T_wb = 50 # Inventado
         else:
-            T_wb = sicro.GetTWetBulbFromHumRatio(T,w/1000,self.props.ATM_PRESSURE)
+            T_wb = sicro.GetTWetBulbFromHumRatio(T,w/1000,self.props["ATM_PRESSURE"])
         return (T,w,T_wb)        
 
     def post_iteration(self, time_index, date, daylight_saving, converged):

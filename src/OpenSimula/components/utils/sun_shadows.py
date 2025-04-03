@@ -294,6 +294,7 @@ class Draw_3D():
                 self.add_polygon(polygon, color, opacity=opacity)
 
     def show(self):
+        #self.plot.enable_mesh_picking()
         self.plot.show(jupyter_backend="client")
 
 

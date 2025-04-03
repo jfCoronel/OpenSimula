@@ -61,10 +61,6 @@ class HVAC_FC_system(Component):
         if self.parameter("equipment").value == "not_defined":
             msg = f"{self.parameter('name').value}, must define its equipment."
             errors.append(Message(msg, "ERROR"))
-        # set props
-        self.props = self.project().props
-        self._equipment = self.parameter("equipment").component
-        self._equipment.set_props(self.props) # Properties from our project
         # Test space defined
         if self.parameter("space").value == "not_defined":
             msg = f"{self.parameter('name').value}, must define its space."
@@ -78,14 +74,17 @@ class HVAC_FC_system(Component):
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         self._file_met = self.project().parameter("simulation_file_met").component
+        # set props
+        self.props = self._sim_.props
 
         # Parameters        
         self._space = self.parameter("space").component
+        self._equipment = self.parameter("equipment").component
         self._supply_air_flow = self.parameter("supply_air_flow").value
         self._f_air = self._supply_air_flow / self._equipment.parameter("nominal_air_flow").value
-        self._m_supply =  self.props.RHO_A * self._supply_air_flow # V_imp * rho 
-        self._mrcp =  self.props.RHO_A * self._supply_air_flow * self.props.C_PA # V_imp * rho * c_p
-        self._mrdh =  self.props.RHO_A * self._supply_air_flow * self.props.LAMBDA # V_imp * rho * Dh
+        self._m_supply =  self.props["RHO_A"] * self._supply_air_flow # V_imp * rho 
+        self._mrcp =  self.props["RHO_A"] * self._supply_air_flow * self.props["C_PA"] # V_imp * rho * c_p
+        self._mrdh =  self.props["RHO_A"] * self._supply_air_flow * self.props["LAMBDA"] # V_imp * rho * Dh
         self._cool_band = self.parameter("cooling_bandwidth").value
         self._heat_band = self.parameter("heating_bandwidth").value
         # Water flows and temperatures
@@ -170,7 +169,7 @@ class HVAC_FC_system(Component):
         if (T > 100):
             T_wb = 50 # Inventado
         else:
-            T_wb = sicro.GetTWetBulbFromHumRatio(T,w/1000,self.props.ATM_PRESSURE)
+            T_wb = sicro.GetTWetBulbFromHumRatio(T,w/1000,self.props["ATM_PRESSURE"])
         return (T,w,T_wb)        
     
     def _perfect_control(self, n_iter):
@@ -297,7 +296,7 @@ class HVAC_FC_system(Component):
                 self.variable("fan_power").values[time_index] = fan_power
                 self.variable("T_iw").values[time_index] = self._heating_water_temp
                 self.variable("epsilon").values[time_index] = epsilon
-                self.variable("T_ow").values[time_index] = self._heating_water_temp - Q/(self._heating_water_flow * self.props.RHOCP_W(self._heating_water_temp))
+                self.variable("T_ow").values[time_index] = self._heating_water_temp - Q/(self._heating_water_flow * self.props["RHOCP_W"](self._heating_water_temp))
 
                     
             elif self._state == -1 or self._state == -2: #Cooling
@@ -309,7 +308,7 @@ class HVAC_FC_system(Component):
                 self.variable("epsilon").values[time_index] = epsilon
                 self.variable("fan_power").values[time_index] = fan_power
                 self.variable("epsilon_adp").values[time_index] = epsilon_adp
-                self.variable("T_ow").values[time_index] = self._cooling_water_temp + Q_t/(self._cooling_water_flow * self.props.RHOCP_W(self._cooling_water_temp))
+                self.variable("T_ow").values[time_index] = self._cooling_water_temp + Q_t/(self._cooling_water_flow * self.props["RHOCP_W"](self._cooling_water_temp))
 
 
 

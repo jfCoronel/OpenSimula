@@ -53,8 +53,9 @@ class Project(Parameter_container):
             T: water temperature (ºC)
             """
             return (-6.5515e-08 * T**3 + 7.6219e-06 * T**2 - 1.8564e-03 * T + 4.2125) * 1e6
-
-        self.props = {
+        
+        # Set simulation properties
+        self._sim_.props = {
             "C_PA": 1006,  # J/kg·K
             "C_P_FURNITURE": 1000,  # J/kg·K
             "LAMBDA": 2501,  # J/g Latent heat of water at 0ºC
@@ -345,21 +346,6 @@ class Project(Parameter_container):
             for error in errors:
                 self._sim_.message(error)
 
-        # Update props
-        if self.parameter("simulation_file_met").value != "not_defined":
-            try:
-                met_file = self.component(self.parameter("simulation_file_met").value)
-                if met_file != None:
-                    altitude = met_file.altitude
-                    atm_p = sicro.GetStandardAtmPressure(altitude)
-                    w_50 = sicro.GetHumRatioFromRelHum(22.5, 0.5, atm_p)
-                    self.props["ATM_PRESSURE"] = atm_p
-                    self.props["ALTITUDE"] = altitude
-                    self.props["W_50"] = w_50
-                    self.props["RHO_A"] = sicro.GetMoistAirDensity(22.5, w_50, atm_p)
-            except Exception as e:
-                msg = self._get_error_header_() + f"Error reading file: {self.parameter('simulation_file_met').value} -> {e}"
-                errors.append(Message(msg,"ERROR"))
         return errors
 
     def simulate(self, show_percentage = 10):
@@ -375,6 +361,22 @@ class Project(Parameter_container):
                 "daylight_saving_start_time").value, "%d/%m/%Y %H:%M:%S")
             date_dls_end = dt.datetime.strptime(self.parameter(
                 "daylight_saving_end_time").value, "%d/%m/%Y %H:%M:%S")
+
+        # Update props
+        if self.parameter("simulation_file_met").value != "not_defined":
+            try:
+                met_file = self.component(self.parameter("simulation_file_met").value)
+                if met_file != None:
+                    altitude = met_file.altitude
+                    atm_p = sicro.GetStandardAtmPressure(altitude)
+                    w_50 = sicro.GetHumRatioFromRelHum(22.5, 0.5, atm_p)
+                    self._sim_.props["ATM_PRESSURE"] = atm_p
+                    self._sim_.props["ALTITUDE"] = altitude
+                    self._sim_.props["W_50"] = w_50
+                    self._sim_.props["RHO_A"] = sicro.GetMoistAirDensity(22.5, w_50, atm_p)
+            except Exception as e:
+                msg = self._get_error_header_() + f"Error reading file: {self.parameter('simulation_file_met').value} -> {e}"
+                self._sim_.message(Message(msg,"ERROR"))
 
         self._set_ordered_component_list_()
         self._pre_simulation_(n, delta_t)
