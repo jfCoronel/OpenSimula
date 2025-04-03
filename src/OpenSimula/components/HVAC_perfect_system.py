@@ -45,7 +45,7 @@ class HVAC_perfect_system(Component):
         super().pre_simulation(n_time_steps, delta_t)
         self._space = self.parameter("space").component
         self._file_met = self.project().parameter("simulation_file_met").component
-        self._create_air_props()
+        self.props = self.project().props
         # input_varibles symbol and variable
         self.input_var_symbol = []
         self.input_var_variable = []
@@ -54,13 +54,6 @@ class HVAC_perfect_system(Component):
                 self.parameter("input_variables").symbol[i])
             self.input_var_variable.append(
                 self.parameter("input_variables").variable[i])
-
-    def _create_air_props(self):
-        sicro.SetUnitSystem(sicro.SI)
-        self.ATM_PRESSURE = self._space.ATM_PRESSURE
-        self.RHO = self._space.RHO
-        self.C_P = self._space.C_P
-        self.LAMBDA = self._space.LAMBDA
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -105,8 +98,8 @@ class HVAC_perfect_system(Component):
     
     def _calculate_required_Q(self):
         K_t,F_t = self._space.get_thermal_equation(False)
-        K_ts = K_t + self._outdoor_air_flow * self.RHO * self.C_P
-        F_ts = F_t + self._outdoor_air_flow * self.RHO * self.C_P * self._T_odb
+        K_ts = K_t + self._outdoor_air_flow * self.props.RHO_A * self.props.C_PA
+        F_ts = F_t + self._outdoor_air_flow * self.props.RHO_A * self.props.C_PA * self._T_odb
         self._T_space = F_ts/K_ts
         if self._T_space > self._T_cool_sp:
             self._T_space = self._T_cool_sp
@@ -120,17 +113,17 @@ class HVAC_perfect_system(Component):
     
     def _calculate_required_M(self):
         K_h,F_h = self._space.get_humidity_equation(False)
-        K_hs = K_h + self._outdoor_air_flow * self.RHO
-        F_hs = F_h + self._outdoor_air_flow * self.RHO * self._w_o 
+        K_hs = K_h + self._outdoor_air_flow * self.props.RHO_A
+        F_hs = F_h + self._outdoor_air_flow * self.props.RHO_A * self._w_o 
         self._w_space = F_hs/K_hs
         if self._w_space < 0:
             self._w_space = 0
-        hr_space = sicro.GetRelHumFromHumRatio(self._T_space, self._w_space/1000, self.ATM_PRESSURE)*100
+        hr_space = sicro.GetRelHumFromHumRatio(self._T_space, self._w_space/1000, self.props.ATM_PRESSURE)*100
         if hr_space < self._HR_min:
-            self._w_space = sicro.GetHumRatioFromRelHum(self._T_space, self._HR_min/100, self.ATM_PRESSURE)*1000
+            self._w_space = sicro.GetHumRatioFromRelHum(self._T_space, self._HR_min/100, self.props.ATM_PRESSURE)*1000
             self._M_sys =  K_hs * self._w_space - F_hs
         elif hr_space > self._HR_max:
-            self._w_space = sicro.GetHumRatioFromRelHum(self._T_space, self._HR_max/100, self.ATM_PRESSURE)*1000
+            self._w_space = sicro.GetHumRatioFromRelHum(self._T_space, self._HR_max/100, self.props.ATM_PRESSURE)*1000
             self._M_sys =  K_hs * self._w_space - F_hs
         else:
             self._M_sys = 0
@@ -141,8 +134,8 @@ class HVAC_perfect_system(Component):
         super().post_iteration(time_index, date, daylight_saving, converged)
         if self._on_off:
             self.variable("Q_sensible").values[time_index] = self._Q_sys  
-            self.variable("Q_latent").values[time_index] = self._M_sys * self.LAMBDA
-            self.variable("Q_total").values[time_index] = self._Q_sys + self._M_sys * self.LAMBDA
+            self.variable("Q_latent").values[time_index] = self._M_sys * self.props.LAMBDA
+            self.variable("Q_total").values[time_index] = self._Q_sys + self._M_sys * self.props.LAMBDA
             if self._Q_sys > 0: # Heating, Cooling or Venting
                 self.variable("state").values[time_index] = 1
             elif self._Q_sys < 0:

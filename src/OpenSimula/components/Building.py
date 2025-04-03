@@ -1,13 +1,11 @@
 from OpenSimula.Component import Component
 from OpenSimula.Parameters import (
-    Parameter_component,
     Parameter_float,
     Parameter_options,
 )
 from OpenSimula.Message import Message
 import numpy as np
 import math
-import psychrolib as sicro
 from scipy.interpolate import RegularGridInterpolator
 from scipy.integrate import dblquad
 import matplotlib.pyplot as plt
@@ -41,21 +39,9 @@ class Building(Component):
         if file_met == "not_defined":
             msg = Message(f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'.", "ERROR")
             errors.append(msg)
-        self._create_air_props()
         self._create_lists()
         return errors
 
-    def _create_air_props(self):
-        # Constant values
-        self.C_P = 1006  # J/kg·K
-        self.C_P_FURNITURE = 1000  # J/kg·K
-        self.LAMBDA = 2501  # J/g Latent heat of water at 0ºC
-        sicro.SetUnitSystem(sicro.SI)
-        self._file_met = self.project().parameter("simulation_file_met").component
-        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
-        w_50 = sicro.GetHumRatioFromRelHum(22.5,0.5,self.ATM_PRESSURE)
-        self.RHO = sicro.GetMoistAirDensity(22.5,w_50,self.ATM_PRESSURE)
-    
     def _create_lists(self):
         project_spaces_list = self.project().component_list(comp_type="Space")
         self.spaces = []
@@ -78,7 +64,7 @@ class Building(Component):
     # _______________
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self._create_air_props()
+        self.props = self.project().props
         self._create_lists()
         self._create_ff_matrix() # View Factors ff_matrix
         self._create_B_matrix() # Conectivity B_matrix
@@ -255,9 +241,9 @@ class Building(Component):
         # KZ_matrix without air movement or systems
         for i in range(self._n_spaces):
             self.KZ_matrix[i][i] = (
-                self.spaces[i].parameter("volume").value * self.RHO * self.C_P
+                self.spaces[i].parameter("volume").value * self.props.RHO_A * self.props.C_PA
                 + self.spaces[i].parameter("furniture_weight").value
-                * self.C_P_FURNITURE
+                * self.props.C_P_FURNITURE
             ) / self.project().parameter("time_step").value
             for j in range(self._n_surfaces):
                 self.KZ_matrix[i][i] += self.KSZ_matrix[j][i]
@@ -423,17 +409,17 @@ class Building(Component):
             )
             self.FZ_vector[i] += (
                 (
-                    self.spaces[i].parameter("volume").value * self.RHO * self.C_P
+                    self.spaces[i].parameter("volume").value * self.props.RHO_A * self.props.C_PA
                     + self.spaces[i].parameter("furniture_weight").value
-                    * self.C_P_FURNITURE
+                    * self.props.C_P_FURNITURE
                 )
                 * T_pre
                 / self.project().parameter("time_step").value
             )
             self.FZ_vector[i] += (
                 self.spaces[i].variable("infiltration_flow").values[time_i]
-                * self.RHO
-                * self.C_P
+                * self.props.RHO_A
+                * self.props.C_PA
                 * self._file_met.variable("temperature").values[time_i]
             )
 
@@ -444,8 +430,8 @@ class Building(Component):
         for i in range(self._n_spaces):
             self.KZFIN_matrix[i][i] += (
                 self.spaces[i].variable("infiltration_flow").values[time_i]
-                * self.RHO
-                * self.C_P
+                * self.props.RHO_A
+                * self.props.C_PA
             )
     
     def _calculate_Q_dir(self, time_i):
