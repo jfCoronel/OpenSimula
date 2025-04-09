@@ -32,7 +32,7 @@ class HVAC_DX_system(Component):
         self.add_variable(Variable("F_load", unit="frac"))
         self.add_variable(Variable("outdoor_air_flow", unit="m³/s"))
         self.add_variable(Variable("T_supply", unit="°C"))
-        self.add_variable(Variable("w_supply", unit="°C"))
+        self.add_variable(Variable("w_supply", unit="g/kg"))
         self.add_variable(Variable("Q_total", unit="W"))
         self.add_variable(Variable("Q_sensible", unit="W"))
         self.add_variable(Variable("Q_latent", unit="W"))
@@ -59,11 +59,6 @@ class HVAC_DX_system(Component):
         if self.project().parameter("simulation_file_met").value == "not_defined":
             msg = f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'."
             errors.append(Message(msg, "ERROR"))
-        # Test enthalpy economizer not compatible with temperature control type
-        #if (self.parameter("economizer").value == "ENTHALPY" or self.parameter("economizer").value == "ENTHALPY_LIMITED") and self.parameter("control_type").value == "TEMPERATURE":
-        #    msg = f"{self.parameter('name').value}, enthalpy economizer not compatible with temperature control type. control typed changed to PERFECT."
-        #    errors.append(Message(msg, "ERROR"))
-        #    self.parameter("control_type").value = "PERFECT"
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -75,9 +70,11 @@ class HVAC_DX_system(Component):
         self.props = self._sim_.props
         self._supply_air_flow = self.parameter("supply_air_flow").value
         self._f_air = self._supply_air_flow / self._equipment.parameter("nominal_air_flow").value
-        self._m_supply =  self.props["RHO_A"] * self._supply_air_flow # V_imp * rho 
         self._mrcp =  self.props["RHO_A"] * self._supply_air_flow * self.props["C_PA"] # V_imp * rho * c_p
-        self._mrdh =  self.props["RHO_A"] * self._supply_air_flow * self.props["LAMBDA"] # V_imp * rho * Dh
+        self._f_load = 0
+        self._no_load_heat = self._equipment.get_fan_heat(0)
+        self._economizer = self.parameter("economizer").value != "NO"
+        self._economizer_DT = self.parameter("economizer_DT").value
         # input_varibles symbol and variable
         self.input_var_symbol = []
         self.input_var_variable = []
@@ -86,12 +83,6 @@ class HVAC_DX_system(Component):
                 self.parameter("input_variables").symbol[i])
             self.input_var_variable.append(
                 self.parameter("input_variables").variable[i])
-        self._f_load = 0
-        
-        self._no_load_heat = self._equipment.get_fan_heat(0)
-        self._economizer = self.parameter("economizer").value != "NO"
-        self._economizer_DT = self.parameter("economizer_DT").value
-
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -101,16 +92,15 @@ class HVAC_DX_system(Component):
         self._w_o = self._file_met.variable("abs_humidity").values[time_index]
         self.variable("T_odb").values[time_index] = self._T_odb
         self.variable("T_owb").values[time_index] = self._T_owb
+        self._outdoor_rho = 1/sicro.GetMoistAirVolume(self._T_odb,self._w_o/1000,self.props["ATM_PRESSURE"])
         # variables dictonary
         var_dic = {}
         for i in range(len(self.input_var_symbol)):
             var_dic[self.input_var_symbol[i]] = self.input_var_variable[i].values[time_index]
-
         # outdoor air flow
         self._outdoor_air_flow = self.parameter("outdoor_air_flow").evaluate(var_dic)
         self.variable("outdoor_air_flow").values[time_index] = self._outdoor_air_flow
         self._f_oa = self._outdoor_air_flow/self._supply_air_flow
-
         # setpoints
         self._T_heat_sp = self.parameter("heating_setpoint").evaluate(var_dic)
         self.variable("heating_setpoint").values[time_index] = self._T_heat_sp
@@ -127,7 +117,7 @@ class HVAC_DX_system(Component):
     
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
-        space_air = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }
+        space_air = {"M_a": 0, "T_a": 0, "w_a":0, "Q_s":0, "M_w":0 }
         if self._on_off:
             self._T_space = self._space.variable("temperature").values[time_index]
             self._w_space = self._space.variable("abs_humidity").values[time_index]
@@ -137,22 +127,13 @@ class HVAC_DX_system(Component):
                 self._simulate_economizer() # Calculation of new f_oa
                 self._calculate_required_Q()
             space_air = self._simulate_system()           
-            #if self.parameter("control_type").value == "PERFECT":
-            #    space_air= self._perfect_control(n_iter)    
-            #elif self.parameter("control_type").value == "TEMPERATURE":
-            #    space_air = self._air_temperature_control(n_iter)
         self._space.set_control_system(space_air)
-        
-         # Test convergence
-        #if self._on_off and self.parameter("control_type").value == "TEMPERATURE" and self._economizer:
-        #    return self.itera_Foa.converged()
-        #else:
         return True
 
     def _calculate_required_Q(self):
         K_t,F_t = self._space.get_thermal_equation(False)
-        K_ts = K_t + self._supply_air_flow * self._f_oa * self.props["RHO_A"] * self.props["C_PA"]
-        F_ts = F_t + self._supply_air_flow * self._f_oa * self.props["RHO_A"] * self.props["C_PA"] * self._T_odb + self._no_load_heat
+        K_ts = K_t + self._supply_air_flow * self._f_oa * self._outdoor_rho * self.props["C_PA"]
+        F_ts = F_t + self._supply_air_flow * self._f_oa * self._outdoor_rho * self.props["C_PA"] * self._T_odb + self._no_load_heat
         T_flo = F_ts/K_ts
         if T_flo > self._T_cool_sp:
             self._Q_required =  K_ts * self._T_cool_sp - F_ts
@@ -195,8 +176,9 @@ class HVAC_DX_system(Component):
         state = 3
         f_load = 0
         Q_sen = 0
-        M_w = 0        
-        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_space, self._w_space)
+        M_w = 0
+        f_mix = self._f_oa*self._outdoor_rho/self.props["RHO_A"]        
+        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self.f_mix, self._T_odb, self._w_o, self._T_space, self._w_space)
 
         if self._Q_required > 0: # Heating    
             heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)
@@ -229,7 +211,11 @@ class HVAC_DX_system(Component):
         self._M_w = M_w
         self._f_load = f_load
 
-        air_flow = {"V": self._supply_air_flow*self._f_oa, "T": self._T_odb, "w":self._w_o, "Q":Q_sen+self._no_load_heat, "M":M_w }
+        air_flow = {"M_a": self._supply_air_flow*self._f_oa*self._outdoor_rho, 
+                    "T_a": self._T_odb, 
+                    "w_a":self._w_o, 
+                    "Q_s":Q_sen+self._no_load_heat, 
+                    "M_w":M_w }
         return air_flow  
 
     def _mix_air(self, f, T1, w1, T2, w2):
@@ -244,7 +230,7 @@ class HVAC_DX_system(Component):
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
         self.variable("state").values[time_index] = self._state
-        if self._state != 0 : # onq
+        if self._state != 0 : # on
             self.variable("T_idb").values[time_index] = self._T_idb
             self.variable("T_iwb").values[time_index] = self._T_iwb
             self.variable("T_supply").values[time_index] = (self._Q_sen + self._no_load_heat)/self._mrcp + self._T_idb

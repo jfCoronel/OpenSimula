@@ -25,12 +25,6 @@ class HVAC_FC_equipment(Component):
         self.add_parameter(Parameter_float_list("expression_max_values", [60,30,99,2,2,1], "-"))
         self.add_parameter(Parameter_float_list("expression_min_values", [-30,-30,0,0,0,0], "-"))
 
-        # Sicro
-        sicro.SetUnitSystem(sicro.SI)
-        self.CP_A = 1007 # (J/kg·K)
-        self.DH_W = 2501 # (J/g H20)
-
-
     def check(self):
         errors = super().check()
         # Test Cooling and Heating conditions: 3, 3 values (Entering air and water)
@@ -41,12 +35,13 @@ class HVAC_FC_equipment(Component):
             msg = f"{self.parameter('name').value}, nominal_heating_conditions size must be 3"
             errors.append(Message(msg, "ERROR"))
         return errors
-    
-    def set_props(self, props):
-        self.props = props
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
+        # Sicro
+        sicro.SetUnitSystem(sicro.SI)
+        self.props = self._sim_.props
+
         # Parameters
         self._nominal_air_flow = self.parameter("nominal_air_flow").value
         self._fan_power = self.parameter("fan_power").value
@@ -68,7 +63,7 @@ class HVAC_FC_equipment(Component):
     def calculate_nominal_effectiveness(self):
         # Heating
         if self._nominal_heating_capacity > 0:
-            C_min = min( self._nominal_air_flow*self.props["RHO_A"]*self.props["C_PA"], self._nominal_heating_water_flow * self.props["RHOCP_W"](self._T_iw_HN))
+            C_min = min( self._nominal_air_flow * self.props["RHO_A"] * self.props["C_PA"], self._nominal_heating_water_flow * self.props["RHOCP_W"](self._T_iw_HN))
             Q_max = C_min * (self._T_iw_HN - self._T_idb_HN)
             self._nominal_heating_epsilon = self._nominal_heating_capacity/Q_max
             if self._nominal_heating_epsilon > 1:
@@ -84,10 +79,10 @@ class HVAC_FC_equipment(Component):
             w_i = sicro.GetHumRatioFromTWetBulb(self._T_idb_CN,self._T_iwb_CN,self.props["ATM_PRESSURE"])
             h_ia = sicro.GetMoistAirEnthalpy(self._T_idb_CN,w_i)
             h_iw = sicro.GetMoistAirEnthalpy(self._T_iw_CN,sicro.GetHumRatioFromRelHum(self._T_iw_CN,1,self.props["ATM_PRESSURE"]))
-            self._nominal_enthalpy_epsilon = self._nominal_total_cooling_capacity / (self._nominal_air_flow*self.props["RHO_A"]*(h_ia-h_iw))
+            self._nominal_enthalpy_epsilon = self._nominal_total_cooling_capacity / (self._nominal_air_flow * self.props["RHO_A"] * (h_ia-h_iw))
             if (self._nominal_enthalpy_epsilon > 1):
                 self._sim_.message(Message(f"{self.parameter('name').value} : Nominal cooling effectiveness > 1","ERROR"))
-            h_oa = h_ia - self._nominal_total_cooling_capacity/(self._nominal_air_flow*self["RHO_A"])
+            h_oa = h_ia - self._nominal_total_cooling_capacity/(self._nominal_air_flow * self["RHO_A"])
             T_odb = self._T_idb_CN - self._nominal_sensible_cooling_capacity/(self._nominal_air_flow*self.props["RHO_A"]*self.props["C_PA"])
             w_o = sicro.GetHumRatioFromEnthalpyAndTDryBulb(h_oa,T_odb)
             # Calculate ADP
@@ -112,7 +107,6 @@ class HVAC_FC_equipment(Component):
         Returns (Q,epsilon,fan_power). 
         If fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
         If fan_operation is CYCLING: It returns the expressions plus the indoor fan power (Net capacity = Gross capacity + indoor fan)  """
-       
         if self._nominal_heating_capacity > 0:
             # variables dictonary
             var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,F_water,F_load])
@@ -171,13 +165,17 @@ class HVAC_FC_equipment(Component):
             return (h_adp - sicro.GetSatAirEnthalpy(x,self.props["ATM_PRESSURE"]))
         solucion = fsolve(func, x0=T_ini,xtol=1e-3)
         return solucion[0]      
-        
-    def get_no_load_power(self):
+    
+    def get_fan_power(self, f_load):
         if self.parameter("fan_operation").value == "CONTINUOUS":
             return self.parameter("fan_power").value
         elif self.parameter("fan_operation").value == "CYCLING":
-            return 0
-    
+            return self.parameter("fan_power").value * f_load
+
+    def get_fan_heat(self, f_load):
+        return self.get_fan_power(f_load)
+
+
     def _var_state_dic(self, values):
         max = self.parameter("expression_max_values").value
         min = self.parameter("expression_min_values").value

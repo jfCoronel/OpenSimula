@@ -80,6 +80,7 @@ class HVAC_perfect_system(Component):
 
         self._T_odb = self._file_met.variable("temperature").values[time_index]
         self._w_o = self._file_met.variable("abs_humidity").values[time_index]
+        self._outdoor_rho = 1/sicro.GetMoistAirVolume(self._T_odb,self._w_o/1000,self.props["ATM_PRESSURE"])
         self._T_cool_sp = self.variable("cooling_setpoint").values[time_index]
         self._T_heat_sp = self.variable("heating_setpoint").values[time_index]
         self._HR_min = self.variable("humidifying_setpoint").values[time_index] 
@@ -87,19 +88,19 @@ class HVAC_perfect_system(Component):
 
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
-        self._control_system = {"V": 0, "T": 0, "w":0, "Q":0, "M":0 }      
+        self._control_system = {"M_a": 0, "T_a": 0, "w_a":0, "Q_s":0, "M_w":0 }      
         if self._on_off:
             self._calculate_required_Q()
             self._calculate_required_M()
-            self._control_system["Q"] = self._Q_spa
-            self._control_system["M"] = self._M_spa
+            self._control_system["Q_s"] = self._Q_spa
+            self._control_system["M_w"] = self._M_spa
         self._space.set_control_system(self._control_system)
         return True
     
     def _calculate_required_Q(self):
         K_t,F_t = self._space.get_thermal_equation(False)
-        K_ts = K_t + self._outdoor_air_flow * self.props["RHO_A"] * self.props["C_PA"]
-        F_ts = F_t + self._outdoor_air_flow * self.props["RHO_A"] * self.props["C_PA"] * self._T_odb
+        K_ts = K_t + self._outdoor_air_flow * self._outdoor_rho * self.props["C_PA"]
+        F_ts = F_t + self._outdoor_air_flow * self._outdoor_rho * self.props["C_PA"] * self._T_odb
         self._T_space = F_ts/K_ts
         if self._T_space > self._T_cool_sp:
             self._T_space = self._T_cool_sp
@@ -113,8 +114,8 @@ class HVAC_perfect_system(Component):
     
     def _calculate_required_M(self):
         K_h,F_h = self._space.get_humidity_equation(False)
-        K_hs = K_h + self._outdoor_air_flow * self.props["RHO_A"]
-        F_hs = F_h + self._outdoor_air_flow * self.props["RHO_A"] * self._w_o 
+        K_hs = K_h + self._outdoor_air_flow * self._outdoor_rho
+        F_hs = F_h + self._outdoor_air_flow * self._outdoor_rho * self._w_o 
         self._w_space = F_hs/K_hs
         if self._w_space < 0:
             self._w_space = 0

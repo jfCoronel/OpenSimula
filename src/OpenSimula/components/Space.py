@@ -75,7 +75,7 @@ class Space(Component):
         self._create_ff_matrix() # ff_matrix
         self._create_dist_vectors() # dsr_dist_vector, ig_dist_vector
         self.uncontrol_systems = []
-        self.control_system = {"V": 0, "T": 0, "w":0, "Q": 0, "M": 0} # V (m^3/s), T (°C), w (g/kg), Q (W), M (gr H2O)
+        self.control_system = {"M_a": 0, "T_a": 0, "w_a":0, "Q_s": 0, "M_w": 0} # M_a (kg/s), T_a (°C), w_a (g/kg), Q_s (W), M_w (g H2O/s)
 
     def _create_surfaces_list(self):
         self.surfaces = []
@@ -224,7 +224,7 @@ class Space(Component):
         # Usar inicialmente el mismo sistema del instante anterior
         # Systems air flows
         self.uncontrol_systems = []
-        self.control_system = {"V": 0, "T": 0, "w":0, "Q": 0, "M": 0} # V (m^3/s), T (°C), w (g/kg), Q (W), M (gr H2O)
+        self.control_system = {"M_a": 0, "T_a": 0, "w_a":0, "Q_s": 0, "M_w": 0} 
         # Initial values
         self._estimate_T_w(time_index)
         # Iterative Process
@@ -284,35 +284,35 @@ class Space(Component):
         self.K_F = K_F
 
     def _acumulate_u_systems(self):
-        self._V_u_systems = 0
-        self._V_T_u_systems = 0
-        self._V_w_u_systems = 0
-        self._Q_u_systems = 0
-        self._M_u_systems = 0
+        self._M_a_u_systems = 0
+        self._M_T_a_u_systems = 0
+        self._M_w_a_u_systems = 0
+        self._Q_s_u_systems = 0
+        self._M_w_u_systems = 0
         for system in self.uncontrol_systems:
-            self._V_u_systems += system["V"]
-            self._V_T_u_systems += system["V"]*system["T"]
-            self._V_w_u_systems += system["V"]*system["w"]
-            self._Q_u_systems += system["Q"]
-            self._M_u_systems += system["M"]
+            self._M_a_u_systems += system["M_a"]
+            self._M_T_a_u_systems += system["M_a"]*system["T_a"]
+            self._M_w_a_u_systems += system["M_a"]*system["w_a"]
+            self._Q_s_u_systems += system["Q_s"]
+            self._M_w_u_systems += system["M_w"]
 
     def get_thermal_equation(self, include_control_system):
         self._acumulate_u_systems()
         # F_OS may be updated by the building in each iteration
-        F_tot = self.K_F["F"]+self.K_F["F_OS"] + self._V_T_u_systems * self.props["RHO_A"] * self.props["C_PA"] + self._Q_u_systems
-        K_tot = self.K_F["K"] + self._V_u_systems * self.props["RHO_A"] * self.props["C_PA"]
+        F_tot = self.K_F["F"]+self.K_F["F_OS"] + self._M_T_a_u_systems  * self.props["C_PA"] + self._Q_s_u_systems
+        K_tot = self.K_F["K"] + self._M_a_u_systems * self.props["C_PA"]
         if include_control_system:
-            K_tot += self.control_system["V"] * self.props["RHO_A"] * self.props["C_PA"]
-            F_tot += self.control_system["V"] * self.props["RHO_A"] * self.props["C_PA"] * self.control_system["T"] + self.control_system["Q"]
+            K_tot += self.control_system["M_a"] * self.props["C_PA"]
+            F_tot += self.control_system["M_a"] * self.props["C_PA"] * self.control_system["T_a"] + self.control_system["Q_s"]
         return (K_tot, F_tot)
 
     def get_humidity_equation(self, include_control_system):
         self._acumulate_u_systems()
-        K_hum = self._K_hum + self.props["RHO_A"] * self._V_u_systems
-        F_hum = self._F_hum + self.props["RHO_A"] * self._V_w_u_systems + self._M_u_systems
+        K_hum = self._K_hum + self._M_a_u_systems
+        F_hum = self._F_hum + self._M_w_a_u_systems + self._M_w_u_systems
         if include_control_system:
-            K_hum += self.control_system["V"] * self.props["RHO_A"]
-            F_hum += self.control_system["V"] * self.props["RHO_A"] * self.control_system["w"]  + self.control_system["M"]
+            K_hum += self.control_system["M_a"] 
+            F_hum += self.control_system["M_a"] * self.control_system["w_a"]  + self.control_system["M_w"]
         return (K_hum, F_hum)
 
     def get_Q_required(self, T_cool_sp, T_heat_sp):
@@ -364,8 +364,8 @@ class Space(Component):
         # Sensibles
         self.variable("delta_int_energy").values[time_i] = ( self._volume * self.props["RHO_A"] * self.props["C_PA"] + self._m_furniture * self.props["C_P_FURNITURE"]) * (self._T - self._T_pre) / self._Dt
         self.variable("infiltration_sensible_heat").values[time_i] = V_inf * self.props["RHO_A"] * self.props["C_PA"] * (T_ext - self._T)
-        self.variable("u_system_sensible_heat").values[time_i] = self.props["RHO_A"] * self.props["C_PA"] * (self._V_T_u_systems - self._V_u_systems * self._T)
-        Q = self.control_system["V"] * self.props["RHO_A"] * self.props["C_PA"] * (self.control_system["T"] - self._T) + self.control_system["Q"]
+        self.variable("u_system_sensible_heat").values[time_i] = self.props["C_PA"] * (self._M_T_a_u_systems - self._M_a_u_systems * self._T)
+        Q = self.control_system["M_a"] * self.props["C_PA"] * (self.control_system["T_a"] - self._T) + self.control_system["Q_s"]
         self.variable("system_sensible_heat").values[time_i] = Q
 
         Q_rest =  self.variable("delta_int_energy").values[time_i] 
@@ -380,6 +380,6 @@ class Space(Component):
         
         # Latents
         self.variable("infiltration_latent_heat").values[time_i] = V_inf * self.props["RHO_A"] * self.props["LAMBDA"] * (w_ext - self._w)
-        self.variable("u_system_latent_heat").values[time_i] = self.props["RHO_A"] * self.props["LAMBDA"] * (self._V_w_u_systems - self._V_u_systems * self._w)
-        self.variable("system_latent_heat").values[time_i] = self.control_system["V"] * self.props["RHO_A"] * self.props["LAMBDA"] * (self.control_system["w"] - self._w) + self.control_system["M"] * self.props["LAMBDA"]
+        self.variable("u_system_latent_heat").values[time_i] = self.props["LAMBDA"] * (self._M_w_a_u_systems - self._M_a_u_systems * self._w)
+        self.variable("system_latent_heat").values[time_i] = self.control_system["M_a"] * self.props["LAMBDA"] * (self.control_system["w_a"] - self._w) + self.control_system["M_w"] * self.props["LAMBDA"]
 
