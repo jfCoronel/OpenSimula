@@ -178,7 +178,7 @@ class HVAC_DX_system(Component):
         Q_sen = 0
         M_w = 0
         f_mix = self._f_oa*self._outdoor_rho/self.props["RHO_A"]        
-        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self.f_mix, self._T_odb, self._w_o, self._T_space, self._w_space)
+        self._T_idb, self._w_i, self._T_iwb = self._mix_air(f_mix, self._T_odb, self._w_o, self._T_space, self._w_space)
 
         if self._Q_required > 0: # Heating    
             heat_cap = self._equipment.get_heating_capacity(self._T_idb, self._T_iwb, self._T_odb, self._T_owb,self._f_air)

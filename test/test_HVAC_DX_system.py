@@ -393,11 +393,11 @@ def test_HVAC_DX_system_with_vent():
     peak_cooling = -load.min()/1000
     power = pro.component("system").variable("power").values.sum()/1e6
 
-    assert annual_heating == pytest.approx(6.520483)
-    assert annual_cooling == pytest.approx(4.084756)
-    assert peak_heating == pytest.approx(3.9481729)
-    assert peak_cooling == pytest.approx(5.3796972)
-    assert power == pytest.approx(16.716598)
+    assert annual_heating == pytest.approx(6.7524288)
+    assert annual_cooling == pytest.approx(4.047486)
+    assert peak_heating == pytest.approx(4.07299364)
+    assert peak_cooling == pytest.approx(5.3752775)
+    assert power == pytest.approx(16.8323240)
     annual_latent = -pro.component("system").variable("Q_latent").values.sum()/1e6
-    assert annual_latent == pytest.approx(0.078517787)
+    assert annual_latent == pytest.approx(0.078194467)
 
