@@ -138,7 +138,7 @@ class HVAC_FC_system(Component):
     def _calculate_required_Q(self):
         K_t,F_t = self._space.get_thermal_equation(False)
         K_ts = K_t + self._supply_air_flow * self._f_oa * self._outdoor_rho * self.props["C_PA"]
-        F_ts = F_t + self._supply_air_flow * self._f_oa * self._outdoor_rho * self.props["C_PA"] * self._T_odb + self._no_load_heat
+        F_ts = F_t + self._supply_air_flow * self._f_oa * self._outdoor_rho * self.props["C_PA"] * self._T_odb 
         T_flo = F_ts/K_ts
         if T_flo > self._T_cool_sp:
             self._Q_required =  K_ts * self._T_cool_sp - F_ts
@@ -163,38 +163,26 @@ class HVAC_FC_system(Component):
         # Venting
         state = 3
         f_load = 0
-        Q_sen = 0
+        Q_sen = self._no_load_heat
         M_w = 0
+
         f_mix = self._f_oa*self._outdoor_rho/self.props["RHO_A"]
         self._T_idb, self._w_i, self._T_iwb = self._mix_air(f_mix, self._T_odb, self._w_o, self._T_space, self._w_space)
 
         if self._Q_required > 0: # Heating    
-            heat_cap = self._equipment.get_heating_state(self._T_idb, self._T_iwb, self._heating_water_temp,self._f_air,self._heating_F_water,1)[0]
-            if heat_cap > 0:
-                if self._Q_required > heat_cap:
-                    state = 1
-                    Q_sen = heat_cap
-                    f_load = 1
-                else:
-                    state = 2
-                    Q_sen = self._Q_required
-                    f_load = Q_sen/heat_cap
+            Q_sen,f_load = self._equipment.get_heating_load(self._T_idb, self._T_iwb, self._heating_water_temp,self._f_air,self._heating_F_water,self._Q_required)
+            if f_load == 1:
+                state = 1
+            else:
+                state = 2
         elif self._Q_required < 0: # Cooling
-            cool_cap = self._equipment.get_cooling_state(self._T_idb, self._T_iwb,self._cooling_water_temp,self._f_air,self._cooling_F_water,1)
-            tot_cool_cap = cool_cap[0]
-            sen_cool_cap = cool_cap[1]
-            if sen_cool_cap > 0:
-                if -self._Q_required > sen_cool_cap:
-                    state = -2
-                    Q_sen = -sen_cool_cap
-                    Q_tot = -tot_cool_cap
-                    f_load = -1
-                else:
-                    state = -1
-                    Q_sen = self._Q_required  
-                    f_load = Q_sen/sen_cool_cap                     
-                    Q_tot = tot_cool_cap*f_load
-                M_w = (Q_tot - Q_sen) / self.props["LAMBDA"]
+            Q_tot, Q_sen,f_load = self._equipment.get_cooling_load(self._T_idb, self._T_iwb,self._cooling_water_temp,self._f_air,self._cooling_F_water,self._Q_required)
+            if f_load == 1:
+                state = -2
+            else:
+                state = -1
+            M_w = -(Q_tot - Q_sen) / self.props["LAMBDA"]
+            Q_sen = -Q_sen
 
         self._state = state
         self._Q_sen = Q_sen
@@ -204,7 +192,7 @@ class HVAC_FC_system(Component):
         air_flow = {"M_a": self._supply_air_flow * self._f_oa * self._outdoor_rho,
                     "T_a": self._T_odb,
                     "w_a":self._w_o, 
-                    "Q_s":Q_sen+self._no_load_heat, 
+                    "Q_s":Q_sen, 
                     "M_w":M_w }
         return air_flow                    
 
@@ -215,31 +203,24 @@ class HVAC_FC_system(Component):
             self.variable("T_idb").values[time_index] = self._T_idb
             self.variable("T_iwb").values[time_index] = self._T_iwb
             mcp_supply = self._supply_air_flow * self.props["RHO_A"] * self.props["C_PA"]
-            self.variable("T_supply").values[time_index] = (self._Q_sen + self._no_load_heat)/mcp_supply + self._T_idb
+            self.variable("T_supply").values[time_index] = self._Q_sen/mcp_supply + self._T_idb
             self.variable("w_supply").values[time_index] = self._M_w/self._supply_air_flow +self._w_i
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
             self.variable("outdoor_air_flow").values[time_index] = self._supply_air_flow * self._f_oa
+            fan_power = self._equipment.get_fan_power(self._f_load)
+            self.variable("fan_power").values[time_index] = fan_power
             if self._state == 1 or self._state == 2: # Heating
-                Q, epsilon, fan_power =self._equipment.get_heating_state(self._T_idb, self._T_iwb, self._heating_water_temp,self._f_air,self._heating_F_water,self._f_load)
-                self.variable("Q_sensible").values[time_index] = Q
-                self.variable("Q_total").values[time_index] = Q
-                self.variable("fan_power").values[time_index] = fan_power
+                Q_sys = self._Q_sen - fan_power
+                self.variable("Q_sensible").values[time_index] = Q_sys
+                self.variable("Q_total").values[time_index] = Q_sys
                 self.variable("T_iw").values[time_index] = self._heating_water_temp
-                self.variable("epsilon").values[time_index] = epsilon
-                self.variable("T_ow").values[time_index] = self._heating_water_temp - Q/(self._heating_water_flow * self.props["RHOCP_W"](self._heating_water_temp))                    
-            elif self._state == -1 or self._state == -2: #Cooling
-                Q_t,Q_s,epsilon,epsilon_adp,fan_power = self._equipment.get_cooling_capacity(self._T_idb, self._T_iwb,self._cooling_water_temp,self._f_air,self._cooling_F_water,self._f_load)
-                self.variable("Q_sensible").values[time_index] = -Q_s
-                self.variable("Q_latent").values[time_index] = -(Q_t - Q_s)
-                self.variable("Q_total").values[time_index] = -Q_t
+                self.variable("T_ow").values[time_index] = self._heating_water_temp - Q_sys/(self._heating_water_flow * self.props["RHOCP_W"](self._heating_water_temp))                    
+            elif self._state == -1 or self._state == -2: #Coolin
+                Q_s = -self._Q_sen + fan_power
+                Q_l = self._M_w * self.props["LAMBDA"]
+                self.variable("Q_sensible").values[time_index] = Q_s
+                self.variable("Q_latent").values[time_index] = Q_l
+                self.variable("Q_total").values[time_index] = Q_s
                 self.variable("T_iw").values[time_index] = self._cooling_water_temp
-                self.variable("epsilon").values[time_index] = epsilon
-                self.variable("fan_power").values[time_index] = fan_power
-                self.variable("epsilon_adp").values[time_index] = epsilon_adp
-                self.variable("T_ow").values[time_index] = self._cooling_water_temp + Q_t/(self._cooling_water_flow * self.props["RHOCP_W"](self._cooling_water_temp))
-            else: # Venting
-                self.variable("fan_power").values[time_index] = self._equipment.get_fan_power(0)
-
-
-
+                self.variable("T_ow").values[time_index] = self._cooling_water_temp + (Q_s+Q_l)/(self._cooling_water_flow * self.props["RHOCP_W"](self._cooling_water_temp))                

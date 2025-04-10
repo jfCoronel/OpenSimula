@@ -70,7 +70,6 @@ class HVAC_DX_system(Component):
         self.props = self._sim_.props
         self._supply_air_flow = self.parameter("supply_air_flow").value
         self._f_air = self._supply_air_flow / self._equipment.parameter("nominal_air_flow").value
-        self._mrcp =  self.props["RHO_A"] * self._supply_air_flow * self.props["C_PA"] # V_imp * rho * c_p
         self._f_load = 0
         self._no_load_heat = self._equipment.get_fan_heat(0)
         self._economizer = self.parameter("economizer").value != "NO"
@@ -157,9 +156,10 @@ class HVAC_DX_system(Component):
             
         if (on_economizer):
             if (self._Q_required < 0):
-                Q_rest_ae = self._mrcp * (1-self._f_oa)*(self._T_odb - self._T_space)
+                mrhocp =  self._supply_air_flow * self.props["C_PA"]* self._outdoor_rho
+                Q_rest_ae = mrhocp * (1-self._f_oa) * (self._T_odb - self._T_space)
                 if  Q_rest_ae < self._Q_required:
-                    self._f_oa += self._Q_required/(self._mrcp*(self._T_odb-self._T_space))
+                    self._f_oa += self._Q_required/(mrhocp * (self._T_odb-self._T_space))
                     self._Q_required = 0
                 else:        
                     if (self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
@@ -233,7 +233,8 @@ class HVAC_DX_system(Component):
         if self._state != 0 : # on
             self.variable("T_idb").values[time_index] = self._T_idb
             self.variable("T_iwb").values[time_index] = self._T_iwb
-            self.variable("T_supply").values[time_index] = (self._Q_sen + self._no_load_heat)/self._mrcp + self._T_idb
+            mcp_supply = self._supply_air_flow * self.props["RHO_A"] * self.props["C_PA"]
+            self.variable("T_supply").values[time_index] = (self._Q_sen + self._no_load_heat)/mcp_supply + self._T_idb
             self.variable("w_supply").values[time_index] = self._M_w/self._supply_air_flow +self._w_i
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
