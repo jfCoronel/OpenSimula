@@ -117,9 +117,12 @@ class HVAC_FC_equipment(Component):
         if self._nominal_heating_capacity > 0:
             # variables dictonary
             var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,F_water,1]) #Full load
+            w_i = sicro.GetHumRatioFromTWetBulb(T_idb,T_iwb,self.props["ATM_PRESSURE"])
+            rho_i = 1/sicro.GetMoistAirVolume(T_idb,w_i,self.props["ATM_PRESSURE"])
+
             # Capacity
             epsilon = self._nominal_heating_epsilon * self.parameter("heating_epsilon_expression").evaluate(var_dic)
-            C_min = min(self._nominal_air_flow*F_air*self.props["RHO_A"]*self.props["C_PA"], self._nominal_heating_water_flow*F_water*self.props["RHOCP_W"](T_iw))
+            C_min = min(self._nominal_air_flow * F_air * rho_i * self.props["C_PA"], self._nominal_heating_water_flow*F_water*self.props["RHOCP_W"](T_iw))
             capacity = epsilon * C_min * (T_iw - T_idb)
             capacity_with_fan = capacity + self.get_fan_heat(1)
             if Q_required > capacity_with_fan:
@@ -148,10 +151,12 @@ class HVAC_FC_equipment(Component):
             T_idp =sicro.GetTDewPointFromTWetBulb(T_idb,T_iwb,self.props["ATM_PRESSURE"])
             w_i = sicro.GetHumRatioFromTWetBulb(T_idb,T_iwb,self.props["ATM_PRESSURE"])
             h_i = sicro.GetMoistAirEnthalpy(T_idb,w_i)
+            rho_i = 1/sicro.GetMoistAirVolume(T_idb,w_i,self.props["ATM_PRESSURE"])
+            mrho = self._nominal_air_flow * F_air * rho_i
+            mrhocp = mrho * self.props["C_PA"]    
             
             if T_idp < T_iw: # Dry coil
-                h_iw = sicro.GetMoistAirEnthalpy(T_iw,w_i)
-                capacity = epsilon * self._nominal_air_flow*self.props["RHO_A"] * (h_i - h_iw)
+                capacity = epsilon * mrhocp * (T_idb - T_iw)
                 capacity_with_fan = capacity - self.get_fan_heat(1)
                 if Q_required > capacity_with_fan:
                     return (capacity_with_fan,capacity_with_fan,1)
@@ -159,11 +164,11 @@ class HVAC_FC_equipment(Component):
                     return (Q_required, Q_required, Q_required/capacity_with_fan)
             else:  # Wet coil
                 h_iw = sicro.GetMoistAirEnthalpy(T_iw,sicro.GetHumRatioFromRelHum(T_iw,1,self.props["ATM_PRESSURE"]))
-                capacity_tot = epsilon * self._nominal_air_flow*self.props["RHO_A"] * (h_i - h_iw)
-                h_o = h_i - capacity_tot/(self._nominal_air_flow*self.props["RHO_A"])
+                capacity_tot = epsilon * mrho * (h_i - h_iw)
+                h_o = h_i - capacity_tot/mrho
                 h_adp = h_i - (h_i -h_o)/adp_epsilon
                 T_adp = self.get_T_adp_from_h_adp(h_adp,T_iw + 4)
-                capacity_sen = self._nominal_air_flow*self.props["RHO_A"]*self.props["C_PA"]*(T_idb-T_adp)*adp_epsilon
+                capacity_sen = adp_epsilon * mrhocp * (T_idb - T_adp) 
                 if (capacity_sen > capacity_tot):
                     capacity_sen = capacity_tot
                 capacity_tot_with_fan = capacity_tot - self.get_fan_heat(1)
@@ -173,16 +178,16 @@ class HVAC_FC_equipment(Component):
                 else:
                     f_load = Q_required / capacity_sen_with_fan
                     if self._wet_coil_model == "PROPORTIONAL":
-                        return (capacity_tot_with_fan* f_load,Q_required,f_load)
+                        return (capacity_tot_with_fan * f_load, Q_required, f_load)
                     elif self._wet_coil_model == "CONSTANT_BF":
-                        T_odb = T_idb - Q_required / (self._nominal_air_flow*self.props["RHO_A"]*self.props["C_PA"])
-                        T_adp = T_idb - (T_idb - T_odb)/adp_epsilon 
+                        T_odb = T_idb - Q_required / mrhocp
+                        T_adp = T_idb - (T_idb - T_odb)/ adp_epsilon 
                         if T_adp > T_idp: # Dry coil
                             return(Q_required, Q_required, f_load)
                         else:
                             w_adp = sicro.GetHumRatioFromRelHum(T_adp,1,self.props["ATM_PRESSURE"])
                             h_adp = sicro.GetMoistAirEnthalpy(T_adp,w_adp)
-                            cap_tot = adp_epsilon*self._nominal_air_flow*self.props["RHO_A"] * (h_i - h_adp)
+                            cap_tot = adp_epsilon * mrho * (h_i - h_adp)
                             cap_tot_with_fan = cap_tot - self.get_fan_heat(f_load)
                             return (cap_tot_with_fan, Q_required, f_load)                
         else:

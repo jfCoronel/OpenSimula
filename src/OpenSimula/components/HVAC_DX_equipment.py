@@ -40,20 +40,68 @@ class HVAC_DX_equipment(Component):
             msg = f"Error: {self.parameter('name').value}, nominal_heating_conditions size must be 3"
             errors.append(Message(msg, "ERROR"))
         return errors
-    
-    def get_cooling_capacity(self,T_idb,T_iwb,T_odb,T_owb,F_air):
+        
+    def get_heating_load(self,T_idb,T_iwb,T_iw,F_air,Q_required):
         """
-        Returns (Q_tot,Q_sen) capacities. 
-        If indoor_fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
-        If indoor_fan_operation is CYCLING: It returns the expressions minus the indoor fan power (Net capacity = Gross capacity - indoor fan)  
+        Returns (Q,f_load).
+        Q: Net capacity (Q = Q_gross + indoor fan power)
+        f_load: Fraction of load (0-1)
         """
-        total_capacity = self.parameter("nominal_total_cooling_capacity").value
-        if total_capacity > 0:
+        capacity = self.parameter("nominal_heating_capacity").value
+        if capacity > 0:
             # variables dictonary
-            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,0])
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,1]) #Full load
+            # Capacity
+            capacity = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
+            capacity_with_fan = capacity + self.get_fan_heat(1)
+            if Q_required > capacity_with_fan:
+                return (capacity_with_fan,1)
+            else:
+                return (Q_required, Q_required/capacity_with_fan)
+        else:
+            return (self.get_fan_heat(0), 0)
+    
+    def get_heating_power(self,T_idb, T_iwb,T_odb,T_owb,F_air,Q_required):
+        """
+        Returns (power,indoor_fan_power,F_COP).
+        """
+        cap_nom = self.parameter("nominal_heating_capacity").value
+        if cap_nom > 0:
+            Q_load, F_load = self.get_heating_load(T_idb, T_iwb,T_odb,F_air,Q_required)
+            # variables dictonary
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
+            # Compressor
+            power_full = self.parameter("nominal_heating_power").value
+            power_full = power_full * self.parameter("heating_power_expression").evaluate(var_dic)
+            capacity = Q_load/F_load + self.get_fan_heat(1)
+            COP_full = capacity/power_full
+            F_COP = self.parameter("COP_expression").evaluate(var_dic) 
+            COP = COP_full * F_COP
+            if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
+                fan_power = self.parameter("indoor_fan_power").value
+            elif self.parameter("indoor_fan_operation").value == "CYCLING":
+                fan_power = self.parameter("indoor_fan_power").value*F_load/F_COP
+            return (capacity*F_load/COP + fan_power, fan_power, F_COP)
+        else:
+            fan_power = self.get_fan_power(0)
+            return (fan_power,fan_power,0)
+
+    
+    def get_cooling_load(self,T_idb,T_iwb,T_odb,T_owb,F_air,Q_required):
+        """
+        Returns (Q_tot,Q_sen ,f_load).
+        Q_tot: Total Net capacity (Q = Q_gross + indoor fan power)
+        Q_sen: Sensible Net capacity (Q = Q_gross + indoor fan power)
+        f_load: Fraction of load (0-1)
+        """
+        nom_total_capacity = self.parameter("nominal_total_cooling_capacity").value
+        if nom_total_capacity > 0:
+            Q_required = -Q_required # Positive
+            # variables dictonary
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,1]) #Full load
             # Total
             f = self.parameter("total_cooling_capacity_expression").evaluate(var_dic)
-            total_capacity = total_capacity * f
+            total_capacity = nom_total_capacity * f
             # Sensible
             sensible_capacity = self.parameter("nominal_sensible_cooling_capacity").value
             f = self.parameter("sensible_cooling_capacity_expression").evaluate(var_dic)
@@ -63,60 +111,38 @@ class HVAC_DX_equipment(Component):
                     total_capacity = sensible_capacity
                 elif self.parameter("dry_coil_model").value == "TOTAL":
                     sensible_capacity = total_capacity
-            if self.parameter("indoor_fan_operation").value == "CYCLING":
-                sensible_capacity = sensible_capacity - self.get_fan_heat(1)
-                total_capacity = total_capacity - self.get_fan_heat(1)
-            return (total_capacity, sensible_capacity)
-        else:
-            return (0,0)
-    
-    def get_heating_capacity(self,T_idb,T_iwb,T_odb,T_owb,F_air):
-        """
-        Returns heat sensible capacity. 
-        If indoor_fan_operation is CONTINUOUS: It returns the values from the expressions (Gross capacity = Coil capacity)
-        If indoor_fan_operation is CYCLING: It returns the expressions plus the indoor fan power (Net capacity = Gross capacity + indoor fan)  """
-        capacity = self.parameter("nominal_heating_capacity").value
-        if capacity > 0:
-            # variables dictonary
-            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,0])
-            # Capacity
-            capacity = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
-            if self.parameter("indoor_fan_operation").value == "CYCLING":
-                capacity = capacity + self.get_fan_heat(1)
-            return capacity
-        else:
-            return 0
-    
-    def get_cooling_state(self,T_idb,T_iwb,T_odb,T_owb,F_air,F_load):
-        """
-        Returns (Q_tot,Q_sen,power,indoor_fan_power,F_EER).
-        """
-        total_capacity, sensible_capacity = self.get_cooling_capacity(T_idb,T_iwb,T_odb,T_owb,F_air)
-        if total_capacity > 0:
-            if self.parameter("indoor_fan_operation").value == "CYCLING": # Get gross capacities
-                total_capacity= total_capacity + self.get_fan_heat(1)
-                sensible_capacity= sensible_capacity + self.get_fan_heat(1)
-            if (F_load > 0):
-                # variables dictonary
-                var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
-                # con
-                power_full = self._get_correct_cooling_power(total_capacity,sensible_capacity,var_dic)
-
-                EER_full = total_capacity/power_full
-                F_EER = self.parameter("EER_expression").evaluate(var_dic) 
-                EER = EER_full * F_EER 
-                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
-                    fan_power = self.parameter("indoor_fan_power").value
-                    power = total_capacity*F_load/EER + fan_power
-                elif self.parameter("indoor_fan_operation").value == "CYCLING":
-                    fan_power = self.parameter("indoor_fan_power").value*F_load/F_EER
-                    power = total_capacity*F_load/EER + fan_power 
-                return (total_capacity*F_load, sensible_capacity*F_load, power, fan_power, F_EER)
+            tot_capacity_with_fan = total_capacity - self.get_fan_heat(1)
+            sen_capacity_with_fan = sensible_capacity - self.get_fan_heat(1)
+            if Q_required > sen_capacity_with_fan:
+                return (tot_capacity_with_fan,sen_capacity_with_fan,1)
             else:
-                fan_power = self.get_fan_power(0)
-                return (0,fan_power,fan_power,0)
+                F_load = Q_required/sen_capacity_with_fan
+                return (tot_capacity_with_fan*F_load, Q_required, F_load)
         else:
-            return (0,0,0,0,0)
+            return (-self.get_fan_heat(0), -self.get_fan_heat(0), 0)
+
+    def get_cooling_power(self,T_idb,T_iwb,T_odb,T_owb,F_air,Q_required):
+        """
+        Returns (power,indoor_fan_power,F_EER).
+        """
+        Q_tot, Q_sen, F_load = self.get_cooling_load(T_idb,T_iwb,T_odb,T_owb,F_air,Q_required)
+        if Q_sen > 0:
+            # variables dictonary
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
+            capacity_tot = Q_tot/F_load + self.get_fan_heat(1)
+            capacity_sen = Q_sen/F_load + self.get_fan_heat(1)
+            power_full = self._get_correct_cooling_power(capacity_tot,capacity_sen,var_dic)
+            EER_full = capacity_tot/power_full
+            F_EER = self.parameter("EER_expression").evaluate(var_dic) 
+            EER = EER_full * F_EER 
+            if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
+                fan_power = self.parameter("indoor_fan_power").value
+            elif self.parameter("indoor_fan_operation").value == "CYCLING":
+                fan_power = self.parameter("indoor_fan_power").value*F_load/F_EER
+            return (capacity_tot*F_load/EER + fan_power, fan_power, F_EER)
+        else:
+            fan_power = self.get_fan_power(0)
+            return (fan_power,fan_power,0)
         
     def _get_correct_cooling_power(self,total_capacity, sensible_capacity, var_dic):
         power = self.parameter("nominal_cooling_power").value
@@ -136,36 +162,6 @@ class HVAC_DX_equipment(Component):
         root = fsolve(func, var_dic["T_iwb"],xtol=1e-3)
         return root[0]
     
-    def get_heating_state(self,T_idb, T_iwb,T_odb,T_owb,F_air,F_load):
-        """
-        Returns (Q_sen,power,indoor_fan_power,F_COP).
-        """
-        capacity = self.get_heating_capacity(T_idb, T_iwb, T_odb,T_owb,F_air)
-        if self.parameter("indoor_fan_operation").value == "CYCLING": # Get gross capacities
-            capacity= capacity - self.get_fan_heat(1)
-        if capacity > 0:
-            if (F_load > 0):
-                # variables dictonary
-                var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
-                # Compressor
-                power_full = self.parameter("nominal_heating_power").value
-                power_full = power_full * self.parameter("heating_power_expression").evaluate(var_dic)
-                COP_full = capacity/power_full
-                F_COP = self.parameter("COP_expression").evaluate(var_dic) 
-                COP = COP_full * F_COP
-                if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
-                    fan_power = self.parameter("indoor_fan_power").value
-                    power = capacity*F_load/COP + fan_power
-                elif self.parameter("indoor_fan_operation").value == "CYCLING":
-                    fan_power = self.parameter("indoor_fan_power").value*F_load/F_COP
-                    power = capacity*F_load/COP + fan_power
-                return (capacity*F_load, power, fan_power, F_COP)
-            else:
-                fan_power = self.get_fan_power(0)
-                return (0,fan_power,fan_power,0)
-        else:
-            return (0,0,0,0)
-        
     def get_fan_power(self, f_load):
         if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
             return self.parameter("indoor_fan_power").value
