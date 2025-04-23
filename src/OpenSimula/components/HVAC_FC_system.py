@@ -35,6 +35,8 @@ class HVAC_FC_system(Component):
         self.add_variable(Variable("outdoor_air_fraction", unit="frac"))
         self.add_variable(Variable("T_supply", unit="°C"))
         self.add_variable(Variable("w_supply", unit="g/kg"))
+        self.add_variable(Variable("T_fan_in", unit="°C"))
+        self.add_variable(Variable("w_fan_in", unit="g/kg"))
         self.add_variable(Variable("Q_sensible", unit="W"))
         self.add_variable(Variable("Q_latent", unit="W"))
         self.add_variable(Variable("Q_total", unit="W"))
@@ -83,7 +85,7 @@ class HVAC_FC_system(Component):
         self._heating_water_temp = self.parameter("inlet_heating_water_temp").value
         self._f_load = 0
         self._no_load_heat = self._equipment.get_fan_heat(0)
-        self._rho_i = self.props["RHO_A"] 
+        self._rho_coil_in = self.props["RHO_A"] 
         # input_varibles symbol and variable
         self.input_var_symbol = []
         self.input_var_variable = []
@@ -168,30 +170,31 @@ class HVAC_FC_system(Component):
         Q_sen = self._no_load_heat
         M_w = 0
 
-
-        m_supply = self._supply_air_flow * self._rho_i
-        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._m_oa/m_supply, self._T_odb, self._w_o, self._T_space, self._w_space)
-        self._rho_i = 1/sicro.GetMoistAirVolume(self._T_idb,self._w_i/1000,self.props["ATM_PRESSURE"])
+        self._m_supply = self._supply_air_flow * self._rho_coil_in
+        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._m_oa/self._m_supply, self._T_odb, self._w_o, self._T_space, self._w_space)
+        self._rho_coil_in = 1/sicro.GetMoistAirVolume(self._T_idb,self._w_i/1000,self.props["ATM_PRESSURE"])
 
         if self._Q_required > 0: # Heating    
-            Q_sen,f_load = self._equipment.get_heating_load(self._T_idb, self._T_iwb, self._heating_water_temp,self._f_air,self._heating_F_water,self._Q_required)
+            Q_sen, Q_coil, f_load = self._equipment.get_heating_load(self._T_idb, self._T_iwb, self._heating_water_temp,self._f_air,self._heating_F_water,self._Q_required)
             if f_load == 1:
                 state = 1
             else:
                 state = 2
         elif self._Q_required < 0: # Cooling
-            Q_tot, Q_sen,f_load = self._equipment.get_cooling_load(self._T_idb, self._T_iwb,self._cooling_water_temp,self._f_air,self._cooling_F_water,self._Q_required)
+            Q_tot, Q_sen, Q_coil, f_load = self._equipment.get_cooling_load(self._T_idb, self._T_iwb,self._cooling_water_temp,self._f_air,self._cooling_F_water,self._Q_required)
             if f_load == 1:
                 state = -2
             else:
                 state = -1
             M_w = -(Q_tot - Q_sen) / self.props["LAMBDA"]
             Q_sen = -Q_sen
+            Q_coil = -Q_coil
 
         self._state = state
         self._Q_sen = Q_sen
         self._M_w = M_w
         self._f_load = f_load
+        self._Q_coil = Q_coil
 
         air_flow = {"M_a": self._m_oa,
                     "T_a": self._T_odb,
@@ -206,10 +209,14 @@ class HVAC_FC_system(Component):
         if self._state != 0 : # on
             self.variable("T_idb").values[time_index] = self._T_idb
             self.variable("T_iwb").values[time_index] = self._T_iwb
-            mcp_supply = self._supply_air_flow * self._rho_i * self.props["C_PA"]
-            self.variable("outdoor_air_fraction").values[time_index] = self._m_oa/(self._supply_air_flow * self._rho_i )
-            self.variable("T_supply").values[time_index] = self._Q_sen/mcp_supply + self._T_idb
-            self.variable("w_supply").values[time_index] = self._M_w/(self._supply_air_flow * self._rho_i) +self._w_i
+            self.variable("outdoor_air_fraction").values[time_index] = self._m_oa/self._m_supply
+            # Density of air at the fan inlet
+            T_fan_in = self._Q_coil/(self._m_supply*self.props["C_PA"]) + self._T_idb
+            w_fan_in = self._M_w/self._m_supply +self._w_i
+            self.variable("T_fan_in").values[time_index] = T_fan_in
+            self.variable("w_fan_in").values[time_index] = w_fan_in
+            self.variable("T_supply").values[time_index] = self._Q_sen/(self._m_supply*self.props["C_PA"]) + self._T_idb
+            self.variable("w_supply").values[time_index] = w_fan_in
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
             fan_power = self._equipment.get_fan_power(self._f_load)
