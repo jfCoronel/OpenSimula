@@ -8,6 +8,6 @@ def test_Iterative_process():
     x_i = 0.5
     itera = osm.Iterative_process(x_i)    
     while not itera.converged():
-        x_i = itera.x_next(y(x_i))
+        x_i = itera.estimate_next_x(y(x_i))
 
     assert x_i == pytest.approx(0.73908,abs=1e-4)

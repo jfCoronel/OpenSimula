@@ -255,7 +255,7 @@ class Space(Component):
         # Calculate temperature
         K_tot,F_tot = self.get_thermal_equation(True)
         T = F_tot/K_tot
-        self.variable("temperature").values[time_index] = self.itera_T.x_next(T)
+        self.variable("temperature").values[time_index] = self.itera_T.estimate_next_x(T)
         
         # Calculate humidity
         K_hum, F_hum = self.get_humidity_equation(True)
@@ -267,7 +267,7 @@ class Space(Component):
             if (w > max_hum):
                 w = max_hum
 
-        self.variable("abs_humidity").values[time_index] = self.itera_w.x_next(w)
+        self.variable("abs_humidity").values[time_index] = self.itera_w.estimate_next_x(w)
         
         # Test convergence
         converged = self.itera_T.converged() and self.itera_w.converged()

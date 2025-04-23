@@ -1,3 +1,4 @@
+from OpenSimula.Iterative_process import Iterative_process
 from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options
 from OpenSimula.Component import Component
@@ -126,18 +127,25 @@ class HVAC_FC_system(Component):
             self._on_off = False
         else:
             self._on_off = True
+        # Converge Supply mass air flow
+        self._m_supply = self._supply_air_flow * self._rho_coil_in
+        self.itera_m_supply = Iterative_process(self._m_supply,tol=1e-4)
+
     
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
-        space_air = {"M_a": 0, "T_a": 0, "w_a":0, "Q_s":0, "M_w":0 }
         if self._on_off:
             self._T_space = self._space.variable("temperature").values[time_index]
             self._w_space = self._space.variable("abs_humidity").values[time_index]
             # Calculate Q_required
             self._calculate_required_Q()
-            space_air = self._simulate_system()   
-        self._space.set_control_system(space_air)
-        return True
+            space_air = self._simulate_system()
+            self._space.set_control_system(space_air)
+            self._m_supply = self._supply_air_flow * self._rho_coil_in
+            self.itera_m_supply.set_next_x(self._m_supply)
+            return self.itera_m_supply.converged()
+        else:
+            return True
 
     def _calculate_required_Q(self):
         K_t,F_t = self._space.get_thermal_equation(False)
@@ -170,7 +178,6 @@ class HVAC_FC_system(Component):
         Q_sen = self._no_load_heat
         M_w = 0
 
-        self._m_supply = self._supply_air_flow * self._rho_coil_in
         self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._m_oa/self._m_supply, self._T_odb, self._w_o, self._T_space, self._w_space)
         self._rho_coil_in = 1/sicro.GetMoistAirVolume(self._T_idb,self._w_i/1000,self.props["ATM_PRESSURE"])
 
