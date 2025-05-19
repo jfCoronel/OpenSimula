@@ -12,7 +12,7 @@ class HVAC_DX_system(Component):
         self.parameter("description").value = "HVAC Direct Expansion system for time simulation"
         self.add_parameter(Parameter_component("equipment", "not_defined", ["HVAC_DX_equipment"]))
         self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
-        self.add_parameter(Parameter_float("supply_air_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
@@ -32,6 +32,7 @@ class HVAC_DX_system(Component):
         self.add_variable(Variable("F_load", unit="frac"))
         self.add_variable(Variable("outdoor_air_flow", unit="m³/s"))
         self.add_variable(Variable("outdoor_air_fraction", unit="frac"))
+        self.add_variable(Variable("m_air_flow", unit="kg/s"))
         self.add_variable(Variable("T_supply", unit="°C"))
         self.add_variable(Variable("w_supply", unit="g/kg"))
         self.add_variable(Variable("Q_total", unit="W"))
@@ -69,8 +70,8 @@ class HVAC_DX_system(Component):
         self._file_met = self.project().parameter("simulation_file_met").component
         sicro.SetUnitSystem(sicro.SI)
         self.props = self._sim_.props
-        self._supply_air_flow = self.parameter("supply_air_flow").value
-        self._f_air = self._supply_air_flow / self._equipment.parameter("nominal_air_flow").value
+        self._air_flow = self.parameter("air_flow").value
+        self._f_air = self._air_flow / self._equipment.parameter("nominal_air_flow").value
         self._f_load = 0
         self._no_load_heat = self._equipment.get_fan_heat(0)
         self._rho_i = self.props["RHO_A"] 
@@ -101,7 +102,6 @@ class HVAC_DX_system(Component):
         # outdoor air flow
         self._outdoor_air_flow = self.parameter("outdoor_air_flow").evaluate(var_dic)
         self.variable("outdoor_air_flow").values[time_index] = self._outdoor_air_flow
-        self._outdoor_rho = 1/sicro.GetMoistAirVolume(self._T_odb,self._w_o/1000,self.props["ATM_PRESSURE"])
         self._m_oa = self._outdoor_air_flow * self._outdoor_rho
 
         # setpoints
@@ -160,20 +160,20 @@ class HVAC_DX_system(Component):
             
         if (on_economizer):
             if (self._Q_required < 0):
-                mrhocp =  self._supply_air_flow * self.props["C_PA"]* self._outdoor_rho
+                mrhocp =  self._air_flow * self.props["C_PA"]* self._outdoor_rho
                 Q_rest_ae = mrhocp * (1-self._f_oa) * (self._T_odb - self._T_space)
                 if  Q_rest_ae < self._Q_required:
                     self._f_oa += self._Q_required/(mrhocp * (self._T_odb-self._T_space))
                     self._Q_required = 0
                 else:        
                     if (self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
-                        self._f_oa = self._outdoor_air_flow/self._supply_air_flow
+                        self._f_oa = self._outdoor_air_flow/self._air_flow
                     elif (self.parameter("economizer").value == "TEMPERATURE"):
                         self._f_oa = 1
             elif (self._Q_required > 0): # Heating 
-                self._f_oa = self._outdoor_air_flow/self._supply_air_flow
+                self._f_oa = self._outdoor_air_flow/self._air_flow
         else:
-            self._f_oa = self._outdoor_air_flow/self._supply_air_flow
+            self._f_oa = self._outdoor_air_flow/self._air_flow
     
     def _simulate_system(self):
         # Venting
@@ -182,7 +182,7 @@ class HVAC_DX_system(Component):
         Q_sen = self._no_load_heat
         M_w = 0
 
-        m_supply = self._supply_air_flow * self._rho_i
+        m_supply = self._air_flow * self._rho_i
         self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._m_oa/m_supply, self._T_odb, self._w_o, self._T_space, self._w_space)
         self._rho_i = 1/sicro.GetMoistAirVolume(self._T_idb,self._w_i/1000,self.props["ATM_PRESSURE"])
 
@@ -228,11 +228,12 @@ class HVAC_DX_system(Component):
         if self._state != 0 : # on
             self.variable("T_idb").values[time_index] = self._T_idb
             self.variable("T_iwb").values[time_index] = self._T_iwb
-            mcp_supply = self._supply_air_flow * self._rho_i * self.props["C_PA"]
-            self.variable("outdoor_air_fraction").values[time_index] = self._m_oa/(self._supply_air_flow * self._rho_i )
+            m_supply = self._air_flow * self._rho_i
+            self.variable("m_air_flow").values[time_index] = m_supply
+            self.variable("outdoor_air_fraction").values[time_index] = self._m_oa/(m_supply)
             self.variable("outdoor_air_flow").values[time_index] = self._m_oa/self._outdoor_rho
-            self.variable("T_supply").values[time_index] = self._Q_sen/mcp_supply + self._T_idb
-            self.variable("w_supply").values[time_index] = self._M_w/(self._supply_air_flow * self._rho_i) +self._w_i
+            self.variable("T_supply").values[time_index] = self._Q_sen/(m_supply*self.props["C_PA"]) + self._T_idb
+            self.variable("w_supply").values[time_index] = self._M_w/(self._air_flow * self._rho_i) +self._w_i
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
             if self._state == 1 or self._state == 2: # Heating
@@ -248,7 +249,7 @@ class HVAC_DX_system(Component):
             elif self._state == -1 or self._state == -2: #Cooling
                 power,fan_power,F_EER = self._equipment.get_cooling_power(self._T_idb,self._T_iwb,self._T_odb,self._T_owb,self._f_air,self._Q_required)
                 Q_s = -self._Q_sen + fan_power
-                Q_l = self._M_w * self.props["LAMBDA"]
+                Q_l = -self._M_w * self.props["LAMBDA"]
                 self.variable("Q_sensible").values[time_index] = Q_s
                 self.variable("Q_latent").values[time_index] = Q_l
                 self.variable("Q_total").values[time_index] = Q_s + Q_l
