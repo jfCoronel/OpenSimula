@@ -41,25 +41,35 @@ class HVAC_DX_equipment(Component):
             errors.append(Message(msg, "ERROR"))
         return errors
         
-    def get_heating_load(self,T_idb,T_iwb,T_iw,F_air,Q_required):
+    def get_heating_load(self,T_idb,T_iwb,T_odb,T_owb,F_air,Q_required):
         """
-        Returns (Q,f_load).
-        Q: Net capacity (Q = Q_gross + indoor fan power)
+        Q_required: Required heating load
+        Returns (Q_eq,Q_coil,f_load).
+        Q_eq: Net heat given by the equipment
+        Q_coil: Gross heat given by the coil
         f_load: Fraction of load (0-1)
         """
         capacity = self.parameter("nominal_heating_capacity").value
         if capacity > 0:
             # variables dictonary
-            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,1]) #Full load
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,1]) #Full load
             # Capacity
-            capacity = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
-            capacity_with_fan = capacity + self.get_fan_heat(1)
-            if Q_required > capacity_with_fan:
-                return (capacity_with_fan,1)
-            else:
-                return (Q_required, Q_required/capacity_with_fan)
+            cap_coil = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
+            cap_eq = cap_coil + self.get_fan_heat(1)
+            if self.get_fan_heat(0) == 0: # Q_requiered is equipment load
+                if Q_required > cap_eq:
+                    return (cap_eq,cap_coil,1)
+                else:
+                    f_load = Q_required/cap_eq
+                    return (Q_required, Q_required-self.get_fan_heat(f_load), f_load)
+            else: # Q_requiered is coil load
+                if Q_required > cap_coil:
+                    return (cap_eq,cap_coil,1)
+                else:
+                    f_load = Q_required/cap_coil
+                    return (Q_required+self.get_fan_heat(f_load), Q_required, f_load)           
         else:
-            return (self.get_fan_heat(0), 0)
+            return (self.get_fan_heat(0),0, 0)
     
     def get_heating_power(self,T_idb, T_iwb,T_odb,T_owb,F_air,Q_required):
         """
@@ -67,13 +77,13 @@ class HVAC_DX_equipment(Component):
         """
         cap_nom = self.parameter("nominal_heating_capacity").value
         if cap_nom > 0:
-            Q_load, F_load = self.get_heating_load(T_idb, T_iwb,T_odb,F_air,Q_required)
+            Q_eq, Q_coil, F_load = self.get_heating_load(T_idb, T_iwb,T_odb,T_owb,F_air,Q_required)
             # variables dictonary
             var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
             # Compressor
             power_full = self.parameter("nominal_heating_power").value
             power_full = power_full * self.parameter("heating_power_expression").evaluate(var_dic)
-            capacity = Q_load/F_load + self.get_fan_heat(1)
+            capacity = Q_coil/F_load 
             COP_full = capacity/power_full
             F_COP = self.parameter("COP_expression").evaluate(var_dic) 
             COP = COP_full * F_COP
@@ -89,9 +99,11 @@ class HVAC_DX_equipment(Component):
     
     def get_cooling_load(self,T_idb,T_iwb,T_odb,T_owb,F_air,Q_required):
         """
-        Returns (Q_tot,Q_sen ,f_load).
-        Q_tot: Total Net capacity (Q = Q_gross + indoor fan power)
-        Q_sen: Sensible Net capacity (Q = Q_gross + indoor fan power)
+        Q_required: Required cooling load (negative for cooling)
+        Returns (Q_eq,Q_coil,Q_lat ,f_load).
+        Q_eq: Sensible net heat given by the equipment
+        Q_coil: Sensible gross heat given by the coil
+        Q_lat: Latent heat given by the coil
         f_load: Fraction of load (0-1)
         """
         nom_total_capacity = self.parameter("nominal_total_cooling_capacity").value
@@ -111,26 +123,32 @@ class HVAC_DX_equipment(Component):
                     total_capacity = sensible_capacity
                 elif self.parameter("dry_coil_model").value == "TOTAL":
                     sensible_capacity = total_capacity
-            tot_capacity_with_fan = total_capacity - self.get_fan_heat(1)
-            sen_capacity_with_fan = sensible_capacity - self.get_fan_heat(1)
-            if Q_required > sen_capacity_with_fan:
-                return (tot_capacity_with_fan,sen_capacity_with_fan,1)
-            else:
-                F_load = Q_required/sen_capacity_with_fan
-                return (tot_capacity_with_fan*F_load, Q_required, F_load)
+            cap_eq = sensible_capacity - self.get_fan_heat(1)
+            if self.get_fan_heat(0) == 0: # Q_requiered is equipment load
+                if Q_required > cap_eq:
+                    return (cap_eq,sensible_capacity,total_capacity-sensible_capacity,1)
+                else:
+                    F_load = Q_required/cap_eq
+                    return (Q_required, Q_required+self.get_fan_heat(F_load),(total_capacity-sensible_capacity)*F_load , F_load)
+            else:  # Q_requiered is coil load
+                if Q_required > sensible_capacity:
+                    return (cap_eq,sensible_capacity,total_capacity-sensible_capacity,1)
+                else:
+                    F_load = Q_required/sensible_capacity
+                    return (Q_required-self.get_fan_heat(F_load), Q_required,(total_capacity-sensible_capacity)*F_load , F_load)
         else:
-            return (-self.get_fan_heat(0), -self.get_fan_heat(0), 0)
+            return (-self.get_fan_heat(0), 0, 0, 0)
 
     def get_cooling_power(self,T_idb,T_iwb,T_odb,T_owb,F_air,Q_required):
         """
         Returns (power,indoor_fan_power,F_EER).
         """
-        Q_tot, Q_sen, F_load = self.get_cooling_load(T_idb,T_iwb,T_odb,T_owb,F_air,Q_required)
+        Q_eq, Q_sen, Q_lat, F_load = self.get_cooling_load(T_idb,T_iwb,T_odb,T_owb,F_air,Q_required)
         if Q_sen > 0:
             # variables dictonary
             var_dic = self._var_state_dic([T_idb, T_iwb,T_odb,T_owb,F_air,F_load])
-            capacity_tot = Q_tot/F_load + self.get_fan_heat(1)
-            capacity_sen = Q_sen/F_load + self.get_fan_heat(1)
+            capacity_tot = (Q_sen+Q_lat)/F_load 
+            capacity_sen = Q_sen/F_load 
             power_full = self._get_correct_cooling_power(capacity_tot,capacity_sen,var_dic)
             EER_full = capacity_tot/power_full
             F_EER = self.parameter("EER_expression").evaluate(var_dic) 

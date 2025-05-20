@@ -122,7 +122,7 @@ Component for the simulation of an air-conditioning system for a space and using
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be air-conditioned by this system.
 - **equipment** [_component_, default = "not_defined", component type = HVAC_DX_equipment]: Reference to the "HVAC_DX_equipment" component used by this system.
 - **air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet air flow used for all the simulation.
-- **outdoor_air_flow** [_float_, unit = "m³/s", default = 0, min = 0]: Outdoor air flow used for all the simulation. The outside air is mixed with the return air from the room before it enters the indoor coil.
+- **outdoor_air_fraction** [_math_exp_, unit = "frac", default = 0]: Outdoor air flow fraction used for the simulation. The outside air is mixed with the return air from the room before it enters the indoor coil.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
 - **heating_setpoint** [_math_exp_, unit = "°C", default = "20"]: Space heating setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
 - **cooling_setpoint** [_math_exp_, unit = "°C", default = "25"]: Space Cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
@@ -180,8 +180,7 @@ After the simulation we will have the following variables of this component:
 - __EER__ [frac]: System efficiency ratio for cooling, defined as the total thermal load supplied divided by the electrical power consumed.
 - __COP__ [frac]: System efficiency ratio for heating, defined as the thermal load supplied divided by the electrical power consumed.
 - __m_air_flow__ [kg/s]: Dry air mass flow rate supplied.       
-- __outdoor_air_flow__ [m³/s]: Outside air flow rate (ventilation) supplied to the space.       
-- __outdoor_air_fraction__ [frac]: fraction of outside air in supply air (mass).       
+- __outdoor_air_fraction__ [frac]: fraction of outside air in supply air.       
 - __T_odb__ [ºC]: Outdoor dry bulb temperature.
 - __T_owb__ [ºC]: Outdoor wet bulb temperature.
 - __T_idb__ [ºC]: Indoor dry bulb temperature, at the coil inlet of the indoor unit.
