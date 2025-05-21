@@ -270,21 +270,34 @@ class Polygon_3D():
 class Draw_3D():
     def __init__(self, default="white"):
         self.default_color = default
-        self.plot = pyvista.Plotter()
-        self.plot.add_axes_at_origin()
+        pyvista.set_jupyter_backend("none")
+        self.plot = pyvista.Plotter(notebook=False)
+        self.plot.enable_mesh_picking(callback=self.click_callback,style="surface",color="red",show_message=False)
+        self.plot.add_axes_at_origin(labels_off=True)
+        self.nombres_poligonos = {}
+        #self.plot.show_grid()
 
+    def click_callback(self, mesh):
+        self.plot.add_text("Hola")
+        # for key, value in self.nombres_poligonos.items():
+        #     if value == mesh:
+        #         self.plot.add_text(key)
+        #     # Do something with the clicked mesh
+    
     def add_polygon(self, polygon, color=None, opacity=1):
         if color == None:
             color = self.default_color
         if polygon != None:
-            self.plot.add_mesh(polygon.get_pyvista_mesh().triangulate(
-            ), show_edges=False, color=color, opacity=opacity)
-            self.plot.add_lines(polygon.get_pyvista_polygon_border(
-            ), color="black", width=5, connected=True)
+            mesh = polygon.get_pyvista_mesh().triangulate()
+            self.nombres_poligonos["hola"] = mesh
+            self.plot.add_mesh(mesh, show_edges=False, color=color, opacity=opacity)
+            # Calcular centroide para la etiqueta
+            #centroid = np.mean(np.array(mesh.points), axis=0)
+            #self.plot.add_point_labels([centroid], ["Hola"], font_size=24, text_color='black')
+            self.plot.add_lines(polygon.get_pyvista_polygon_border(), color="black", width=5, connected=True)
             if (polygon.has_holes()):
                 for i in range(len(polygon.holes2D)):
-                    self.plot.add_lines(polygon.get_pyvista_hole_border(
-                        i), color="black", width=5, connected=True)
+                    self.plot.add_lines(polygon.get_pyvista_hole_border(i), color="black", width=5, connected=True)
 
     def add_polygons(self, polygons_list, color=None, opacity=1):
         for polygon in polygons_list:
@@ -295,7 +308,8 @@ class Draw_3D():
 
     def show(self):
         #self.plot.enable_mesh_picking()
-        self.plot.show(jupyter_backend="client")
+        #self.plot.show(jupyter_backend="client")
+        self.plot.show()
 
 
 # class Plane_3D():
