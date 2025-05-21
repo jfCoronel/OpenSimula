@@ -56,13 +56,13 @@ class HVAC_DX_equipment(Component):
             # Capacity
             cap_coil = capacity * self.parameter("heating_capacity_expression").evaluate(var_dic)
             cap_eq = cap_coil + self.get_fan_heat(1)
-            if self.get_fan_heat(0) == 0: # Q_requiered is equipment load
+            if self.get_fan_heat(0) == 0: # Q_required is equipment load
                 if Q_required > cap_eq:
                     return (cap_eq,cap_coil,1)
                 else:
                     f_load = Q_required/cap_eq
                     return (Q_required, Q_required-self.get_fan_heat(f_load), f_load)
-            else: # Q_requiered is coil load
+            else: # Q_required is coil load
                 if Q_required > cap_coil:
                     return (cap_eq,cap_coil,1)
                 else:
@@ -124,7 +124,7 @@ class HVAC_DX_equipment(Component):
                 elif self.parameter("dry_coil_model").value == "TOTAL":
                     sensible_capacity = total_capacity
             cap_eq = sensible_capacity - self.get_fan_heat(1)
-            if self.get_fan_heat(0) == 0: # Q_requiered is equipment load
+            if self.get_fan_heat(0) == 0: # Q_required is equipment load
                 if Q_required > cap_eq:
                     return (cap_eq,sensible_capacity,total_capacity-sensible_capacity,1)
                 else:

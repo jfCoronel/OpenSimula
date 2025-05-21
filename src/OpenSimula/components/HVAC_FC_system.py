@@ -12,8 +12,8 @@ class HVAC_FC_system(Component):
         self.parameter("description").value = "HVAC Fan Coil system for time simulation"
         self.add_parameter(Parameter_component("equipment", "not_defined", ["HVAC_FC_equipment"]))
         self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space
-        self.add_parameter(Parameter_float("supply_air_flow", 1, "m³/s", min=0))
-        self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
+        self.add_parameter(Parameter_float("air_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_math_exp("outdoor_air_fraction", "0", "frac"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
         self.add_parameter(Parameter_math_exp("cooling_setpoint", "25", "°C"))
@@ -32,8 +32,8 @@ class HVAC_FC_system(Component):
         self.add_variable(Variable("T_iwb", unit="°C"))
         self.add_variable(Variable("F_air", unit="frac"))
         self.add_variable(Variable("F_load", unit="frac"))
-        self.add_variable(Variable("outdoor_air_flow", unit="m³/s"))
         self.add_variable(Variable("outdoor_air_fraction", unit="frac"))
+        self.add_variable(Variable("m_air_flow", unit="kg/s"))
         self.add_variable(Variable("T_supply", unit="°C"))
         self.add_variable(Variable("w_supply", unit="g/kg"))
         self.add_variable(Variable("T_fan_in", unit="°C"))
@@ -75,8 +75,8 @@ class HVAC_FC_system(Component):
         # Parameters        
         self._space = self.parameter("space").component
         self._equipment = self.parameter("equipment").component
-        self._supply_air_flow = self.parameter("supply_air_flow").value
-        self._f_air = self._supply_air_flow / self._equipment.parameter("nominal_air_flow").value
+        self._air_flow = self.parameter("air_flow").value
+        self._f_air = self._air_flow / self._equipment.parameter("nominal_air_flow").value
         # Water flows and temperatures
         self._cooling_water_flow = self.parameter("cooling_water_flow").value
         self._heating_water_flow = self.parameter("heating_water_flow").value
@@ -86,7 +86,7 @@ class HVAC_FC_system(Component):
         self._heating_water_temp = self.parameter("inlet_heating_water_temp").value
         self._f_load = 0
         self._no_load_heat = self._equipment.get_fan_heat(0)
-        self._rho_coil_in = self.props["RHO_A"] 
+        self._rho_i = self.props["RHO_A"] 
         # input_varibles symbol and variable
         self.input_var_symbol = []
         self.input_var_variable = []
@@ -104,15 +104,15 @@ class HVAC_FC_system(Component):
         self._w_o = self._file_met.variable("abs_humidity").values[time_index]
         self.variable("T_odb").values[time_index] = self._T_odb
         self.variable("T_owb").values[time_index] = self._T_owb 
+        self._outdoor_rho = 1/sicro.GetMoistAirVolume(self._T_odb,self._w_o/1000,self.props["ATM_PRESSURE"])
+
         # variables dictonary
         var_dic = {}
         for i in range(len(self.input_var_symbol)):
             var_dic[self.input_var_symbol[i]] = self.input_var_variable[i].values[time_index]
         # outdoor air flow 
-        self._outdoor_air_flow = self.parameter("outdoor_air_flow").evaluate(var_dic)
-        self.variable("outdoor_air_flow").values[time_index] = self._outdoor_air_flow
-        self._outdoor_rho = 1/sicro.GetMoistAirVolume(self._T_odb,self._w_o/1000,self.props["ATM_PRESSURE"])
-        self._m_oa = self._outdoor_air_flow * self._outdoor_rho
+        self._outdoor_air_fraction = self.parameter("outdoor_air_fraction").evaluate(var_dic)
+        self._f_oa = self._outdoor_air_fraction   
 
         # setpoints
         self._T_heat_sp = self.parameter("heating_setpoint").evaluate(var_dic)
@@ -128,29 +128,31 @@ class HVAC_FC_system(Component):
         else:
             self._on_off = True
         # Converge Supply mass air flow
-        self._m_supply = self._supply_air_flow * self._rho_coil_in
-        self.itera_m_supply = Iterative_process(self._m_supply,tol=1e-4)
+        #self._m_supply = self._air_flow * self._rho_coil_in
+        #self.itera_m_supply = Iterative_process(self._m_supply,tol=1e-4)
 
     
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
+        space_air = {"M_a": 0, "T_a": 0, "w_a":0, "Q_s":0, "M_w":0 }
         if self._on_off:
             self._T_space = self._space.variable("temperature").values[time_index]
             self._w_space = self._space.variable("abs_humidity").values[time_index]
             # Calculate Q_required
             self._calculate_required_Q()
             space_air = self._simulate_system()
-            self._space.set_control_system(space_air)
-            self._m_supply = self._supply_air_flow * self._rho_coil_in
-            self.itera_m_supply.set_next_x(self._m_supply)
-            return self.itera_m_supply.converged()
-        else:
-            return True
+            
+            #self._m_supply = self._air_flow * self._rho_coil_in
+            #self.itera_m_supply.set_next_x(self._m_supply)
+            #return self.itera_m_supply.converged()
+        self._space.set_control_system(space_air)
+        return True
 
     def _calculate_required_Q(self):
         K_t,F_t = self._space.get_thermal_equation(False)
-        K_ts = K_t + self._m_oa * self.props["C_PA"]
-        F_ts = F_t + self._m_oa * self.props["C_PA"] * self._T_odb 
+        m_cp_oa = self._air_flow * self._f_oa * self._rho_i * self.props["C_PA"]
+        K_ts = K_t + m_cp_oa
+        F_ts = F_t + m_cp_oa * self._T_odb + self._no_load_heat
         T_flo = F_ts/K_ts
         if T_flo > self._T_cool_sp:
             self._Q_required =  K_ts * self._T_cool_sp - F_ts
@@ -175,39 +177,40 @@ class HVAC_FC_system(Component):
         # Venting
         state = 3
         f_load = 0
-        Q_sen = self._no_load_heat
+        Q_coil = 0
+        Q_eq = self._equipment.get_fan_heat(0)
         M_w = 0
 
-        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._m_oa/self._m_supply, self._T_odb, self._w_o, self._T_space, self._w_space)
-        self._rho_coil_in = 1/sicro.GetMoistAirVolume(self._T_idb,self._w_i/1000,self.props["ATM_PRESSURE"])
+        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_space, self._w_space)
+        self._rho_i = 1/sicro.GetMoistAirVolume(self._T_idb,self._w_i/1000,self.props["ATM_PRESSURE"])
 
         if self._Q_required > 0: # Heating    
-            Q_sen, Q_coil, f_load = self._equipment.get_heating_load(self._T_idb, self._T_iwb, self._heating_water_temp,self._f_air,self._heating_F_water,self._Q_required)
+            Q_eq,Q_coil,f_load = self._equipment.get_heating_load(self._T_idb, self._T_iwb, self._heating_water_temp,self._f_air,self._heating_F_water,self._Q_required)
             if f_load == 1:
                 state = 1
             else:
                 state = 2
         elif self._Q_required < 0: # Cooling
-            Q_tot, Q_sen, Q_coil, f_load = self._equipment.get_cooling_load(self._T_idb, self._T_iwb,self._cooling_water_temp,self._f_air,self._cooling_F_water,self._Q_required)
+            Q_eq, Q_coil, Q_lat,f_load = self._equipment.get_cooling_load(self._T_idb, self._T_iwb,self._cooling_water_temp,self._f_air,self._cooling_F_water,self._Q_required)
             if f_load == 1:
                 state = -2
             else:
                 state = -1
-            M_w = -(Q_tot - Q_sen) / self.props["LAMBDA"]
-            Q_sen = -Q_sen
+            M_w = -(Q_lat) / self.props["LAMBDA"]
             Q_coil = -Q_coil
+            Q_eq = -Q_eq
 
         self._state = state
-        self._Q_sen = Q_sen
+        self._Q_coil = Q_coil 
+        self._Q_eq = Q_eq
         self._M_w = M_w
         self._f_load = f_load
-        self._Q_coil = Q_coil
 
-        air_flow = {"M_a": self._m_oa,
-                    "T_a": self._T_odb,
-                    "w_a":self._w_o, 
-                    "Q_s":Q_sen, 
-                    "M_w":M_w }
+        air_flow = {"M_a": self._air_flow * self._f_oa * self._rho_i, 
+                    "T_a": self._T_odb, 
+                    "w_a": self._w_o, 
+                    "Q_s": Q_eq, 
+                    "M_w": self._M_w }
         return air_flow                    
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
@@ -216,27 +219,29 @@ class HVAC_FC_system(Component):
         if self._state != 0 : # on
             self.variable("T_idb").values[time_index] = self._T_idb
             self.variable("T_iwb").values[time_index] = self._T_iwb
-            self.variable("outdoor_air_fraction").values[time_index] = self._m_oa/self._m_supply
+            m_supply = self._air_flow * self._rho_i
+            self.variable("m_air_flow").values[time_index] = m_supply
+            self.variable("outdoor_air_fraction").values[time_index] = self._f_oa
             # Density of air at the fan inlet
-            T_fan_in = self._Q_coil/(self._m_supply*self.props["C_PA"]) + self._T_idb
-            w_fan_in = self._M_w/self._m_supply +self._w_i
+            T_fan_in = self._Q_coil/(m_supply*self.props["C_PA"]) + self._T_idb
+            w_fan_in = self._M_w/m_supply +self._w_i
             self.variable("T_fan_in").values[time_index] = T_fan_in
             self.variable("w_fan_in").values[time_index] = w_fan_in
-            self.variable("T_supply").values[time_index] = self._Q_sen/(self._m_supply*self.props["C_PA"]) + self._T_idb
+            self.variable("T_supply").values[time_index] = self._Q_eq/(m_supply*self.props["C_PA"]) + self._T_idb
             self.variable("w_supply").values[time_index] = w_fan_in
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
             fan_power = self._equipment.get_fan_power(self._f_load)
             self.variable("fan_power").values[time_index] = fan_power
             if self._state == 1 or self._state == 2: # Heating
-                Q_sys = self._Q_sen - fan_power
+                Q_sys = self._Q_coil
                 self.variable("Q_sensible").values[time_index] = Q_sys
                 self.variable("Q_total").values[time_index] = Q_sys
                 self.variable("T_iw").values[time_index] = self._heating_water_temp
                 self.variable("T_ow").values[time_index] = self._heating_water_temp - Q_sys/(self._heating_water_flow * self.props["RHOCP_W"](self._heating_water_temp))                    
             elif self._state == -1 or self._state == -2: #Cooling
-                Q_s = -self._Q_sen + fan_power
-                Q_l = self._M_w * self.props["LAMBDA"]
+                Q_s = -self._Q_coil
+                Q_l = -self._M_w * self.props["LAMBDA"]
                 self.variable("Q_sensible").values[time_index] = Q_s
                 self.variable("Q_latent").values[time_index] = Q_l
                 self.variable("Q_total").values[time_index] = Q_s
