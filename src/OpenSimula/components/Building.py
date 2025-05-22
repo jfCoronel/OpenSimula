@@ -7,9 +7,7 @@ from OpenSimula.Message import Message
 import numpy as np
 import math
 from scipy.interpolate import RegularGridInterpolator
-from scipy.integrate import dblquad
 import matplotlib.pyplot as plt
-import pyvista as pv
 from OpenSimula.components.utils.sun_shadows import Building_3D, Polygon_3D
 
 

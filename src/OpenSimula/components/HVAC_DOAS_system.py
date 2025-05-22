@@ -1,19 +1,17 @@
-from OpenSimula.Iterative_process import Iterative_process
 from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options
+from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options, Parameter_component_list, Parameter_float_list
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
 import psychrolib as sicro
 
-class HVAC_FC_system(Component):
+class HVAC_DOAS_system(Component): # HVAC Dedicated Outdoor Air System
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "HVAC_FC_system"
-        self.parameter("description").value = "HVAC Fan Coil system for time simulation"
+        self.parameter("type").value = "HVAC_DOAS_system"
+        self.parameter("description").value = "HVAC Dedicated Outdoor Air System"
         self.add_parameter(Parameter_component("equipment", "not_defined", ["HVAC_FC_equipment"]))
-        self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space
-        self.add_parameter(Parameter_float("air_flow", 1, "m³/s", min=0))
-        self.add_parameter(Parameter_math_exp("outdoor_air_fraction", "0", "frac"))
+        self.add_parameter(Parameter_component_list("spaces", ["not_defined"], ["Space"])) # Space
+        self.add_parameter(Parameter_float_list("air_flows", [1], "m³/s", min=0))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
         self.add_parameter(Parameter_math_exp("cooling_setpoint", "25", "°C"))
@@ -28,11 +26,8 @@ class HVAC_FC_system(Component):
         self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Heating max cap, -1:Cooling, -2:Cooling max cap, 3: Venting 
         self.add_variable(Variable("T_odb", unit="°C"))
         self.add_variable(Variable("T_owb", unit="°C"))
-        self.add_variable(Variable("T_idb", unit="°C"))
-        self.add_variable(Variable("T_iwb", unit="°C"))
         self.add_variable(Variable("F_air", unit="frac"))
         self.add_variable(Variable("F_load", unit="frac"))
-        self.add_variable(Variable("outdoor_air_fraction", unit="frac"))
         self.add_variable(Variable("m_air_flow", unit="kg/s"))
         self.add_variable(Variable("T_supply", unit="°C"))
         self.add_variable(Variable("w_supply", unit="g/kg"))
@@ -85,7 +80,7 @@ class HVAC_FC_system(Component):
         self._cooling_water_temp = self.parameter("inlet_cooling_water_temp").value
         self._heating_water_temp = self.parameter("inlet_heating_water_temp").value
         self._f_load = 0
-        self._no_load_heat = self._equipment.get_fan_heat(0)
+        self._no_load_heat = self._equipment.get_fans_heat(0)
         self._rho_i = self.props["RHO_A"] 
         # input_varibles symbol and variable
         self.input_var_symbol = []
