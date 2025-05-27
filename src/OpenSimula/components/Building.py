@@ -618,7 +618,7 @@ class Building(Component):
                 else:
                     self.surfaces[i].variable("T_s1").values[time_i] = self.TS_vector[i]
 
-    def show3D(self, hide=[], opacity=1, coordinate_system="global", space="all"):
+    def show3D(self, hide=[], opacity=1, coordinate_system="global", space="all",window=False):
         self._create_building_3D(coordinate_system)
         if space != "all":
             if not isinstance(opacity, list):
@@ -641,7 +641,7 @@ class Building(Component):
                 if not is_my_space:
                     opacity[i] = opacity[i] * 0.25
                 i = i + 1
-        self.building_3D.show(hide, opacity)
+        self.building_3D.show(hide, opacity,window)
 
     def show3D_shadows(self, date):
         self._create_building_3D()

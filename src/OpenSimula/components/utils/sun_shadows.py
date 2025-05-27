@@ -29,24 +29,24 @@ class Building_3D():
             else:
                 self.shadow_list.append(polygon)
 
-    def show(self, hide=[], opacity=1):
-        draw = Draw_3D()
+    def show(self, hide=[], opacity=1, window=False):
+        pyvista = Pyvista_Screen(window=window)
         if not isinstance(opacity, list):
             opacity = [opacity] * len(self.polygons)
         for polygon, pol_type, opa in zip(self.polygons, self.pol_types, opacity):
             if pol_type == "Opening" and "Opening" not in hide:
-                draw.add_polygon(polygon, "blue", opa*0.6)
+                pyvista.add_polygon(polygon, "blue", opa*0.6)
             elif pol_type == "Virtual_surface" and "Virtual_surface" not in hide:
-                draw.add_polygon(polygon, "red", opa*0.4)
+                pyvista.add_polygon(polygon, "red", opa*0.4)
             elif pol_type == "Interior_surface" and "Interior_surface" not in hide:
-                draw.add_polygon(polygon, "green", opa)
+                pyvista.add_polygon(polygon, "green", opa)
             elif pol_type == "Exterior_surface" and "Exterior_surface" not in hide:
-                draw.add_polygon(polygon, "white", opa)
+                pyvista.add_polygon(polygon, "white", opa)
             elif pol_type == "Underground_surface" and "Underground_surface" not in hide:
-                draw.add_polygon(polygon, "brown", opa)
+                pyvista.add_polygon(polygon, "brown", opa)
             elif pol_type == "Shadow_surface" and "Shadow_surface" not in hide:
-                draw.add_polygon(polygon, "cyan", opa)
-        draw.show()
+                pyvista.add_polygon(polygon, "cyan", opa)
+        pyvista.show()
 
     def show_shadows(self, sun_position):
         shadow_polygons = []
@@ -55,7 +55,7 @@ class Building_3D():
                 self.shadow_list, sun_position))
         shadow_polygons = sum(shadow_polygons, [])
 
-        draw = Draw_3D()
+        draw = Pyvista_Screen()
         for polygon, pol_type in zip(self.polygons, self.pol_types):
             if pol_type == "Opening":
                 draw.add_polygon(polygon, "blue", 0.6)
@@ -267,31 +267,32 @@ class Polygon_3D():
         return Polygon_3D(self.origin, self.azimuth, self.altitude, exterior_pol, holes)
 
 
-class Draw_3D():
-    def __init__(self, default="white"):
-        self.default_color = default
-        pyvista.set_jupyter_backend("none")
-        self.plot = pyvista.Plotter(notebook=False)
-        self.plot.enable_mesh_picking(callback=self.click_callback,style="surface",color="red",show_message=False)
-        self.plot.add_axes_at_origin(labels_off=True)
-        self.nombres_poligonos = {}
+class Pyvista_Screen():
+    def __init__(self, window=False, default_color="white"):
+        self.default_color = default_color
+        self.window = window
+        if window:
+            pyvista.set_jupyter_backend("none")
+            self.plot = pyvista.Plotter(notebook=False)
+            self.plot.enable_mesh_picking(callback=self.click_callback,style="surface",color="red",show_message=False)
+            self.plot.add_axes_at_origin(labels_off=True)
+        else:
+            pyvista.set_jupyter_backend("trame")
+            self.plot = pyvista.Plotter(notebook=True)
+            self.plot.add_axes_at_origin()
         #self.plot.show_grid()
 
     def click_callback(self, mesh):
         self.plot.add_text("Hola")
-        # for key, value in self.nombres_poligonos.items():
-        #     if value == mesh:
-        #         self.plot.add_text(key)
-        #     # Do something with the clicked mesh
     
     def add_polygon(self, polygon, color=None, opacity=1):
         if color == None:
             color = self.default_color
         if polygon != None:
             mesh = polygon.get_pyvista_mesh().triangulate()
-            self.nombres_poligonos["hola"] = mesh
             self.plot.add_mesh(mesh, show_edges=False, color=color, opacity=opacity)
             # Calcular centroide para la etiqueta
+            #self.nombres_poligonos["hola"] = mesh
             #centroid = np.mean(np.array(mesh.points), axis=0)
             #self.plot.add_point_labels([centroid], ["Hola"], font_size=24, text_color='black')
             self.plot.add_lines(polygon.get_pyvista_polygon_border(), color="black", width=5, connected=True)
@@ -307,6 +308,9 @@ class Draw_3D():
                 self.add_polygon(polygon, color, opacity=opacity)
 
     def show(self):
-        #self.plot.show(jupyter_backend="client")
-        self.plot.show()
+        if self.window:
+            self.plot.show()
+        else:
+            self.plot.show(jupyter_backend="client")
+        
 
