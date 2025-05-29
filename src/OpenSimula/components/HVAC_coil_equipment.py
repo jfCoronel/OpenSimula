@@ -4,28 +4,24 @@ from OpenSimula.Component import Component
 from scipy.optimize import fsolve
 import psychrolib as sicro
 
-class HVAC_FC_equipment(Component):
+class HVAC_coil_equipment(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "HVAC_FC_equipment"
-        self.parameter("description").value = "HVAC Fan-coil equipment manufacturer information"
+        self.parameter("type").value = "HVAC_coil_equipment"
+        self.parameter("description").value = "HVAC coil equipment manufacturer information"
         self.add_parameter(Parameter_float("nominal_air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_cooling_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_total_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_sensible_cooling_capacity", 0, "W", min=0))
-        self.add_parameter(Parameter_float("fan_power", 0, "W", min=0))
-        self.add_parameter(Parameter_float("return_fan_power", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_cooling_conditions", [27, 19, 7], "ºC"))
         self.add_parameter(Parameter_float("nominal_heating_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_heating_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_heating_conditions", [20, 15, 50], "ºC"))
-        self.add_parameter(Parameter_options("fan_operation", "CONTINUOUS", ["CONTINUOUS", "CYCLING"]))
         self.add_parameter(Parameter_math_exp("heating_epsilon_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("cooling_epsilon_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("cooling_adp_epsilon_expression", "1", "frac"))
-        self.add_parameter(Parameter_options("wet_coil_model", "PROPORTIONAL", ["PROPORTIONAL", "CONSTANT_BF"]))
-        self.add_parameter(Parameter_float_list("expression_max_values", [60,30,99,2,2,1], "-"))
-        self.add_parameter(Parameter_float_list("expression_min_values", [-30,-30,0,0,0,0], "-"))
+        self.add_parameter(Parameter_float_list("expression_max_values", [60,30,99,2,2], "-"))
+        self.add_parameter(Parameter_float_list("expression_min_values", [-30,-30,0,0,0], "-"))
 
     def check(self):
         errors = super().check()
@@ -46,7 +42,6 @@ class HVAC_FC_equipment(Component):
 
         # Parameters
         self._nominal_air_flow = self.parameter("nominal_air_flow").value
-        self._fan_power = self.parameter("fan_power").value
         # Heating
         self._nominal_heating_capacity = self.parameter("nominal_heating_capacity").value
         self._nominal_heating_water_flow = self.parameter("nominal_heating_water_flow").value
@@ -60,7 +55,6 @@ class HVAC_FC_equipment(Component):
         self._T_idb_CN = self.parameter("nominal_cooling_conditions").value[0]
         self._T_iwb_CN = self.parameter("nominal_cooling_conditions").value[1]
         self._T_iw_CN = self.parameter("nominal_cooling_conditions").value[2]
-        self._wet_coil_model = self.parameter("wet_coil_model").value
 
         self.calculate_nominal_effectiveness()
     
@@ -109,17 +103,12 @@ class HVAC_FC_equipment(Component):
         solucion = fsolve(func, x0=T_o -1,xtol=1e-3)
         return solucion[0]      
 
-    def get_heating_load(self,T_idb,T_iwb,T_iw,F_air,F_water,Q_required):
-        """
-        Q_required: Required heating load
-        Returns (Q_eq,Q_coil,f_load).
-        Q_eq: Net heat given by the equipment
-        Q_coil: Gross heat given by the coil
-        f_load: Fraction of load (0-1)
-        """
+    def get_heating_capacity(self,T_idb,T_iwb,T_iw,air_flow,water_flow):
         if self._nominal_heating_capacity > 0:
             # variables dictonary
-            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,F_water,1]) #Full load
+            F_air = air_flow/ self._nominal_air_flow
+            F_water = water_flow/ self._nominal_heating_water_flow
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air,F_water])
             w_i = sicro.GetHumRatioFromTWetBulb(T_idb,T_iwb,self.props["ATM_PRESSURE"])
             rho_i = 1/sicro.GetMoistAirVolume(T_idb,w_i,self.props["ATM_PRESSURE"])
 
@@ -127,156 +116,49 @@ class HVAC_FC_equipment(Component):
             epsilon = self._nominal_heating_epsilon * self.parameter("heating_epsilon_expression").evaluate(var_dic)
             C_min = min(self._nominal_air_flow * F_air * rho_i * self.props["C_PA"], self._nominal_heating_water_flow*F_water*self.props["RHOCP_W"](T_iw))
             capacity = epsilon * C_min * (T_iw - T_idb)
-            capacity_with_fan = capacity + self.get_fans_heat(1)
-            if self.get_fans_heat(0) == 0: # Q_required is equipment load
-                if Q_required > capacity_with_fan:
-                    return (capacity_with_fan,capacity,1)
-                else:
-                    f_load = Q_required / capacity_with_fan
-                    fan_heat = self.get_fans_heat(f_load)
-                    return (Q_required, Q_required-fan_heat, f_load)
-            else: # Q_required is coil load
-                if Q_required > capacity:
-                    return (capacity_with_fan,capacity,1)
-                else:
-                    f_load = Q_required / capacity
-                    fan_heat = self.get_fans_heat(f_load)
-                    return (Q_required +fan_heat, Q_required, f_load)
+            return capacity
         else:
-            return (self.get_fans_heat(0),0, 0)
+            return 0
 
-
-    def get_cooling_load(self,T_idb,T_iwb,T_iw,F_air, F_water,Q_required):
-        """
-        Q_required: Required cooling load (negative for cooling)
-        Returns (Q_eq,Q_coil,Q_lat ,f_load).
-        Q_eq: Sensible net heat given by the equipment
-        Q_coil: Sensible gross heat given by the coil
-        Q_lat: Latent heat given by the coil
-        f_load: Fraction of load (0-1)
-        """
+    def get_cooling_capacity(self,T_idb,T_iwb,T_iw,air_flow,water_flow):
+        Q_sen = 0
+        Q_lat = 0  
         if self._nominal_total_cooling_capacity > 0:
-            Q_required = -Q_required # Positive
             # variables dictonary
-            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air, F_water,1]) #Full load
+            F_air = air_flow/ self._nominal_air_flow
+            F_water = water_flow/ self._nominal_cooling_water_flow
+            var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air, F_water])
             # epsilon
             epsilon = self._nominal_enthalpy_epsilon * self.parameter("cooling_epsilon_expression").evaluate(var_dic)
             adp_epsilon = self._nominal_cooling_adp_epsilon * self.parameter("cooling_adp_epsilon_expression").evaluate(var_dic)
-            
             T_idp =sicro.GetTDewPointFromTWetBulb(T_idb,T_iwb,self.props["ATM_PRESSURE"])
             w_i = sicro.GetHumRatioFromTWetBulb(T_idb,T_iwb,self.props["ATM_PRESSURE"])
             h_i = sicro.GetMoistAirEnthalpy(T_idb,w_i)
             rho_i = 1/sicro.GetMoistAirVolume(T_idb,w_i,self.props["ATM_PRESSURE"])
             mrho = self._nominal_air_flow * F_air * rho_i
-            mrhocp = mrho * self.props["C_PA"]    
-
-            Q_sen_eq = 0
-            Q_sen_coil = 0
-            Q_lat = 0
-            f_load = 0
-            
+            mrhocp = mrho * self.props["C_PA"]  
             if T_idp < T_iw: # Dry coil
                 Q_lat = 0
-                capacity = epsilon * mrhocp * (T_idb - T_iw)
-                if self.get_fans_heat(0) == 0: # Q_required is equipment load
-                    if Q_required > capacity - self.get_fans_heat(1):
-                        f_load = 1
-                        Q_sen_coil = capacity
-                        Q_sen_eq = capacity - self.get_fans_heat(1)
-                    else:
-                        f_load = Q_required / (capacity - self.get_fans_heat(1))
-                        Q_sen_coil = Q_required + self.get_fans_heat(f_load)
-                        Q_sen_eq = Q_required
-                else: # Q_required is coil load
-                    if Q_required > capacity:
-                        f_load = 1
-                        Q_sen_coil = capacity
-                        Q_sen_eq = capacity - self.get_fans_heat(1)
-                    else:
-                        f_load = Q_required / capacity
-                        Q_sen_coil = Q_required
-                        Q_sen_eq = Q_required - self.get_fans_heat(f_load)
+                Q_sen = epsilon * mrhocp * (T_idb - T_iw)
             else:  # Wet coil
                 h_iw = sicro.GetMoistAirEnthalpy(T_iw,sicro.GetHumRatioFromRelHum(T_iw,1,self.props["ATM_PRESSURE"]))
-                capacity_tot = epsilon * mrho * (h_i - h_iw)
-                h_o = h_i - capacity_tot/mrho
+                Q_tot = epsilon * mrho * (h_i - h_iw)
+                h_o = h_i - Q_tot/mrho
                 h_adp = h_i - (h_i -h_o)/adp_epsilon
                 T_adp = self.get_T_adp_from_h_adp(h_adp,T_iw + 4)
-                capacity_sen = adp_epsilon * mrhocp * (T_idb - T_adp) 
-                if (capacity_sen > capacity_tot):
-                    capacity_sen = capacity_tot
-                if self.get_fans_heat(0) == 0: # Q_required is equipment load
-                    if Q_required > capacity_sen - self.get_fans_heat(1):
-                        f_load = 1
-                        Q_sen_coil = capacity_sen
-                        Q_sen_eq = capacity_sen - self.get_fans_heat(1)
-                        Q_lat = capacity_tot - capacity_sen
-                    else:
-                        f_load = Q_required / (capacity_sen - self.get_fans_heat(1))
-                        fan_heat = self.get_fans_heat(f_load)
-                        Q_sen_coil = Q_required + fan_heat
-                        Q_sen_eq = Q_required
-                        if self._wet_coil_model == "PROPORTIONAL":
-                            Q_lat = (capacity_tot - capacity_sen)*f_load
-                        elif self._wet_coil_model == "CONSTANT_BF":
-                            T_odb = T_idb - (Q_required+fan_heat) / mrhocp
-                            T_adp = T_idb - (T_idb - T_odb)/ adp_epsilon 
-                            if T_adp > T_idp: # Dry coil
-                                Q_lat = 0
-                            else:
-                                w_adp = sicro.GetHumRatioFromRelHum(T_adp,1,self.props["ATM_PRESSURE"])
-                                h_adp = sicro.GetMoistAirEnthalpy(T_adp,w_adp)
-                                cap_tot = adp_epsilon * mrho * (h_i - h_adp)
-                                Q_lat = cap_tot - Q_sen_coil
-                else: # Q_required is coil load
-                    if Q_required > capacity_sen:
-                        f_load = 1
-                        Q_sen_coil = capacity_sen
-                        Q_sen_eq = capacity_sen - self.get_fans_heat(1)
-                        Q_lat = capacity_tot - capacity_sen
-                    else:
-                        f_load = Q_required / (capacity_sen)
-                        fan_heat = self.get_fans_heat(f_load)
-                        Q_sen_coil = Q_required
-                        Q_sen_eq = Q_required - fan_heat
-                        if self._wet_coil_model == "PROPORTIONAL":
-                            Q_lat = (capacity_tot - capacity_sen)*f_load
-                        elif self._wet_coil_model == "CONSTANT_BF":
-                            T_odb = T_idb - (Q_required) / mrhocp
-                            T_adp = T_idb - (T_idb - T_odb)/ adp_epsilon 
-                            if T_adp > T_idp: # Dry coil
-                                Q_lat = 0
-                            else:
-                                w_adp = sicro.GetHumRatioFromRelHum(T_adp,1,self.props["ATM_PRESSURE"])
-                                h_adp = sicro.GetMoistAirEnthalpy(T_adp,w_adp)
-                                cap_tot = adp_epsilon * mrho * (h_i - h_adp)
-                                Q_lat = cap_tot - Q_sen_coil
-                                
-            return (Q_sen_eq, Q_sen_coil,Q_lat, f_load)
-        else:
-            return (-self.get_fans_heat(0), 0,0, 0)
-    
+                Q_sen = adp_epsilon * mrhocp * (T_idb - T_adp) 
+                if (Q_sen > Q_tot):
+                    Q_sen = Q_tot
+                Q_lat = Q_tot - Q_sen                                
+        return Q_sen, Q_lat
+        
+
     def get_T_adp_from_h_adp(self,h_adp,T_ini):
         def func(x):
             return (h_adp - sicro.GetSatAirEnthalpy(x,self.props["ATM_PRESSURE"]))
         solucion = fsolve(func, x0=T_ini,xtol=1e-3)
         return solucion[0]      
     
-    def get_fan_power(self, f_load):
-        if self.parameter("fan_operation").value == "CONTINUOUS":
-            return self.parameter("fan_power").value
-        elif self.parameter("fan_operation").value == "CYCLING":
-            return self.parameter("fan_power").value * f_load
-
-    def get_fans_heat(self, f_load):
-        return self.get_fan_power(f_load) + self.get_return_fan_power(f_load)
-
-    def get_return_fan_power(self, f_load):
-        if self.parameter("fan_operation").value == "CONTINUOUS":
-            return self.parameter("return_fan_power").value
-        elif self.parameter("fan_operation").value == "CYCLING":
-            return self.parameter("return_fan_power").value * f_load
-
     def _var_state_dic(self, values):
         max = self.parameter("expression_max_values").value
         min = self.parameter("expression_min_values").value
@@ -289,8 +171,7 @@ class HVAC_FC_equipment(Component):
                 "T_iwb":values[1],
                 "T_iw":values[2],
                 "F_air":values[3],
-                "F_water":values[4],
-                "F_load":values[5]}
+                "F_water":values[4]}
 
 
 

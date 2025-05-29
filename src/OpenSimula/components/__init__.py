@@ -20,7 +20,8 @@ from OpenSimula.components.Shadow_surface import Shadow_surface
 from OpenSimula.components.Opening import Opening
 from OpenSimula.components.Calculator import Calculator
 from OpenSimula.components.HVAC_DX_equipment import HVAC_DX_equipment
-from OpenSimula.components.HVAC_FC_equipment import HVAC_FC_equipment
+from OpenSimula.components.HVAC_coil_equipment import HVAC_coil_equipment
+from OpenSimula.components.HVAC_fan_equipment import HVAC_fan_equipment
 from OpenSimula.components.HVAC_DX_system import HVAC_DX_system
 from OpenSimula.components.HVAC_SZW_system import HVAC_SZW_system
 from OpenSimula.components.HVAC_perfect_system import HVAC_perfect_system

@@ -1,4 +1,5 @@
 import OpenSimula as osm
+import OpenSimula as osm
 
 case_AE101 = {
     "name": "case_AE101",
@@ -174,11 +175,16 @@ case_AE101 = {
             ]
         },
         {
-            "type": "HVAC_FC_equipment",
-            "name": "FC",
-            "nominal_air_flow": 0.25925,
-            "fan_power": 201.45,
-            "fan_operation": "CONTINUOUS",
+            "type": "HVAC_fan_equipment",
+            "name": "supply_fan",
+            "nominal_air_flow": 0.25957,
+            "nominal_head": 498,
+            "nominal_power": 201.45,
+        },
+        {
+            "type": "HVAC_coil_equipment",
+            "name": "coil",
+            "nominal_air_flow": 0.25957,
             "nominal_heating_capacity": 7000,
             "nominal_heating_water_flow": 0.072e-3,
             "nominal_total_cooling_capacity": 0,
@@ -188,8 +194,9 @@ case_AE101 = {
             "type": "HVAC_SZW_system",
             "name": "system",
             "space": "space_1",
-            "equipment": "FC",
-            "air_flow": 0.25925,
+            "coil": "coil",
+            "supply_fan": "supply_fan",
+            "air_flow": 0.25957,
             "outdoor_air_fraction": 0.33333,
             "cooling_water_flow": 0,
             "heating_water_flow": 0.072e-3,

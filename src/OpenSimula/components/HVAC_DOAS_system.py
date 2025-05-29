@@ -9,7 +9,7 @@ class HVAC_DOAS_system(Component): # HVAC Dedicated Outdoor Air System
         Component.__init__(self, name, project)
         self.parameter("type").value = "HVAC_DOAS_system"
         self.parameter("description").value = "HVAC Dedicated Outdoor Air System"
-        self.add_parameter(Parameter_component("equipment", "not_defined", ["HVAC_FC_equipment"]))
+        self.add_parameter(Parameter_component("equipment", "not_defined", ["HVAC_coil_equipment"]))
         self.add_parameter(Parameter_component_list("spaces", ["not_defined"], ["Space"])) # Space
         self.add_parameter(Parameter_float_list("air_flows", [1], "m³/s", min=0))
         self.add_parameter(Parameter_variable_list("input_variables", []))
