@@ -1,8 +1,7 @@
 import OpenSimula as osm
-import OpenSimula as osm
 
-case_AE101 = {
-    "name": "case_AE101",
+case_AE103 = {
+    "name": "case_AE103",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -12,7 +11,7 @@ case_AE101 = {
             "type": "File_met",
             "name": "T_ext_cte",
             "file_type": "TMY2",
-            "file_name": "mets/AE101.TM2"
+            "file_name": "mets/AE103.TM2"
         },    
         {
             "type": "Material",
@@ -40,7 +39,7 @@ case_AE101 = {
             "people_sensible": 0,
             "people_latent": 12.21,
             "light_density": "0",
-            "other_gains_density": "-61.0625",
+            "other_gains_density": "30.521",
             "other_gains_radiant_fraction": 0,
             "infiltration": "0"
         },
@@ -177,18 +176,18 @@ case_AE101 = {
         {
             "type": "HVAC_fan_equipment",
             "name": "supply_fan",
-            "nominal_air_flow": 0.25957,
+            "nominal_air_flow": 0.28536,
             "nominal_head": 498,
             "nominal_power": 201.45,
         },
         {
             "type": "HVAC_coil_equipment",
             "name": "coil",
-            "nominal_air_flow": 0.25957,
-            "nominal_heating_capacity": 7000,
-            "nominal_heating_water_flow": 0.072e-3,
-            "nominal_total_cooling_capacity": 0,
-            "nominal_sensible_cooling_capacity": 0,
+            "nominal_air_flow": 0.28536,
+            "nominal_heating_capacity": 0,
+            "nominal_total_cooling_capacity": 7164,
+            "nominal_sensible_cooling_capacity": 5230,
+            "nominal_cooling_water_flow": 3.415e-4
         },
         {
             "type": "HVAC_SZW_system",
@@ -196,11 +195,11 @@ case_AE101 = {
             "space": "space_1",
             "coil": "coil",
             "supply_fan": "supply_fan",
-            "air_flow": 0.25957,
+            "air_flow": 0.28536,
             "outdoor_air_fraction": 0.33333,
-            "cooling_water_flow": 0,
-            "heating_water_flow": 0.072e-3,
-            "heating_setpoint": "21.111",
+            "cooling_water_flow": 3.415e-4,
+            "cooling_setpoint": "23.333",
+            "heating_setpoint": "0",
             "system_on_off": "1",
         }
     ]
@@ -208,5 +207,5 @@ case_AE101 = {
 
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case_AE101)
+pro.read_dict(case_AE103)
 pro.simulate()

@@ -122,7 +122,8 @@ class HVAC_coil_equipment(Component):
 
     def get_cooling_capacity(self,T_idb,T_iwb,T_iw,air_flow,water_flow):
         Q_sen = 0
-        Q_lat = 0  
+        Q_lat = 0
+        T_adp = 0
         if self._nominal_total_cooling_capacity > 0:
             # variables dictonary
             F_air = air_flow/ self._nominal_air_flow
@@ -140,6 +141,7 @@ class HVAC_coil_equipment(Component):
             if T_idp < T_iw: # Dry coil
                 Q_lat = 0
                 Q_sen = epsilon * mrhocp * (T_idb - T_iw)
+                T_adp = T_idp
             else:  # Wet coil
                 h_iw = sicro.GetMoistAirEnthalpy(T_iw,sicro.GetHumRatioFromRelHum(T_iw,1,self.props["ATM_PRESSURE"]))
                 Q_tot = epsilon * mrho * (h_i - h_iw)
@@ -150,8 +152,31 @@ class HVAC_coil_equipment(Component):
                 if (Q_sen > Q_tot):
                     Q_sen = Q_tot
                 Q_lat = Q_tot - Q_sen                                
-        return Q_sen, Q_lat
+        return Q_sen, Q_lat, T_adp
         
+    def get_latent_cooling_load(self,T_idb,T_iwb,T_iw,air_flow,water_flow,T_odb):
+        # variables dictonary
+        F_air = air_flow/ self._nominal_air_flow
+        F_water = water_flow/ self._nominal_cooling_water_flow
+        var_dic = self._var_state_dic([T_idb, T_iwb,T_iw,F_air, F_water])
+        # epsilon
+        adp_epsilon = self._nominal_cooling_adp_epsilon * self.parameter("cooling_adp_epsilon_expression").evaluate(var_dic)
+        T_adp = T_idb - (T_idb - T_odb)/ adp_epsilon
+        T_idp =sicro.GetTDewPointFromTWetBulb(T_idb,T_iwb,self.props["ATM_PRESSURE"])
+        w_i = sicro.GetHumRatioFromTWetBulb(T_idb,T_iwb,self.props["ATM_PRESSURE"])
+        h_i = sicro.GetMoistAirEnthalpy(T_idb,w_i)
+        rho_i = 1/sicro.GetMoistAirVolume(T_idb,w_i,self.props["ATM_PRESSURE"])
+        mrho = self._nominal_air_flow * F_air * rho_i
+        Q_sen = mrho * self.props["C_PA"] * (T_idb - T_odb)
+        if T_adp < T_idp:
+            w_adp = sicro.GetHumRatioFromRelHum(T_adp,1,self.props["ATM_PRESSURE"])
+            h_adp = sicro.GetMoistAirEnthalpy(T_adp,w_adp)
+            cap_tot = adp_epsilon * mrho * (h_i - h_adp)
+            Q_lat = cap_tot - Q_sen
+        else:
+            Q_lat = 0
+            T_adp = T_idp
+        return Q_lat, T_adp
 
     def get_T_adp_from_h_adp(self,h_adp,T_ini):
         def func(x):

@@ -15,6 +15,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self.add_parameter(Parameter_component("supply_fan", "not_defined", ["HVAC_fan_equipment"]))
         self.add_parameter(Parameter_component("return_fan", "not_defined", ["HVAC_fan_equipment"]))
         self.add_parameter(Parameter_float("air_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("return_air_flow", 1, "m³/s", min=0)) # Not used when return fan is not defined
         self.add_parameter(Parameter_math_exp("outdoor_air_fraction", "0", "frac"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
@@ -26,6 +27,8 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self.add_parameter(Parameter_float("heating_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("inlet_cooling_water_temp", 7, "ºC"))
         self.add_parameter(Parameter_float("inlet_heating_water_temp", 50, "ºC"))
+        self.add_parameter(Parameter_options("adp_model", "WITH_WATER_INLET", ["WITH_WATER_INLET", "WITH_AIR_OUTLET"]))
+
 
         # Variables
         self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Heating max cap, -1:Cooling, -2:Cooling max cap, 3: Venting 
@@ -51,6 +54,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self.add_variable(Variable("epsilon_adp", unit="frac"))
         self.add_variable(Variable("T_iw", unit="°C"))
         self.add_variable(Variable("T_ow", unit="°C"))
+        self.add_variable(Variable("T_adp", unit="°C"))
 
     def check(self):
         errors = super().check()
@@ -85,6 +89,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self._supply_fan = self.parameter("supply_fan").component
         self._return_fan = self.parameter("return_fan").component
         self._air_flow = self.parameter("air_flow").value
+        self._return_air_flow = self.parameter("return_air_flow").value
 
         # Water flows and temperatures
         self._cooling_water_flow = self.parameter("cooling_water_flow").value
@@ -104,7 +109,9 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                 self.parameter("input_variables").variable[i])
         # Fan operation
         self._fan_operation = self.parameter("fan_operation").value
-        self._fans_heat = self._get_fan_power(self._supply_fan, 0) + self._get_fan_power(self._return_fan, 0)
+        self._fans_heat = self._get_fan_power("supply", 0) + self._get_fan_power("return", 0)
+        # adp model
+        self._adp_model = self.parameter("adp_model").value
         
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -175,17 +182,24 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
             T_wb = sicro.GetTWetBulbFromHumRatio(T,w/1000,self.props["ATM_PRESSURE"])
         return (T,w,T_wb)        
     
-    def _get_fan_power(self,fan, f_load):
-        if fan == None:
-            return 0
-        if self._fan_operation == "CONTINUOUS":
-            return fan.get_power(self._air_flow)
-        elif self._fan_operation == "CYCLING":
-            return fan.get_power(self._air_flow)*f_load
+    def _get_fan_power(self, fan, f_load):
+        if fan == "supply":
+            if self._fan_operation == "CONTINUOUS":
+                return self._supply_fan.get_power(self._air_flow)
+            elif self._fan_operation == "CYCLING":
+                return self._supply_fan.get_power(self._air_flow)*f_load
+        elif fan == "return":
+            if self._return_fan is None: # No return fan
+                return 0
+            else:
+                if self._fan_operation == "CONTINUOUS":
+                    return self._return_fan.get_power(self._return_air_flow)
+                elif self._fan_operation == "CYCLING":
+                    return self._return_fan.get_power(self._return_air_flow)*f_load
         
     def _calculate_mixed_air(self):
         # Return fan
-        Q_return_fan = self._get_fan_power(self._return_fan,self._f_load)
+        Q_return_fan = self._get_fan_power("return",self._f_load)
         T_return =self._T_space
         if Q_return_fan > 0:
             m_return = self._air_flow * (1-self._f_oa) * self._rho_i
@@ -226,10 +240,10 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
             else:
                 self._Q_coil = self._Q_required
                 self._f_load = self._Q_coil / capacity
-                self._Q_eq = self._Q_required + self._get_fan_power(self._supply_fan, self._f_load) + self._get_fan_power(self._return_fan, self._f_load)
+                self._Q_eq = self._Q_required + self._get_fan_power("supply", self._f_load) + self._get_fan_power("return", self._f_load)
                 self._state = 1
         else: # Fans heat is not considered, Q_required is equipment capacity
-            capacity_eq = capacity + self._get_fan_power(self._supply_fan, 1) + self._get_fan_power(self._return_fan, 1)
+            capacity_eq = capacity + self._get_fan_power("supply", 1) + self._get_fan_power("return", 1)
             if capacity_eq < self._Q_required:
                 self._Q_eq = capacity_eq
                 self._Q_coil = capacity
@@ -239,11 +253,11 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                 self._state = 1
                 self._Q_eq = self._Q_required
                 self._f_load = self._Q_eq / capacity_eq
-                self._Q_coil = self._Q_required - self._get_fan_power(self._supply_fan, self._f_load) - self._get_fan_power(self._return_fan, self._f_load)
+                self._Q_coil = self._Q_required - self._get_fan_power("supply", self._f_load) - self._get_fan_power("return", self._f_load)
 
 
     def _simulate_cooling(self):
-        capacity_sen, capacity_lat = self._coil.get_cooling_load(self._T_idb, self._T_iwb,self._cooling_water_temp,self._air_flow,self._cooling_water_flow)
+        capacity_sen, capacity_lat, self._T_adp = self._coil.get_cooling_capacity(self._T_idb, self._T_iwb,self._cooling_water_temp,self._air_flow,self._cooling_water_flow)
         Q_required = -self._Q_required
         if self._fans_heat > 0: # Q_required is only the coil capacity
             if capacity_sen < Q_required: # Coil capacity is not enough
@@ -255,11 +269,17 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
             else:
                 self._Q_coil = - Q_required
                 self._f_load = Q_required / capacity_sen
-                self._Q_eq = - Q_required + self._get_fan_power(self._supply_fan, self._f_load) + self._get_fan_power(self._return_fan, self._f_load)
-                self._M_w = - (capacity_lat*self._f_load) / self.props["LAMBDA"]
+                self._Q_eq = - Q_required + self._get_fan_power("supply", self._f_load) + self._get_fan_power("return", self._f_load)
+                if self._adp_model == "WITH_WATER_INLET":
+                    self._M_w = - (capacity_lat*self._f_load) / self.props["LAMBDA"]
+                elif self._adp_model == "WITH_AIR_OUTLET":
+                    mrhocp = self._air_flow * self._rho_i * self.props["C_PA"]
+                    T_odb = self._T_idb - (Q_required) / mrhocp
+                    Q_lat, self._T_apd = self._coil.get_latent_cooling_load(self._T_idb, self._T_iwb, self._cooling_water_temp, self._air_flow, self._cooling_water_flow, T_odb)
+                    self._M_w = - Q_lat / self.props["LAMBDA"]
                 self._state = -1
         else: # Fans heat is not considered, Q_required is equipment capacity
-            capacity_eq = capacity_sen - self._get_fan_power(self._supply_fan, 1) - self._get_fan_power(self._return_fan, 1)
+            capacity_eq = capacity_sen - self._get_fan_power("supply", 1) - self._get_fan_power("return", 1)
             if capacity_eq < self._Q_required:
                 self._Q_eq = -capacity_eq
                 self._Q_coil = -capacity_sen
@@ -270,9 +290,15 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                 self._state = -1
                 self._Q_eq = -Q_required
                 self._f_load = Q_required / capacity_eq
-                self._M_w = - (capacity_lat*self._f_load) / self.props["LAMBDA"]
-                self._Q_coil = -Q_required - self._get_fan_power(self._supply_fan, self._f_load) - self._get_fan_power(self._return_fan, self._f_load)
-
+                self._Q_coil = -Q_required - self._get_fan_power("supply", self._f_load) - self._get_fan_power("return", self._f_load)
+                if self._adp_model == "WITH_WATER_INLET":
+                    self._M_w = - (capacity_lat*self._f_load) / self.props["LAMBDA"]
+                elif self._adp_model == "WITH_AIR_OUTLET":
+                    mrhocp = self._nominal_air_flow * self._rho_i * self.props["C_PA"]
+                    T_odb = self._T_idb + (self._Q_coil) / mrhocp
+                    Q_lat, self._T_apd = self._coil.get_latent_cooling_load(self._T_idb, self._T_iwb, self._cooling_water_temp, self._air_flow, self._cooling_water_flow, T_odb)
+                    self._M_w = - Q_lat / self.props["LAMBDA"]    
+                
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
@@ -288,17 +314,18 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
             w_fan_in = self._M_w/m_supply +self._w_i
             self.variable("T_fan_in").values[time_index] = T_fan_in
             self.variable("w_fan_in").values[time_index] = w_fan_in
-            self.variable("T_supply").values[time_index] = self._get_fan_power(self._supply_fan,self._f_load)/(m_supply*self.props["C_PA"]) + T_fan_in
+            self.variable("T_supply").values[time_index] = self._get_fan_power("supply",self._f_load)/(m_supply*self.props["C_PA"]) + T_fan_in
             self.variable("w_supply").values[time_index] = w_fan_in
             self.variable("F_load").values[time_index] = self._f_load
-            self.variable("supply_fan_power").values[time_index] = self._get_fan_power(self._supply_fan, self._f_load)
-            self.variable("return_fan_power").values[time_index] = self._get_fan_power(self._return_fan, self._f_load)          
+            self.variable("supply_fan_power").values[time_index] = self._get_fan_power("supply", self._f_load)
+            self.variable("return_fan_power").values[time_index] = self._get_fan_power("return", self._f_load)          
             if self._state == 1 or self._state == 2: # Heating
                 Q_sys = self._Q_coil
                 self.variable("Q_sensible").values[time_index] = Q_sys
                 self.variable("Q_total").values[time_index] = Q_sys
                 self.variable("T_iw").values[time_index] = self._heating_water_temp
                 self.variable("T_ow").values[time_index] = self._heating_water_temp - Q_sys/(self._heating_water_flow * self.props["RHOCP_W"](self._heating_water_temp))                    
+                self.variable("T_adp").values[time_index] = 0
             elif self._state == -1 or self._state == -2: #Cooling
                 Q_s = -self._Q_coil
                 Q_l = -self._M_w * self.props["LAMBDA"]
@@ -307,3 +334,4 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                 self.variable("Q_total").values[time_index] = Q_s
                 self.variable("T_iw").values[time_index] = self._cooling_water_temp
                 self.variable("T_ow").values[time_index] = self._cooling_water_temp + (Q_s+Q_l)/(self._cooling_water_flow * self.props["RHOCP_W"](self._cooling_water_temp))                
+                self.variable("T_adp").values[time_index] = self._T_adp              
