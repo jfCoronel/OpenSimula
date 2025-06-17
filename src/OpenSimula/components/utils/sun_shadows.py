@@ -33,19 +33,19 @@ class Building_3D():
         pyvista = Pyvista_Screen(window=window)
         if not isinstance(opacity, list):
             opacity = [opacity] * len(self.polygons)
-        for polygon, pol_type, opa in zip(self.polygons, self.pol_types, opacity):
+        for polygon, pol_type, pol_surface, opa in zip(self.polygons, self.pol_types, self.polygon_surface, opacity):
             if pol_type == "Opening" and "Opening" not in hide:
-                pyvista.add_polygon(polygon, "blue", opa*0.6)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "blue", opa*0.6)
             elif pol_type == "Virtual_surface" and "Virtual_surface" not in hide:
-                pyvista.add_polygon(polygon, "red", opa*0.4)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "red", opa*0.4)
             elif pol_type == "Interior_surface" and "Interior_surface" not in hide:
-                pyvista.add_polygon(polygon, "green", opa)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "green", opa)
             elif pol_type == "Exterior_surface" and "Exterior_surface" not in hide:
-                pyvista.add_polygon(polygon, "white", opa)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "white", opa)
             elif pol_type == "Underground_surface" and "Underground_surface" not in hide:
-                pyvista.add_polygon(polygon, "brown", opa)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "brown", opa)
             elif pol_type == "Shadow_surface" and "Shadow_surface" not in hide:
-                pyvista.add_polygon(polygon, "cyan", opa)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "cyan", opa)
         pyvista.show()
 
     def show_shadows(self, sun_position):
@@ -58,15 +58,15 @@ class Building_3D():
         draw = Pyvista_Screen()
         for polygon, pol_type in zip(self.polygons, self.pol_types):
             if pol_type == "Opening":
-                draw.add_polygon(polygon, "blue", 0.6)
+                draw.add_polygon(polygon, color="blue", opacity=0.6)
             elif pol_type == "Exterior_surface":
-                draw.add_polygon(polygon, "white")
+                draw.add_polygon(polygon, color="white")
             elif pol_type == "Underground_surface":
-                draw.add_polygon(polygon, "brown")
+                draw.add_polygon(polygon, color="brown")
             elif pol_type == "Shadow_surface":
-                draw.add_polygon(polygon, "cyan")
+                draw.add_polygon(polygon, color="cyan")
         for polygon in shadow_polygons:
-            draw.add_polygon(polygon.get_advanced_polygon(), "gray")
+            draw.add_polygon(polygon.get_advanced_polygon(), color="gray")
         draw.show()
 
     def get_sunny_fractions(self, sun_position):
@@ -271,6 +271,7 @@ class Pyvista_Screen():
     def __init__(self, window=False, default_color="white"):
         self.default_color = default_color
         self.window = window
+        self.text_actor = None
         if window:
             pyvista.set_jupyter_backend("none")
             self.plot = pyvista.Plotter(notebook=False)
@@ -282,14 +283,17 @@ class Pyvista_Screen():
             self.plot.add_axes_at_origin()
         #self.plot.show_grid()
 
-    def click_callback(self, mesh):
-        self.plot.add_text("Hola")
+    def click_callback(self, mesh): 
+        if self.text_actor:
+            self.plot.remove_actor(self.text_actor) 
+        self.text_actor = self.plot.add_text(f"{mesh.field_data['surface'][0]} ({mesh.field_data['surface'][1]})")
     
-    def add_polygon(self, polygon, color=None, opacity=1):
+    def add_polygon(self, polygon, surface_name="name", surface_type="type", color=None, opacity=1):
         if color == None:
             color = self.default_color
         if polygon != None:
             mesh = polygon.get_pyvista_mesh().triangulate()
+            mesh.field_data["surface"] = [surface_name,surface_type]
             self.plot.add_mesh(mesh, show_edges=False, color=color, opacity=opacity)
             # Calcular centroide para la etiqueta
             #self.nombres_poligonos["hola"] = mesh
@@ -300,12 +304,12 @@ class Pyvista_Screen():
                 for i in range(len(polygon.holes2D)):
                     self.plot.add_lines(polygon.get_pyvista_hole_border(i), color="black", width=5, connected=True)
 
-    def add_polygons(self, polygons_list, color=None, opacity=1):
-        for polygon in polygons_list:
-            if color == None:
-                self.add_polygon(polygon, self.default_color, opacity=opacity)
-            else:
-                self.add_polygon(polygon, color, opacity=opacity)
+    # def add_polygons(self, polygons_list, color=None, opacity=1):
+    #     for polygon in polygons_list:
+    #         if color == None:
+    #             self.add_polygon(polygon, self.default_color, opacity=opacity)
+    #         else:
+    #             self.add_polygon(polygon, color, opacity=opacity)
 
     def show(self):
         if self.window:
