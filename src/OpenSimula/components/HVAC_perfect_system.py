@@ -10,7 +10,7 @@ class HVAC_perfect_system(Component):
         Component.__init__(self, name, project)
         self.parameter("type").value = "HVAC_perfect_system"
         self.parameter("description").value = "HVAC Perfect system for cooling and heating load"
-        self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
+        self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) 
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
@@ -46,21 +46,11 @@ class HVAC_perfect_system(Component):
         self._space = self.parameter("space").component
         self._file_met = self.project().parameter("simulation_file_met").component
         self.props = self._sim_.props
-        # input_varibles symbol and variable
-        self.input_var_symbol = []
-        self.input_var_variable = []
-        for i in range(len(self.parameter("input_variables").variable)):
-            self.input_var_symbol.append(
-                self.parameter("input_variables").symbol[i])
-            self.input_var_variable.append(
-                self.parameter("input_variables").variable[i])
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
         # variables dictonary
-        var_dic = {}
-        for i in range(len(self.input_var_symbol)):
-            var_dic[self.input_var_symbol[i]] = self.input_var_variable[i].values[time_index]
+        var_dic = self.get_parameter_variable_dictionary(time_index)
 
         # outdoor air flow
         self._outdoor_air_flow = self.parameter("outdoor_air_flow").evaluate(var_dic)

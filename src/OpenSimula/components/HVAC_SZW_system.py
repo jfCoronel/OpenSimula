@@ -99,14 +99,6 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self._cooling_water_temp = self.parameter("inlet_cooling_water_temp").value
         self._heating_water_temp = self.parameter("inlet_heating_water_temp").value
         self._rho_i = self.props["RHO_A"] 
-        # input_varibles symbol and variable
-        self.input_var_symbol = []
-        self.input_var_variable = []
-        for i in range(len(self.parameter("input_variables").variable)):
-            self.input_var_symbol.append(
-                self.parameter("input_variables").symbol[i])
-            self.input_var_variable.append(
-                self.parameter("input_variables").variable[i])
         # Fan operation
         self._fan_operation = self.parameter("fan_operation").value
         self._fans_heat = self._get_fan_power("supply", 0) + self._get_fan_power("return", 0)
@@ -124,9 +116,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self._outdoor_rho = 1/sicro.GetMoistAirVolume(self._T_odb,self._w_o/1000,self.props["ATM_PRESSURE"])
 
         # variables dictonary
-        var_dic = {}
-        for i in range(len(self.input_var_symbol)):
-            var_dic[self.input_var_symbol[i]] = self.input_var_variable[i].values[time_index]
+        var_dic = self.get_parameter_variable_dictionary(time_index)
         # outdoor air fraction 
         self._f_oa = self.parameter("outdoor_air_fraction").evaluate(var_dic)
         # setpoints
@@ -275,7 +265,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                 elif self._adp_model == "WITH_AIR_OUTLET":
                     mrhocp = self._air_flow * self._rho_i * self.props["C_PA"]
                     T_odb = self._T_idb - (Q_required) / mrhocp
-                    Q_lat, self._T_apd = self._coil.get_latent_cooling_load(self._T_idb, self._T_iwb, self._cooling_water_temp, self._air_flow, self._cooling_water_flow, T_odb)
+                    Q_lat, self._T_adp = self._coil.get_latent_cooling_load(self._T_idb, self._T_iwb, self._cooling_water_temp, self._air_flow, self._cooling_water_flow, T_odb)
                     self._M_w = - Q_lat / self.props["LAMBDA"]
                 self._state = -1
         else: # Fans heat is not considered, Q_required is equipment capacity
@@ -296,7 +286,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                 elif self._adp_model == "WITH_AIR_OUTLET":
                     mrhocp = self._nominal_air_flow * self._rho_i * self.props["C_PA"]
                     T_odb = self._T_idb + (self._Q_coil) / mrhocp
-                    Q_lat, self._T_apd = self._coil.get_latent_cooling_load(self._T_idb, self._T_iwb, self._cooling_water_temp, self._air_flow, self._cooling_water_flow, T_odb)
+                    Q_lat, self._T_adp = self._coil.get_latent_cooling_load(self._T_idb, self._T_iwb, self._cooling_water_temp, self._air_flow, self._cooling_water_flow, T_odb)
                     self._M_w = - Q_lat / self.props["LAMBDA"]    
                 
 

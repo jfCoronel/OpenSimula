@@ -139,7 +139,26 @@ class Component(Parameter_container):
 
         return errors
 
+    def get_parameter_variable_dictionary(self,time_index):
+        # variables dictonary
+        var_dic = {}
+        for i in range(len(self._var_from_parameter_symbol)):
+            var_dic[self._var_from_parameter_symbol[i]] = self._var_from_parameter_variable[i].values[time_index]
+        return var_dic
+
     def pre_simulation(self, n_time_steps, delta_t):
+        # Create variables from paramater "Parameter_variable" and "Parameter_variable_list"
+        self._var_from_parameter_symbol = []
+        self._var_from_parameter_variable = []
+        for param in self.parameter_dict().values():
+            if param.type == "Parameter_variable":
+                self._var_from_parameter_symbol.append(param.symbol)
+                self._var_from_parameter_variable.append(param.variable)
+            elif param.type == "Parameter_variable_list":
+                for i in range(len(param.variable)):
+                    self._var_from_parameter_symbol.append(param.symbol[i])
+                    self._var_from_parameter_variable.append(param.variable[i])
+
         # Initilise all variables to 0
         for key, var in self._variables_.items():
             var.initialise(n_time_steps)

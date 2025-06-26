@@ -29,30 +29,21 @@ def test_points():
 
     nominal_Q = pro.component("HVAC_equipment").get_cooling_load(26.7,19.4,35,25,1,-6136)
     nominal_P = pro.component("HVAC_equipment").get_cooling_power(26.7,19.4,35,25,1,-6136)
-    print(nominal_Q,nominal_P)
     wet_coil_Q = pro.component("HVAC_equipment").get_cooling_load(24.4,17.2,32.2,25,1,-4000)
-    wet_coil_P = pro.component("HVAC_equipment").get_cooling_power(24.4,17.2,32.2,25,1,-4000)
-    print(wet_coil_Q,wet_coil_P)
     dry_coil_Q = pro.component("HVAC_equipment").get_cooling_load(26.7,15,46.1,25,1,-3000)
-    dry_coil_P = pro.component("HVAC_equipment").get_cooling_power(26.7,15,46.1,25,1,-3000)
-    print(dry_coil_Q,dry_coil_P)    
 
+    assert nominal_Q[0] == pytest.approx(5886.04,rel=1e-2) # Q_eq
+    assert nominal_Q[1] == pytest.approx(6116.4,rel=1e-2) # Q_sen
+    assert nominal_Q[2] == pytest.approx(1827.35,rel=1e-2) # Q_lat
+    assert nominal_P[0] == pytest.approx(2429.93,rel=1e-2) # P_tot
+    assert nominal_P[1] == pytest.approx(230,rel=1e-2) # P_indoor_fan
 
-    assert nominal_Q[0] == pytest.approx(7713.4,rel=1e-2)
-    assert nominal_Q[1] == pytest.approx(5886.04,rel=1e-2)
-    assert nominal_Q[2] == pytest.approx(1,rel=1e-2)
-    assert nominal_P[0] == pytest.approx(2198+230,rel=1e-2)
-    assert nominal_P[1] == pytest.approx(230,rel=1e-2)
+    assert wet_coil_Q[0] == pytest.approx(3770,rel=1e-2)
+    assert wet_coil_Q[1] == pytest.approx(4000,rel=1e-2)
+    assert wet_coil_Q[2] == pytest.approx(860.53,rel=1e-2)
 
-    # assert wet_coil[0] == pytest.approx(7570,rel=1e-2)
-    # assert wet_coil[1] == pytest.approx(6280,rel=1e-2)
-    # assert wet_coil[2] == pytest.approx(2078+230,rel=1e-2)
+    assert dry_coil_Q[0] == pytest.approx(2770,rel=1e-2)
+    assert dry_coil_Q[1] == pytest.approx(3000,rel=1e-2)
+    assert dry_coil_Q[2] == pytest.approx(0,rel=1e-2)
 
-    # assert dry_coil[0] == pytest.approx(6900,rel=1e-2)
-    # assert dry_coil[1] == pytest.approx(6900,rel=1e-2)
-    # assert dry_coil[2] == pytest.approx(2480+230,rel=1e-2)
-
-    # assert wet_coil_part_load[0] == pytest.approx( wet_coil[0]*.3)
-    # assert wet_coil_part_load[1] == pytest.approx( wet_coil[1]*.3)
-    # assert wet_coil_part_load[2] == pytest.approx( (wet_coil[2]-230)*0.3/(1 - 0.229*0.7) +230)
 

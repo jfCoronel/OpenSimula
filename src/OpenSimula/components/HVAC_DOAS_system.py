@@ -82,14 +82,6 @@ class HVAC_DOAS_system(Component): # HVAC Dedicated Outdoor Air System
         self._f_load = 0
         self._no_load_heat = self._equipment.get_fans_heat(0)
         self._rho_i = self.props["RHO_A"] 
-        # input_varibles symbol and variable
-        self.input_var_symbol = []
-        self.input_var_variable = []
-        for i in range(len(self.parameter("input_variables").variable)):
-            self.input_var_symbol.append(
-                self.parameter("input_variables").symbol[i])
-            self.input_var_variable.append(
-                self.parameter("input_variables").variable[i])
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -102,9 +94,7 @@ class HVAC_DOAS_system(Component): # HVAC Dedicated Outdoor Air System
         self._outdoor_rho = 1/sicro.GetMoistAirVolume(self._T_odb,self._w_o/1000,self.props["ATM_PRESSURE"])
 
         # variables dictonary
-        var_dic = {}
-        for i in range(len(self.input_var_symbol)):
-            var_dic[self.input_var_symbol[i]] = self.input_var_variable[i].values[time_index]
+        var_dic = self.get_parameter_variable_dictionary(time_index)
         # outdoor air flow 
         self._outdoor_air_fraction = self.parameter("outdoor_air_fraction").evaluate(var_dic)
         self._f_oa = self._outdoor_air_fraction   
