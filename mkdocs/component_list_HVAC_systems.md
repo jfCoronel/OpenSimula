@@ -293,8 +293,7 @@ Component for the simulation of single zone water air-conditioning system. It ca
 - **heating_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet heating water flow.
 - **inlet_cooling_water_temp** [_float_, unit = "°C", default = 7, min = 0]: Inlet cooling water tempeture used for "UNKNOWN" water source.
 - **inlet_heating_water_temp** [_float_, unit = "°C", default = 50, min = 0]: Inlet heating water tempeture used for "UNKNOWN" water source.
-- **adp_model** [_option_, default = "WITH_WATER_INLET", options = ["WITH_WATER_INLET","WITH_AIR_OUTLET"]]: 
-
+- **water_flow_control** [_option_, default = "ON_OFF", options = ["ON_OFF","PROPORTINAL"]]: If the selected option is “ON_OFF” the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time, therefore the latent load will be calculated by multiplying the latent load at design flow by that fraction of time. If we select “PROPORTIONAL” it is assumed that the water flow rate is adjusted progressively, the required coil outlet temperature will be calculated and using the adp effectiveness the ADP and the supplied latent load will be obtained.
 
 
 - **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is “NO” no economizer will be used, for the other options the economizer will be used with different control strategies explained below. 

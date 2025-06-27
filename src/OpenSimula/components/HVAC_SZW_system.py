@@ -27,7 +27,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self.add_parameter(Parameter_float("heating_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("inlet_cooling_water_temp", 7, "ºC"))
         self.add_parameter(Parameter_float("inlet_heating_water_temp", 50, "ºC"))
-        self.add_parameter(Parameter_options("adp_model", "WITH_WATER_INLET", ["WITH_WATER_INLET", "WITH_AIR_OUTLET"]))
+        self.add_parameter(Parameter_options("water_flow_control", "ON_OFF", ["ON_OFF", "PROPORTIONAL"]))
 
 
         # Variables
@@ -103,7 +103,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self._fan_operation = self.parameter("fan_operation").value
         self._fans_heat = self._get_fan_power("supply", 0) + self._get_fan_power("return", 0)
         # adp model
-        self._adp_model = self.parameter("adp_model").value
+        self._water_flow_control = self.parameter("water_flow_control").value
         
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -260,9 +260,9 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                 self._Q_coil = - Q_required
                 self._f_load = Q_required / capacity_sen
                 self._Q_eq = - Q_required + self._get_fan_power("supply", self._f_load) + self._get_fan_power("return", self._f_load)
-                if self._adp_model == "WITH_WATER_INLET":
+                if self._water_flow_control == "ON_OFF":
                     self._M_w = - (capacity_lat*self._f_load) / self.props["LAMBDA"]
-                elif self._adp_model == "WITH_AIR_OUTLET":
+                elif self._water_flow_control == "PROPORTIONAL":
                     mrhocp = self._air_flow * self._rho_i * self.props["C_PA"]
                     T_odb = self._T_idb - (Q_required) / mrhocp
                     Q_lat, self._T_adp = self._coil.get_latent_cooling_load(self._T_idb, self._T_iwb, self._cooling_water_temp, self._air_flow, self._cooling_water_flow, T_odb)
@@ -281,9 +281,9 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                 self._Q_eq = -Q_required
                 self._f_load = Q_required / capacity_eq
                 self._Q_coil = -Q_required - self._get_fan_power("supply", self._f_load) - self._get_fan_power("return", self._f_load)
-                if self._adp_model == "WITH_WATER_INLET":
+                if self._water_flow_control == "ON_OFF":
                     self._M_w = - (capacity_lat*self._f_load) / self.props["LAMBDA"]
-                elif self._adp_model == "WITH_AIR_OUTLET":
+                elif self._water_flow_control == "PROPORTIONAL":
                     mrhocp = self._nominal_air_flow * self._rho_i * self.props["C_PA"]
                     T_odb = self._T_idb + (self._Q_coil) / mrhocp
                     Q_lat, self._T_adp = self._coil.get_latent_cooling_load(self._T_idb, self._T_iwb, self._cooling_water_temp, self._air_flow, self._cooling_water_flow, T_odb)
