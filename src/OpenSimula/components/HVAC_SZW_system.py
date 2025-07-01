@@ -28,7 +28,9 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self.add_parameter(Parameter_float("inlet_cooling_water_temp", 7, "ºC"))
         self.add_parameter(Parameter_float("inlet_heating_water_temp", 50, "ºC"))
         self.add_parameter(Parameter_options("water_flow_control", "ON_OFF", ["ON_OFF", "PROPORTIONAL"]))
-
+        self.add_parameter(Parameter_options("economizer", "NO", ["NO", "TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]))
+        self.add_parameter(Parameter_float("economizer_DT", 0, "ºC", min=0))
+        self.add_parameter(Parameter_float("economizer_enthalpy_limit", 0, "kJ/kg", min=0))
 
         # Variables
         self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Heating max cap, -1:Cooling, -2:Cooling max cap, 3: Venting 
@@ -55,7 +57,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self.add_variable(Variable("T_iw", unit="°C"))
         self.add_variable(Variable("T_ow", unit="°C"))
         self.add_variable(Variable("T_adp", unit="°C"))
-
+        self.add_variable(Variable("T_return", unit="°C")) # Return air temperature
     def check(self):
         errors = super().check()
         # Test space defined
@@ -118,7 +120,8 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         # variables dictonary
         var_dic = self.get_parameter_variable_dictionary(time_index)
         # outdoor air fraction 
-        self._f_oa = self.parameter("outdoor_air_fraction").evaluate(var_dic)
+        self._f_oa_min = self.parameter("outdoor_air_fraction").evaluate(var_dic)
+        self._f_oa = self._f_oa_min
         # setpoints
         self._T_heat_sp = self.parameter("heating_setpoint").evaluate(var_dic)
         self.variable("heating_setpoint").values[time_index] = self._T_heat_sp
@@ -142,8 +145,12 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         if self._on_off:
             self._T_space = self._space.variable("temperature").values[time_index]
             self._w_space = self._space.variable("abs_humidity").values[time_index]
+            self._calculate_return_air_temperature()
             # Calculate Q_required
             self._calculate_required_Q()
+            if (self.parameter("economizer").value != "NO"):
+                self._simulate_economizer() # Calculation of new f_oa
+                self._calculate_required_Q()
             space_air = self._simulate_system()            
         self._space.set_control_system(space_air)
         return True
@@ -186,17 +193,49 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                     return self._return_fan.get_power(self._return_air_flow)
                 elif self._fan_operation == "CYCLING":
                     return self._return_fan.get_power(self._return_air_flow)*f_load
-        
-    def _calculate_mixed_air(self):
+    
+    def _calculate_return_air_temperature(self):
         # Return fan
         Q_return_fan = self._get_fan_power("return",self._f_load)
-        T_return =self._T_space
+        self._T_return =self._T_space
         if Q_return_fan > 0:
-            m_return = self._air_flow * (1-self._f_oa) * self._rho_i
-            T_return = Q_return_fan/(m_return*self.props["C_PA"]) + self._T_space
+            m_return = self._air_flow * (1-self._f_oa_min) * self._rho_i
+            if m_return > 0:
+                self._T_return = Q_return_fan/(m_return*self.props["C_PA"]) + self._T_space
+
+
+    def _calculate_mixed_air(self):
         # Mixed air
-        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, T_return, self._w_space)
+        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_return, self._w_space)
         self._rho_i = 1/sicro.GetMoistAirVolume(self._T_idb,self._w_i/1000,self.props["ATM_PRESSURE"])        
+
+    def _simulate_economizer(self): 
+        if (self.parameter("economizer").value == "TEMPERATURE" or self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
+            on_economizer = self._T_odb < self._T_return-self.parameter("economizer_DT").value
+        elif (self.parameter("economizer").value == "ENTHALPY"):
+            h_odb = sicro.GetMoistAirEnthalpy(self._T_odb,self._w_o/1000)
+            h_return = sicro.GetMoistAirEnthalpy(self._T_return,self._w_space/1000)
+            on_economizer = h_odb < h_return
+        elif (self.parameter("economizer").value == "ENTHALPY_LIMITED"):
+            h_odb = sicro.GetMoistAirEnthalpy(self._T_odb,self._w_o/1000)
+            on_economizer = h_odb < self.parameter("economizer_enthalpy_limit").value * 1000
+            
+        if (on_economizer):
+            if (self._Q_required < 0):
+                mrhocp =  self._air_flow * self.props["C_PA"]* self._outdoor_rho
+                Q_rest_ae = mrhocp * (1-self._f_oa) * (self._T_odb - self._T_space)
+                if  Q_rest_ae < self._Q_required:
+                    self._f_oa += self._Q_required/(mrhocp * (self._T_odb-self._T_space))
+                    self._Q_required = 0
+                else:        
+                    if (self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
+                        self._f_oa = self._f_oa_min
+                    else:
+                        self._f_oa = 1
+            elif (self._Q_required > 0): # Heating 
+                self._f_oa = self._f_oa_min
+        else:
+            self._f_oa = self._f_oa_min
 
     def _simulate_system(self):
         self._calculate_mixed_air()
@@ -306,6 +345,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
             self.variable("w_fan_in").values[time_index] = w_fan_in
             self.variable("T_supply").values[time_index] = self._get_fan_power("supply",self._f_load)/(m_supply*self.props["C_PA"]) + T_fan_in
             self.variable("w_supply").values[time_index] = w_fan_in
+            self.variable("T_return").values[time_index] =self._T_return
             self.variable("F_load").values[time_index] = self._f_load
             self.variable("supply_fan_power").values[time_index] = self._get_fan_power("supply", self._f_load)
             self.variable("return_fan_power").values[time_index] = self._get_fan_power("return", self._f_load)          

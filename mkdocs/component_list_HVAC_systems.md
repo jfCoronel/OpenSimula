@@ -138,10 +138,8 @@ The different types of economizer operation are as follows:
 
 * "TEMPERATURE": Temperature controlled economizer will be implemented.
 * "TEMPERATURE_NOT_INTEGRATED": Temperature controlled economizer will be implemented, this economizer operates the same as the “TEMPERATURE” type but only works when the economizer is able to give the full sensible load of the space.
-* "ENTHALPY": Enthalpy controlled economizer will be implemented, this type is only available for "PERFECT" control_type. It works in the same way as the “TEMPERATURE” type but compares the enthalpies of the return and outside air instead of the temperatures. 
-* "ENTHALPY_LIMITED": Enthalpy controlled economizer will be implemented, this type is only available for "PERFECT" control_type. It works the same as the “ENTHALPY” type but compares the enthalpy of the outside air with the fixed value set in the “economizer_enthalpy_limit” parameter.
-
-
+* "ENTHALPY": Enthalpy controlled economizer will be implemented. It works in the same way as the “TEMPERATURE” type but compares the enthalpies of the return and outside air instead of the temperatures. 
+* "ENTHALPY_LIMITED": Enthalpy controlled economizer will be implemented. It works the same as the “ENTHALPY” type but compares the enthalpy of the outside air with the fixed value set in the “economizer_enthalpy_limit” parameter.
 
 The operation of the "TEMPERATURE" economizer control_type is as follows:
 
@@ -294,8 +292,6 @@ Component for the simulation of single zone water air-conditioning system. It ca
 - **inlet_cooling_water_temp** [_float_, unit = "°C", default = 7, min = 0]: Inlet cooling water tempeture used for "UNKNOWN" water source.
 - **inlet_heating_water_temp** [_float_, unit = "°C", default = 50, min = 0]: Inlet heating water tempeture used for "UNKNOWN" water source.
 - **water_flow_control** [_option_, default = "ON_OFF", options = ["ON_OFF","PROPORTINAL"]]: If the selected option is “ON_OFF” the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time, therefore the latent load will be calculated by multiplying the latent load at design flow by that fraction of time. If we select “PROPORTIONAL” it is assumed that the water flow rate is adjusted progressively, the required coil outlet temperature will be calculated and using the adp effectiveness the ADP and the supplied latent load will be obtained.
-
-
 - **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is “NO” no economizer will be used, for the other options the economizer will be used with different control strategies explained below. 
 - **economizer_DT** [_float_, unit = "ºC", default = 0, min = 0]: For economizers type “TEMPERATURE” and “TEMPERATURE_NOT_INTEGRATED” set the temperature difference between the return air and the outside air at which the economizer starts to operate.
 - **economizer_enthalpy_limit** [_float_, unit = "kJ/kg", default = 0, min = 0]: For economizers type ENTHALPY_LIMITED set the maximun outdoor air enthalpy at which the economizer does not operate.
@@ -307,10 +303,8 @@ The different types of economizer operation are as follows:
 
 * "TEMPERATURE": Temperature controlled economizer will be implemented.
 * "TEMPERATURE_NOT_INTEGRATED": Temperature controlled economizer will be implemented, this economizer operates the same as the “TEMPERATURE” type but only works when the economizer is able to give the full sensible load of the space.
-* "ENTHALPY": Enthalpy controlled economizer will be implemented, this type is only available for "PERFECT" control_type. It works in the same way as the “TEMPERATURE” type but compares the enthalpies of the return and outside air instead of the temperatures. 
-* "ENTHALPY_LIMITED": Enthalpy controlled economizer will be implemented, this type is only available for "PERFECT" control_type. It works the same as the “ENTHALPY” type but compares the enthalpy of the outside air with the fixed value set in the “economizer_enthalpy_limit” parameter.
-
-
+* "ENTHALPY": Enthalpy controlled economizer will be implemented. It works in the same way as the “TEMPERATURE” type but compares the enthalpies of the return and outside air instead of the temperatures. 
+* "ENTHALPY_LIMITED": Enthalpy controlled economizer will be implemented. It works the same as the “ENTHALPY” type but compares the enthalpy of the outside air with the fixed value set in the “economizer_enthalpy_limit” parameter.
 
 The operation of the "TEMPERATURE" economizer control_type is as follows:
 

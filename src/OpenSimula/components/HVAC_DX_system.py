@@ -158,7 +158,7 @@ class HVAC_DX_system(Component):
                 else:        
                     if (self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
                         self._f_oa = self._outdoor_air_fraction
-                    elif (self.parameter("economizer").value == "TEMPERATURE"):
+                    else:
                         self._f_oa = 1
             elif (self._Q_required > 0): # Heating 
                 self._f_oa = self._outdoor_air_fraction
