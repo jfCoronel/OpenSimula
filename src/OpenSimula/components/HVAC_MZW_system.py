@@ -1,21 +1,23 @@
 from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options
+from OpenSimula.Parameters import Parameter_component, Parameter_component_list, Parameter_float, Parameter_float_list, Parameter_variable_list, Parameter_math_exp, Parameter_options
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
 import psychrolib as sicro
 
-class HVAC_SZW_system(Component): # HVAC Single Zone Water system
+class HVAC_MZW_system(Component): # HVAC Multizone Water system
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "HVAC_SZW_system"
-        self.parameter("description").value = "HVAC Single Zone Water system"
-        self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space
+        self.parameter("type").value = "HVAC_MZW_system"
+        self.parameter("description").value = "HVAC Multizone Water system"
+        self.add_parameter(Parameter_component_list("spaces", ["not_defined","not_defined"], ["Space"]))
+        self.add_parameter(Parameter_float_list("air_flow_fractions", [0.5,0.5], min=0, max=1, unit="frac"))
         self.add_parameter(Parameter_component("cooling_coil", "not_defined", ["HVAC_coil_equipment"]))
         self.add_parameter(Parameter_component("heating_coil", "not_defined", ["HVAC_coil_equipment"]))
         self.add_parameter(Parameter_component("supply_fan", "not_defined", ["HVAC_fan_equipment"]))
         self.add_parameter(Parameter_component("return_fan", "not_defined", ["HVAC_fan_equipment"]))
         self.add_parameter(Parameter_float("air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("return_air_flow", 1, "m³/s", min=0)) # Not used when return fan is not defined
+        self.add_parameter(Parameter_float_list("return_air_flow_fractions", [0.5,0.5], min=0, max=1, unit="frac"))
         self.add_parameter(Parameter_math_exp("outdoor_air_fraction", "0", "frac"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
@@ -31,6 +33,10 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self.add_parameter(Parameter_options("economizer", "NO", ["NO", "TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]))
         self.add_parameter(Parameter_float("economizer_DT", 0, "ºC", min=0))
         self.add_parameter(Parameter_float("economizer_enthalpy_limit", 0, "kJ/kg", min=0))
+        self.add_parameter(Parameter_options("central_coils_control", "SUPPLY_AIR", ["SUPPLY_AIR", "SPACE_AIR"]))
+        self.add_parameter(Parameter_component("control_space", "not_defined", ["Space"]))
+        self.add_parameter(Parameter_component_list("reheat_coils", ["not_defined","not_defined"], ["HVAC_coil_equipment"]))
+
 
         # Variables
         self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Heating max cap, -1:Cooling, -2:Cooling max cap, 3: Venting 
@@ -58,15 +64,28 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self.add_variable(Variable("T_ow", unit="°C"))
         self.add_variable(Variable("T_adp", unit="°C"))
         self.add_variable(Variable("T_return", unit="°C")) # Return air temperature
+
     def check(self):
         errors = super().check()
-        # Test space defined
-        if self.parameter("space").value == "not_defined":
-            msg = f"{self.parameter('name').value}, must define its space."
+        # Test spaces
+        if len(self.parameter("space").value) == 0 or any(x == "not_defined" for x in self.parameter("space").value):
+            msg = "spaces have not been correctly defined"
             errors.append(Message(msg, "ERROR"))
-        # Test coil defined
-        if self.parameter("cooling_coil").value == "not_defined" and self.parameter("heating_coil").value == "not_defined":
-            msg = f"{self.parameter('name').value}, must define one coil equipment."
+        # Test air fractions
+        if len(self.parameter("air_flow_fractions").value) != len(self.parameter("spaces").value):
+            msg = "air_flow_fractions must have the same number of elements as spaces"
+            errors.append(Message(msg, "ERROR"))
+        # Test air fractions sum equal to 1
+        if abs(sum(self.parameter("air_flow_fractions").value) - 1) > 0.0001:
+            msg = "air_flow_fractions must sum equal to 1"
+            errors.append(Message(msg, "ERROR"))
+         # Test return air fractions
+        if len(self.parameter("return_air_flow_fractions").value) != len(self.parameter("spaces").value):
+            msg = "return_air_flow_fractions must have the same number of elements as spaces"
+            errors.append(Message(msg, "ERROR"))
+        # Test air fractions sum equal to 1
+        if abs(sum(self.parameter("air_flow_fractions").value) - 1) > 0.0001:
+            msg = "return_air_flow_fractions must sum equal to 1"
             errors.append(Message(msg, "ERROR"))
         # Test supply fan defined
         if self.parameter("supply_fan").value == "not_defined":
@@ -86,7 +105,9 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self._file_met = self.project().parameter("simulation_file_met").component
 
         # Parameters        
-        self._space = self.parameter("space").component
+        self._spaces = self.parameter("spaces").component
+        self._air_flow_fractions = self.parameter("air_flow_fractions").value
+        self._return_air_flow_fractions = self.parameter("return_air_flow_fractions").value
         self._c_coil = self.parameter("cooling_coil").component
         self._h_coil = self.parameter("heating_coil").component
         self._supply_fan = self.parameter("supply_fan").component
@@ -109,6 +130,13 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self._fans_heat = self._get_fan_power("supply", 0) + self._get_fan_power("return", 0)
         # adp model
         self._water_flow_control = self.parameter("water_flow_control").value
+
+        # Add variables
+        for i in range(len(self.parameter("spaces").value)):
+            self.add_variable(Variable(f"m_air_flow_{i}", unit="kg/s"))
+            if self.parameter("reheat_coils").value[i] != "not_defined":
+                self.add_variable(Variable(f"T_supply_{i}", unit="°C"))
+                self.add_variable(Variable(f"Q_reheat_{i}", unit="W"))
         
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -147,19 +175,58 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         super().iteration(time_index, date, daylight_saving, n_iter)
         space_air = {"M_a": 0, "T_a": 0, "w_a":0, "Q_s":0, "M_w":0 }
         if self._on_off:
-            self._T_space = self._space.variable("temperature").values[time_index]
-            self._w_space = self._space.variable("abs_humidity").values[time_index]
-            self._calculate_return_air_temperature()
-            # Calculate Q_required
-            self._calculate_required_Q()
+            self._calculate_return_air(time_index)
+            self._calculate_mixed_air()
+
+            self._calculate_required_T()
             if (self.parameter("economizer").value != "NO"):
                 self._simulate_economizer() # Calculation of new f_oa
                 self._calculate_required_Q()
-            space_air = self._simulate_system()            
-        self._space.set_control_system(space_air)
+            space_air = self._simulate_system()    
+        # Send air to each space
+        # self._space.set_control_system(space_air)
         return True
+    
+    def _calculate_return_air(self, time_index):
+        # Return fan
+        if self._return_fan is None: # No return fan
+            self._m_return = self._air_flow * (1-self._f_oa) * self._rho_i
+        else:
+            self._m_return = self._return_air_flow * self._rho_i
+        Q_return_fan = self._get_fan_power("return",self._f_load)
+        self._T_return = 0
+        self._w_return = 0
+        for i in range(len(self._spaces)):
+            space = self._spaces[i] 
+            f_return = self._return_air_flow_fractions[i]
+            self._T_return += f_return * space.variable("temperature").values[time_index]
+            self._w_return += f_return * space.variable("abs_humidity").values[time_index]
+        if Q_return_fan > 0 and self._m_return > 0:
+            self._T_return = Q_return_fan/(self._m_return*self.props["C_PA"]) + self._T_return
+
+    def _calculate_mixed_air(self):
+        # Mixed air
+        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_return, self._w_return)
+        self._rho_i = 1/sicro.GetMoistAirVolume(self._T_idb,self._w_i/1000,self.props["ATM_PRESSURE"])        
+
 
     def _calculate_required_Q(self):
+        if self.parameter("central_coils_control").value == "SUPPLY_AIR":
+            # Calculate the required Q to mantain the supply air temperature
+        elif self.parameter("central_coils_control").value == "SPACE_AIR":
+            # Calculate the required Q to mantain the space air temperature for the control space
+            self._T_space = 0
+            self._w_space = 0
+            for i in range(len(self._spaces)):
+                space = self._spaces[i] 
+                f_space = self._air_flow_fractions[i]
+                self._T_space += f_space * space.variable("temperature").values[time_index]
+                self._w_space += f_space * space.variable("abs_humidity").values[time_index]
+            if self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED":
+                self._T_space = self._T_return - self.parameter("economizer_DT").value
+
+
+
         K_t,F_t = self._space.get_thermal_equation(False)
         m_cp_oa = self._air_flow * self._f_oa * self._rho_i * self.props["C_PA"]
         K_ts = K_t + m_cp_oa
@@ -198,20 +265,8 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
                 elif self._fan_operation == "CYCLING":
                     return self._return_fan.get_power(self._return_air_flow)*f_load
     
-    def _calculate_return_air_temperature(self):
-        # Return fan
-        Q_return_fan = self._get_fan_power("return",self._f_load)
-        self._T_return =self._T_space
-        if Q_return_fan > 0:
-            m_return = self._air_flow * (1-self._f_oa_min) * self._rho_i
-            if m_return > 0:
-                self._T_return = Q_return_fan/(m_return*self.props["C_PA"]) + self._T_space
 
 
-    def _calculate_mixed_air(self):
-        # Mixed air
-        self._T_idb, self._w_i, self._T_iwb = self._mix_air(self._f_oa, self._T_odb, self._w_o, self._T_return, self._w_space)
-        self._rho_i = 1/sicro.GetMoistAirVolume(self._T_idb,self._w_i/1000,self.props["ATM_PRESSURE"])        
 
     def _simulate_economizer(self): 
         if (self.parameter("economizer").value == "TEMPERATURE" or self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):

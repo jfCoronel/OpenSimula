@@ -116,14 +116,16 @@ class HVAC_coil_equipment(Component):
             epsilon = self._nominal_heating_epsilon * self.parameter("heating_epsilon_expression").evaluate(var_dic)
             C_min = min(self._nominal_air_flow * F_air * rho_i * self.props["C_PA"], self._nominal_heating_water_flow*F_water*self.props["RHOCP_W"](T_iw))
             capacity = epsilon * C_min * (T_iw - T_idb)
-            return capacity
+            return capacity, epsilon
         else:
-            return 0
+            return 0, 0
 
     def get_cooling_capacity(self,T_idb,T_iwb,T_iw,air_flow,water_flow):
         Q_sen = 0
         Q_lat = 0
         T_adp = 0
+        epsilon = 0
+        adp_epsilon = 0
         if self._nominal_total_cooling_capacity > 0:
             # variables dictonary
             F_air = air_flow/ self._nominal_air_flow
@@ -152,7 +154,7 @@ class HVAC_coil_equipment(Component):
                 if (Q_sen > Q_tot):
                     Q_sen = Q_tot
                 Q_lat = Q_tot - Q_sen                                
-        return Q_sen, Q_lat, T_adp
+        return Q_sen, Q_lat, T_adp, epsilon, adp_epsilon
         
     def get_latent_cooling_load(self,T_idb,T_iwb,T_iw,air_flow,water_flow,T_odb):
         # variables dictonary
@@ -176,7 +178,7 @@ class HVAC_coil_equipment(Component):
         else:
             Q_lat = 0
             T_adp = T_idp
-        return Q_lat, T_adp
+        return Q_lat, T_adp, adp_epsilon
 
     def get_T_adp_from_h_adp(self,h_adp,T_ini):
         def func(x):

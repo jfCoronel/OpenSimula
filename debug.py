@@ -1,6 +1,4 @@
 import OpenSimula as osm
-import pandas as pd
-import numpy as np
 
 case_AE226 = {
     "name": "case_AE226",
