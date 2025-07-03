@@ -51,8 +51,9 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         )
         self.add_parameter(Parameter_math_exp("outdoor_air_fraction", "0", "frac"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
-        self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
-        self.add_parameter(Parameter_math_exp("cooling_setpoint", "25", "°C"))
+        self.add_parameter(Parameter_math_exp("supply_heating_setpoint", "10", "°C"))
+        self.add_parameter(Parameter_math_exp("supply_cooling_setpoint", "15", "°C"))
+        self.add_parameter(Parameter_math_exp("space_setpoint", "20", "°C"))
         self.add_parameter(Parameter_math_exp("system_on_off", "1", "on/off"))
         self.add_parameter(
             Parameter_options("fan_operation", "CONTINUOUS", ["CONTINUOUS", "CYCLING"])
@@ -115,8 +116,9 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         self.add_variable(Variable("Q_total", unit="W"))
         self.add_variable(Variable("supply_fan_power", unit="W"))
         self.add_variable(Variable("return_fan_power", unit="W"))
-        self.add_variable(Variable("heating_setpoint", unit="°C"))
-        self.add_variable(Variable("cooling_setpoint", unit="°C"))
+        self.add_variable(Variable("supply_heating_setpoint", unit="°C"))
+        self.add_variable(Variable("supplycooling_setpoint", unit="°C"))
+        self.add_variable(Variable("space_setpoint", unit="°C"))
         self.add_variable(Variable("epsilon", unit="frac"))
         self.add_variable(Variable("epsilon_adp", unit="frac"))
         self.add_variable(Variable("T_iw", unit="°C"))
@@ -209,8 +211,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         # Add variables
         for i in range(len(self.parameter("spaces").value)):
             self.add_variable(Variable(f"m_air_flow_{i}", unit="kg/s"))
-            if self.parameter("reheat_coils").value[i] != "not_defined":
-                self.add_variable(Variable(f"T_SA_{i}", unit="°C"))
+            if self.parameter("terminal_units").value == "REHEAT_COILS":
                 self.add_variable(Variable(f"Q_reheat_{i}", unit="W"))
 
     def pre_iteration(self, time_index, date, daylight_saving):
@@ -231,10 +232,12 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         self.F_OA_min = self.parameter("outdoor_air_fraction").evaluate(var_dic)
         self.F_OA = self.F_OA_min
         # setpoints
-        self.T_heat_sp = self.parameter("heating_setpoint").evaluate(var_dic)
-        self.variable("heating_setpoint").values[time_index] = self.T_heat_sp
-        self.T_cool_sp = self.parameter("cooling_setpoint").evaluate(var_dic)
-        self.variable("cooling_setpoint").values[time_index] = self.T_cool_sp
+        self.T_heat_sp = self.parameter("supply_heating_setpoint").evaluate(var_dic)
+        self.variable("supply_heating_setpoint").values[time_index] = self.T_heat_sp
+        self.T_cool_sp = self.parameter("supply_cooling_setpoint").evaluate(var_dic)
+        self.variable("supply_cooling_setpoint").values[time_index] = self.T_cool_sp
+        self.T_space_sp = self.parameter("space_setpoint").evaluate(var_dic)
+        self.variable("space_setpoint").values[time_index] = self.T_space_sp
         # on/off
         self.on_off = self.parameter("system_on_off").evaluate(var_dic)
         if self.on_off == 0:
@@ -445,6 +448,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         self.w_CA = self.w_MA + self.M_w / (self.air_flow * self.rho_MA)
 
     def _send_air_to_spaces(self, time_index):  # Revisar esto
+        self.Q_reheat = []
         for i in range(len(self._spaces)):
             space = self.spaces[i]
             f_air_flow = self.air_flow_fractions[i]
@@ -453,6 +457,8 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 m_air_flow * self.props["C_PA"]
             )
             self.w_SA = self.w_CA
+            self.T_SAwb = sicro.GetTWetBulbFromHumRatio(self.T_SA,self.w_SA/1000, self.props["ATM_PRESSURE"])
+
             air_flow = {
                 "name": self.parameter("name").value,
                 "M_a": m_air_flow * f_air_flow,
@@ -463,22 +469,34 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             }
             space.add_uncontrolled_system(air_flow)
 
-            if self.parameter("terminal_units").value == "REHEAT_COILS": # Revisar
+            if self.parameter("terminal_units").value == "REHEAT_COILS":
+                self.Q_reheat.append(0)
                 if self.parameter("reheat_coils").value[i] != "not_defined":
                     reheat_coil = self.parameter("reheat_coils").value[i].component
                     if reheat_coil is not None:
                         # Reheat coil
-                        Q_reheat = reheat_coil.get_heating_capacity(
+                        capacity = reheat_coil.get_heating_capacity(
                             self.T_SA,
-                            self.props["WET_BULB_TEMP"](self.T_SA, self.w_SA / 1000),
+                            self.T_SAwb,
                             self.heating_water_temp,
-                            m_air_flow * f_air_flow,
-                            self.heating_water_flow * self._heating_F_water,
+                            self.air_flow * f_air_flow,
+                            self.heating_water_flow,
                         )
-                        if Q_reheat > 0:
-                            self.variable(f"Q_reheat_{i}").values[time_index] = Q_reheat
-                            air_flow["Q_s"] = Q_reheat
-                space.set_control_system(air_flow)
+                        Q_reheat_required = self._get_Q_reheat_required(space, time_index)
+                        if capacity > Q_reheat_required:
+                            self.Q_reheat[i]= Q_reheat_required
+                        else:
+                            self.Q_reheat[i]= capacity
+                        space.set_control_system({"M_a": 0,"T_a": 0,"w_a": 0,"Q_s": self.Q_reheat[i],"M_w": 0})
+
+    def _get_Q_reheat_required(self, space, time_index):
+        K_t,F_t = space.get_thermal_equation(False)
+        T_flo = F_t/K_t
+        if T_flo < self.T_space_sp:
+            Q_reheat =  K_t * self.T_space_sp - F_t
+        else:
+            Q_reheat = 0
+        return Q_reheat
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
@@ -488,6 +506,10 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             self.variable("T_MAwb").values[time_index] = self.T_MAwb
             m_supply = self.air_flow * self.rho_MA
             self.variable("m_air_flow").values[time_index] = m_supply
+            for i in range(len(self.parameter("spaces").value)):
+                self.variable(f"m_air_flow_{i}").values[time_index] = m_supply * self.air_flow_fractions[i]
+                if self.parameter("terminal_units").value == "REHEAT_COILS":
+                    self.variable(f"Q_reheat_{i}").values[time_index] = self.Q_reheat[i]
             self.variable("outdoor_air_fraction").values[time_index] = self.F_OA
             self.variable("T_CA").values[time_index] = self.T_CA
             self.variable("w_CA").values[time_index] = self.w_CA
