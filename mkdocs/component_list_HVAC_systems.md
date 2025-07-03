@@ -273,6 +273,8 @@ equipment.set_parameters(param)
 
 Component for the simulation of single zone water air-conditioning system. It can be used for one space conditioning, using coil an fans equipments previously defined.
 
+![HVAC_SZW_system](img/HVAC_SZW_system.png)
+
 #### Parameters
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be air-conditioned by this system.
 - **coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used by this system.
