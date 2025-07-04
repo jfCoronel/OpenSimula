@@ -1,7 +1,7 @@
 import OpenSimula as osm
 
-case_AE226 = {
-    "name": "case_AE226",
+case_AE301 = {
+    "name": "case_AE301",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -11,7 +11,7 @@ case_AE226 = {
             "type": "File_met",
             "name": "T_ext_cte",
             "file_type": "TMY2",
-            "file_name": "mets/AE106.TM2"
+            "file_name": "mets/AE101.TM2"
         },    
         {
             "type": "Material",
@@ -34,12 +34,23 @@ case_AE226 = {
         },
         {
             "type": "Space_type",
-            "name": "constant_gain_space",
+            "name": "constant_gain_1",
             "people_density": "1",
             "people_sensible": 0,
             "people_latent": 12.21,
             "light_density": "0",
-            "other_gains_density": "30.521",
+            "other_gains_density": "-61.0625",
+            "other_gains_radiant_fraction": 0,
+            "infiltration": "0"
+        },
+        {
+            "type": "Space_type",
+            "name": "constant_gain_2",
+            "people_density": "1",
+            "people_sensible": 0,
+            "people_latent": 18.31667,
+            "light_density": "0",
+            "other_gains_density": "-48.8542",
             "other_gains_radiant_fraction": 0,
             "infiltration": "0"
         },
@@ -54,7 +65,7 @@ case_AE226 = {
             "type": "Space",
             "name": "space_1",
             "building": "Building",
-            "space_type": "constant_gain_space",
+            "space_type": "constant_gain_1",
             "floor_area": 48,
             "volume": 129.6,
             "furniture_weight": 0
@@ -174,49 +185,186 @@ case_AE226 = {
             ]
         },
         {
-            "type": "HVAC_fan_equipment",
-            "name": "supply_fan",
-            "nominal_air_flow":0.28862,
-            "nominal_pressure": 498,
-            "nominal_power": 201.45,
+            "type": "Space",
+            "name": "space_2",
+            "building": "Building",
+            "space_type": "constant_gain_2",
+            "floor_area": 48,
+            "volume": 129.6,
+            "furniture_weight": 0
+        },
+        {
+            "type": "Exterior_surface",
+            "name": "north_wall_2",
+            "construction": "Adiabatic_Wall",
+            "space": "space_2",
+            "ref_point": [
+                108,
+                6,
+                0
+            ],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 180,
+            "altitude": 0,
+            "h_cv": [
+                24.17,
+                3.16
+            ]
+        },
+        {
+            "type": "Exterior_surface",
+            "name": "east_wall_2",
+            "construction": "Adiabatic_Wall",
+            "space": "space_2",
+            "ref_point": [
+                108,
+                0,
+                0
+            ],
+            "width": 6,
+            "height": 2.7,
+            "azimuth": 90,
+            "altitude": 0,
+             "h_cv": [
+                24.17,
+                3.16
+            ]
+        },
+        {
+            "type": "Exterior_surface",
+            "name": "south_wall_2",
+            "construction": "Adiabatic_Wall",
+            "space": "space_2",
+            "ref_point": [
+                100,
+                0,
+                0
+            ],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 0,
+            "altitude": 0,
+             "h_cv": [
+                24.17,
+                3.16
+            ]
+        },
+        {
+            "type": "Exterior_surface",
+            "name": "west_wall_2",
+            "construction": "Adiabatic_Wall",
+            "space": "space_2",
+            "ref_point": [
+                100,
+                6,
+                0
+            ],
+            "width": 6,
+            "height": 2.7,
+            "azimuth": -90,
+            "altitude": 0,
+             "h_cv": [
+                24.17,
+                3.16
+            ]
+        },
+        {
+            "type": "Exterior_surface",
+            "name": "roof_wall_2",
+            "construction": "Adiabatic_Wall",
+            "space": "space_2",
+            "ref_point": [
+                100,
+                0,
+                2.7
+            ],
+            "width": 8,
+            "height": 6,
+            "azimuth": 0,
+            "altitude": 90,
+            "h_cv": [
+                24.17,
+                1.0
+            ]
+        },
+        {
+            "type": "Exterior_surface",
+            "name": "floor_wall_2",
+            "construction": "Adiabatic_Wall",
+            "space": "space_2",
+            "ref_point": [
+                100,
+                6,
+                0
+            ],
+            "width": 8,
+            "height": 6,
+            "azimuth": 0,
+            "altitude": -90,
+            "h_cv": [
+                24.17,
+                4.13
+            ]
         },
         {
             "type": "HVAC_fan_equipment",
-            "name": "return_fan",
-            "nominal_air_flow":0.19241,
-            "nominal_pressure": 249,
-            "nominal_power": 67.15,
+            "name": "supply_fan",
+            "nominal_air_flow": 0.61353,
+            "nominal_pressure": 498,
+            "nominal_power": 436.483,
         },
         {
             "type": "HVAC_coil_equipment",
             "name": "coil",
-            "nominal_air_flow": 0.28862,
-            "nominal_heating_capacity": 0,
-            "nominal_total_cooling_capacity": 7164,
-            "nominal_sensible_cooling_capacity": 5230,
-            "nominal_cooling_water_flow": 3.415e-4
+            "nominal_air_flow": 0.61353,
+            "nominal_heating_capacity": 10000,
+            "nominal_heating_water_flow": 0.556e-3,
+            "nominal_total_cooling_capacity": 0,
+            "nominal_sensible_cooling_capacity": 0,
         },
         {
-            "type": "HVAC_SZW_system",
+            "type": "HVAC_coil_equipment",
+            "name": "reheat_coil_1",
+            "nominal_air_flow": 0.28317,
+            "nominal_heating_capacity": 10000,
+            "nominal_heating_water_flow": 0.556e-3,
+            "nominal_total_cooling_capacity": 0,
+            "nominal_sensible_cooling_capacity": 0,
+        },
+        {
+            "type": "HVAC_coil_equipment",
+            "name": "reheat_coil_2",
+            "nominal_air_flow": 0.33036,
+            "nominal_heating_capacity": 10000,
+            "nominal_heating_water_flow": 0.556e-3,
+            "nominal_total_cooling_capacity": 0,
+            "nominal_sensible_cooling_capacity": 0,
+        },
+        {
+            "type": "HVAC_MZW_system",
             "name": "system",
-            "space": "space_1",
-            "coil": "coil",
+            "spaces": ["space_1","space_2"],
+            "air_flow_fractions": [0.46154, 0.53846],
+            "return_air_flow_fractions": [0.5, 0.5],
+            "return_fan": "supply_fan",
+            "heating_coil": "coil",
             "supply_fan": "supply_fan",
-            "return_fan": "return_fan",
-            "air_flow": 0.28862,
-            "return_air_flow": 0.19241,
-            "outdoor_air_fraction": 0.33333,
-            "cooling_water_flow": 3.415e-4,
-            "cooling_setpoint": "23.333",
-            "heating_setpoint": "0",
+            "air_flow": 0.61353,
+            "outdoor_air_fraction": 0.38461,
+            "cooling_water_flow": 0,
+            "heating_water_flow": 2.222e-3,
+            "supply_heating_setpoint": "7.22",
             "system_on_off": "1",
-            "water_flow_control": "PROPORTIONAL",
-            "economizer": "TEMPERATURE",
+            "space_setpoint": "21.11",
+            "terminal_units": "REHEAT_COILS",
+            "reheat_coils": ["reheat_coil_1","reheat_coil_2"]
         }
     ]
 }
 
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case_AE226)
+pro.read_dict(case_AE301)
+#pro.component("Building").show3D()
 pro.simulate()

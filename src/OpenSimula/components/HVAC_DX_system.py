@@ -24,16 +24,16 @@ class HVAC_DX_system(Component):
         
         # Variables
         self.add_variable(Variable("state", unit="flag")) # 0: 0ff, 1: Heating, 2: Heating max cap, -1:Cooling, -2:Cooling max cap, 3: Venting 
-        self.add_variable(Variable("T_odb", unit="°C"))
-        self.add_variable(Variable("T_owb", unit="°C"))
-        self.add_variable(Variable("T_idb", unit="°C"))
-        self.add_variable(Variable("T_iwb", unit="°C"))
+        self.add_variable(Variable("T_OA", unit="°C"))
+        self.add_variable(Variable("T_OAwb", unit="°C"))
+        self.add_variable(Variable("T_MA", unit="°C"))
+        self.add_variable(Variable("T_MAwb", unit="°C"))
         self.add_variable(Variable("F_air", unit="frac"))
         self.add_variable(Variable("F_load", unit="frac"))
         self.add_variable(Variable("outdoor_air_fraction", unit="frac"))
         self.add_variable(Variable("m_air_flow", unit="kg/s"))
-        self.add_variable(Variable("T_supply", unit="°C"))
-        self.add_variable(Variable("w_supply", unit="g/kg"))
+        self.add_variable(Variable("T_SA", unit="°C"))
+        self.add_variable(Variable("w_SA", unit="g/kg"))
         self.add_variable(Variable("Q_total", unit="W"))
         self.add_variable(Variable("Q_sensible", unit="W"))
         self.add_variable(Variable("Q_latent", unit="W"))
@@ -83,8 +83,8 @@ class HVAC_DX_system(Component):
         self._T_odb = self._file_met.variable("temperature").values[time_index]
         self._T_owb = self._file_met.variable("wet_bulb_temp").values[time_index]
         self._w_o = self._file_met.variable("abs_humidity").values[time_index]
-        self.variable("T_odb").values[time_index] = self._T_odb
-        self.variable("T_owb").values[time_index] = self._T_owb
+        self.variable("T_OA").values[time_index] = self._T_odb
+        self.variable("T_OAwb").values[time_index] = self._T_owb
         self._outdoor_rho = 1/sicro.GetMoistAirVolume(self._T_odb,self._w_o/1000,self.props["ATM_PRESSURE"])
         # variables dictonary
         var_dic = self.get_parameter_variable_dictionary(time_index)
@@ -218,13 +218,13 @@ class HVAC_DX_system(Component):
         super().post_iteration(time_index, date, daylight_saving, converged)
         self.variable("state").values[time_index] = self._state
         if self._state != 0 : # on
-            self.variable("T_idb").values[time_index] = self._T_idb
-            self.variable("T_iwb").values[time_index] = self._T_iwb
+            self.variable("T_MA").values[time_index] = self._T_idb
+            self.variable("T_MAwb").values[time_index] = self._T_iwb
             m_supply = self._air_flow * self._rho_i
             self.variable("m_air_flow").values[time_index] = m_supply
             self.variable("outdoor_air_fraction").values[time_index] = self._f_oa
-            self.variable("T_supply").values[time_index] = self._Q_eq/(m_supply*self.props["C_PA"]) + self._T_idb
-            self.variable("w_supply").values[time_index] = self._M_w/(self._air_flow * self._rho_i) +self._w_i
+            self.variable("T_SA").values[time_index] = self._Q_eq/(m_supply*self.props["C_PA"]) + self._T_idb
+            self.variable("w_SA").values[time_index] = self._M_w/(self._air_flow * self._rho_i) +self._w_i
             self.variable("F_air").values[time_index] = self._f_air
             self.variable("F_load").values[time_index] = self._f_load
             if self._state == 1 or self._state == 2: # Heating

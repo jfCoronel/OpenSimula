@@ -118,6 +118,9 @@ equipment.set_parameters(param)
 
 Component for the simulation of an air-conditioning system for a space and using equipment in direct expansion "HVAC_DX_equipment".
 
+![HVAC_DX_system](img/HVAC_DX_system.png)
+
+
 #### Parameters
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be air-conditioned by this system.
 - **equipment** [_component_, default = "not_defined", component type = HVAC_DX_equipment]: Reference to the "HVAC_DX_equipment" component used by this system.
@@ -180,15 +183,15 @@ After the simulation we will have the following variables of this component:
 - __COP__ [frac]: System efficiency ratio for heating, defined as the thermal load supplied divided by the electrical power consumed.
 - __m_air_flow__ [kg/s]: Dry air mass flow rate supplied.       
 - __outdoor_air_fraction__ [frac]: fraction of outside air in supply air.       
-- __T_odb__ [ºC]: Outdoor dry bulb temperature.
-- __T_owb__ [ºC]: Outdoor wet bulb temperature.
-- __T_idb__ [ºC]: Indoor dry bulb temperature, at the coil inlet of the indoor unit.
-- __T_iwb__ [ºC]: Indoor wet bulb temperature, at the coil inlet of the indoor unit.
+- __T_OA__ [ºC]: Outdoor air dry bulb temperature.
+- __T_OAwb__ [ºC]: Outdoor air wet bulb temperature.
+- __T_MA__ [ºC]: Mixed air dry bulb temperature, at the coil inlet of the indoor unit.
+- __T_MAwb__ [ºC]: Mixed air wet bulb temperature, at the coil inlet of the indoor unit.
 - __F_air__ [frac]: Actual supply air flow divided by nominal supply air flow.
 - __F_load__ [frac]: Partial load state of the system, calculated as the thermal power 
 supplied at a given instant divided by the cooling or heating capacity at the current operation conditions. Positive for heating and negative for cooling
-- __T_supply__ [ºC]: Supply air dry bulb temperature.
-- __w_supply__ [g/kg]: Supply air absolute humidity.
+- __T_SA__ [ºC]: Supply air dry bulb temperature.
+- __w_SA__ [g/kg]: Supply air absolute humidity.
 - __efficiency_degradation__ [frac]: EER or COP degradation factor obtained from the _EER_expression_ or _COP_expression_ of the equipment.
 
 ### HVAC_coil_equipment
@@ -294,25 +297,9 @@ Component for the simulation of single zone water air-conditioning system. It ca
 - **inlet_cooling_water_temp** [_float_, unit = "°C", default = 7, min = 0]: Inlet cooling water tempeture used for "UNKNOWN" water source.
 - **inlet_heating_water_temp** [_float_, unit = "°C", default = 50, min = 0]: Inlet heating water tempeture used for "UNKNOWN" water source.
 - **water_flow_control** [_option_, default = "ON_OFF", options = ["ON_OFF","PROPORTINAL"]]: If the selected option is “ON_OFF” the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time, therefore the latent load will be calculated by multiplying the latent load at design flow by that fraction of time. If we select “PROPORTIONAL” it is assumed that the water flow rate is adjusted progressively, the required coil outlet temperature will be calculated and using the adp effectiveness the ADP and the supplied latent load will be obtained.
-- **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is “NO” no economizer will be used, for the other options the economizer will be used with different control strategies explained below. 
+- **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is “NO” no economizer will be used, for the other options the economizer see HVAC_DX_System. 
 - **economizer_DT** [_float_, unit = "ºC", default = 0, min = 0]: For economizers type “TEMPERATURE” and “TEMPERATURE_NOT_INTEGRATED” set the temperature difference between the return air and the outside air at which the economizer starts to operate.
 - **economizer_enthalpy_limit** [_float_, unit = "kJ/kg", default = 0, min = 0]: For economizers type ENTHALPY_LIMITED set the maximun outdoor air enthalpy at which the economizer does not operate.
-
-
-__Economizer__ 
-
-The different types of economizer operation are as follows:
-
-* "TEMPERATURE": Temperature controlled economizer will be implemented.
-* "TEMPERATURE_NOT_INTEGRATED": Temperature controlled economizer will be implemented, this economizer operates the same as the “TEMPERATURE” type but only works when the economizer is able to give the full sensible load of the space.
-* "ENTHALPY": Enthalpy controlled economizer will be implemented. It works in the same way as the “TEMPERATURE” type but compares the enthalpies of the return and outside air instead of the temperatures. 
-* "ENTHALPY_LIMITED": Enthalpy controlled economizer will be implemented. It works the same as the “ENTHALPY” type but compares the enthalpy of the outside air with the fixed value set in the “economizer_enthalpy_limit” parameter.
-
-The operation of the "TEMPERATURE" economizer control_type is as follows:
-
-* If the outdoor air temperature is higher than the room temperature minus the value of the parameter “economizer_DT”, the economizer does not operate and the outdoor air flow rate is nominal. 
-* If the room has cooling load, the outdoor air temperature is lower than the room temperature minus the value of the parameter “economizer_DT", and by increasing the outside air flow rate the entire room load can be provided, the outside air flow rate will be the one required for this purpose.
-* If the room has cooling load, the outdoor air temperature is lower than the room temperature minus the value of the parameter “economizer_DT", and the cooling load of the space cannot be provided only with outdoor air, then all the supply air will be outdoor and the coil will provide the remaining sensible cooling load. This mode will not work if the economizer type is “TEMPERATURE_NOT_INTEGRATED”. 
 
 **Example:**
 <pre><code class="python">
@@ -347,19 +334,19 @@ After the simulation we will have the following variables of this component:
 - __return_fan_power__ [W]: Electrical power consumed by the supply fan.
 - __m_air_flow__ [kg/s]: Dry air mass flow rate at coil inlet.       
 - __outdoor_air_fraction__ [frac]: fraction of outside air in supply air.       
-- __T_odb__ [ºC]: Outdoor dry bulb temperature.
-- __T_owb__ [ºC]: Outdoor wet bulb temperature.
-- __T_idb__ [ºC]: Indoor dry bulb temperature, at the coil inlet of the indoor unit.
-- __T_iwb__ [ºC]: Indoor wet bulb temperature, at the coil inlet of the indoor unit.
+- __T_OA__ [ºC]: Outdoor air dry bulb temperature.
+- __T_OAwb__ [ºC]: Outdoor wet bulb temperature.
+- __T_MA__ [ºC]: Mixed air dry bulb temperature, at the coil inlet of the indoor unit.
+- __T_MAwb__ [ºC]: Mixed air wet bulb temperature, at the coil inlet of the indoor unit.
 - __F_load__ [frac]: Partial load state of the system, calculated as the thermal power 
 supplied at a given instant divided by the cooling or heating capacity at the current operation conditions. Positive for heating and negative for cooling
-- __T_fan_in__ [ºC]: Fan inlet air dry bulb temperature.
-- __w_fan_in__ [g/kg]: Fan inlet air absolute humidity.
-- __T_supply__ [ºC]: Supply air dry bulb temperature.
-- __w_supply__ [g/kg]: Supply air absolute humidity.
+- __T_CA__ [ºC]: Coil outlet air dry bulb temperature.
+- __w_CA__ [g/kg]: Coil outlet air absolute humidity.
+- __T_SA__ [ºC]: Supply air dry bulb temperature.
+- __w_SA__ [g/kg]: Supply air absolute humidity.
 - __T_iw__ [ºC]: Coil inlet water temperature.
 - __T_ow__ [ºC]: Coil outlet water temperature.
-- __T_adp__ [ºC]: ADP (Aparatus Dew Point) temperature of the coil.
+- __T_ADP__ [ºC]: ADP (Aparatus Dew Point) temperature of the coil.
 - __epsilon__ [frac]: Coil effectiveness.
 - __epsilon_adp__ [frac]: Coil ADP effectiveness = 1 - Bypass Factor.
 
