@@ -6,7 +6,8 @@ from OpenSimula.Parameters import (
     Parameter_float_list,
     Parameter_variable_list,
     Parameter_math_exp,
-    Parameter_options,
+    Parameter_math_exp_list,
+    Parameter_options
 )
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
@@ -53,7 +54,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("supply_heating_setpoint", "10", "°C"))
         self.add_parameter(Parameter_math_exp("supply_cooling_setpoint", "15", "°C"))
-        self.add_parameter(Parameter_math_exp("space_setpoint", "20", "°C"))
+        self.add_parameter(Parameter_math_exp_list("spaces_setpoint", ["20","20"], "°C"))
         self.add_parameter(Parameter_math_exp("system_on_off", "1", "on/off"))
         self.add_parameter(
             Parameter_options("fan_operation", "CONTINUOUS", ["CONTINUOUS", "CYCLING"])
@@ -118,13 +119,13 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         self.add_variable(Variable("return_fan_power", unit="W"))
         self.add_variable(Variable("supply_heating_setpoint", unit="°C"))
         self.add_variable(Variable("supply_cooling_setpoint", unit="°C"))
-        self.add_variable(Variable("space_setpoint", unit="°C"))
         self.add_variable(Variable("epsilon", unit="frac"))
         self.add_variable(Variable("epsilon_adp", unit="frac"))
         self.add_variable(Variable("T_iw", unit="°C"))
         self.add_variable(Variable("T_ow", unit="°C"))
         self.add_variable(Variable("T_ADP", unit="°C"))
-        self.add_variable(Variable("T_RA", unit="°C"))  # Return air temperature
+        self.add_variable(Variable("T_ZA", unit="°C"))  # Return air temperature, zone mixture
+        self.add_variable(Variable("T_RA", unit="°C"))  # Return air temperature, after fan
         self.add_variable(Variable("w_RA", unit="g/kg"))
 
     def check(self):
@@ -170,9 +171,10 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             self.add_variable(Variable(f"m_air_flow_{i}", unit="kg/s"))
             if self.parameter("terminal_units").value == "REHEAT_COILS":
                 self.add_variable(Variable(f"Q_reheat_{i}", unit="W"))
+                self.add_variable(Variable(f"T_SA_{i}", unit="°C"))
+                self.add_variable(Variable(f"space_setpoint_{i}", unit="°C"))
         return errors
        
-
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
@@ -238,8 +240,12 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         self.variable("supply_heating_setpoint").values[time_index] = self.T_heat_sp
         self.T_cool_sp = self.parameter("supply_cooling_setpoint").evaluate(var_dic)
         self.variable("supply_cooling_setpoint").values[time_index] = self.T_cool_sp
-        self.T_space_sp = self.parameter("space_setpoint").evaluate(var_dic)
-        self.variable("space_setpoint").values[time_index] = self.T_space_sp
+        if self.parameter("terminal_units").value == "REHEAT_COILS":
+            self.T_space_sp = []
+            for i in range(len(self.parameter("spaces").value)):
+                val = self.parameter("spaces_setpoint").evaluate(i,var_dic)
+                self.T_space_sp.append(val)
+                self.variable(f"space_setpoint_{i}").values[time_index] = val
         # on/off
         self.on_off = self.parameter("system_on_off").evaluate(var_dic)
         if self.on_off == 0:
@@ -275,14 +281,17 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             self.m_return = self.return_air_flow * self.rho_MA
         Q_return_fan = self._get_fan_power("return", self.F_load)
         self.T_RA = 0
+        self.T_ZA = 0
         self.w_RA = 0
         for i in range(len(self.spaces)):
             space = self.spaces[i]
             f_return = self.return_air_flow_fractions[i]
-            self.T_RA += f_return * space.variable("temperature").values[time_index]
+            self.T_ZA += f_return * space.variable("temperature").values[time_index]
             self.w_RA += f_return * space.variable("abs_humidity").values[time_index]
         if Q_return_fan > 0 and self.m_return > 0:
-            self.T_RA = Q_return_fan / (self.m_return * self.props["C_PA"]) + self.T_RA
+            self.T_RA = Q_return_fan / (self.m_return * self.props["C_PA"]) + self.T_ZA
+        else: 
+            self.T_RA = self.T_ZA
 
     def _calculate_mixed_air(self):
         # Mixed air
@@ -483,18 +492,18 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                             self.air_flow * f_air_flow,
                             self.heating_water_flow,
                     )
-                    Q_reheat_required = self._get_Q_reheat_required(space, time_index)
+                    Q_reheat_required = self._get_Q_reheat_required(i, space)
                     if capacity > Q_reheat_required:
                         self.Q_reheat[i]= Q_reheat_required
                     else:
                         self.Q_reheat[i]= capacity
                     space.set_control_system({"M_a": 0,"T_a": 0,"w_a": 0,"Q_s": self.Q_reheat[i],"M_w": 0})
 
-    def _get_Q_reheat_required(self, space, time_index):
+    def _get_Q_reheat_required(self, i, space):
         K_t,F_t = space.get_thermal_equation(False)
         T_flo = F_t/K_t
-        if T_flo < self.T_space_sp:
-            Q_reheat =  K_t * self.T_space_sp - F_t
+        if T_flo < self.T_space_sp[i]:
+            Q_reheat =  K_t * self.T_space_sp[i] - F_t
         else:
             Q_reheat = 0
         return Q_reheat
@@ -511,11 +520,13 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 self.variable(f"m_air_flow_{i}").values[time_index] = m_supply * self.air_flow_fractions[i]
                 if self.parameter("terminal_units").value == "REHEAT_COILS":
                     self.variable(f"Q_reheat_{i}").values[time_index] = self.Q_reheat[i]
+                    self.variable(f"T_SA_{i}").values[time_index] = self.T_SA + self.Q_reheat[i]/(m_supply * self.air_flow_fractions[i]* self.props["C_PA"])
             self.variable("outdoor_air_fraction").values[time_index] = self.F_OA
             self.variable("T_CA").values[time_index] = self.T_CA
             self.variable("w_CA").values[time_index] = self.w_CA
             self.variable("T_SA").values[time_index] = self.T_SA
             self.variable("w_SA").values[time_index] = self.w_SA
+            self.variable("T_ZA").values[time_index] =self.T_ZA
             self.variable("T_RA").values[time_index] =self.T_RA
             self.variable("w_RA").values[time_index] =self.w_RA
             self.variable("F_load").values[time_index] = self.F_load
