@@ -453,7 +453,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                     )
                 )
                 self.M_w = -Q_lat / self.props["LAMBDA"]
-        self.T_CA = self.T_MA - self.Q_coil / (
+        self.T_CA = self.T_MA + self.Q_coil / (
             self.air_flow * self.rho_MA * self.props["C_PA"]
         )
         self.w_CA = self.w_MA + self.M_w / (self.air_flow * self.rho_MA)
@@ -485,12 +485,13 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 reheat_coil = self.reheat_coils[i]
                 if reheat_coil is not None:
                     # Reheat coil
+                    water_flow = reheat_coil.parameter("nominal_heating_water_flow").value
                     capacity, epsilon = reheat_coil.get_heating_capacity(
                             self.T_SA,
                             self.T_SAwb,
                             self.heating_water_temp,
                             self.air_flow * f_air_flow,
-                            self.heating_water_flow,
+                            water_flow,
                     )
                     Q_reheat_required = self._get_Q_reheat_required(i, space)
                     if capacity > Q_reheat_required:

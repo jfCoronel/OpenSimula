@@ -1,7 +1,7 @@
 import OpenSimula as osm
 
-case_AE301 = {
-    "name": "case_AE301",
+case_AE303 = {
+    "name": "case_AE303",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -11,7 +11,7 @@ case_AE301 = {
             "type": "File_met",
             "name": "T_ext_cte",
             "file_type": "TMY2",
-            "file_name": "mets/AE101.TM2"
+            "file_name": "mets/AE103.TM2"
         },    
         {
             "type": "Material",
@@ -39,7 +39,7 @@ case_AE301 = {
             "people_sensible": 0,
             "people_latent": 12.21,
             "light_density": "0",
-            "other_gains_density": "-61.0625",
+            "other_gains_density": "30.521",
             "other_gains_radiant_fraction": 0,
             "infiltration": "0"
         },
@@ -50,7 +50,7 @@ case_AE301 = {
             "people_sensible": 0,
             "people_latent": 18.31667,
             "light_density": "0",
-            "other_gains_density": "-48.8542",
+            "other_gains_density": "48.8542",
             "other_gains_radiant_fraction": 0,
             "infiltration": "0"
         },
@@ -310,23 +310,23 @@ case_AE301 = {
         {
             "type": "HVAC_fan_equipment",
             "name": "supply_fan",
-            "nominal_air_flow": 0.61353,
+            "nominal_air_flow": 0.60296,
             "nominal_pressure": 498,
             "nominal_power": 436.483,
         },
         {
             "type": "HVAC_coil_equipment",
             "name": "coil",
-            "nominal_air_flow": 0.61353,
-            "nominal_heating_capacity": 10000,
-            "nominal_heating_water_flow": 0.556e-3,
-            "nominal_total_cooling_capacity": 0,
-            "nominal_sensible_cooling_capacity": 0,
+            "nominal_air_flow": 0.60296,
+            "nominal_heating_capacity": 0,
+            "nominal_total_cooling_capacity": 14328,
+            "nominal_sensible_cooling_capacity": 10460,
+            "nominal_cooling_water_flow": 6.83e-4
         },
         {
             "type": "HVAC_coil_equipment",
             "name": "reheat_coil_1",
-            "nominal_air_flow": 0.28317,
+            "nominal_air_flow": 0.27829,
             "nominal_heating_capacity": 10000,
             "nominal_heating_water_flow": 0.556e-3,
             "nominal_total_cooling_capacity": 0,
@@ -335,36 +335,37 @@ case_AE301 = {
         {
             "type": "HVAC_coil_equipment",
             "name": "reheat_coil_2",
-            "nominal_air_flow": 0.33036,
+            "nominal_air_flow": 0.32467,
             "nominal_heating_capacity": 10000,
             "nominal_heating_water_flow": 0.556e-3,
             "nominal_total_cooling_capacity": 0,
             "nominal_sensible_cooling_capacity": 0,
         },
         {
-            "type": "HVAC_MZW_system",
+           "type": "HVAC_MZW_system",
             "name": "system",
             "spaces": ["space_1","space_2"],
             "air_flow_fractions": [0.46154, 0.53846],
             "return_air_flow_fractions": [0.5, 0.5],
             "return_fan": "supply_fan",
-            "heating_coil": "coil",
+            "cooling_coil": "coil",
             "supply_fan": "supply_fan",
-            "air_flow": 0.61353,
+            "air_flow": 0.60296,
             "outdoor_air_fraction": 0.38461,
-            "cooling_water_flow": 0,
-            "heating_water_flow": 2.222e-3,
-            "supply_heating_setpoint": "7.22",
+            "cooling_water_flow": 6.83e-4,
+            "heating_water_flow": 0,
+            "supply_cooling_setpoint": "12.78",
+            "supply_heating_setpoint": "7.7835",
             "system_on_off": "1",
-            "space_setpoint": "21.11",
             "terminal_units": "REHEAT_COILS",
-            "reheat_coils": ["reheat_coil_1","reheat_coil_2"]
+            "reheat_coils": ["reheat_coil_1","reheat_coil_2"],
+            "spaces_setpoint": ["23.333","24.444"]
         }
     ]
 }
 
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case_AE301)
+pro.read_dict(case_AE303)
 #pro.component("Building").show3D()
 pro.simulate()
