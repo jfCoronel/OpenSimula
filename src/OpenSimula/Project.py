@@ -8,8 +8,18 @@ import dash_bootstrap_components as dbc
 import psychrolib as sicro
 from OpenSimula.Message import Message
 from OpenSimula.Parameter_container import Parameter_container
-from OpenSimula.Parameters import Parameter_component, Parameter_int, Parameter_string, Parameter_string_list, Parameter_boolean
+from OpenSimula.Parameters import (
+    Parameter_component,
+    Parameter_int,
+    Parameter_string,
+    Parameter_string_list,
+    Parameter_boolean,
+    Parameter_options,
+    Parameter_float
+)
 from OpenSimula.components import *
+from OpenSimula.visual_3D.Environment_3D import Environment_3D
+
 
 class Project(Parameter_container):
     """Project has the following features:
@@ -17,6 +27,7 @@ class Project(Parameter_container):
     - It is included in the Simulation environment
     - Contain a list of components
     - Contains parameters for its definition
+    - Contains Environment_3D for 3D representation of the project
     """
 
     def __init__(self, name, sim):
@@ -30,21 +41,34 @@ class Project(Parameter_container):
         self.parameter("description").value = "Description of the project"
         self.add_parameter(Parameter_int("time_step", 3600, "s", min=1))
         self.add_parameter(Parameter_int("n_time_steps", 8760, min=1))
-        self.add_parameter(Parameter_string(
-            "initial_time", "01/01/2001 00:00:00"))
+        self.add_parameter(Parameter_string("initial_time", "01/01/2001 00:00:00"))
         self.add_parameter(Parameter_boolean("daylight_saving", False))
-        self.add_parameter(Parameter_string(
-            "daylight_saving_start_time", "25/03/2001 02:00:00"))
-        self.add_parameter(Parameter_string(
-            "daylight_saving_end_time", "28/10/2001 02:00:00"))
+        self.add_parameter(
+            Parameter_string("daylight_saving_start_time", "25/03/2001 02:00:00")
+        )
+        self.add_parameter(
+            Parameter_string("daylight_saving_end_time", "28/10/2001 02:00:00")
+        )
         self.add_parameter(Parameter_int("n_max_iteration", 1000, min=1))
-        self.add_parameter(Parameter_string_list("simulation_order",DEFAULT_COMPONENTS_ORDER))
-        self.add_parameter(Parameter_component("simulation_file_met", "not_defined", ["File_met"]))
+        self.add_parameter(
+            Parameter_string_list("simulation_order", DEFAULT_COMPONENTS_ORDER)
+        )
+        self.add_parameter(
+            Parameter_component("simulation_file_met", "not_defined", ["File_met"])
+        )
+        self.add_parameter(
+            Parameter_options(
+                "shadow_calculation", "INSTANT", ["NO", "INSTANT", "INTERPOLATION"]
+            )
+        )
+        self.add_parameter(Parameter_float("albedo", 0.3, "frac", min=0, max=1))
+
         self._sim_ = sim
         self._components_ = []
         sicro.SetUnitSystem(sicro.SI)
         atm_p = sicro.GetStandardAtmPressure(0)
-        w_50 = sicro.GetHumRatioFromRelHum(22.5,0.5,atm_p)
+        w_50 = sicro.GetHumRatioFromRelHum(22.5, 0.5, atm_p)
+
         def rhocp_water(T):
             """
             Returns: Liquid water rho*c_p at 1 atm (J/(m^3·K)), Cubic adjustment
@@ -52,8 +76,10 @@ class Project(Parameter_container):
             Parameters:
             T: water temperature (ºC)
             """
-            return (-6.5515e-08 * T**3 + 7.6219e-06 * T**2 - 1.8564e-03 * T + 4.2125) * 1e6
-        
+            return (
+                -6.5515e-08 * T**3 + 7.6219e-06 * T**2 - 1.8564e-03 * T + 4.2125
+            ) * 1e6
+
         # Set simulation properties
         self._sim_.props = {
             "C_PA": 1006,  # J/kg·K
@@ -62,9 +88,10 @@ class Project(Parameter_container):
             "ALTITUDE": 0,  # m
             "ATM_PRESSURE": atm_p,
             "W_50": w_50,
-            "RHO_A": sicro.GetMoistAirDensity(22.5,w_50,atm_p),
-            "RHOCP_W": rhocp_water 
+            "RHO_A": sicro.GetMoistAirDensity(22.5, w_50, atm_p),
+            "RHOCP_W": rhocp_water,
         }
+        env_3D = Environment_3D()
 
     def del_component(self, component):
         """Delete component from Project
@@ -139,23 +166,29 @@ class Project(Parameter_container):
             if key == "components":  # Lista de componentes
                 for component in value:
                     if "type" in component:
-                        name = component["type"]+"_X"
+                        name = component["type"] + "_X"
                         if "name" in component:
                             name = component["name"]
                         comp = self.new_component(component["type"], name)
                         if comp == None:
-                            msg = self._get_error_header_() + f'Component type {component["type"]} does not exist.'
+                            msg = (
+                                self._get_error_header_()
+                                + f'Component type {component["type"]} does not exist.'
+                            )
                             self._sim_.message(Message(msg, "ERROR"))
                         else:
                             comp.set_parameters(component)
                     else:
-                        msg = self._get_error_header_() + f'Component does not contain "type" parameter {component}'
+                        msg = (
+                            self._get_error_header_()
+                            + f'Component does not contain "type" parameter {component}'
+                        )
                         self._sim_.message(Message(msg, "ERROR"))
             else:
                 if key in self._parameters_:
                     self.parameter(key).value = value
                 else:
-                    msg = self._get_error_header_() + f'Parameter {key} does not exist.'
+                    msg = self._get_error_header_() + f"Parameter {key} does not exist."
                     self._sim_.message(Message(msg, "ERROR"))
 
     def read_dict(self, dict):
@@ -198,12 +231,14 @@ class Project(Parameter_container):
         try:
             f = open(json_file, "r")
         except OSError:
-            msg = self._get_error_header_() + f'Could not open/read file:  {json_file}.'
+            msg = self._get_error_header_() + f"Could not open/read file:  {json_file}."
             self._sim_.message(Message(msg, "ERROR"))
             return False
         with f:
             json_dict = json.load(f)
-            self._sim_.message(Message("Reading project data from file: " + json_file, "CONSOLE"))
+            self._sim_.message(
+                Message("Reading project data from file: " + json_file, "CONSOLE")
+            )
             self._load_from_dict_(json_dict)
             self._sim_.message(Message("Reading completed.", "CONSOLE"))
             self.check()
@@ -218,15 +253,17 @@ class Project(Parameter_container):
         try:
             f = open(json_file, "w")
         except OSError:
-            msg = self._get_error_header_() + f'Could not write file:  {json_file}.'
+            msg = self._get_error_header_() + f"Could not write file:  {json_file}."
             self._sim_.message(Message(msg, "ERROR"))
             return False
         with f:
-            self._sim_.message(Message("Writing project data to file: " + json_file, "CONSOLE"))
+            self._sim_.message(
+                Message("Writing project data to file: " + json_file, "CONSOLE")
+            )
             dict = self.write_dict()
             json.dump(dict, f)
             self._sim_.message(Message("Writing completed.", "CONSOLE"))
-            
+
     def _read_excel_(self, excel_file):
         """Read paramaters an components from excel file
 
@@ -235,13 +272,15 @@ class Project(Parameter_container):
         """
         try:
             xls_file = pd.ExcelFile(excel_file)
-            self._sim_.message(Message("Reading project data from file: " + excel_file, "CONSOLE"))
+            self._sim_.message(
+                Message("Reading project data from file: " + excel_file, "CONSOLE")
+            )
             json_dict = self._excel_to_json_(xls_file)
             self._load_from_dict_(json_dict)
             self._sim_.message(Message("Reading completed.", "CONSOLE"))
             self.check()
         except Exception as e:
-            msg = self._get_error_header_() + f'Reading file:  {excel_file} -> {e}.'
+            msg = self._get_error_header_() + f"Reading file:  {excel_file} -> {e}."
             self._sim_.message(Message(msg, "ERROR"))
             return False
 
@@ -293,7 +332,7 @@ class Project(Parameter_container):
             for comp in all_comp_list:
                 if comp.parameter("type").value == comp_type:
                     self._ordered_component_list_.remove(comp)
-            for comp in  all_comp_list:
+            for comp in all_comp_list:
                 if comp.parameter("type").value == comp_type:
                     self._ordered_component_list_.append(comp)
 
@@ -305,27 +344,46 @@ class Project(Parameter_container):
         Returns:
             errors (string list): List of errors
         """
-        self._sim_.message(Message("Checking project: " + self.parameter("name").value, "CONSOLE"))
+        self._sim_.message(
+            Message("Checking project: " + self.parameter("name").value, "CONSOLE")
+        )
         errors = self.check_parameters()  # Parameters
         names = []
         # Check initial time
         try:
-            dt.datetime.strptime(self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S")
+            dt.datetime.strptime(
+                self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
+            )
         except ValueError:
-            msg = self._get_error_header_() + f"Initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
-            errors.append(Message(msg,"ERROR"))
+            msg = (
+                self._get_error_header_()
+                + f"Initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+            )
+            errors.append(Message(msg, "ERROR"))
         # Check daylight saving dates
-        if (self.parameter("daylight_saving").value):
+        if self.parameter("daylight_saving").value:
             try:
-                dt.datetime.strptime(self.parameter("daylight_saving_start_time").value, "%d/%m/%Y %H:%M:%S")
+                dt.datetime.strptime(
+                    self.parameter("daylight_saving_start_time").value,
+                    "%d/%m/%Y %H:%M:%S",
+                )
             except ValueError:
-                msg = self._get_error_header_() + f"Initial_time: {self.parameter('daylight_saving_start_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
-                errors.append(Message(msg,"ERROR"))
+                msg = (
+                    self._get_error_header_()
+                    + f"Initial_time: {self.parameter('daylight_saving_start_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+                )
+                errors.append(Message(msg, "ERROR"))
             try:
-                dt.datetime.strptime(self.parameter("daylight_saving_end_time").value, "%d/%m/%Y %H:%M:%S")
+                dt.datetime.strptime(
+                    self.parameter("daylight_saving_end_time").value,
+                    "%d/%m/%Y %H:%M:%S",
+                )
             except ValueError:
-                error = self._get_error_header_() + f"Initial_time: {self.parameter('daylight_saving_end_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
-                errors.append(Message(msg,"ERROR"))
+                error = (
+                    self._get_error_header_()
+                    + f"Initial_time: {self.parameter('daylight_saving_end_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+                )
+                errors.append(Message(msg, "ERROR"))
 
         self._set_ordered_component_list_()
         list = self._ordered_component_list_
@@ -335,8 +393,11 @@ class Project(Parameter_container):
                 for e in error_comp:
                     errors.append(e)
             if comp.parameter("name").value in names:
-                msg = self._get_error_header_() + f"'{comp.parameter('name').value}' is used by two or more components as name"
-                errors.append(Message(msg,"ERROR"))
+                msg = (
+                    self._get_error_header_()
+                    + f"'{comp.parameter('name').value}' is used by two or more components as name"
+                )
+                errors.append(Message(msg, "ERROR"))
             else:
                 names.append(comp.parameter("name").value)
 
@@ -348,19 +409,21 @@ class Project(Parameter_container):
 
         return errors
 
-    def simulate(self, show_percentage = 10):
+    def simulate(self, show_percentage=10):
         """Project Time Simulation"""
         n = self.parameter("n_time_steps").value
         date = dt.datetime.strptime(
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
         )
         delta_t = self.parameter("time_step").value
-        date = date + dt.timedelta(0, delta_t/2)  # Centered in the interval
-        if (self.parameter("daylight_saving").value):
-            date_dls_start = dt.datetime.strptime(self.parameter(
-                "daylight_saving_start_time").value, "%d/%m/%Y %H:%M:%S")
-            date_dls_end = dt.datetime.strptime(self.parameter(
-                "daylight_saving_end_time").value, "%d/%m/%Y %H:%M:%S")
+        date = date + dt.timedelta(0, delta_t / 2)  # Centered in the interval
+        if self.parameter("daylight_saving").value:
+            date_dls_start = dt.datetime.strptime(
+                self.parameter("daylight_saving_start_time").value, "%d/%m/%Y %H:%M:%S"
+            )
+            date_dls_end = dt.datetime.strptime(
+                self.parameter("daylight_saving_end_time").value, "%d/%m/%Y %H:%M:%S"
+            )
 
         # Update props
         if self.parameter("simulation_file_met").value != "not_defined":
@@ -373,37 +436,56 @@ class Project(Parameter_container):
                     self._sim_.props["ATM_PRESSURE"] = atm_p
                     self._sim_.props["ALTITUDE"] = altitude
                     self._sim_.props["W_50"] = w_50
-                    self._sim_.props["RHO_A"] = sicro.GetMoistAirDensity(22.5, w_50, atm_p)
+                    self._sim_.props["RHO_A"] = sicro.GetMoistAirDensity(
+                        22.5, w_50, atm_p
+                    )
             except Exception as e:
-                msg = self._get_error_header_() + f"Error reading file: {self.parameter('simulation_file_met').value} -> {e}"
-                self._sim_.message(Message(msg,"ERROR"))
+                msg = (
+                    self._get_error_header_()
+                    + f"Error reading file: {self.parameter('simulation_file_met').value} -> {e}"
+                )
+                self._sim_.message(Message(msg, "ERROR"))
 
         self._set_ordered_component_list_()
+        
+        if self.parameter("shadow_calculation").value != "NO":
+            self._load_buildings_3D()
+            self._sim_.message(Message("Calculating solar direct shadows ...", "CONSOLE"))
+            self.env_3D.calculate_shadow_interpolation_table()
+            self._sim_.message(Message("Calculating solar diffuse shadows ...", "CONSOLE"))
+            self.env_3D.calculate_diffuse_shadow()
         self._pre_simulation_(n, delta_t)
-        self._sim_df = pd.DataFrame({"dates":self.dates()})
+        self._sim_df = pd.DataFrame({"dates": self.dates()})
         self._sim_df["n_iterations"] = 0
         self._sim_df["last_component"] = "None"
         self._sim_df["converged"] = True
 
-        self._sim_.message(Message(f"Simulating {self.parameter('name').value}: ...", "CONSOLE"))
+        self._sim_.message(
+            Message(f"Simulating {self.parameter('name').value}: ...", "CONSOLE")
+        )
 
         show_percent = show_percentage
         n_iter_acum = 0
         for i in range(n):
-            if ((100.0*(i+1) / n) >= show_percent):
-                self._sim_.message(Message(f"{int(show_percent)}%: N_iter: {(n_iter_acum/(n*show_percentage/100)):.2f}", "CONSOLE"))
+            if (100.0 * (i + 1) / n) >= show_percent:
+                self._sim_.message(
+                    Message(
+                        f"{int(show_percent)}%: N_iter: {(n_iter_acum/(n*show_percentage/100)):.2f}",
+                        "CONSOLE",
+                    )
+                )
                 show_percent = show_percent + show_percentage
                 n_iter_acum = 0
             daylight_saving = False
-            if (self.parameter("daylight_saving").value):
-                if (date > date_dls_start and date < date_dls_end):
+            if self.parameter("daylight_saving").value:
+                if date > date_dls_start and date < date_dls_end:
                     daylight_saving = True
 
             self._pre_iteration_(i, date, daylight_saving)
             converge = False
             n_iter = 0
-            while (not converge and n_iter < self.parameter("n_max_iteration").value):
-                if self._iteration_(i, date, daylight_saving,n_iter):
+            while not converge and n_iter < self.parameter("n_max_iteration").value:
+                if self._iteration_(i, date, daylight_saving, n_iter):
                     converge = True
                 n_iter += 1
             self._sim_df.at[i, "n_iterations"] = n_iter
@@ -413,9 +495,13 @@ class Project(Parameter_container):
             date = date + dt.timedelta(0, delta_t)
 
         self._sim_.message(Message("Simulation completed.", "CONSOLE"))
-        n_not_converged = len(self._sim_df["converged"]) - self._sim_df["converged"].sum()
+        n_not_converged = (
+            len(self._sim_df["converged"]) - self._sim_df["converged"].sum()
+        )
         if n_not_converged > 0:
-            self._sim_.message(Message(f"{n_not_converged} time steps did not converge.", "WARNING"))
+            self._sim_.message(
+                Message(f"{n_not_converged} time steps did not converge.", "WARNING")
+            )
         self._post_simulation_()
 
     def _pre_simulation_(self, n_time_steps, delta_t):
@@ -434,7 +520,9 @@ class Project(Parameter_container):
         converge = True
         for comp in self._ordered_component_list_:
             if not comp.iteration(time_index, date, dayligth_saving, n_iter):
-                self._sim_df.at[time_index, "last_component"] = comp.parameter("name").value
+                self._sim_df.at[time_index, "last_component"] = comp.parameter(
+                    "name"
+                ).value
                 converge = False
         return converge
 
@@ -448,7 +536,7 @@ class Project(Parameter_container):
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
         )
         delta_t = self.parameter("time_step").value
-        date = date + + dt.timedelta(0, delta_t/2)  # Centered in the interval
+        date = date + +dt.timedelta(0, delta_t / 2)  # Centered in the interval
         array = np.empty(n, dtype=object)
 
         for i in range(n):
@@ -464,7 +552,7 @@ class Project(Parameter_container):
         html += "<br/><strong>Components list:</strong>"
         html += self.component_dataframe().to_html()
         return html
-    
+
     def simulation_dataframe(self):
         return self._sim_df
 
@@ -478,59 +566,84 @@ class Project(Parameter_container):
             disabled_new = True
 
         column_definition = [
-            {"field": "name", "checkboxSelection": True, "headerCheckboxSelection": True}]
+            {
+                "field": "name",
+                "checkboxSelection": True,
+                "headerCheckboxSelection": True,
+            }
+        ]
         for i in df.columns:
             if i != "name":
                 column_definition.append({"field": i})
 
-        editor.layout = html.Div([
-            dbc.Label("Components editor:"),
-            html.Br(),
-            dbc.Button('New component', id='btn-new-comp',
-                       disabled=disabled_new, n_clicks=0),
-            dbc.Button('Delete selected components',
-                       id='btn-del-comp', n_clicks=0, style={"margin-left": "15px"}),
-            html.Br(),
-            html.Br(),
-            dag.AgGrid(
-                id="comp-table",
-                rowData=df.to_dict("records"),
-                columnDefs=column_definition,
-                columnSize="sizeToFit",
-                defaultColDef={"filter": True, "editable": True},
-                style={"height": '500px'},
-                dashGridOptions={
-                    "rowSelection": "multiple",
-                    "suppressRowClickSelection": True,
-                    "pagination": True,
-                })
-        ])
+        editor.layout = html.Div(
+            [
+                dbc.Label("Components editor:"),
+                html.Br(),
+                dbc.Button(
+                    "New component",
+                    id="btn-new-comp",
+                    disabled=disabled_new,
+                    n_clicks=0,
+                ),
+                dbc.Button(
+                    "Delete selected components",
+                    id="btn-del-comp",
+                    n_clicks=0,
+                    style={"margin-left": "15px"},
+                ),
+                html.Br(),
+                html.Br(),
+                dag.AgGrid(
+                    id="comp-table",
+                    rowData=df.to_dict("records"),
+                    columnDefs=column_definition,
+                    columnSize="sizeToFit",
+                    defaultColDef={"filter": True, "editable": True},
+                    style={"height": "500px"},
+                    dashGridOptions={
+                        "rowSelection": "multiple",
+                        "suppressRowClickSelection": True,
+                        "pagination": True,
+                    },
+                ),
+            ]
+        )
 
         @callback(
-            Output('comp-table', 'rowData'),
-            Input('comp-table', 'cellValueChanged'),
-            Input('btn-new-comp', 'n_clicks'),
-            Input('btn-del-comp', 'n_clicks'),
-            State('comp-table', 'selectedRows'),
-            prevent_initial_call=True)
+            Output("comp-table", "rowData"),
+            Input("comp-table", "cellValueChanged"),
+            Input("btn-new-comp", "n_clicks"),
+            Input("btn-del-comp", "n_clicks"),
+            State("comp-table", "selectedRows"),
+            prevent_initial_call=True,
+        )
         def update_data(changed, n_clicks_new, n_clicks_del, selectedRows):
-            if (self._n_clicks_new_comp_ < n_clicks_new):
-                self.new_component(comp_type, "new_comp_"+str(n_clicks_new))
+            if self._n_clicks_new_comp_ < n_clicks_new:
+                self.new_component(comp_type, "new_comp_" + str(n_clicks_new))
                 self._n_clicks_new_comp_ = n_clicks_new
-            elif (self._n_clicks_del_comp_ < n_clicks_del):
+            elif self._n_clicks_del_comp_ < n_clicks_del:
                 for row in selectedRows:
                     self.del_component(self.component(row["name"]))
                 self._n_clicks_del_comp_ = n_clicks_del
             else:
                 if changed != None:
                     if changed[0]["colId"] == "name":
-                        self.component(changed[0]['oldValue']).parameter(
-                            "name").value = changed[0]["value"]
+                        self.component(changed[0]["oldValue"]).parameter(
+                            "name"
+                        ).value = changed[0]["value"]
                     else:
-                        self.component(changed[0]['data']["name"]).parameter(
-                            changed[0]["colId"]).value = changed[0]["value"]
-            df_end = self.component_dataframe(
-                comp_type=comp_type, string_format=True)
+                        self.component(changed[0]["data"]["name"]).parameter(
+                            changed[0]["colId"]
+                        ).value = changed[0]["value"]
+            df_end = self.component_dataframe(comp_type=comp_type, string_format=True)
             return df_end.to_dict("records")
 
         editor.run(jupyter_height=600)
+
+    def _load_buildings_3D(self):
+        building_list = self.component_list("Building")
+        for building in building_list:
+            building._create_building_3D(self.env_3D)
+
+            

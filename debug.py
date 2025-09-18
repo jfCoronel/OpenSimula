@@ -367,5 +367,4 @@ case_AE303 = {
 sim = osm.Simulation()
 pro = sim.new_project("pro")
 pro.read_dict(case_AE303)
-#pro.component("Building").show3D()
 pro.simulate()

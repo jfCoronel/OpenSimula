@@ -106,13 +106,6 @@ class Surface(Component):
         else:
             return self.parameter("ref_point").value
 
-    def get_angle_with_normal(self, sol_azimuth, sol_altitude):
-        azi_r = math.radians(sol_azimuth)
-        alt_r = math.radians(sol_altitude)
-        sol_vector = np.array([math.cos(alt_r)*math.cos(azi_r-math.pi/2),
-                              math.cos(alt_r)*math.sin(azi_r-math.pi/2), math.sin(alt_r)])
-        return np.arccos(np.clip(np.dot(self.normal_vector, sol_vector), -1.0, 1.0))
-
     def get_polygon_2D(self):  # Get polygon_2D
         if (self.parameter("shape").value == "RECTANGLE"):
             w = self.parameter("width").value

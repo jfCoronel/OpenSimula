@@ -8,7 +8,8 @@ import numpy as np
 import math
 from scipy.interpolate import RegularGridInterpolator
 import matplotlib.pyplot as plt
-from OpenSimula.components.utils.sun_shadows import Building_3D, Polygon_3D
+from OpenSimula.visual_3D.Polygon_3D import Polygon_3D
+#from OpenSimula.components.utils.sun_shadows import Building_3D, Polygon_3D
 
 
 class Building(Component):
@@ -19,17 +20,17 @@ class Building(Component):
         # Parameters
         # X-axe vs East angle (0: X->East, 90: x->North)
         self.add_parameter(Parameter_float("azimuth", 0, "°", min=-180, max=180))
-        self.add_parameter(Parameter_float("albedo", 0.3, "frac", min=0, max=1))
+        ## self.add_parameter(Parameter_float("albedo", 0.3, "frac", min=0, max=1))
         self.add_parameter(Parameter_float("initial_temperature", 20, "°C"))
         self.add_parameter(Parameter_float("initial_humidity", 7.3, "g/kg"))
-        self.add_parameter(
-            Parameter_options(
-                "shadow_calculation", "INSTANT", ["NO", "INSTANT", "INTERPOLATION"]
-            )
-        )
+        # self.add_parameter(
+        #     Parameter_options(
+        #         "shadow_calculation", "INSTANT", ["NO", "INSTANT", "INTERPOLATION"]
+        #     )
+        # )
 
         # Building_3D
-        self.building_3D = None
+        # self.building_3D = None
 
     def check(self):
         errors = super().check()
@@ -71,7 +72,7 @@ class Building(Component):
         self._create_LW_matrices() # LWIG_matrix, LWSUR_matrix
         self._create_K_matrices() # KS_matrix, KS_inv_matrix, KSZ_matrix, KZS_matrix, KZ_matrix
         if self.parameter("shadow_calculation").value != "NO":
-            self._create_building_3D()
+            #self._create_building_3D()
             self._sim_.message(Message("Calculating solar direct shadows ...", "CONSOLE"))
             self._create_shadow_interpolation_table()
             self._sim_.message(Message("Calculating solar diffuse shadows ...", "CONSOLE"))
@@ -248,23 +249,31 @@ class Building(Component):
                 self.KZ_matrix[i][i] += self.KSZ_matrix[j][i]
        
 
-    def _create_building_3D(self, coordinate_system="global"):
-        self.building_3D = Building_3D()
+    def _create_building_3D(self, env_3D, coordinate_system="global"):
         for surface in [*self.surfaces, *self.shadow_surfaces]:
             azimuth = surface.orientation_angle("azimuth", 0, coordinate_system)
             altitude = surface.orientation_angle("altitude", 0, coordinate_system)
             origin = surface.get_origin(coordinate_system)
             pol_2D = surface.get_polygon_2D()
             s_type = surface.parameter("type").value
+            name = surface.parameter("name").value
 
             if s_type == "Exterior_surface":
                 holes_2D = []
                 for opening in surface.openings:
                     holes_2D.append(opening.get_polygon_2D())
-                polygon = Polygon_3D(origin, azimuth, altitude, pol_2D, holes_2D)
-            else:
-                polygon = Polygon_3D(origin, azimuth, altitude, pol_2D)
-            self.building_3D.add_polygon(polygon, s_type, surface)
+                polygon = Polygon_3D(name,origin, azimuth, altitude, pol_2D, holes_2D,color="white")
+            elif s_type == "Underground_surface":
+                polygon = Polygon_3D(name,origin, azimuth, altitude, pol_2D,color="brown",shading=False,calculate_shadows=False)
+            elif s_type == "Interior_surface":
+                polygon = Polygon_3D(name,origin, azimuth, altitude, pol_2D,color="green",shading=False,calculate_shadows=False)
+            elif s_type == "Virtual_surface":
+                polygon = Polygon_3D(name,origin, azimuth, altitude, pol_2D,color="red",opacity=0.4,shading=False,calculate_shadows=False)
+            elif s_type == "Opening":
+                polygon = Polygon_3D(name,origin, azimuth, altitude, pol_2D,color="blue",opacity=0.6)
+            elif s_type == "Shadow_surface":
+                polygon = Polygon_3D(name,origin, azimuth, altitude, pol_2D,color="cyan",calculate_shadows=False)            
+            env_3D.add_polygon(polygon)
 
     def _create_shadow_interpolation_table(self):
         self.shadow_azimuth_grid = np.linspace(0, 350, 36)
@@ -302,28 +311,28 @@ class Building(Component):
                 )
             )
 
-    def _create_diffuse_shadow(self):
-        def integral(i):
-            sunny_value = 0
-            shadow_value = 0
-            n = 0
-            for j in range(len(self.shadow_azimuth_grid)):
-                for k in range(len(self.shadow_altitude_grid)):
-                    theta = self.building_3D.sunny_surface[i].get_angle_with_normal(
-                        self.shadow_azimuth_grid[j], self.shadow_altitude_grid[k]
-                    )
-                    if theta < math.pi / 2:
-                        f = 0.5 * math.sin(2 * theta)
-                        sunny_value = sunny_value + f
-                        shadow_value = (
-                            shadow_value + f * self.sunny_fraction_tables[i][j][k]
-                        )
-                        n = n + 1
-            return shadow_value / sunny_value
+    # def _create_diffuse_shadow(self):
+    #     def integral(i):
+    #         sunny_value = 0
+    #         shadow_value = 0
+    #         n = 0
+    #         for j in range(len(self.shadow_azimuth_grid)):
+    #             for k in range(len(self.shadow_altitude_grid)):
+    #                 theta = self.building_3D.sunny_surface[i].get_angle_with_normal(
+    #                     self.shadow_azimuth_grid[j], self.shadow_altitude_grid[k]
+    #                 )
+    #                 if theta < math.pi / 2:
+    #                     f = 0.5 * math.sin(2 * theta)
+    #                     sunny_value = sunny_value + f
+    #                     shadow_value = (
+    #                         shadow_value + f * self.sunny_fraction_tables[i][j][k]
+    #                     )
+    #                     n = n + 1
+    #         return shadow_value / sunny_value
 
-        self.shadow_diffuse_fraction = []
-        for i in range(0, len(self.building_3D.sunny_surface)):
-            self.shadow_diffuse_fraction.append(integral(i))
+    #     self.shadow_diffuse_fraction = []
+    #     for i in range(0, len(self.building_3D.sunny_surface)):
+    #         self.shadow_diffuse_fraction.append(integral(i))
 
     # pre_iteration
     # _______________
@@ -652,19 +661,19 @@ class Building(Component):
         else:
             self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
 
-    def get_direct_sunny_fraction(self, surface):
-        if self.parameter("shadow_calculation").value == "NO":
-            return 1
-        else:
-            i = self.building_3D.sunny_surface.index(surface)
-            return self.sunny_fractions[i]
+    # def get_direct_sunny_fraction(self, surface):
+    #     if self.parameter("shadow_calculation").value == "NO":
+    #         return 1
+    #     else:
+    #         i = self.building_3D.sunny_surface.index(surface)
+    #         return self.sunny_fractions[i]
 
-    def get_diffuse_sunny_fraction(self, surface):
-        if self.parameter("shadow_calculation").value == "NO":
-            return 1
-        else:
-            i = self.building_3D.sunny_surface.index(surface)
-            return self.shadow_diffuse_fraction[i]
+    # def get_diffuse_sunny_fraction(self, surface):
+    #     if self.parameter("shadow_calculation").value == "NO":
+    #         return 1
+    #     else:
+    #         i = self.building_3D.sunny_surface.index(surface)
+    #         return self.shadow_diffuse_fraction[i]
 
     def show_sunny_fraction(self, i):
         fig, ax = plt.subplots()
