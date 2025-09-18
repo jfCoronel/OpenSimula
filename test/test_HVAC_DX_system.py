@@ -7,6 +7,7 @@ case610_dict = {
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "Denver",
     "components": [
         {
             "type": "File_met",
@@ -150,7 +151,6 @@ case610_dict = {
         {
             "type": "Building",
             "name": "Building",
-            "file_met": "Denver",
             "albedo": 0.2,
             "azimuth": 0,
             "shadow_calculation": "INSTANT"
@@ -346,54 +346,65 @@ case610_dict = {
             "type": "HVAC_DX_system",
             "name": "system",
             "space": "space_1",
-            "file_met": "Denver",
             "equipment": "HVAC_equipment",
-            "supply_air_flow": 0.417,
-            "outdoor_air_flow": 0,
+            "air_flow": 0.417,
+            "outdoor_air_fraction": 0,
             "heating_setpoint": "20",
             "cooling_setpoint": "27",
             "system_on_off": "1",
-            "control_type": "PERFECT",
         }
     ]
 }
 
 
-def test_HVAC_DX_system_perfect_control():
+def test_HVAC_DX_system_without_vent():
     sim = osm.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case610_dict)
     pro.simulate()
 
     load = pro.component("system").variable("Q_sensible").values
-    annual_heating = np.where(load>0,load,0).sum()/1e6
-    annual_cooling = np.where(load<0,-load,0).sum()/1e6
-    peak_heating = load.max()/1000
-    peak_cooling = -load.min()/1000
+    state = pro.component("system").variable("state").values
+    heating = np.where(state>0,load,0)
+    annual_heating = heating.sum()/1e6
+    cooling = np.where(state<0,load,0)
+    annual_cooling = cooling.sum()/1e6
+    peak_heating = heating.max()/1000
+    peak_cooling = cooling.max()/1000
     power = pro.component("system").variable("power").values.sum()/1e6
+    annual_latent = pro.component("system").variable("Q_latent").values.sum()/1e6
 
-    assert annual_heating == pytest.approx(3.655853476364096)
-    assert annual_cooling == pytest.approx(5.000289768492602)
-    assert peak_heating == pytest.approx(2.759217209791339)
-    assert peak_cooling == pytest.approx(5.7011764129806615)
-    assert power == pytest.approx(14.617316165668345)
+    assert annual_heating == pytest.approx(3.64855416)
+    assert annual_cooling == pytest.approx(5.003493)
+    assert peak_heating == pytest.approx(2.75092863)
+    assert peak_cooling == pytest.approx(5.7020798)
+    assert power == pytest.approx(14.61111)
+    assert annual_latent == pytest.approx(0.05586481)
+    
 
-def test_HVAC_DX_system_temperature_control():
+def test_HVAC_DX_system_with_vent():
     sim = osm.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case610_dict)
-    pro.component("system").parameter("control_type").value = "TEMPERATURE"
+    pro.component("system").parameter("outdoor_air_fraction").value = 0.1
     pro.simulate()
 
     load = pro.component("system").variable("Q_sensible").values
-    annual_heating = np.where(load>0,load,0).sum()/1e6
-    annual_cooling = np.where(load<0,-load,0).sum()/1e6
-    peak_heating = load.max()/1000
-    peak_cooling = -load.min()/1000
+    state = pro.component("system").variable("state").values
+    heating = np.where(state>0,load,0)
+    annual_heating = heating.sum()/1e6
+    cooling = np.where(state<0,load,0)
+    annual_cooling = cooling.sum()/1e6
+    peak_heating = heating.max()/1000
+    peak_cooling = cooling.max()/1000
     power = pro.component("system").variable("power").values.sum()/1e6
+    annual_latent = pro.component("system").variable("Q_latent").values.sum()/1e6
+    print(annual_heating,annual_cooling,peak_heating,peak_cooling,power,annual_latent)
 
-    assert annual_heating == pytest.approx(3.7697541890295887)
-    assert annual_cooling == pytest.approx(5.136863358434801)
-    assert peak_heating == pytest.approx(2.749886298191046)
-    assert peak_cooling == pytest.approx(5.665426376809872)
-    assert power == pytest.approx(14.99793571450998)
+    assert annual_heating == pytest.approx(6.566097)
+    assert annual_cooling == pytest.approx(4.089069)
+    assert peak_heating == pytest.approx(4.011399)
+    assert peak_cooling == pytest.approx(5.382866)
+    assert power == pytest.approx(16.74587)
+    assert annual_latent == pytest.approx(0.07842919622)
+

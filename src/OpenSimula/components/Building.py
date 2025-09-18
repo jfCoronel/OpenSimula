@@ -1,16 +1,13 @@
 from OpenSimula.Component import Component
 from OpenSimula.Parameters import (
-    Parameter_component,
     Parameter_float,
     Parameter_options,
 )
+from OpenSimula.Message import Message
 import numpy as np
 import math
-import psychrolib as sicro
 from scipy.interpolate import RegularGridInterpolator
-from scipy.integrate import dblquad
 import matplotlib.pyplot as plt
-import pyvista as pv
 from OpenSimula.components.utils.sun_shadows import Building_3D, Polygon_3D
 
 
@@ -20,7 +17,6 @@ class Building(Component):
         self.parameter("type").value = "Building"
         self.parameter("description").value = "Building description"
         # Parameters
-        self.add_parameter(Parameter_component("file_met", "not_defined", ["File_met"]))
         # X-axe vs East angle (0: X->East, 90: x->North)
         self.add_parameter(Parameter_float("azimuth", 0, "°", min=-180, max=180))
         self.add_parameter(Parameter_float("albedo", 0.3, "frac", min=0, max=1))
@@ -32,22 +28,15 @@ class Building(Component):
             )
         )
 
-        # Constant values
-        self.C_P = 1006  # J/kg·K
-        self.C_P_FURNITURE = 1000  # J/kg·K
-        self.LAMBDA = 2501  # J/g Latent heat of water at 0ºC
-
-        # Variables
-
         # Building_3D
         self.building_3D = None
 
     def check(self):
         errors = super().check()
-        if self.parameter("file_met").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, file_met must be defined."
-            )
+        file_met = self.project().parameter("simulation_file_met").value
+        if file_met == "not_defined":
+            msg = Message(f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'.", "ERROR")
+            errors.append(msg)
         self._create_lists()
         return errors
 
@@ -73,10 +62,8 @@ class Building(Component):
     # _______________
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self._file_met = self.parameter("file_met").component
-        sicro.SetUnitSystem(sicro.SI)
-        self.ATM_PRESSURE = sicro.GetStandardAtmPressure(self._file_met.altitude)
-        self.RHO = sicro.GetDryAirDensity(22.5, self.ATM_PRESSURE)
+        self._file_met = self.project().parameter("simulation_file_met").component
+        self.props = self._sim_.props
         self._create_lists()
         self._create_ff_matrix() # View Factors ff_matrix
         self._create_B_matrix() # Conectivity B_matrix
@@ -85,9 +72,9 @@ class Building(Component):
         self._create_K_matrices() # KS_matrix, KS_inv_matrix, KSZ_matrix, KZS_matrix, KZ_matrix
         if self.parameter("shadow_calculation").value != "NO":
             self._create_building_3D()
-            self._sim_.print("Calculating solar direct shadows ...")
+            self._sim_.message(Message("Calculating solar direct shadows ...", "CONSOLE"))
             self._create_shadow_interpolation_table()
-            self._sim_.print("Calculating solar diffuse shadows ...")
+            self._sim_.message(Message("Calculating solar diffuse shadows ...", "CONSOLE"))
             self._create_diffuse_shadow()
 
     def _create_ff_matrix(self):
@@ -253,9 +240,9 @@ class Building(Component):
         # KZ_matrix without air movement or systems
         for i in range(self._n_spaces):
             self.KZ_matrix[i][i] = (
-                self.spaces[i].parameter("volume").value * self.RHO * self.C_P
+                self.spaces[i].parameter("volume").value * self.props["RHO_A"] * self.props["C_PA"]
                 + self.spaces[i].parameter("furniture_weight").value
-                * self.C_P_FURNITURE
+                * self.props["C_P_FURNITURE"]
             ) / self.project().parameter("time_step").value
             for j in range(self._n_surfaces):
                 self.KZ_matrix[i][i] += self.KSZ_matrix[j][i]
@@ -421,17 +408,17 @@ class Building(Component):
             )
             self.FZ_vector[i] += (
                 (
-                    self.spaces[i].parameter("volume").value * self.RHO * self.C_P
+                    self.spaces[i].parameter("volume").value * self.props["RHO_A"] * self.props["C_PA"]
                     + self.spaces[i].parameter("furniture_weight").value
-                    * self.C_P_FURNITURE
+                    * self.props["C_P_FURNITURE"]
                 )
                 * T_pre
                 / self.project().parameter("time_step").value
             )
             self.FZ_vector[i] += (
                 self.spaces[i].variable("infiltration_flow").values[time_i]
-                * self.RHO
-                * self.C_P
+                * self.props["RHO_A"]
+                * self.props["C_PA"]
                 * self._file_met.variable("temperature").values[time_i]
             )
 
@@ -442,8 +429,8 @@ class Building(Component):
         for i in range(self._n_spaces):
             self.KZFIN_matrix[i][i] += (
                 self.spaces[i].variable("infiltration_flow").values[time_i]
-                * self.RHO
-                * self.C_P
+                * self.props["RHO_A"]
+                * self.props["C_PA"]
             )
     
     def _calculate_Q_dir(self, time_i):
@@ -631,7 +618,7 @@ class Building(Component):
                 else:
                     self.surfaces[i].variable("T_s1").values[time_i] = self.TS_vector[i]
 
-    def show3D(self, hide=[], opacity=1, coordinate_system="global", space="all"):
+    def show3D(self, hide=[], opacity=1, coordinate_system="global", space="all",window=False):
         self._create_building_3D(coordinate_system)
         if space != "all":
             if not isinstance(opacity, list):
@@ -654,18 +641,16 @@ class Building(Component):
                 if not is_my_space:
                     opacity[i] = opacity[i] * 0.25
                 i = i + 1
-        self.building_3D.show(hide, opacity)
+        self.building_3D.show(hide, opacity,window)
 
     def show3D_shadows(self, date):
         self._create_building_3D()
-        self._file_met = self.parameter("file_met").component
+        self._file_met = self.project().parameter("simulation_file_met").component
         cos = self._file_met.sun_cosines(date)
         if len(cos) == 3:
             self.building_3D.show_shadows(cos)
         else:
-            self._sim_.print(
-                "Warning: " + date.strftime("%H:%M,  %d/%m/%Y") + " is night"
-            )
+            self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
 
     def get_direct_sunny_fraction(self, surface):
         if self.parameter("shadow_calculation").value == "NO":

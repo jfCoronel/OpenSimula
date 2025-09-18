@@ -47,6 +47,7 @@ Projects contain a set of components defining a case that can be temporarily sim
 - **time_step** [_int_, unit = "s", default = 3600, min = 1]: Time step in seconds used for simulation. 
 - **n_time_steps** [_int_, default = 8760, min = 1]: Number of time steps to simulate. 
 - **initial_time** [_string_, default = "01/01/2001 00:00:00"]: Initial simulation time with format "DD/MM/YYYY hh:mm:ss".
+- **simulation_file_met** [_component_, default = "not_defined", component type = File_met]: Reference to the component where the weather file is defined. It will be used for the simulation of buildings and other weather-dependent components.
 - **daylight_saving** [_boolean_, default = False]: Taking into account daylight saving time in the simulation. If its value is False, the whole simulation is performed in winter time without daylight saving. If True, the daylight saving time change will be taken into account, mainly in the components that define schedules.
 - **daylight_saving_start_time** [_string_, default = "25/03/2001 02:00:00"]: daylight saving start time, with format "DD/MM/YYYY hh:mm:ss". It will only be used if the daylight_saving parameter is set to True.
 - **daylight_saving_end_time** [_string_, default = "28/10/2001 02:00:00"]: daylight saving start time, time with format "DD/MM/YYYY hh:mm:ss". It will only be used if the daylight_saving parameter is set to True.

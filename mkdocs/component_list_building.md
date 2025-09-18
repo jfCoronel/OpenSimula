@@ -4,7 +4,6 @@
 Base component for the definition of a building. The building is made up of a set of spaces (Space component).
 
 #### Parameters
-- **file_met** [_component_, default = "not_defined", component type = File_met]: Reference to the component where the weather file is defined.
 - **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the east (Global x-axis). The coordinates of all building elements refer to the building coordinate system. 
 - **albedo** [_float_, unit = "frac", default = 0.3, min = 0, max = 1]: Solar reflectivity of the ground surrounding the building. Used to calculate the solar radiation reflected to the exterior surfaces of the building.
 - **initial_temperature** [_float_, unit = "°C", default = 20]: Initial temperature of all building components at the beginning of the simulation.
@@ -22,7 +21,6 @@ The following figure shows the building's coordinate system:
 
 building = osm.components.Building("building",project)
 param = {
-    "file_met": "met"
     "azimuth": 90,
     "albedo": 0.4
 }

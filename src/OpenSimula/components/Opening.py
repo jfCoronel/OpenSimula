@@ -1,5 +1,6 @@
 import math
 from OpenSimula.Component import Component
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_float_list
 from OpenSimula.Variable import Variable
 
@@ -53,13 +54,12 @@ class Opening(Component):
         errors = super().check()
         # Test surface
         if self.parameter("surface").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, its surface must be defined.")
+            msg =f"{self.parameter('name').value}, its surface must be defined."
+            errors.append(Message(msg, "ERROR"))
         # Test opening_type defined
         if self.parameter("opening_type").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, opening must define its Opening_type."
-            )
+            msg =f"{self.parameter('name').value}, opening must define its Opening_type."
+            errors.append(Message(msg, "ERROR"))
         return errors
 
     def building(self):
@@ -70,7 +70,7 @@ class Opening(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        self._file_met = self.building().parameter("file_met").component
+        self._file_met = self.project().parameter("simulation_file_met").component
         self._calculate_K()
         self.f_dif_setback = self._f_diffuse_setback()
 

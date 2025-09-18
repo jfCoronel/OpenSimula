@@ -7,6 +7,7 @@ case610_dict = {
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "Denver",
     "components": [
         {
             "type": "File_met",
@@ -150,7 +151,6 @@ case610_dict = {
         {
             "type": "Building",
             "name": "Building",
-            "file_met": "Denver",
             "albedo": 0.2,
             "azimuth": 0,
             "shadow_calculation": "INSTANT"
@@ -328,7 +328,6 @@ case610_dict = {
             "type": "HVAC_perfect_system",
             "name": "system",
             "space": "space_1",
-            "file_met": "Denver",
             "outdoor_air_flow": 0,
             "heating_setpoint": "20",
             "cooling_setpoint": "27",
@@ -351,7 +350,7 @@ def test_HVAC_perfect_system():
     peak_heating = load.max()/1000
     peak_cooling = -load.min()/1000
 
-    assert annual_heating == pytest.approx(4.62642907)
-    assert annual_cooling == pytest.approx(4.17776605)
-    assert peak_heating == pytest.approx(3.2609176)
-    assert peak_cooling == pytest.approx(5.45481357)
+    assert annual_heating == pytest.approx(4.6185260)
+    assert annual_cooling == pytest.approx(4.180555)
+    assert peak_heating == pytest.approx(3.256564)
+    assert peak_cooling == pytest.approx(5.4557052)

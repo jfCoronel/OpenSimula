@@ -155,7 +155,7 @@
 system = osm.components.HVAC_perfect_system("system",project)
 param = {
         "space": "space_1",
-        "file_met": "Denver",
+         
         "outdoor_air_flow": "0.1",
         "heating_setpoint": "20",
         "cooling_setpoint": "27",
@@ -200,7 +200,7 @@ system.set_parameters(param)
 <li><strong>heating_capacity_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the heating capacity of the equipment in conditions different from the nominal ones. </li>
 <li><strong>heating_power_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the electric power consumption at heating full load operation of the equipment in conditions different from the nominal ones.</li>
 <li><strong>COP_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the COP, defined as heating load supplied by de equipment divided by de electric power consumption, of the equipment in conditions different from the nominal ones. This expression should reflect the partial load behavior of the equipment.</li>
-<li><strong>indoor_fan_operation</strong> [<em>option</em>, default = "CONTINUOUS", options = ["CONTINUOUS","CICLING"]]: If the value is “CONTINUOUS” the fan will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify “CYCLING” the fan will run a fraction of time equal to the partial load at which the equipment operates, therefore, when there is no load there will be no consumption of the fan.</li>
+<li><strong>indoor_fan_operation</strong> [<em>option</em>, default = "CONTINUOUS", options = ["CONTINUOUS","CYCLING"]]: If the value is “CONTINUOUS” the fan will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify “CYCLING” the fan will run a fraction of time equal to the partial load at which the equipment operates, therefore, when there is no load there will be no consumption of the fan.</li>
 <li><strong>dry_coil_model</strong> [<em>option</em>, default = "SENSIBLE", options = ["SENSIBLE","TOTAL","INTERPOLATION"]]: When calculating the total and sensible capacity of the equipment under non-nominal conditions, it is possible that the total capacity is lower than the sensible capacity. In such a case it will be assumed that the coil does not dehumidify and that the total capacity is equal to the sensible capacity. We will use for both values the value of the sensible if the chosen option is “SENSIBLE” and the total if the chosen option is “TOTAL”.</li>
 <li><strong>power_dry_coil_correction</strong> [<em>boolean</em>, default = True]: When the total and sensible power are equal, dry coil, the power expression may be incorrect. If this parameter is activated the simulation will look for the wet bulb temperature that makes the total and sensible capacities equal and use that temperature in the expression that corrects the cooling power.</li>
 <li><strong>expression_max_values</strong> [<em>float-list</em>, unit = "-", default = [60,30,60,30,1.5,1]]: Maximum values allowed in the mathematical expressions. The order is [ <em>T_idb</em> [ºC] , <em>T_iwb</em> [ºC] ,<em>T_odb</em> [ºC], <em>T_owb</em> [ºC], <em>F_air</em> [frac], <em>F_load</em> [frac] ]. If any variable exceeds these values, the maximum value is taken.</li>
@@ -288,7 +288,7 @@ equipment.set_parameters(param)
 system = osm.components.HVAC_DX_system("system",project)
 param = {
         "space": "space_1",
-        "file_met": "Denver",
+         
         "equipment": "HVAC_equipment",
         "supply_air_flow": 0.417,
         "outdoor_air_flow": 0,

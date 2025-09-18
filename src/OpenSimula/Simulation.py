@@ -1,4 +1,5 @@
 from OpenSimula.Project import Project
+from OpenSimula.Message import Message
 import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -14,7 +15,6 @@ class Simulation:
         self._projects_ = []
         self.console_print = True
         self._messages_ = []
-        self._new_line_ = True
 
     def new_project(self, project_name):
         """Create new project in the Simulation
@@ -27,7 +27,7 @@ class Simulation:
             self._projects_.append(pro)
             return pro
         else:
-            self.print("Error: There is already a project named: "+project_name)
+            self.message("Error: There is already a project named: "+project_name)
             return None
 
     def del_project(self, project):
@@ -81,29 +81,18 @@ class Simulation:
         html += self.project_dataframe().to_html()
         return html
 
-    def print(self, message, add_new_line=True):
-        """Print message
+    def message(self, message):
+        """Add new message
 
-        Store de message in the message_list and print it console_print = True
+        Store de message in the message_list and print if console_print = True
 
         Args:
-            message (string): message to print
-            add_new_line (boolean, True): Add new line at the end, new message will be store in new message
-                if False next message will be added to the last message
+            message (Message): message to add
         """
+        self._messages_.append(message)
         if self.console_print:
-            if add_new_line:
-                print(message)
-            else:
-                print(message, end="")
-
-        if self._new_line_:
-            self._messages_.append(message)
-        else:
-            self._messages_[-1] = self._messages_[-1] + message
-
-        self._new_line_ = add_new_line
-
+            message.print()
+ 
     def message_list(self):
         """Return the list of messages"""
         return self._messages_

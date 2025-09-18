@@ -2,6 +2,7 @@ import pandas as pd
 import datetime as dt
 import numpy as np
 import math
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_string, Parameter_options, Parameter_int
 from OpenSimula.Component import Component
 from OpenSimula.Variable import Variable
@@ -26,11 +27,10 @@ class File_data(Component):
         errors = super().check()
         if self.parameter("file_step").value == "OWN":  # Check initial time
             try:
-                dt.datetime.strptime(self.parameter(
-                    "initial_time").value, "%d/%m/%Y %H:%M:%S")
+                dt.datetime.strptime(self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S")
             except ValueError:
-                error = f"Error in component: {self.parameter('name').value}, initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
-                errors.append(error)
+                msg = f"Error in component: {self.parameter('name').value}, initial_time: {self.parameter('initial_time').value} does not match format (dd/mm/yyyy HH:MM:SS)"
+                errors.append(Message(msg, "ERROR"))
 
         # Read the file
         try:
@@ -45,13 +45,11 @@ class File_data(Component):
 
         except Exception as ex:
             if type(ex).__name__ == "FileNotFoundError":
-                errors.append(
-                    f"Error in component: {self.parameter('name').value}, No such file: {self.parameter('file_name').value}"
-                )
+                msg = f"Error in component: {self.parameter('name').value}, No such file: {self.parameter('file_name').value}"
+                errors.append(Message(msg, "ERROR"))
             else:
-                errors.append(
-                    f"Error in component: {self.parameter('name').value}, error reading file: {self.parameter('file_name').value}"
-                )
+                msg = f"Error in component: {self.parameter('name').value}, error reading file: {self.parameter('file_name').value}"
+                errors.append(Message(msg, "ERROR"))                
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

@@ -29,24 +29,24 @@ class Building_3D():
             else:
                 self.shadow_list.append(polygon)
 
-    def show(self, hide=[], opacity=1):
-        draw = Draw_3D()
+    def show(self, hide=[], opacity=1, window=False):
+        pyvista = Pyvista_Screen(window=window)
         if not isinstance(opacity, list):
             opacity = [opacity] * len(self.polygons)
-        for polygon, pol_type, opa in zip(self.polygons, self.pol_types, opacity):
+        for polygon, pol_type, pol_surface, opa in zip(self.polygons, self.pol_types, self.polygon_surface, opacity):
             if pol_type == "Opening" and "Opening" not in hide:
-                draw.add_polygon(polygon, "blue", opa*0.6)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "blue", opa*0.6)
             elif pol_type == "Virtual_surface" and "Virtual_surface" not in hide:
-                draw.add_polygon(polygon, "red", opa*0.4)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "red", opa*0.4)
             elif pol_type == "Interior_surface" and "Interior_surface" not in hide:
-                draw.add_polygon(polygon, "green", opa)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "green", opa)
             elif pol_type == "Exterior_surface" and "Exterior_surface" not in hide:
-                draw.add_polygon(polygon, "white", opa)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "white", opa)
             elif pol_type == "Underground_surface" and "Underground_surface" not in hide:
-                draw.add_polygon(polygon, "brown", opa)
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "brown", opa)
             elif pol_type == "Shadow_surface" and "Shadow_surface" not in hide:
-                draw.add_polygon(polygon, "cyan", opa)
-        draw.show()
+                pyvista.add_polygon(polygon,pol_surface.parameter("name").value,pol_type, "cyan", opa)
+        pyvista.show()
 
     def show_shadows(self, sun_position):
         shadow_polygons = []
@@ -55,18 +55,18 @@ class Building_3D():
                 self.shadow_list, sun_position))
         shadow_polygons = sum(shadow_polygons, [])
 
-        draw = Draw_3D()
+        draw = Pyvista_Screen()
         for polygon, pol_type in zip(self.polygons, self.pol_types):
             if pol_type == "Opening":
-                draw.add_polygon(polygon, "blue", 0.6)
+                draw.add_polygon(polygon, color="blue", opacity=0.6)
             elif pol_type == "Exterior_surface":
-                draw.add_polygon(polygon, "white")
+                draw.add_polygon(polygon, color="white")
             elif pol_type == "Underground_surface":
-                draw.add_polygon(polygon, "brown")
+                draw.add_polygon(polygon, color="brown")
             elif pol_type == "Shadow_surface":
-                draw.add_polygon(polygon, "cyan")
+                draw.add_polygon(polygon, color="cyan")
         for polygon in shadow_polygons:
-            draw.add_polygon(polygon.get_advanced_polygon(), "gray")
+            draw.add_polygon(polygon.get_advanced_polygon(), color="gray")
         draw.show()
 
     def get_sunny_fractions(self, sun_position):
@@ -267,136 +267,54 @@ class Polygon_3D():
         return Polygon_3D(self.origin, self.azimuth, self.altitude, exterior_pol, holes)
 
 
-class Draw_3D():
-    def __init__(self, default="white"):
-        self.default_color = default
-        self.plot = pyvista.Plotter()
-        self.plot.add_axes_at_origin()
+class Pyvista_Screen():
+    def __init__(self, window=False, default_color="white"):
+        self.default_color = default_color
+        self.window = window
+        self.text_actor = None
+        if window:
+            pyvista.set_jupyter_backend("none")
+            self.plot = pyvista.Plotter(notebook=False)
+            self.plot.enable_mesh_picking(callback=self.click_callback,style="surface",color="red",show_message=False)
+            self.plot.add_axes_at_origin(labels_off=True)
+        else:
+            pyvista.set_jupyter_backend("trame")
+            self.plot = pyvista.Plotter(notebook=True)
+            self.plot.add_axes_at_origin()
+        #self.plot.show_grid()
 
-    def add_polygon(self, polygon, color=None, opacity=1):
+    def click_callback(self, mesh): 
+        if self.text_actor:
+            self.plot.remove_actor(self.text_actor) 
+        self.text_actor = self.plot.add_text(f"{mesh.field_data['surface'][0]} ({mesh.field_data['surface'][1]})")
+    
+    def add_polygon(self, polygon, surface_name="name", surface_type="type", color=None, opacity=1):
         if color == None:
             color = self.default_color
         if polygon != None:
-            self.plot.add_mesh(polygon.get_pyvista_mesh().triangulate(
-            ), show_edges=False, color=color, opacity=opacity)
-            self.plot.add_lines(polygon.get_pyvista_polygon_border(
-            ), color="black", width=5, connected=True)
+            mesh = polygon.get_pyvista_mesh().triangulate()
+            mesh.field_data["surface"] = [surface_name,surface_type]
+            self.plot.add_mesh(mesh, show_edges=False, color=color, opacity=opacity)
+            # Calcular centroide para la etiqueta
+            #self.nombres_poligonos["hola"] = mesh
+            #centroid = np.mean(np.array(mesh.points), axis=0)
+            #self.plot.add_point_labels([centroid], ["Hola"], font_size=24, text_color='black')
+            self.plot.add_lines(polygon.get_pyvista_polygon_border(), color="black", width=5, connected=True)
             if (polygon.has_holes()):
                 for i in range(len(polygon.holes2D)):
-                    self.plot.add_lines(polygon.get_pyvista_hole_border(
-                        i), color="black", width=5, connected=True)
+                    self.plot.add_lines(polygon.get_pyvista_hole_border(i), color="black", width=5, connected=True)
 
-    def add_polygons(self, polygons_list, color=None, opacity=1):
-        for polygon in polygons_list:
-            if color == None:
-                self.add_polygon(polygon, self.default_color, opacity=opacity)
-            else:
-                self.add_polygon(polygon, color, opacity=opacity)
+    # def add_polygons(self, polygons_list, color=None, opacity=1):
+    #     for polygon in polygons_list:
+    #         if color == None:
+    #             self.add_polygon(polygon, self.default_color, opacity=opacity)
+    #         else:
+    #             self.add_polygon(polygon, color, opacity=opacity)
 
     def show(self):
-        self.plot.show(jupyter_backend="client")
+        if self.window:
+            self.plot.show()
+        else:
+            self.plot.show(jupyter_backend="client")
+        
 
-
-# class Plane_3D():
-#     def __init__(self,polygon3D):
-#         self.normal_vector = polygon3D.normal_vector
-#         self.origin = polygon3D.origin
-#         self.equation_d = np.sum(self.normal_vector*self.origin)
-#         self.x_axis = (math.cos(polygon3D.azimuth_rad),
-#                        math.sin(polygon3D.azimuth_rad),
-#                        0)
-#         self.y_axis = np.cross(self.normal_vector,self.x_axis)
-#         self.interior_pol = [polygon3D]
-
-#     def add_polygon(self,polygon3D):
-#         self.interior_pol.append(polygon3D)
-
-#     def is_facing_sun(self, sun_position):
-#         return self.interior_pol[0].is_facing_sun(sun_position)
-
-#     def is_coplanar(self, polygon):
-#         if np.allclose(self.normal_vector,polygon.normal_vector):
-#             if  np.isclose(np.sum(self.normal_vector*polygon.origin),self.equation_d):
-#                 return True
-#             else:
-#                 return False
-#         else:
-#             return False
-
-#     def get_sunny_shapely_polygon(self, shadow_polygons_list, sun_position):
-#         if not self.is_facing_sun(sun_position):
-#             empty = []
-#             for polygon in self.interior_pol:
-#                 empty.append(None)
-#             return empty
-#         else:
-#             # Calculate projected shadows
-#             shadows_2D = []
-#             for shadow_polygon in shadow_polygons_list:
-#                 if shadow_polygon.is_facing_sun(sun_position):
-#                         shadows_2D.append(self._calculate_shapely_2D_projected_(shadow_polygon,sun_position))
-#             # Calculate sunny polygons
-#             sunny = []
-#             for polygon in self.interior_pol:
-#                 sunny_polygon = polygon.shapely_polygon
-#                 for shadow_polygon in shadows_2D:
-#                     if shadow_polygon != None:
-#                         sunny_polygon = sunny_polygon.difference(shadow_polygon)
-#                 if sunny_polygon.is_empty:
-#                     sunny.append(None)
-#                 else:
-#                     sunny.append(sunny_polygon)
-#             return sunny
-
-#     def get_sunny_polygon3D(self, shadow_polygons_list, sun_position):
-#         return self._shapely_list_to_polygons_3D_(self.get_sunny_shapely_polygon(shadow_polygons_list,sun_position))
-
-#     def get_shadow_shapely_polygon(self, shadow_polygons_list, sun_position):
-#         sunny = self.get_sunny_shapely_polygon(shadow_polygons_list,sun_position)
-#         shadow = []
-#         for i in range(len(self.interior_pol)):
-#             if sunny[i] == None:
-#                 shadow_pol = self.interior_pol[i].shapely_polygon
-#             else:
-#                 shadow_pol = self.interior_pol[i].shapely_polygon.difference(sunny[i])
-#             if shadow_pol.is_empty:
-#                 shadow.append(None)
-#             else:
-#                 shadow.append(shadow_pol)
-#         return shadow
-
-#     def get_shadow_polygon3D(self, shadow_polygons_list, sun_position):
-#         return self._shapely_list_to_polygons_3D_(self.get_shadow_shapely_polygon(shadow_polygons_list,sun_position))
-
-#     def _calculate_shapely_2D_projected_(self, polygon_to_project, sun_position):
-#         projected_polygon = []
-#         k_vertex = []
-#         for point in polygon_to_project.polygon3D:
-#             k = (np.sum(self.normal_vector * point)-self.equation_d)/(np.sum(self.normal_vector * sun_position))
-#             if k >= -1e-6:
-#                 projected_point_3D = point - k * sun_position
-#                 vector = projected_point_3D - self.origin
-#                 projected_point_2D = np.array([np.sum(self.x_axis*vector),np.sum(self.y_axis*vector)])
-#                 projected_polygon.append(projected_point_2D)
-#                 k_vertex.append(k)
-#         if sum(k_vertex)>1e-4: # TODO: que ocurre cuando tengo planos cortantes
-#             return Polygon(projected_polygon)
-#         else:
-#             return None
-
-#     def _shapely_list_to_polygons_3D_(self,shapely_2D_list): # Para dibujarlos en 3D
-#         polygon_list=[]
-#         for shape_polygon in shapely_2D_list:
-#             if shape_polygon != None:
-#                 if shape_polygon.geom_type == 'MultiPolygon':
-#                     polygons = list(shape_polygon.geoms)
-#                     for pol in polygons:
-#                         polygon_list.append(self._shapely_to_polygon_3D_(pol))
-#                 elif shape_polygon.geom_type == 'Polygon':
-#                     polygon_list.append(self._shapely_to_polygon_3D_(shape_polygon))
-#         return polygon_list
-
-#     def _shapely_to_polygon_3D_(self,shapely_pol):
-#         exterior_pol = np.asarray(shapely_pol.exterior.coords)
-#         holes = [(np.asarray(ring.coords)) for ring in shapely_pol.interiors]
-#         return Polygon_3D(self.origin,self.interior_pol[0].azimuth,self.interior_pol[0].altitude,exterior_pol,holes)

@@ -29,7 +29,7 @@ class Iterative_process:
             else:
                 return False
 
-    def x_next(self, proposed_x):
+    def estimate_next_x(self, proposed_x):
         x_next = (1 - self.lambda_i) * self.x[-1] + self.lambda_i * proposed_x
         
         # Ajuste dinámico de lambda (reduce si hay oscilaciones)
@@ -41,3 +41,7 @@ class Iterative_process:
 
         self.x.append(x_next)
         return x_next
+    
+    def set_next_x(self, next_x):
+        self.x.append(next_x)
+

@@ -1,7 +1,7 @@
 from OpenSimula.Component import Component
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_variable_list, Parameter_math_exp_list, Parameter_string_list
 from OpenSimula.Variable import Variable
-
 
 class Calculator(Component):
     def __init__(self, name, project):
@@ -23,9 +23,8 @@ class Calculator(Component):
             != len(self.parameter("output_expressions").value) or len(self.parameter("output_variables").value)
             != len(self.parameter("output_units").value)
         ):
-            errors.append(
-                f"Error: {self.parameter('name').value}, output_variables, output_units and output_expressions size must be equal"
-            )
+            msg = Message(f"Error: {self.parameter('name').value}, output_variables, output_units and output_expressions size must be equal","ERROR")
+            errors.append(msg)
         else:
             # Create output variables
             for i in range(len(self.parameter("output_variables").value)):
@@ -38,23 +37,12 @@ class Calculator(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        # input_varibles symbol and variable
-        self.input_var_symbol = []
-        self.input_var_variable = []
-        for i in range(len(self.parameter("input_variables").variable)):
-            self.input_var_symbol.append(
-                self.parameter("input_variables").symbol[i])
-            self.input_var_variable.append(
-                self.parameter("input_variables").variable[i])
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
         # variables dictonary
-        var_dic = {}
-        for i in range(len(self.input_var_symbol)):
-            var_dic[self.input_var_symbol[i]
-                    ] = self.input_var_variable[i].values[time_index]
-
+        var_dic = self.get_parameter_variable_dictionary(time_index)
+        
         # Output variables
         for i in range(len(self.parameter("output_variables").value)):
             calculated_value = self.parameter(

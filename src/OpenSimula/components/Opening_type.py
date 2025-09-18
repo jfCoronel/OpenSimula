@@ -1,4 +1,5 @@
 from OpenSimula.Component import Component
+from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_float, Parameter_component
 
 
@@ -24,19 +25,19 @@ class Opening_type(Component):
         errors = super().check()
         # Test glazing defined
         if self.parameter("glazing").value == "not_defined" and self.parameter("glazing_fraction").value > 0:
-            errors.append(
-                f"Error: {self.parameter('name').value}, glazing must be defined.")
+            msg = f"{self.parameter('name').value}, glazing must be defined."
+            errors.append(Message(msg, "ERROR"))
         # Test frame defined
         if self.parameter("frame").value == "not_defined" and self.parameter("frame_fraction").value > 0:
-            errors.append(
-                f"Error: {self.parameter('name').value}, frame must be defined.")
+            msg = f"{self.parameter('name').value}, frame must be defined."
+            errors.append(Message(msg, "ERROR"))
         # Test construction defined
         self.construction_fraction = 1 - \
             self.parameter("glazing_fraction").value - \
             self.parameter("frame_fraction").value
         if self.parameter("construction").value == "not_defined" and self.construction_fraction > 0:
-            errors.append(
-                f"Error: {self.parameter('name').value}, construction must be defined.")
+            msg = f"{self.parameter('name').value}, construction must be defined."
+            errors.append(Message(msg, "ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):

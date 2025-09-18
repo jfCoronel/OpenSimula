@@ -1,3 +1,4 @@
+from OpenSimula.Message import Message
 from OpenSimula.components.Surface import Surface
 from OpenSimula.Parameters import Parameter_component_list
 
@@ -28,6 +29,6 @@ class Virtual_surface(Surface):
         errors = super().check()
         # Test spaces defined
         if self.parameter("spaces").value[0] == "not_defined" or self.parameter("spaces").value[1] == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, must define two spaces.")
+            msg = f"{self.parameter('name').value}, must define two spaces."
+            errors.append(Message(msg, "ERROR"))
         return errors

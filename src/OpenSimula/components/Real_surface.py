@@ -1,3 +1,4 @@
+from OpenSimula.Message import Message
 from OpenSimula.components.Surface import Surface
 from OpenSimula.Parameters import Parameter_component
 from OpenSimula.Variable import Variable
@@ -38,9 +39,8 @@ class Real_surface(Surface):
         errors = super().check()
         # Test construction defined
         if self.parameter("construction").value == "not_defined":
-            errors.append(
-                f"Error: {self.parameter('name').value}, non virtual surfaces must define its construction."
-            )
+            msg = f"{self.parameter('name').value}, non virtual surfaces must define its construction."
+            errors.append(Message(msg, "ERROR"))
         return errors
 
     def radiant_property(self, prop, radiation_type, side, theta=0):
