@@ -119,6 +119,6 @@ class Surface(Component):
                                   self.parameter("y_polygon").value[i]])
             return polygon2D
     
-    def _calculate_solar_direct(self, time_index):
-        pass # To be overwritten
+    # def _calculate_solar_direct(self, time_index):
+    #     pass # To be overwritten
 

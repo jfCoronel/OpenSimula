@@ -61,7 +61,7 @@ class Project(Parameter_container):
                 "shadow_calculation", "INSTANT", ["NO", "INSTANT", "INTERPOLATION"]
             )
         )
-        self.add_parameter(Parameter_float("albedo", 0.3, "frac", min=0, max=1))
+        self.add_parameter(Parameter_float("albedo", 0.2, "frac", min=0, max=1))
 
         self._sim_ = sim
         self._components_ = []
@@ -91,7 +91,6 @@ class Project(Parameter_container):
             "RHO_A": sicro.GetMoistAirDensity(22.5, w_50, atm_p),
             "RHOCP_W": rhocp_water,
         }
-        env_3D = Environment_3D()
 
     def del_component(self, component):
         """Delete component from Project
@@ -448,12 +447,12 @@ class Project(Parameter_container):
 
         self._set_ordered_component_list_()
         
+        # Initialize 3D environment
+        self.env_3D = Environment_3D()
         if self.parameter("shadow_calculation").value != "NO":
-            self._load_buildings_3D()
+            self._load_buildings_3D(self.env_3D)
             self._sim_.message(Message("Calculating solar direct shadows ...", "CONSOLE"))
-            self.env_3D.calculate_shadow_interpolation_table()
-            self._sim_.message(Message("Calculating solar diffuse shadows ...", "CONSOLE"))
-            self.env_3D.calculate_diffuse_shadow()
+            self.env_3D.calculate_solar_tables()
         self._pre_simulation_(n, delta_t)
         self._sim_df = pd.DataFrame({"dates": self.dates()})
         self._sim_df["n_iterations"] = 0
@@ -641,9 +640,15 @@ class Project(Parameter_container):
 
         editor.run(jupyter_height=600)
 
-    def _load_buildings_3D(self):
+    def _load_buildings_3D(self, env_3D):
         building_list = self.component_list("Building")
         for building in building_list:
-            building._create_building_3D(self.env_3D)
+            building._create_building_3D(env_3D)
+
+    def show_3D(self):
+        env_3D = Environment_3D()
+        self._load_buildings_3D(env_3D)
+        env_3D.show(polygons_type="initial")
+
 
             

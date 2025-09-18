@@ -68,7 +68,6 @@ class Exterior_surface(Real_surface):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        #self._shadow_calculated = False
         self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_variables_pre_iteration(self, time_i):
@@ -103,7 +102,7 @@ class Exterior_surface(Real_surface):
         self.f_0 = self.area * (- p_0 - self.parameter("h_cv").value[0] * self._T_ext - h_rd * T_rm - q_sol0)
 
     def _calculate_direct_sunny_fraction(self, time_i):
-        if self.project().parameter("shadow_calculation").value != "INSTANT":
+        if self.project().parameter("shadow_calculation").value == "INSTANT":
             direct_sunny_fraction = self.project().env_3D.get_direct_sunny_fraction(self._sunny_index)
         elif self.project().parameter("shadow_calculation").value == "INTERPOLATION":
             azi = self._file_met.variable("sol_azimuth").values[time_i]

@@ -20,6 +20,7 @@ dependencies = [
     "pandas>=2.3.2",
     "plotly>=6.3.0",
     "psychrolib>=2.5.0",
+    "pytest>=8.4.2",
     "scipy>=1.16.2",
     "shapely>=2.1.1",
     "triangle>=20250106",

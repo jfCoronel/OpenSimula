@@ -73,6 +73,7 @@ class Opening(Component):
         self._file_met = self.project().parameter("simulation_file_met").component
         self._calculate_K()
         self.f_dif_setback = self._f_diffuse_setback()
+        self._sunny_index = self.project().env_3D.get_sunny_index(self.parameter("name").value)
 
     def _calculate_K(self):
         self.k = [0, 0]
@@ -85,56 +86,80 @@ class Opening(Component):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        #self._shadow_calculated = False
         self._calculate_variables_pre_iteration(time_index)
 
     def _calculate_variables_pre_iteration(self, time_i):
         self._T_ext = self._file_met.variable("temperature").values[time_i]
+        # Solar radiation from the surface where the opening is located
         surface = self.parameter("surface").component
+        # Diffuse solar radiation
         E_dif_sunny = surface.variable("E_dif_sunny").values[time_i]
         self.variable("E_dif_sunny").values[time_i] = E_dif_sunny
-        diffuse_sunny_fracion = self.building().get_diffuse_sunny_fraction(self)
-        E_dif = E_dif_sunny * diffuse_sunny_fracion * self.f_dif_setback
+        diffuse_sunny_fraction = self.project().env_3D.get_diffuse_sunny_fraction(self._sunny_index)
+        E_dif = E_dif_sunny * diffuse_sunny_fraction
         self.variable("E_dif").values[time_i] = E_dif
-        self.variable("T_rm").values[time_i] = surface.variable(
-            "T_rm").values[time_i]
-        theta = self._file_met.solar_surface_angle(time_i, surface.orientation_angle(
-            "azimuth", 0), surface.orientation_angle("altitude", 0))
-        self.variable("theta_sun").values[time_i] = theta
+
+        # Direct solar radiation
+        E_dir_sunny = surface.variable("E_dir_sunny").values[time_i]
+        self.variable("E_dir_sunny").values[time_i] = E_dir_sunny
         # Setback shadow
+        theta = self._file_met.solar_surface_angle(time_i, surface.orientation_angle("azimuth", 0), surface.orientation_angle("altitude", 0))
+        self.variable("theta_sun").values[time_i] = theta
         if (theta is not None and self.parameter("setback").value > 0):
             f_setback = self._f_setback_(time_i, surface.orientation_angle(
                 "azimuth", 0), surface.orientation_angle(
                 "altitude", 0))
         else:
             f_setback = 1
-        E_dir_sunny = surface.variable("E_dir_sunny").values[time_i]
-        self.variable("E_dir_sunny").values[time_i] = E_dir_sunny
-        self.variable("E_dir").values[time_i] = E_dir_sunny * f_setback
-        self.variable("q_sol0").values[time_i] = self.radiant_property(
-            "alpha", "solar_diffuse", 0) * E_dif
-        self.variable("q_sol1").values[time_i] = self.radiant_property(
-            "alpha_other_side", "solar_diffuse", 0) * E_dif
-        self.variable("E_dif_tra").values[time_i] = self.radiant_property(
-            "tau", "solar_diffuse", 0)*E_dif
-
-        h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
-        T_rm = self.variable("T_rm").values[time_i]
-        self.f_0 = self.area * \
-            (- self.parameter("h_cv").value[0] * self._T_ext - h_rd * T_rm)
-        # q_sol0 will be added by the building
-
-    def _calculate_solar_direct(self, time_index):
-        sunny_fracion = self.building().get_direct_sunny_fraction(self)
-        E_dir = self.variable("E_dir").values[time_index] * sunny_fracion
-        theta = self.variable("theta_sun").values[time_index]
-        self.variable("E_dir").values[time_index] = E_dir
-        if E_dir > 0:
-            self.variable("E_dir_tra").values[time_index] = E_dir * self.radiant_property("tau", "solar_direct", 0, theta)
-            self.variable("q_sol0").values[time_index] += self.radiant_property("alpha", "solar_direct", 0, theta) * E_dir
-            self.variable("q_sol1").values[time_index] += self.radiant_property("alpha_other_side", "solar_direct", 0, theta) * E_dir
+        E_dir = E_dir_sunny * self._calculate_direct_sunny_fraction(time_i) * f_setback
+        self.variable("E_dir").values[time_i] = E_dir
+        
+        q_sol0 = self.radiant_property("alpha", "solar_diffuse", 0) * E_dif 
+        q_sol1 = self.radiant_property("alpha_other_side", "solar_diffuse", 0) * E_dif 
+        E_dif_tra = self.radiant_property("tau", "solar_diffuse", 0)*E_dif 
+        if theta is not None:
+            q_sol0 += self.radiant_property("alpha", "solar_direct", 0, theta) * E_dir
+            q_sol1 += self.radiant_property("alpha_other_side", "solar_direct", 0, theta) * E_dir
+            E_dir_tra = self.radiant_property("tau", "solar_direct", 0, theta)*E_dir
         else:
-            self.variable("E_dir_tra").values[time_index] = 0
+            E_dir_tra = 0
+
+        self.variable("q_sol0").values[time_i] = q_sol0
+        self.variable("q_sol1").values[time_i] = q_sol1
+        self.variable("E_dif_tra").values[time_i] = E_dif_tra
+        self.variable("E_dir_tra").values[time_i] = E_dir_tra
+
+        T_rm = surface.variable("T_rm").values[time_i]
+        self.variable("T_rm").values[time_i] = T_rm
+        h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+        self.f_0 = self.area * (- self.parameter("h_cv").value[0] * self._T_ext - h_rd * T_rm)
+        # q_sol0 will be corrected by the building
+
+    def _calculate_direct_sunny_fraction(self, time_i):
+        if self.project().parameter("shadow_calculation").value == "INSTANT":
+            direct_sunny_fraction = self.project().env_3D.get_direct_sunny_fraction(self._sunny_index)
+        elif self.project().parameter("shadow_calculation").value == "INTERPOLATION":
+            azi = self._file_met.variable("sol_azimuth").values[time_i]
+            alt = self._file_met.variable("sol_altitude").values[time_i]
+            if not math.isnan(alt):
+                direct_sunny_fraction = self.project().env_3D.get_direct_interpolated_sunny_fraction(self._sunny_index, azi, alt)
+            else:
+                direct_sunny_fraction = 1
+        elif self.project().parameter("shadow_calculation").value == "NO":
+            direct_sunny_fraction = 1
+        return direct_sunny_fraction
+
+    # def _calculate_solar_direct(self, time_index):
+    #     sunny_fracion = self.building().get_direct_sunny_fraction(self)
+    #     E_dir = self.variable("E_dir").values[time_index] * sunny_fracion
+    #     theta = self.variable("theta_sun").values[time_index]
+    #     self.variable("E_dir").values[time_index] = E_dir
+    #     if E_dir > 0:
+    #         self.variable("E_dir_tra").values[time_index] = E_dir * self.radiant_property("tau", "solar_direct", 0, theta)
+    #         self.variable("q_sol0").values[time_index] += self.radiant_property("alpha", "solar_direct", 0, theta) * E_dir
+    #         self.variable("q_sol1").values[time_index] += self.radiant_property("alpha_other_side", "solar_direct", 0, theta) * E_dir
+    #     else:
+    #         self.variable("E_dir_tra").values[time_index] = 0
 
     def _f_setback_(self, time_i, azimuth_sur, altitude_sur):
         theta_h = math.fabs(self._file_met.variable(

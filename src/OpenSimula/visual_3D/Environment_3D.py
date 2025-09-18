@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from scipy.interpolate import RegularGridInterpolator
+import matplotlib.pyplot as plt
 import vedo
 
 class Environment_3D:
@@ -44,7 +45,7 @@ class Environment_3D:
                 meshes.append(mesh)
                 meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
 
-        vedo.show(*meshes, "OpenShadows", axes=1, viewup="z").close()
+        vedo.show(*meshes, "OpenSimula", axes=1, viewup="z").close()
 
     def calculate_shadows(self, sun_position, create_polygons=True):
         self.sunny_fraction = []
@@ -167,9 +168,16 @@ class Environment_3D:
         else:
             return 1      
     
-    def get_sunny_fraction(self, sunny_i):
+    def get_direct_sunny_fraction(self, sunny_i):
         if self.sunny_fraction == []:
             return 1
         else:
             return self.sunny_fraction[sunny_i]
+    
+    def show_sunny_fraction(self, sunny_i):
+        fig, ax = plt.subplots()
+        X, Y = np.meshgrid(self.shadow_azimuth_grid, self.shadow_altitude_grid)
+        ax.imshow(self.sunny_fraction_tables[sunny_i], vmin=0, vmax=1)
+        plt.show()
+
 

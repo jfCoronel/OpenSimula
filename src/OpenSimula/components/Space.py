@@ -273,7 +273,7 @@ class Space(Component):
         converged = self.itera_T.converged() and self.itera_w.converged()
         return converged
 
-    def _calculate_solar_direct(self, time_i):
+    def calculate_solar_direct(self, time_i):
         solar_gain = 0
         for surf in self.surfaces:
             if surf.parameter("type").value == "Opening":
