@@ -649,6 +649,17 @@ class Project(Parameter_container):
         env_3D = Environment_3D()
         self._load_buildings_3D(env_3D)
         env_3D.show(polygons_type="initial")
+    
+    def show_3D_shadows(self, date):
+        env_3D = Environment_3D()
+        self._load_buildings_3D(env_3D)
+        file_met = self.parameter("simulation_file_met").component
+        cos = file_met.sun_cosines(date)
+        if len(cos) == 3:
+            env_3D.calculate_shadows(cos)
+            env_3D.show(polygons_type="Building_shadows")
+        else:
+            self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
 
 
             

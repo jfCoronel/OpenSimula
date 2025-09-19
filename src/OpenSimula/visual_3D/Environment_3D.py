@@ -23,29 +23,66 @@ class Environment_3D:
             for polygon_3D in self.pol_3D:
                 if polygon_3D.visible:
                     mesh = polygon_3D.get_vedo_mesh()
+                    mesh.polygon_name = polygon_3D.name
                     meshes.append(mesh)
                     meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
         elif polygons_type == "sunny":
             for polygon_3D in self.pol_sunny:
                 mesh = polygon_3D.get_vedo_mesh()
+                mesh.polygon_name = polygon_3D.name
                 meshes.append(mesh)
                 meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
         elif polygons_type == "shadows":
             for polygon_3D in self.pol_shadows:
                 mesh = polygon_3D.get_vedo_mesh()
+                mesh.polygon_name = polygon_3D.name
                 meshes.append(mesh)
                 meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
         elif polygons_type == "sunny+shadows":
             for polygon_3D in self.pol_sunny:
                 mesh = polygon_3D.get_vedo_mesh()
+                mesh.polygon_name = polygon_3D.name
                 meshes.append(mesh)
                 meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
             for polygon_3D in self.pol_shadows:
                 mesh = polygon_3D.get_vedo_mesh()
+                mesh.polygon_name = polygon_3D.name
                 meshes.append(mesh)
                 meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
+        elif polygons_type == "Building_shadows":
+            for polygon_3D in self.pol_sunny:
+                mesh = polygon_3D.get_vedo_mesh()
+                mesh.polygon_name = polygon_3D.name
+                meshes.append(mesh)
+                meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
+            for polygon_3D in self.pol_shadows:
+                mesh = polygon_3D.get_vedo_mesh()
+                mesh.polygon_name = polygon_3D.name
+                meshes.append(mesh)
+                meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
+            for polygon_3D in self.pol_3D:
+                if polygon_3D.visible and polygon_3D.calculate_shadows == False:
+                    mesh = polygon_3D.get_vedo_mesh()
+                    mesh.polygon_name = polygon_3D.name
+                    meshes.append(mesh)
+                    meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
+        
+        text_obj = [None]  # Usamos una lista para que sea mutable en el callback
 
-        vedo.show(*meshes, "OpenSimula", axes=1, viewup="z").close()
+        def on_left_click(evt):
+            if text_obj[0] is not None:
+                plt.remove(text_obj[0])  # Borra el texto anterior
+            msh = evt.object
+            if not msh:
+                text_obj[0] = vedo.Text2D(" ", pos='top-left')
+            else:
+                text_obj[0] = vedo.Text2D(f"{msh.polygon_name}", pos='top-left')
+            plt.add(text_obj[0])
+            plt.render()
+        
+        plt = vedo.Plotter(title="OpenSimula")
+        plt.add_callback('mouse click', on_left_click)
+        plt.show(*meshes, axes=1, viewup="z").close()
 
     def calculate_shadows(self, sun_position, create_polygons=True):
         self.sunny_fraction = []

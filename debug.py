@@ -1,7 +1,8 @@
+import datetime as dt
 import OpenSimula as osm
 
-case600FF_dict = {
-    "name": "Case 600FF",
+case610_dict = {
+    "name": "Case 610",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -144,7 +145,7 @@ case600FF_dict = {
             "light_density": "0",
             "other_gains_density": "4.1667",
             "other_gains_radiant_fraction": 0.6,
-            "infiltration": "0.5",
+            "infiltration": "0.5"
         },
         {
             "type": "Building",
@@ -158,7 +159,7 @@ case600FF_dict = {
             "space_type": "constant_gain_space",
             "floor_area": 48,
             "volume": 129.6,
-            "furniture_weight": 0,
+            "furniture_weight": 0
         },
         {
             "type": "Exterior_surface",
@@ -305,13 +306,38 @@ case600FF_dict = {
                 0.8,
                 2.2
             ]
+        },
+        {
+            "type": "Shadow_surface",
+            "name": "overhang",
+            "building": "Building",
+            "ref_point": [
+                0,
+                -1,
+                2.7
+            ],
+            "width": 8,
+            "height": 1,
+            "azimuth": 0,
+            "altitude": 90
+        },
+        {
+            "type": "HVAC_perfect_system",
+            "name": "system",
+            "space": "space_1",
+            "outdoor_air_flow": "0",
+            "heating_setpoint": "20",
+            "cooling_setpoint": "27",
+            "system_on_off": "1"
         }
     ]
 }
 
 
+
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case600FF_dict)
-#pro.show_3D()
-pro.simulate()
+pro.read_dict(case610_dict)
+date = dt.datetime(2001,10,7,15,0)
+pro.show_3D_shadows(date)
+#pro.simulate()

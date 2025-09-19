@@ -651,14 +651,14 @@ class Building(Component):
     #             i = i + 1
     #     self.building_3D.show(hide, opacity,window)
 
-    def show3D_shadows(self, date):
-        self._create_building_3D()
-        self._file_met = self.project().parameter("simulation_file_met").component
-        cos = self._file_met.sun_cosines(date)
-        if len(cos) == 3:
-            self.building_3D.show_shadows(cos)
-        else:
-            self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
+    # def show3D_shadows(self, date):
+    #     self._create_building_3D()
+    #     self._file_met = self.project().parameter("simulation_file_met").component
+    #     cos = self._file_met.sun_cosines(date)
+    #     if len(cos) == 3:
+    #         self.building_3D.show_shadows(cos)
+    #     else:
+    #         self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
 
     # def get_direct_sunny_fraction(self, surface):
     #     if self.parameter("shadow_calculation").value == "NO":

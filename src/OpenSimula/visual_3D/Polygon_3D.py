@@ -28,8 +28,8 @@ class Polygon_3D():
             self.holes3D.append(self._convert_2D_to_3D_(hole))
         self.shapely_polygon = Polygon(self.polygon2D, self.holes2D)
         self.area = self.shapely_polygon.area
-        self.centroid2D = self.shapely_polygon.centroid.coords[0]
-        self.centroid3D = self._convert_2D_to_3D_([self.centroid2D])[0]
+        # self.centroid2D = self.shapely_polygon.centroid.coords[0]
+        # self.centroid3D = self._convert_2D_to_3D_([self.centroid2D])[0]
         self.equation_d = np.sum(self.normal_vector*self.origin)
         self.color = color
         self.opacity = opacity
@@ -132,9 +132,7 @@ class Polygon_3D():
                 if shadow_polygon != self and shadow_polygon.shading == True:
                     if shadow_polygon.is_facing_sun(sun_position):
                         if not self.are_coplanar(shadow_polygon):
-                            # if shadow is near to sun
-                            if self.is_near_to_sun(shadow_polygon, sun_position):
-                                shadows_2D.append(self._calculate_shapely_projected_polygon_(shadow_polygon, sun_position))
+                            shadows_2D.append(self._calculate_shapely_projected_polygon_(shadow_polygon, sun_position))
 
             # Calculate sunny polygon
             sunny_polygon = self.shapely_polygon
@@ -150,14 +148,6 @@ class Polygon_3D():
                     shadow_polygon = None
         return sunny_polygon, shadow_polygon
     
-    def is_near_to_sun(self, polygon_3D, sun_position):
-        vector_3D = polygon_3D.centroid3D - self.centroid3D
-        escalar_p = np.sum(vector_3D*sun_position)
-        if escalar_p > 1e-6:  # Por delante 
-            return True
-        else:
-            return False
-
     def _calculate_shapely_projected_polygon_(self, polygon_to_project, sun_position):
         exterior_points = self._get_projected_points_(polygon_to_project, sun_position)
         if exterior_points != None:
@@ -165,7 +155,7 @@ class Polygon_3D():
                 holes = []
                 for hole in polygon_to_project.holes3D:
                     hole_points = self._get_projected_points_(
-                        Polygon_3D(polygon_to_project.origin, polygon_to_project.azimuth, polygon_to_project.altitude, hole), sun_position)
+                        Polygon_3D(polygon_to_project.origin, polygon_to_project.azimuth, polygon_to_project.altitude, hole), sun_position,False)
                     if hole_points != None:
                         holes.append(hole_points)
                 return Polygon(exterior_points, holes)
@@ -174,9 +164,12 @@ class Polygon_3D():
         else:
             return None
 
-    def _get_projected_points_(self,polygon_to_project, sun_position):
+    def _get_projected_points_(self,polygon_to_project, sun_position, test_is_back=True):
         projected_points = []
-        algun_punto_delante = False
+        if test_is_back:
+            algun_punto_delante = False
+        else:
+            algun_punto_delante = True
         for point in polygon_to_project.polygon3D:
             k = (np.sum(self.normal_vector * point)-self.equation_d) / \
                 (np.sum(self.normal_vector * sun_position))
