@@ -568,11 +568,15 @@ dependencies = [
     { name = "pandas" },
     { name = "plotly" },
     { name = "psychrolib" },
-    { name = "pytest" },
     { name = "scipy" },
     { name = "shapely" },
     { name = "triangle" },
     { name = "vedo" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
 ]
 
 [package.metadata]
@@ -584,12 +588,14 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.3.2" },
     { name = "plotly", specifier = ">=6.3.0" },
     { name = "psychrolib", specifier = ">=2.5.0" },
-    { name = "pytest", specifier = ">=8.4.2" },
     { name = "scipy", specifier = ">=1.16.2" },
     { name = "shapely", specifier = ">=2.1.1" },
     { name = "triangle", specifier = ">=20250106" },
     { name = "vedo", specifier = ">=2025.5.4" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=8.4.2" }]
 
 [[package]]
 name = "packaging"

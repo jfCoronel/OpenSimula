@@ -661,5 +661,18 @@ class Project(Parameter_container):
         else:
             self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
 
+    def show_3D_shadows_animation(self, date):
+        env_3D = Environment_3D()
+        self._load_buildings_3D(env_3D)
+        file_met = self.parameter("simulation_file_met").component
+        texts = []
+        cosines = []
+        for hour in range(24):
+            new_date = date.replace(hour=hour, minute=0, second=0)
+            cos = file_met.sun_cosines(new_date)
+            if len(cos) == 3: # Day time
+                texts.append(new_date.strftime("%H:%M,  %d/%m/%Y"))
+                cosines.append(cos)
+        env_3D.show_animation(texts, cosines, polygons_type="Building_shadows")
 
             

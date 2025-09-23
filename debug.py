@@ -1,3 +1,4 @@
+# %%
 import datetime as dt
 import OpenSimula as osm
 
@@ -333,11 +334,12 @@ case610_dict = {
     ]
 }
 
-
+# %%
 
 sim = osm.Simulation()
 pro = sim.new_project("pro")
 pro.read_dict(case610_dict)
 date = dt.datetime(2001,10,7,15,0)
-pro.show_3D_shadows(date)
+pro.show_3D_shadows_animation(date)
 #pro.simulate()
+# %%
