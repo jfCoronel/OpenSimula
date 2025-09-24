@@ -480,6 +480,14 @@ class Project(Parameter_container):
                 if date > date_dls_start and date < date_dls_end:
                     daylight_saving = True
 
+            # Update Shadows
+            if self.parameter("shadow_calculation").value == "INSTANT":
+                cos = met_file.sun_cosines(date)
+                if len(cos) == 3:
+                    self.env_3D.calculate_shadows(cos,create_polygons=False)
+                else:
+                    self.env_3D.delete_shadows()
+
             self._pre_iteration_(i, date, daylight_saving)
             converge = False
             n_iter = 0

@@ -116,6 +116,10 @@ class Environment_3D:
         )
         plt.show(viewup="z").close()
         
+    def delete_shadows(self):
+        self.pol_sunny = []
+        self.pol_shadows = []
+        self.sunny_fraction = []
 
     def calculate_shadows(self, sun_position, create_polygons=True):
         self.sunny_fraction = []
