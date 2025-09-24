@@ -1,4 +1,3 @@
-# %%
 import datetime as dt
 import OpenSimula as osm
 
@@ -7,13 +6,13 @@ case610_dict = {
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
-    "simulation_file_met": "Denver",
+    "simulation_file_met": "Sevilla",
     "components": [
         {
             "type": "File_met",
-            "name": "Denver",
-            "file_type": "TMY3",
-            "file_name": "mets/WD100.tmy3"
+            "name": "Sevilla",
+            "file_type": "MET",
+            "file_name": "mets/sevilla.met"
         },
         {
             "type": "Material",
@@ -334,12 +333,11 @@ case610_dict = {
     ]
 }
 
-# %%
 
 sim = osm.Simulation()
 pro = sim.new_project("pro")
 pro.read_dict(case610_dict)
-date = dt.datetime(2001,10,7,15,0)
-pro.show_3D_shadows_animation(date)
+date = dt.datetime(2001,3,21)
+pro.show_3D()
+#pro.show_3D_shadows_animation(date)
 #pro.simulate()
-# %%

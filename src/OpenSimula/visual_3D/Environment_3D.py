@@ -3,7 +3,7 @@ import numpy as np
 import math
 from scipy.interpolate import RegularGridInterpolator
 import matplotlib.pyplot as plt
-import vedo
+import vedo as vedo
 
 class Environment_3D:
     def __init__(self):
@@ -70,6 +70,7 @@ class Environment_3D:
         return meshes
 
     def show(self, polygons_type="initial"):
+        vedo.settings.default_backend = 'vtk'
         meshes = self.get_vedo_meshes(polygons_type)
         
         text_obj = [None]  # Usamos una lista para que sea mutable en el callback
@@ -90,32 +91,31 @@ class Environment_3D:
         plt.show(*meshes, axes=1, viewup="z").close()
 
     def show_animation(self, texts, cosines , polygons_type="initial" ):
-        plt = vedo.Plotter(title="OpenSimula")
+        vedo.settings.default_backend = 'vtk'
+        meshes = []
+        def slider_func(widget, event):
+            idx = int(widget.value)
+            widget.title = texts[idx]
+            plt.remove( meshes.pop(0))
+            cos = cosines[idx]
+            self.calculate_shadows(cos, create_polygons=True)
+            meshes.append(self.get_vedo_meshes(polygons_type))
+            plt.add(meshes[0])
 
-        def loop_func(event): # move the point
-            if len(cosines)>0:
-                plt.clear()
-                cos = cosines.pop(0)
-                #text = texts.pop(0)
-                self.calculate_shadows(cos, create_polygons=True)
-                meshes = self.get_vedo_meshes(polygons_type)
-                #text_obj = vedo.Text2D(text, pos='top-left')
-                #plt.add(text_obj)
-                #plt.add_global_axes(7)
-                plt.add(*meshes)
-                plt.render()
-                time.sleep(1)
-                #plt.remove(text_obj)
-                #plt.remove(*meshes)
-                               
-
+        # Show first frame
         self.calculate_shadows(cosines[0], create_polygons=True)
-        meshes = self.get_vedo_meshes(polygons_type)
-        #text_obj = vedo.Text2D(texts[0], pos='top-left')
-        plt.add_callback("timer", loop_func)
-        plt.timer_callback("start")
-        plt.show(*meshes, axes=1, viewup="z")
-        plt.close()
+        meshes.append(self.get_vedo_meshes(polygons_type))
+        plt = vedo.Plotter(title="OpenSimula", axes=1)  
+        plt.add(meshes[0])
+        plt.add_slider(
+            slider_func,
+            0, len(cosines)-1,  # slider range
+            value=0,         # initial value
+            pos="bottom-right",  # position of the slider
+            title=texts[0]
+        )
+        plt.show(viewup="z").close()
+        
 
     def calculate_shadows(self, sun_position, create_polygons=True):
         self.sunny_fraction = []
