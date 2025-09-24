@@ -318,9 +318,6 @@ def test_ff_temperature():
 
     T = pro.component("space_1").variable("temperature").values
 
-    #assert T.mean() == pytest.approx(25.185475599)
-    assert T.mean() == pytest.approx(24.98572955)
-    #assert T.max() == pytest.approx(65.74609)
-    assert T.max() == pytest.approx(65.397513)
-    #assert T.min() == pytest.approx(-13.365134)
-    assert T.min() == pytest.approx(-13.3656566)
+    assert T.mean() == pytest.approx(25.185475599)
+    assert T.max() == pytest.approx(65.74609)
+    assert T.min() == pytest.approx(-13.365134)

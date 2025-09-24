@@ -426,24 +426,22 @@ class Project(Parameter_container):
 
         # Update props
         if self.parameter("simulation_file_met").value != "not_defined":
-            try:
-                met_file = self.component(self.parameter("simulation_file_met").value)
-                if met_file != None:
-                    altitude = met_file.altitude
-                    atm_p = sicro.GetStandardAtmPressure(altitude)
-                    w_50 = sicro.GetHumRatioFromRelHum(22.5, 0.5, atm_p)
-                    self._sim_.props["ATM_PRESSURE"] = atm_p
-                    self._sim_.props["ALTITUDE"] = altitude
-                    self._sim_.props["W_50"] = w_50
-                    self._sim_.props["RHO_A"] = sicro.GetMoistAirDensity(
-                        22.5, w_50, atm_p
-                    )
-            except Exception as e:
-                msg = (
-                    self._get_error_header_()
-                    + f"Error reading file: {self.parameter('simulation_file_met').value} -> {e}"
-                )
-                self._sim_.message(Message(msg, "ERROR"))
+            met_file = self.component(self.parameter("simulation_file_met").value)
+        else:
+            met_file = None
+        try:
+            if met_file != None:
+                altitude = met_file.altitude
+                atm_p = sicro.GetStandardAtmPressure(altitude)
+                w_50 = sicro.GetHumRatioFromRelHum(22.5, 0.5, atm_p)
+                self._sim_.props["ATM_PRESSURE"] = atm_p
+                self._sim_.props["ALTITUDE"] = altitude
+                self._sim_.props["W_50"] = w_50
+                self._sim_.props["RHO_A"] = sicro.GetMoistAirDensity(22.5, w_50, atm_p)
+        except Exception as e:
+            msg = (self._get_error_header_()
+                + f"Error reading file: {self.parameter('simulation_file_met').value} -> {e}")
+            self._sim_.message(Message(msg, "ERROR"))
 
         self._set_ordered_component_list_()
         
@@ -481,7 +479,7 @@ class Project(Parameter_container):
                     daylight_saving = True
 
             # Update Shadows
-            if self.parameter("shadow_calculation").value == "INSTANT":
+            if self.parameter("shadow_calculation").value == "INSTANT" and met_file != None:
                 cos = met_file.sun_cosines(date)
                 if len(cos) == 3:
                     self.env_3D.calculate_shadows(cos,create_polygons=False)
