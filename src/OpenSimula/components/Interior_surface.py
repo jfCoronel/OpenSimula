@@ -2,6 +2,7 @@ from OpenSimula.Message import Message
 from OpenSimula.components.Real_surface import Real_surface
 from OpenSimula.Parameters import Parameter_component_list, Parameter_float_list
 from OpenSimula.Variable import Variable
+from OpenSimula.visual_3D.Polygon_3D import Polygon_3D
 
 
 class Interior_surface(Real_surface):
@@ -10,10 +11,12 @@ class Interior_surface(Real_surface):
         # Parameters
         self.parameter("type").value = "Interior_surface"
         self.parameter("description").value = "Building interior surface"
-        self.add_parameter(Parameter_component_list(
-            "spaces", ["not_defined", "not_defined"], ["Space"]))
-        self.add_parameter(Parameter_float_list(
-            "h_cv", [2, 2], "W/m²K", min=0))
+        self.add_parameter(
+            Parameter_component_list(
+                "spaces", ["not_defined", "not_defined"], ["Space"]
+            )
+        )
+        self.add_parameter(Parameter_float_list("h_cv", [2, 2], "W/m²K", min=0))
 
         # Variables
         self.add_variable(Variable("debug_f0", ""))
@@ -28,7 +31,10 @@ class Interior_surface(Real_surface):
     def check(self):
         errors = super().check()
         # Test spaces defined
-        if self.parameter("spaces").value[0] == "not_defined" or self.parameter("spaces").value[1] == "not_defined":
+        if (
+            self.parameter("spaces").value[0] == "not_defined"
+            or self.parameter("spaces").value[1] == "not_defined"
+        ):
             msg = f"{self.parameter('name').value}, must define two spaces."
             errors.append(Message(msg, "ERROR"))
         return errors
@@ -39,10 +45,11 @@ class Interior_surface(Real_surface):
         self._calculate_K()
 
     def _calculate_K(self):
-        self.a_0, self.a_1, self.a_01 = self.parameter(
-            "construction").component.get_A()
-        self.k = [self.area * (self.a_0 - self.parameter("h_cv").value[0]),
-                  self.area * (self.a_1 - self.parameter("h_cv").value[1])]
+        self.a_0, self.a_1, self.a_01 = self.parameter("construction").component.get_A()
+        self.k = [
+            self.area * (self.a_0 - self.parameter("h_cv").value[0]),
+            self.area * (self.a_1 - self.parameter("h_cv").value[1]),
+        ]
         self.k_01 = self.area * self.a_01
 
     def pre_iteration(self, time_index, date, daylight_saving):
@@ -51,7 +58,13 @@ class Interior_surface(Real_surface):
 
     def _calculate_variables_pre_iteration(self, time_i):
         p_0, p_1 = self.parameter("construction").component.get_P(
-            time_i, self.variable("T_s0").values, self.variable("T_s1").values, self.variable("q_cd0").values, self.variable("q_cd1").values, self._T_ini)
+            time_i,
+            self.variable("T_s0").values,
+            self.variable("T_s1").values,
+            self.variable("q_cd0").values,
+            self.variable("q_cd1").values,
+            self._T_ini,
+        )
         self.variable("p_0").values[time_i] = p_0
         self.variable("p_1").values[time_i] = p_1
 
@@ -60,21 +73,55 @@ class Interior_surface(Real_surface):
         self._calculate_heat_fluxes(time_index)
 
     def _calculate_heat_fluxes(self, time_i):
-        self.variable("q_cd0").values[time_i] = self.a_0 * self.variable("T_s0").values[time_i] + \
-            self.a_01 * \
-            self.variable("T_s1").values[time_i] + \
-            self.variable("p_0").values[time_i]
-        self.variable("q_cd1").values[time_i] = self.a_01 * self.variable("T_s0").values[time_i] + \
-            self.a_1 * \
-            self.variable("T_s1").values[time_i] + \
-            self.variable("p_1").values[time_i]
-        self.variable("q_cv0").values[time_i] = self.parameter("h_cv").value[0] * (self.parameter(
-            "spaces").component[0].variable("temperature").values[time_i] - self.variable("T_s0").values[time_i])
-        self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[1] * (self.parameter(
-            "spaces").component[1].variable("temperature").values[time_i] - self.variable("T_s1").values[time_i])
-        self.variable("q_lwt0").values[time_i] = - self.variable("q_cd0").values[time_i] - self.variable("q_cv0").values[time_i] - \
-            self.variable("q_sol0").values[time_i] - self.variable(
-                "q_swig0").values[time_i] - self.variable("q_lwig0").values[time_i]
-        self.variable("q_lwt1").values[time_i] = - self.variable("q_cd1").values[time_i] - self.variable("q_cv1").values[time_i] - \
-            self.variable("q_sol1").values[time_i] - self.variable(
-                "q_swig1").values[time_i] - self.variable("q_lwig1").values[time_i]
+        self.variable("q_cd0").values[time_i] = (
+            self.a_0 * self.variable("T_s0").values[time_i]
+            + self.a_01 * self.variable("T_s1").values[time_i]
+            + self.variable("p_0").values[time_i]
+        )
+        self.variable("q_cd1").values[time_i] = (
+            self.a_01 * self.variable("T_s0").values[time_i]
+            + self.a_1 * self.variable("T_s1").values[time_i]
+            + self.variable("p_1").values[time_i]
+        )
+        self.variable("q_cv0").values[time_i] = self.parameter("h_cv").value[0] * (
+            self.parameter("spaces").component[0].variable("temperature").values[time_i]
+            - self.variable("T_s0").values[time_i]
+        )
+        self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[1] * (
+            self.parameter("spaces").component[1].variable("temperature").values[time_i]
+            - self.variable("T_s1").values[time_i]
+        )
+        self.variable("q_lwt0").values[time_i] = (
+            -self.variable("q_cd0").values[time_i]
+            - self.variable("q_cv0").values[time_i]
+            - self.variable("q_sol0").values[time_i]
+            - self.variable("q_swig0").values[time_i]
+            - self.variable("q_lwig0").values[time_i]
+        )
+        self.variable("q_lwt1").values[time_i] = (
+            -self.variable("q_cd1").values[time_i]
+            - self.variable("q_cv1").values[time_i]
+            - self.variable("q_sol1").values[time_i]
+            - self.variable("q_swig1").values[time_i]
+            - self.variable("q_lwig1").values[time_i]
+        )
+
+    def get_polygon_3D(self):
+        azimuth = self.orientation_angle("azimuth", 0, "global")
+        altitude = self.orientation_angle("altitude", 0, "global")
+        origin = self.get_origin("global")
+        pol_2D = self.get_polygon_2D()
+        name = self.parameter("name").value
+        # holes_2D = []
+        # for opening in self.openings:
+        #    holes_2D.append(opening.get_polygon_2D())
+        return Polygon_3D(
+            name,
+            origin,
+            azimuth,
+            altitude,
+            pol_2D,
+            color="green",
+            shading=False,
+            calculate_shadows=False,
+        )

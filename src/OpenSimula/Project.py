@@ -448,7 +448,7 @@ class Project(Parameter_container):
         # Initialize 3D environment
         self.env_3D = Environment_3D()
         if self.parameter("shadow_calculation").value != "NO":
-            self._load_buildings_3D(self.env_3D)
+            self.create_3D_environment(self.env_3D)
             self._sim_.message(Message("Calculating solar direct shadows ...", "CONSOLE"))
             self.env_3D.calculate_solar_tables()
         self._pre_simulation_(n, delta_t)
@@ -646,19 +646,19 @@ class Project(Parameter_container):
 
         editor.run(jupyter_height=600)
 
-    def _load_buildings_3D(self, env_3D):
-        building_list = self.component_list("Building")
-        for building in building_list:
-            building._create_building_3D(env_3D)
-
+    def create_3D_environment(self, env_3D):
+        for component in self.component_list("all"):
+            if hasattr(component, "get_polygon_3D"):
+                env_3D.add_polygon_3D(component.get_polygon_3D())
+           
     def show_3D(self):
         env_3D = Environment_3D()
-        self._load_buildings_3D(env_3D)
+        self.create_3D_environment(env_3D)
         env_3D.show(polygons_type="initial")
     
     def show_3D_shadows(self, date):
         env_3D = Environment_3D()
-        self._load_buildings_3D(env_3D)
+        self.create_3D_environment(env_3D)
         file_met = self.parameter("simulation_file_met").component
         cos = file_met.sun_cosines(date)
         if len(cos) == 3:
@@ -669,7 +669,7 @@ class Project(Parameter_container):
 
     def show_3D_shadows_animation(self, date):
         env_3D = Environment_3D()
-        self._load_buildings_3D(env_3D)
+        self.create_3D_environment(env_3D)
         file_met = self.parameter("simulation_file_met").component
         texts = []
         cosines = []

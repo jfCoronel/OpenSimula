@@ -61,9 +61,9 @@ class Surface(Component):
     def orientation_angle(self, angle, side, coordinate_system="global"):
         if angle == "azimuth":
             az = self.parameter("azimuth").value
-            if coordinate_system == "global":
-                azi_building = self.building().parameter("azimuth").value
-                az = az + azi_building
+            if self.building() is not None and coordinate_system == "global":
+                    azi_building = self.building().parameter("azimuth").value
+                    az = az + azi_building
             if side == 0:
                 return az
             elif side == 1:
@@ -78,8 +78,11 @@ class Surface(Component):
             elif side == 1:
                 return -alt
 
+    def building(self): # Default no building
+        return None
+    
     def radiant_property(self, prop, radiation_type, side, theta=0):
-        """It maus be redefined by child classes
+        """It must be redefined by child classes
 
         Args:
             prop (_type_): _description_
@@ -95,14 +98,19 @@ class Surface(Component):
         return False
 
     def get_origin(self, coordinate_system="global"):
-        if coordinate_system == "global":
-            az_b = math.radians(self.building().parameter("azimuth").value)
-            local_origin = self.parameter("ref_point").value
-            global_origin = [local_origin[0]*math.cos(az_b)-local_origin[1]*math.sin(az_b),
+        if self.building() is not None:
+            if coordinate_system == "global":
+                az_b = math.radians(self.building().parameter("azimuth").value)
+                local_origin = self.parameter("ref_point").value
+                global_origin = [local_origin[0]*math.cos(az_b)-local_origin[1]*math.sin(az_b),
                              local_origin[0]*math.sin(az_b) +
                              local_origin[1]*math.cos(az_b),
                              local_origin[2]]
-            return global_origin
+                return global_origin
+            elif coordinate_system == "building":
+                return np.array(self.parameter("ref_point").value)+ np.array(self.building().parameter("ref_point").value)
+            else:
+                return self.parameter("ref_point").value
         else:
             return self.parameter("ref_point").value
 
@@ -118,7 +126,8 @@ class Surface(Component):
                 polygon2D.append([self.parameter("x_polygon").value[i],
                                   self.parameter("y_polygon").value[i]])
             return polygon2D
-    
-    # def _calculate_solar_direct(self, time_index):
-    #     pass # To be overwritten
+        
+    def get_polygon_3D(self): # Global coordenates
+        return None
 
+    
