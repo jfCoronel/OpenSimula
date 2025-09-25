@@ -9,7 +9,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         Component.__init__(self, name, project)
         self.parameter("type").value = "HVAC_SZW_system"
         self.parameter("description").value = "HVAC Single Zone Water system"
-        self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space
+        self.add_parameter(Parameter_component("spaces", "not_defined", ["Space"])) # Space
         self.add_parameter(Parameter_component("cooling_coil", "not_defined", ["HVAC_coil_equipment"]))
         self.add_parameter(Parameter_component("heating_coil", "not_defined", ["HVAC_coil_equipment"]))
         self.add_parameter(Parameter_component("supply_fan", "not_defined", ["HVAC_fan_equipment"]))
@@ -61,7 +61,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
     def check(self):
         errors = super().check()
         # Test space defined
-        if self.parameter("space").value == "not_defined":
+        if self.parameter("spaces").value == "not_defined":
             msg = f"{self.parameter('name').value}, must define its space."
             errors.append(Message(msg, "ERROR"))
         # Test coil defined
@@ -86,7 +86,7 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
         self.file_met = self.project().parameter("simulation_file_met").component
 
         # Parameters        
-        self.space = self.parameter("space").component
+        self.space = self.parameter("spaces").component
         self.c_coil = self.parameter("cooling_coil").component
         self.h_coil = self.parameter("heating_coil").component
         self.supply_fan = self.parameter("supply_fan").component

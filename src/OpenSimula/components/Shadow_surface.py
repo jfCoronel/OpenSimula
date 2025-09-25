@@ -22,7 +22,7 @@ class Shadow_surface(Surface):
             errors.append(Message(msg, "ERROR"))
         return errors
 
-    def building(self):
+    def get_building(self):
         return self.parameter("building").component
 
     def get_polygon_3D(self):

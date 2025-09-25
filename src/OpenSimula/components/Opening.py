@@ -17,7 +17,7 @@ class Opening(Component):
         self.parameter("type").value = "Opening"
         self.parameter("description").value = "Rectangular opening in building surfaces"
         self.add_parameter(
-            Parameter_component("surface", "not_defined", ["Exterior_surface"])
+            Parameter_component("surface", "not_defined", ["Building_surface"])
         )
         self.add_parameter(
             Parameter_component("opening_type", "not_defined", ["Opening_type"])
@@ -69,11 +69,11 @@ class Opening(Component):
             errors.append(Message(msg, "ERROR"))
         return errors
 
-    def building(self):
-        return self.parameter("surface").component.building()
+    def get_building(self):
+        return self.parameter("surface").component.get_building()
 
-    def space(self):
-        return self.parameter("surface").component.space()
+    def get_space(self):
+        return self.parameter("surface").component.get_space()
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
@@ -183,18 +183,6 @@ class Opening(Component):
             direct_sunny_fraction = 1
         return direct_sunny_fraction
 
-    # def _calculate_solar_direct(self, time_index):
-    #     sunny_fracion = self.building().get_direct_sunny_fraction(self)
-    #     E_dir = self.variable("E_dir").values[time_index] * sunny_fracion
-    #     theta = self.variable("theta_sun").values[time_index]
-    #     self.variable("E_dir").values[time_index] = E_dir
-    #     if E_dir > 0:
-    #         self.variable("E_dir_tra").values[time_index] = E_dir * self.radiant_property("tau", "solar_direct", 0, theta)
-    #         self.variable("q_sol0").values[time_index] += self.radiant_property("alpha", "solar_direct", 0, theta) * E_dir
-    #         self.variable("q_sol1").values[time_index] += self.radiant_property("alpha_other_side", "solar_direct", 0, theta) * E_dir
-    #     else:
-    #         self.variable("E_dir_tra").values[time_index] = 0
-
     def _f_setback_(self, time_i, azimuth_sur, altitude_sur):
         theta_h = math.fabs(
             self._file_met.variable("sol_azimuth").values[time_i] - azimuth_sur
@@ -264,8 +252,7 @@ class Opening(Component):
         )
         T_z = (
             self.parameter("surface")
-            .component.parameter("space")
-            .component.variable("temperature")
+            .component.get_space().variable("temperature")
             .values[time_i]
         )
         self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[1] * (

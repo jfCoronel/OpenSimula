@@ -54,9 +54,9 @@ Projects contain a set of components defining a case that can be temporarily sim
 - **n_max_iteration** [_int_, default = 1000, min = 1]: Maximum number of iterations in each time step. If after this number of iterations the instant has not converged, it is passed to the next time instant. 
 - **simulation_order** [_string-list_, default = [
                     "Space_type",
-                    "Exterior_surface",
-                    "Underground_surface",
-                    "Interior_surface",
+                    "Building_surface",
+                    "Building_surface",
+                    "Building_surface",
                     "Virtual_surface",
                     "Shadow_surface",
                     "Opening",

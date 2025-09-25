@@ -21,7 +21,7 @@ The load supplied by the system is that required to maintain the space within th
 
 system = osm.components.HVAC_perfect_system("system",project)
 param = {
-        "space": "space_1",
+        "spaces": "spaces_1",
         "outdoor_air_flow": "0.1",
         "heating_setpoint": "20",
         "cooling_setpoint": "27",
@@ -156,7 +156,7 @@ The operation of the "TEMPERATURE" economizer control_type is as follows:
 
 system = osm.components.HVAC_DX_system("system",project)
 param = {
-        "space": "space_1",
+        "spaces": "spaces_1",
         "equipment": "HVAC_equipment",
         "air_flow": 0.417,
         "outdoor_air_fraction": 0,
@@ -307,7 +307,7 @@ Component for the simulation of single zone water air-conditioning system. It ca
 
 system = osm.components.HVAC_SZW_system("system",project)
 param = {
-        "space": "space_1",
+        "spaces": "spaces_1",
         "coil": "coil",
         "supply_fan": "supply_fan",
         "air_flow": 0.28536,

@@ -30,7 +30,7 @@ building.set_parameters(param)
 #### functions
 The Building component include the following functions:
 
-- **show3D(hide, opacity, coordinate_system, space)**: Displays in Jupyter an interactive 3D visualization of the building (using pyVista). _hide_: (default value: []) List of the types of components that we do not want to show, for example [“Interior_surface”, "Underground_surface"] will hide these two types of components. _opacity_: Opacity of the surfaces, 1 (default value) for totally opaque and 0 for totally transparent. _coordinate_system_: Coordinate system in which the building will be displayed, “global” (default value), “local” the coordinate system of the building. _space_: (default value: “all”) If a space name is specified, the rest of the spaces will be shown dimmed (opacity = 0.25).
+- **show3D(hide, opacity, coordinate_system, space)**: Displays in Jupyter an interactive 3D visualization of the building (using pyVista). _hide_: (default value: []) List of the types of components that we do not want to show, for example [“Building_surface”, "Building_surface"] will hide these two types of components. _opacity_: Opacity of the surfaces, 1 (default value) for totally opaque and 0 for totally transparent. _coordinate_system_: Coordinate system in which the building will be displayed, “global” (default value), “local” the coordinate system of the building. _space_: (default value: “all”) If a space name is specified, the rest of the spaces will be shown dimmed (opacity = 0.25).
 
  - **show3D_shadows(date)**: Calculates and displays an interactive 3D visualization of the building with the shadows occurring for the date specified. _date_: Python datetime object specifying a specific date. See next figure as example.
 
@@ -102,10 +102,10 @@ Component used to define each of the building's spaces. The spaces of a building
 <pre><code class="python">
 ...
 
-space_1 = osm.components.Space("space_1",project)
+space_1 = osm.components.Space("spaces_1",project)
 param = {
         "building": "building",
-        "space_type": "office_space",
+        "spaces_type": "office_space",
         "floor_area": 30,
         "volume": 90
 }
@@ -138,7 +138,7 @@ After the simulation we will have the following variables of this component:
 - __system_sensible_latent__ [W]: Latent heat introduced by control system in space. Positive for humidification and negative for dehumidification.
 
 
-### Exterior_surface
+### Building_surface
 
 Component to define the exterior surfaces of the building: vertical or inclined walls and horizontal or inclined roofs.
 
@@ -166,7 +166,7 @@ The following figures show the surface coordinate system versus the building coo
 <pre><code class="python">
 ...
 
-north_wall = osm.components.Exterior_surface("north_wall",project)
+north_wall = osm.components.Building_surface("north_wall",project)
 param = {
         "ref_point": [8,0,-6],
         "width": 8,
@@ -174,7 +174,7 @@ param = {
         "azimuth": 180,
         "altitude": 0,
         "construction": "Multilayer_wall",
-        "space": "space_1"
+        "spaces": "spaces_1"
 }
 north_wall.set_parameters(param)
 </code></pre>
@@ -195,7 +195,7 @@ After the simulation we will have the following variables of this component, all
 - __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
 - __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
 
-### Interior_surface
+### Building_surface
 
 Component to define the interior surfaces of the building: vertical or inclined interior walls and slabs between floors.
 
@@ -213,13 +213,13 @@ Component to define the interior surfaces of the building: vertical or inclined 
 - **spaces** [_component-list_, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.
 - **h_cv** [_float-list_, unit = "W/m²K", default = [2,2], min = 0]: Convective film coefficients of the 0 an 1 side, respectively.
 
-See figures of the coordinate systems in the "Exterior_surface" component.
+See figures of the coordinate systems in the "Building_surface" component.
 
 **Example:**
 <pre><code class="python">
 ...
 
-interior_wall = osm.components.Interior_surface("interior_wall",project)
+interior_wall = osm.components.Building_surface("interior_wall",project)
 param = {
         "ref_point": [8,0,-3],
         "width": 8,
@@ -227,7 +227,7 @@ param = {
         "azimuth": 0,
         "altitude": 0,
         "construction": "Multilayer_wall",
-        "spaces": ["space_0", "space_1"]
+        "spaces": ["spaces_0", "spaces_1"]
 }
 interior_wall.set_parameters(param)
 </code></pre>
@@ -246,7 +246,7 @@ After the simulation we will have the following variables of this component, all
 - __p_0, p_1__ [W/m²]: Conductive heat flux at the surfaces due to previous time steps.
 
 
-### Underground_surface
+### Building_surface
 
 Component define the surfaces in contact with the ground. Floors or vertical undergorund enclosures.
 
@@ -264,13 +264,13 @@ Component define the surfaces in contact with the ground. Floors or vertical und
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.
 - **h_cv** [_float_, unit = "W/m²K", default = 2, min = 0]: Convective film coefficient of interior surface.
 
-See figures of the coordinate systems in the "Exterior_surface" component.
+See figures of the coordinate systems in the "Building_surface" component.
 
 **Example:**
 <pre><code class="python">
 ...
 
-floor = osm.components.Underground_surface("floor",project)
+floor = osm.components.Building_surface("floor",project)
 param = {
         "shape": "POLYGON",
         "ref_point": [0,0,0],
@@ -279,7 +279,7 @@ param = {
         "azimuth": 0,
         "altitude": -90,
         "construction": "Multilayer wall",
-        "space": "space_1"
+        "spaces": "spaces_1"
 }
 floor.set_parameters(param)
 </code></pre>
@@ -314,7 +314,7 @@ Virtual surfaces are used to define gaps between two spaces. Spaces in OpenSimul
 - **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.
 - **spaces** [_component-list_, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.
 
-See figures of the coordinate systems in the "Exterior_surface" component.
+See figures of the coordinate systems in the "Building_surface" component.
 
 **Example:**
 <pre><code class="python">
@@ -327,7 +327,7 @@ param = {
             "height": 2.7,
             "azimuth": 0,
             "altitude": 0,
-            "spaces": ["space_0","space_1"]
+            "spaces": ["spaces_0","spaces_1"]
 }
 interior_hole.set_parameters(param)
 </code></pre>
@@ -338,7 +338,7 @@ Component for defining openings in exterior surfaces, e.g. windows or doors. The
 
 #### Parameters
 
-- **surface** [_component_, default = "not_defined", component type = Exterior_surface]: Reference to the "Exterior_surface" in which it is located.
+- **surface** [_component_, default = "not_defined", component type = Building_surface]: Reference to the "Building_surface" in which it is located.
 - **width** [_float_, unit = "m", default = 1, min = 0]: Width of the opening.
 - **height** [_float_, unit = "m", default = 1, min = 0]: Height of the opening.
 - **ref_point** [_float-list_, unit = "m", default = [0,0]]: Two-dimensional coordinate of the opening reference point in the exterior wall coordinate system. The reference point is the lower left corner of the opening viewed from the outside.

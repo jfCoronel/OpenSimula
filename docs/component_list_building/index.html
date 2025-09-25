@@ -129,15 +129,15 @@
                 
                 <li class="third-level"><a href="#parameters_2">Parameters</a></li>
                 <li class="third-level"><a href="#variables_1">Variables</a></li>
-            <li class="second-level"><a href="#exterior_surface">Exterior_surface</a></li>
+            <li class="second-level"><a href="#exterior_surface">Building_surface</a></li>
                 
                 <li class="third-level"><a href="#parameters_3">Parameters</a></li>
                 <li class="third-level"><a href="#variables_2">Variables</a></li>
-            <li class="second-level"><a href="#interior_surface">Interior_surface</a></li>
+            <li class="second-level"><a href="#interior_surface">Building_surface</a></li>
                 
                 <li class="third-level"><a href="#parameters_4">Parameters</a></li>
                 <li class="third-level"><a href="#variables_3">Variables</a></li>
-            <li class="second-level"><a href="#underground_surface">Underground_surface</a></li>
+            <li class="second-level"><a href="#underground_surface">Building_surface</a></li>
                 
                 <li class="third-level"><a href="#parameters_5">Parameters</a></li>
                 <li class="third-level"><a href="#variables_4">Variables</a></li>
@@ -186,14 +186,14 @@ building.set_parameters(param)
 <p>The Building component include the following functions:</p>
 <ul>
 <li>
-<p><strong>show3D(hide, opacity, coordinate_system, space)</strong>: Displays in Jupyter an interactive 3D visualization of the building (using pyVista). <em>hide</em>: (default value: []) List of the types of components that we do not want to show, for example [“Interior_surface”, "Underground_surface"] will hide these two types of components. <em>opacity</em>: Opacity of the surfaces, 1 (default value) for totally opaque and 0 for totally transparent. <em>coordinate_system</em>: Coordinate system in which the building will be displayed, “global” (default value), “local” the coordinate system of the building. <em>space</em>: (default value: “all”) If a space name is specified, the rest of the spaces will be shown dimmed (opacity = 0.25).</p>
+<p><strong>show3D(hide, opacity, coordinate_system, space)</strong>: Displays in Jupyter an interactive 3D visualization of the building (using pyVista). <em>hide</em>: (default value: []) List of the types of components that we do not want to show, for example [“Building_surface”, "Building_surface"] will hide these two types of components. <em>opacity</em>: Opacity of the surfaces, 1 (default value) for totally opaque and 0 for totally transparent. <em>coordinate_system</em>: Coordinate system in which the building will be displayed, “global” (default value), “local” the coordinate system of the building. <em>space</em>: (default value: “all”) If a space name is specified, the rest of the spaces will be shown dimmed (opacity = 0.25).</p>
 </li>
 <li>
 <p><strong>show3D_shadows(date)</strong>: Calculates and displays an interactive 3D visualization of the building with the shadows occurring for the date specified. <em>date</em>: Python datetime object specifying a specific date. See next figure as example.</p>
 </li>
 </ul>
 <p><img alt="show3D_shadows" src="../img/show3D_shadows.png" /> </p>
-<h3 id="space_type">Space_type</h3>
+<h3 id="spaces_type">Space_type</h3>
 <p>Component used to define the type of space. This component will be referenced by all spaces that are of the same type. This component defines the internal loads and some of the functional characteristics of the space.</p>
 <h4 id="parameters_1">Parameters</h4>
 <ul>
@@ -239,7 +239,7 @@ office_space.set_parameters(param)
 <li><strong>other_gains_latent</strong> [W/m²]: Latent heat due to other gains.</li>
 <li><strong>infiltration_rate</strong> [1/h]: Air flow rate infiltrated into the space from outside, expressed in volumes of the space per hour.</li>
 </ul>
-<h3 id="space">Space</h3>
+<h3 id="spaces">Space</h3>
 <p>Component used to define each of the building's spaces. The spaces of a building are each of the volumes of the building where we can find a different temperatures. The spaces will be referenced by the different surfaces that comprise them.</p>
 <h4 id="parameters_2">Parameters</h4>
 <ul>
@@ -253,10 +253,10 @@ office_space.set_parameters(param)
 <pre><code class="python">
 ...
 
-space_1 = osm.components.Space("space_1",project)
+space_1 = osm.components.Space("spaces_1",project)
 param = {
         "building": "building",
-        "space_type": "office_space",
+        "spaces_type": "office_space",
         "floor_area": 30,
         "volume": 90
 }
@@ -287,7 +287,7 @@ space_1.set_parameters(param)
 <li><strong>system_sensible_heat</strong> [W]: Sensible heat introduced by the system responsible for space control. Positive for heating and negative for cooling.</li>
 <li><strong>system_sensible_latent</strong> [W]: Latent heat introduced by control system in space. Positive for humidification and negative for dehumidification.</li>
 </ul>
-<h3 id="exterior_surface">Exterior_surface</h3>
+<h3 id="exterior_surface">Building_surface</h3>
 <p>Component to define the exterior surfaces of the building: vertical or inclined walls and horizontal or inclined roofs.</p>
 <h4 id="parameters_3">Parameters</h4>
 <ul>
@@ -310,7 +310,7 @@ space_1.set_parameters(param)
 <pre><code class="python">
 ...
 
-north_wall = osm.components.Exterior_surface("north_wall",project)
+north_wall = osm.components.Building_surface("north_wall",project)
 param = {
         "ref_point": [8,0,-6],
         "width": 8,
@@ -318,7 +318,7 @@ param = {
         "azimuth": 180,
         "altitude": 0,
         "construction": "Multilayer_wall",
-        "space": "space_1"
+        "spaces": "spaces_1"
 }
 north_wall.set_parameters(param)
 </code></pre>
@@ -338,7 +338,7 @@ north_wall.set_parameters(param)
 <li><strong>E_dir</strong> [W/m²]: Direct solar radiation incident on the exterior surface.</li>
 <li><strong>E_dif</strong> [W/m²]: Diffuse solar radiation incident on the exterior surface.</li>
 </ul>
-<h3 id="interior_surface">Interior_surface</h3>
+<h3 id="interior_surface">Building_surface</h3>
 <p>Component to define the interior surfaces of the building: vertical or inclined interior walls and slabs between floors.</p>
 <h4 id="parameters_4">Parameters</h4>
 <ul>
@@ -354,12 +354,12 @@ north_wall.set_parameters(param)
 <li><strong>spaces</strong> [<em>component-list</em>, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.</li>
 <li><strong>h_cv</strong> [<em>float-list</em>, unit = "W/m²K", default = [2,2], min = 0]: Convective film coefficients of the 0 an 1 side, respectively.</li>
 </ul>
-<p>See figures of the coordinate systems in the "Exterior_surface" component.</p>
+<p>See figures of the coordinate systems in the "Building_surface" component.</p>
 <p><strong>Example:</strong></p>
 <pre><code class="python">
 ...
 
-interior_wall = osm.components.Interior_surface("interior_wall",project)
+interior_wall = osm.components.Building_surface("interior_wall",project)
 param = {
         "ref_point": [8,0,-3],
         "width": 8,
@@ -367,7 +367,7 @@ param = {
         "azimuth": 0,
         "altitude": 0,
         "construction": "Multilayer_wall",
-        "spaces": ["space_0", "space_1"]
+        "spaces": ["spaces_0", "spaces_1"]
 }
 interior_wall.set_parameters(param)
 </code></pre>
@@ -384,7 +384,7 @@ interior_wall.set_parameters(param)
 <li><strong>q_lwt0, q_lwt1</strong> [W/m²]: Radiant long wave heat flux at the surfaces due other surfaces temperatures.</li>
 <li><strong>p_0, p_1</strong> [W/m²]: Conductive heat flux at the surfaces due to previous time steps.</li>
 </ul>
-<h3 id="underground_surface">Underground_surface</h3>
+<h3 id="underground_surface">Building_surface</h3>
 <p>Component define the surfaces in contact with the ground. Floors or vertical undergorund enclosures.</p>
 <h4 id="parameters_5">Parameters</h4>
 <ul>
@@ -400,12 +400,12 @@ interior_wall.set_parameters(param)
 <li><strong>space</strong> [<em>component</em>, default = "not_defined", component type = Space]: Reference to the "Space" component to which it belongs.</li>
 <li><strong>h_cv</strong> [<em>float</em>, unit = "W/m²K", default = 2, min = 0]: Convective film coefficient of interior surface.</li>
 </ul>
-<p>See figures of the coordinate systems in the "Exterior_surface" component.</p>
+<p>See figures of the coordinate systems in the "Building_surface" component.</p>
 <p><strong>Example:</strong></p>
 <pre><code class="python">
 ...
 
-floor = osm.components.Underground_surface("floor",project)
+floor = osm.components.Building_surface("floor",project)
 param = {
         "shape": "POLYGON",
         "ref_point": [0,0,0],
@@ -414,7 +414,7 @@ param = {
         "azimuth": 0,
         "altitude": -90,
         "construction": "Multilayer wall",
-        "space": "space_1"
+        "spaces": "spaces_1"
 }
 floor.set_parameters(param)
 </code></pre>
@@ -445,7 +445,7 @@ floor.set_parameters(param)
 <li><strong>altitude</strong> [<em>float</em>, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.</li>
 <li><strong>spaces</strong> [<em>component-list</em>, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1.</li>
 </ul>
-<p>See figures of the coordinate systems in the "Exterior_surface" component.</p>
+<p>See figures of the coordinate systems in the "Building_surface" component.</p>
 <p><strong>Example:</strong></p>
 <pre><code class="python">
 ...
@@ -457,7 +457,7 @@ param = {
             "height": 2.7,
             "azimuth": 0,
             "altitude": 0,
-            "spaces": ["space_0","space_1"]
+            "spaces": ["spaces_0","spaces_1"]
 }
 interior_hole.set_parameters(param)
 </code></pre>
@@ -466,7 +466,7 @@ interior_hole.set_parameters(param)
 <p>Component for defining openings in exterior surfaces, e.g. windows or doors. These elements must be rectangular.</p>
 <h4 id="parameters_7">Parameters</h4>
 <ul>
-<li><strong>surface</strong> [<em>component</em>, default = "not_defined", component type = Exterior_surface]: Reference to the "Exterior_surface" in which it is located.</li>
+<li><strong>surface</strong> [<em>component</em>, default = "not_defined", component type = Building_surface]: Reference to the "Building_surface" in which it is located.</li>
 <li><strong>width</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Width of the opening.</li>
 <li><strong>height</strong> [<em>float</em>, unit = "m", default = 1, min = 0]: Height of the opening.</li>
 <li><strong>ref_point</strong> [<em>float-list</em>, unit = "m", default = [0,0]]: Two-dimensional coordinate of the opening reference point in the exterior wall coordinate system. The reference point is the lower left corner of the opening viewed from the outside.</li>

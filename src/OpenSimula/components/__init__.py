@@ -12,10 +12,8 @@ from OpenSimula.components.File_met import File_met
 from OpenSimula.components.Space_type import Space_type
 from OpenSimula.components.Building import Building
 from OpenSimula.components.Space import Space
-from OpenSimula.components.Exterior_surface import Exterior_surface
-from OpenSimula.components.Interior_surface import Interior_surface
+from OpenSimula.components.Building_surface import Building_surface
 from OpenSimula.components.Virtual_surface import Virtual_surface
-from OpenSimula.components.Underground_surface import Underground_surface
 from OpenSimula.components.Shadow_surface import Shadow_surface
 from OpenSimula.components.Opening import Opening
 from OpenSimula.components.Calculator import Calculator
@@ -29,9 +27,7 @@ from OpenSimula.components.HVAC_perfect_system import HVAC_perfect_system
 
 DEFAULT_COMPONENTS_ORDER = [
                     "Space_type",
-                    "Exterior_surface",
-                    "Underground_surface",
-                    "Interior_surface",
+                    "Building_surface",
                     "Virtual_surface",
                     "Shadow_surface",
                     "Opening",

@@ -14,7 +14,7 @@ class Space(Component):
         self.parameter("type").value = "Space"
         self.parameter("description").value = "Indoor building space"
         # Parameters
-        self.add_parameter(Parameter_component("space_type", "not_defined", ["Space_type"]))
+        self.add_parameter(Parameter_component("spaces_type", "not_defined", ["Space_type"]))
         self.add_parameter(Parameter_component("building", "not_defined", ["Building"]))
         self.add_parameter(Parameter_float("floor_area", 1, "m²", min=0.0))
         self.add_parameter(Parameter_float("volume", 1, "m³", min=0.0))
@@ -45,7 +45,7 @@ class Space(Component):
         self.add_variable(Variable("u_system_sensible_heat", unit="W"))
         self.add_variable(Variable("u_system_latent_heat", unit="W"))
 
-    def building(self):
+    def get_building(self):
         return self.parameter("building").component
 
     def check(self):
@@ -55,7 +55,7 @@ class Space(Component):
             msg = f"{self.parameter('name').value}, must define its building."
             errors.append(Message(msg, "ERROR"))
         # Test space_type defined
-        if self.parameter("space_type").value == "not_defined":
+        if self.parameter("spaces_type").value == "not_defined":
             msg = f"{self.parameter('name').value}, must define its Space_type."
             errors.append(Message(msg, "ERROR"))
         self._create_surfaces_list()
@@ -66,7 +66,7 @@ class Space(Component):
         sicro.SetUnitSystem(sicro.SI)
         self._file_met = self.project().parameter("simulation_file_met").component
         self.props = self._sim_.props
-        self._space_type_comp = self.parameter("space_type").component
+        self._space_type_comp = self.parameter("spaces_type").component
         self._area = self.parameter("floor_area").value
         self._volume = self.parameter("volume").value
         self._m_furniture = self._area * self.parameter("furniture_weight").value
@@ -81,29 +81,33 @@ class Space(Component):
         self.surfaces = []
         self.sides = []
         # Exterior
-        surfaces_list = self.project().component_list("Exterior_surface")
+        surfaces_list = self.project().component_list("Building_surface")
         for surface in surfaces_list:
-            if surface.parameter("space").component == self:
-                self.surfaces.append(surface)
-                self.sides.append(1)
-                for opening in surface.openings:
-                    self.surfaces.append(opening)
+            surface_type = surface.parameter("surface_type").value
+            if surface_type == "EXTERIOR" :
+                if surface.get_space() == self:
+                    self.surfaces.append(surface)
                     self.sides.append(1)
-        # Underground
-        surfaces_list = self.project().component_list("Underground_surface")
-        for surface in surfaces_list:
-            if surface.parameter("space").component == self:
-                self.surfaces.append(surface)
-                self.sides.append(1)
-        # Interior
-        surfaces_list = self.project().component_list("Interior_surface")
-        for surface in surfaces_list:
-            if surface.parameter("spaces").component[0] == self:
-                self.surfaces.append(surface)
-                self.sides.append(0)
-            elif surface.parameter("spaces").component[1] == self:
-                self.surfaces.append(surface)
-                self.sides.append(1)
+                    for opening in surface.openings:
+                        self.surfaces.append(opening)
+                        self.sides.append(1)
+            elif surface_type == "UNDERGROUND":
+                if surface.get_space() == self:
+                    self.surfaces.append(surface)
+                    self.sides.append(1)
+            elif surface_type == "INTERIOR":
+                if surface.get_space(0) == self:
+                    self.surfaces.append(surface)
+                    self.sides.append(0)
+                    for opening in surface.openings:
+                        self.surfaces.append(opening)
+                        self.sides.append(0)
+                elif surface.get_space(1) == self:
+                    self.surfaces.append(surface)
+                    self.sides.append(1)
+                    for opening in surface.openings:
+                        self.surfaces.append(opening)
+                        self.sides.append(1)
         # Virtual Surface
         surfaces_list = self.project().component_list("Virtual_surface")
         for surface in surfaces_list:
@@ -239,8 +243,8 @@ class Space(Component):
        
     def _estimate_T_w(self, time_i):
         if time_i == 0:
-            self._T_pre = self.building().parameter("initial_temperature").value
-            self._w_pre = self.building().parameter("initial_humidity").value
+            self._T_pre = self.get_building().parameter("initial_temperature").value
+            self._w_pre = self.get_building().parameter("initial_humidity").value
         else:
             self._T_pre = self.variable("temperature").values[time_i-1]
             self._w_pre = self.variable("abs_humidity").values[time_i-1]

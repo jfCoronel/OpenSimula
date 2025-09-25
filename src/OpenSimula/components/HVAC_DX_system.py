@@ -11,7 +11,7 @@ class HVAC_DX_system(Component):
         self.parameter("type").value = "HVAC_DX_system"
         self.parameter("description").value = "HVAC Direct Expansion system for time simulation"
         self.add_parameter(Parameter_component("equipment", "not_defined", ["HVAC_DX_equipment"]))
-        self.add_parameter(Parameter_component("space", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
+        self.add_parameter(Parameter_component("spaces", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
         self.add_parameter(Parameter_float("air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_math_exp("outdoor_air_fraction", "0", "frac"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
@@ -53,7 +53,7 @@ class HVAC_DX_system(Component):
             msg = f"{self.parameter('name').value}, must define its equipment."
             errors.append(Message(msg, "ERROR"))
         # Test space defined
-        if self.parameter("space").value == "not_defined":
+        if self.parameter("spaces").value == "not_defined":
             msg = f"{self.parameter('name').value}, must define its space."
             errors.append(Message(msg, "ERROR"))
         # Test file_met defined
@@ -65,7 +65,7 @@ class HVAC_DX_system(Component):
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         self._equipment = self.parameter("equipment").component
-        self._space = self.parameter("space").component
+        self._space = self.parameter("spaces").component
         self._file_met = self.project().parameter("simulation_file_met").component
         sicro.SetUnitSystem(sicro.SI)
         self.props = self._sim_.props

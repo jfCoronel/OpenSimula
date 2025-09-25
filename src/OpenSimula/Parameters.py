@@ -128,6 +128,8 @@ class Parameter_boolean_list(Parameter):
 
     @value.setter
     def value(self, value):
+        if isinstance(value, bool): # Single boolean
+            value = [value]
         if not isinstance(value, list):
             val, msg = self._cast_to_string_list_(value)
             if (msg == 'ok'):
@@ -171,6 +173,8 @@ class Parameter_string_list(Parameter):
 
     @value.setter
     def value(self, value):
+        if isinstance(value, str): # Single string
+            value = [value]
         if not isinstance(value, list):
             val, msg = self._cast_to_string_list_(value)
             if (msg == 'ok'):
@@ -237,6 +241,8 @@ class Parameter_int_list(Parameter):
 
     @value.setter
     def value(self, value):
+        if isinstance(value, int): # Single integer
+            value = [value]
         if not isinstance(value, list):
             val, msg = self._cast_to_string_list_(value)
             if (msg == 'ok'):
@@ -304,6 +310,8 @@ class Parameter_float_list(Parameter_int_list):
 
     @value.setter
     def value(self, value):
+        if isinstance(value, float): # Single float
+            value = [value]
         if not isinstance(value, list):
             val, msg = self._cast_to_string_list_(value)
             if (msg == 'ok'):
@@ -370,6 +378,8 @@ class Parameter_options_list(Parameter):
 
     @value.setter
     def value(self, value):
+        if isinstance(value, str): # Single string
+            value = [value]
         if not isinstance(value, list):
             val, msg = self._cast_to_string_list_(value)
             if (msg == 'ok'):
@@ -463,6 +473,8 @@ class Parameter_component_list(Parameter):
 
     @value.setter
     def value(self, value):
+        if isinstance(value, str): # Single string
+            value = [value]
         if not isinstance(value, list):
             val, msg = self._cast_to_string_list_(value)
             value = val
@@ -599,6 +611,8 @@ class Parameter_variable_list(Parameter):
 
     @value.setter
     def value(self, value):
+        if isinstance(value, str): # Single string
+            value = [value]
         if not isinstance(value, list):
             val, msg = self._cast_to_string_list_(value)
             value = val
@@ -719,6 +733,8 @@ class Parameter_math_exp_list(Parameter):
 
     @value.setter
     def value(self, value):
+        if isinstance(value, str): # Single string
+            value = [value]
         if not isinstance(value, list):
             val, msg = self._cast_to_string_list_(value)
             value = val

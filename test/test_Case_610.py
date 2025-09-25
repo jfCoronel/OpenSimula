@@ -155,18 +155,18 @@ case610_dict = {
         },
         {
             "type": "Space",
-            "name": "space_1",
+            "name": "spaces_1",
             "building": "Building",
-            "space_type": "constant_gain_space",
+            "spaces_type": "constant_gain_space",
             "floor_area": 48,
             "volume": 129.6,
             "furniture_weight": 0
         },
         {
-            "type": "Exterior_surface",
+            "type": "Building_surface",
             "name": "north_wall",
             "construction": "Wall",
-            "space": "space_1",
+            "spaces": "spaces_1",
             "ref_point": [
                 8,
                 6,
@@ -182,10 +182,10 @@ case610_dict = {
             ]
         },
         {
-            "type": "Exterior_surface",
+            "type": "Building_surface",
             "name": "east_wall",
             "construction": "Wall",
-            "space": "space_1",
+            "spaces": "spaces_1",
             "ref_point": [
                 8,
                 0,
@@ -201,10 +201,10 @@ case610_dict = {
             ]
         },
         {
-            "type": "Exterior_surface",
+            "type": "Building_surface",
             "name": "south_wall",
             "construction": "Wall",
-            "space": "space_1",
+            "spaces": "spaces_1",
             "ref_point": [
                 0,
                 0,
@@ -252,10 +252,10 @@ case610_dict = {
             ]
         },
         {
-            "type": "Exterior_surface",
+            "type": "Building_surface",
             "name": "west_wall",
             "construction": "Wall",
-            "space": "space_1",
+            "spaces": "spaces_1",
             "ref_point": [
                 0,
                 6,
@@ -271,10 +271,10 @@ case610_dict = {
             ]
         },
         {
-            "type": "Exterior_surface",
+            "type": "Building_surface",
             "name": "roof_wall",
             "construction": "Roof",
-            "space": "space_1",
+            "spaces": "spaces_1",
             "ref_point": [
                 0,
                 0,
@@ -290,10 +290,10 @@ case610_dict = {
             ]
         },
         {
-            "type": "Exterior_surface",
+            "type": "Building_surface",
             "name": "floor_wall",
             "construction": "Floor",
-            "space": "space_1",
+            "spaces": "spaces_1",
             "ref_point": [
                 0,
                 6,
@@ -325,7 +325,7 @@ case610_dict = {
         {
             "type": "HVAC_perfect_system",
             "name": "system",
-            "space": "space_1",
+            "spaces": "spaces_1",
             "outdoor_air_flow": 0,
             "heating_setpoint": "20",
             "cooling_setpoint": "27",

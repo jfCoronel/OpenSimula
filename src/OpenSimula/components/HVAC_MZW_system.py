@@ -172,7 +172,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             if self.parameter("terminal_units").value == "REHEAT_COILS":
                 self.add_variable(Variable(f"Q_reheat_{i}", unit="W"))
                 self.add_variable(Variable(f"T_SA_{i}", unit="°C"))
-                self.add_variable(Variable(f"space_setpoint_{i}", unit="°C"))
+                self.add_variable(Variable(f"spaces_setpoint_{i}", unit="°C"))
         return errors
        
 
@@ -245,7 +245,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             for i in range(len(self.parameter("spaces").value)):
                 val = self.parameter("spaces_setpoint").evaluate(i,var_dic)
                 self.T_space_sp.append(val)
-                self.variable(f"space_setpoint_{i}").values[time_index] = val
+                self.variable(f"spaces_setpoint_{i}").values[time_index] = val
         # on/off
         self.on_off = self.parameter("system_on_off").evaluate(var_dic)
         if self.on_off == 0:

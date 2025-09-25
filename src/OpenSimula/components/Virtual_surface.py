@@ -14,8 +14,8 @@ class Virtual_surface(Surface):
             Parameter_component_list("spaces", ["not_defined", "not_defined"])
         )
 
-    def building(self):
-        return self.parameter("spaces").component[0].building()
+    def get_building(self):
+        return self.parameter("spaces").component[0].get_building()
 
     def space(self, side=0):
         return self.parameter("spaces").component[side]

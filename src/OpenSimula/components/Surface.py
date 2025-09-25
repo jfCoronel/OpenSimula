@@ -4,6 +4,7 @@ from OpenSimula.Component import Component
 from OpenSimula.Message import Message
 from OpenSimula.Parameters import Parameter_options, Parameter_float, Parameter_float_list
 from shapely.geometry import Polygon
+from OpenSimula.Variable import Variable
 
 
 class Surface(Component):
@@ -11,7 +12,8 @@ class Surface(Component):
         Component.__init__(self, name, project)
         # Parameters
         self.parameter("type").value = "Surface"
-        self.parameter("description").value = "Building surface"
+        self.add_parameter(Parameter_float("azimuth", 0, "°", min=-180, max=180))  # Surface x vs Building x -> S: 0º, E: 90º, W: -90º, N: 180º
+        self.add_parameter(Parameter_float("altitude", 0, "°", min=-90, max=90))  # Surface y vs Building y -> vertical: 0º, facing up: 90º, facing down: -90º
         self.add_parameter(Parameter_options(
             "shape", "RECTANGLE", ["RECTANGLE", "POLYGON"]))
         self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
@@ -23,10 +25,12 @@ class Surface(Component):
             "x_polygon", [0, 10, 10, 0], "m", min=float("-inf")))
         self.add_parameter(Parameter_float_list(
             "y_polygon", [0, 0, 10, 10], "m", min=float("-inf")))
-        self.add_parameter(Parameter_float(
-            "azimuth", 0, "°", min=-180, max=180))  # Surface x vs Building x -> S: 0º, E: 90º, W: -90º, N: 180º
-        self.add_parameter(Parameter_float(
-            "altitude", 0, "°", min=-90, max=90))  # Surface y vs Building y -> vertical: 0º, facing up: 90º, facing down: -90º
+        
+        # Variables
+        self.add_variable(Variable("E_dir_sunny", "W/m²"))  # Without shadows
+        self.add_variable(Variable("E_dir", "W/m²"))
+        self.add_variable(Variable("E_dif_sunny", "W/m²"))  # Without shadows
+        self.add_variable(Variable("E_dif", "W/m²"))
 
     def check(self):
         errors = super().check()
@@ -40,10 +44,9 @@ class Surface(Component):
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         # calculate rot_matrix
-        azi = math.radians(self.orientation_angle("azimuth", 0))
-        alt = math.radians(self.orientation_angle("altitude", 0))
-        self.normal_vector = np.array([math.cos(
-            alt)*math.cos(azi-math.pi/2), math.cos(alt)*math.sin(azi-math.pi/2), math.sin(alt)])
+        # azi = math.radians(self.orientation_angle("azimuth", 0))
+        # alt = math.radians(self.orientation_angle("altitude", 0))
+        # self.normal_vector = np.array([math.cos(alt)*math.cos(azi-math.pi/2), math.cos(alt)*math.sin(azi-math.pi/2), math.sin(alt)])
 
     @property
     def area(self):
@@ -61,8 +64,8 @@ class Surface(Component):
     def orientation_angle(self, angle, side, coordinate_system="global"):
         if angle == "azimuth":
             az = self.parameter("azimuth").value
-            if self.building() is not None and coordinate_system == "global":
-                    azi_building = self.building().parameter("azimuth").value
+            if self.get_building() is not None and coordinate_system == "global":
+                    azi_building = self.get_building().parameter("azimuth").value
                     az = az + azi_building
             if side == 0:
                 return az
@@ -78,7 +81,7 @@ class Surface(Component):
             elif side == 1:
                 return -alt
 
-    def building(self): # Default no building
+    def get_building(self): # Default no building
         return None
     
     def radiant_property(self, prop, radiation_type, side, theta=0):
@@ -98,9 +101,9 @@ class Surface(Component):
         return False
 
     def get_origin(self, coordinate_system="global"):
-        if self.building() is not None:
+        if self.get_building() is not None:
             if coordinate_system == "global":
-                az_b = math.radians(self.building().parameter("azimuth").value)
+                az_b = math.radians(self.get_building().parameter("azimuth").value)
                 local_origin = self.parameter("ref_point").value
                 global_origin = [local_origin[0]*math.cos(az_b)-local_origin[1]*math.sin(az_b),
                              local_origin[0]*math.sin(az_b) +
@@ -108,7 +111,7 @@ class Surface(Component):
                              local_origin[2]]
                 return global_origin
             elif coordinate_system == "building":
-                return np.array(self.parameter("ref_point").value)+ np.array(self.building().parameter("ref_point").value)
+                return np.array(self.parameter("ref_point").value)+ np.array(self.get_building().parameter("ref_point").value)
             else:
                 return self.parameter("ref_point").value
         else:
