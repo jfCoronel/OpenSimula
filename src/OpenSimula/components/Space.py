@@ -281,7 +281,8 @@ class Space(Component):
         solar_gain = 0
         for surf in self.surfaces:
             if surf.parameter("type").value == "Opening":
-                solar_gain += surf.area * surf.variable("E_dir_tra").values[time_i]
+                if surf.is_exterior():
+                    solar_gain += surf.area * surf.variable("E_dir_tra").values[time_i]
         self.variable("solar_direct_gains").values[time_i] = solar_gain
 
     def update_K_F(self, K_F):

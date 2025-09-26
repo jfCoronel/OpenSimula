@@ -194,13 +194,25 @@ class Building(Component):
             elif s_type == "Opening":
                 k = self.surfaces[i].k
                 k_01 = self.surfaces[i].k_01
-                self.KS_matrix[i][i] += k[1] - (k_01**2) / k[0]
-                for j in range(self._n_spaces):
-                    if (self.spaces[j] == self.surfaces[i].parameter("surface").component.get_space()):
-                        self.KSZ_matrix[i][j] = (
-                            self.surfaces[i].area
-                            * self.surfaces[i].parameter("h_cv").value[self.sides[i]]
-                        )
+                if self.surfaces[i].is_exterior():
+                    self.KS_matrix[i][i] += k[1] - (k_01**2) / k[0]
+                    for j in range(self._n_spaces):
+                        if (self.spaces[j] == self.surfaces[i].get_space()):
+                            self.KSZ_matrix[i][j] = (
+                                self.surfaces[i].area
+                                * self.surfaces[i].parameter("h_cv").value[self.sides[i]]
+                            )
+                else:
+                    self.KS_matrix[i][i] += k[self.sides[i]]
+                    for j in range(self._n_surfaces):
+                        if self.B_matrix[i][j] == 1:
+                            self.KS_matrix[i][j] += k_01
+                    for j in range(self._n_spaces):
+                        if (self.spaces[j]== self.surfaces[i].get_space(self.sides[i])):
+                            self.KSZ_matrix[i][j] = (
+                                self.surfaces[i].area
+                                * self.surfaces[i].parameter("h_cv").value[self.sides[i]]
+                            )
 
         self.KS_inv_matrix = np.linalg.inv(self.KS_matrix)
         # KZS
@@ -250,7 +262,8 @@ class Building(Component):
         for i in range(self._n_surfaces):
             s_type = self.surfaces[i].parameter("type").value
             if s_type == "Opening":
-                E_dif[i] = self.surfaces[i].variable("E_dif").values[time_i]
+                if self.surfaces[i].is_exterior():
+                    E_dif[i] = self.surfaces[i].variable("E_dif").values[time_i]
             elif s_type == "Building_surface":
                 surface_type = self.surfaces[i].parameter("surface_type").value
                 if surface_type == "EXTERIOR":
@@ -385,51 +398,81 @@ class Building(Component):
             elif s_type == "Virtual_surface":
                 self.FS_vector[i] = 0.0
             elif s_type == "Opening":
-                q_sol_10 = -(self.Q_dir[i] + self.Q_dif[i]) / area
-                E_sol_int = q_sol_10 / self.surfaces[i].radiant_property(
-                    "alpha", "solar_diffuse", 1
-                )
-                E_swig_int = -self.Q_igsw[i] / (
-                    area
-                    * self.surfaces[i].radiant_property("alpha", "solar_diffuse", 1)
-                )
-                self.surfaces[i].variable("E_ref").values[time_i] = E_sol_int
-                self.surfaces[i].variable("E_ref_tra").values[time_i] = (
-                    E_sol_int
-                    * self.surfaces[i].radiant_property("tau", "solar_diffuse", 1)
-                )
-                self.surfaces[i].variable("q_sol1").values[time_i] += q_sol_10
-                self.surfaces[i].variable("q_sol0").values[
-                    time_i
-                ] += E_sol_int * self.surfaces[i].radiant_property(
-                    "alpha_other_side", "solar_diffuse", 1
-                )
-                self.surfaces[i].variable("q_swig1").values[time_i] = (
-                    -self.Q_igsw[i] / area
-                )
-                self.surfaces[i].variable("q_swig0").values[time_i] = (
-                    E_swig_int
-                    * self.surfaces[i].radiant_property(
+                if self.surfaces[i].is_exterior():
+                    q_sol_10 = -(self.Q_dir[i] + self.Q_dif[i]) / area
+                    E_sol_int = q_sol_10 / self.surfaces[i].radiant_property("alpha", "solar_diffuse", 1)
+                    E_swig_int = -self.Q_igsw[i] / (
+                        area
+                        * self.surfaces[i].radiant_property("alpha", "solar_diffuse", 1)
+                    )
+                    self.surfaces[i].variable("E_ref").values[time_i] = E_sol_int
+                    self.surfaces[i].variable("E_ref_tra").values[time_i] = (
+                        E_sol_int
+                        * self.surfaces[i].radiant_property("tau", "solar_diffuse", 1)
+                    )
+                    self.surfaces[i].variable("q_sol1").values[time_i] += q_sol_10
+                    self.surfaces[i].variable("q_sol0").values[
+                        time_i
+                    ] += E_sol_int * self.surfaces[i].radiant_property(
                         "alpha_other_side", "solar_diffuse", 1
                     )
-                )
-                self.surfaces[i].variable("q_lwig1").values[time_i] = (
-                    -(self.Q_iglw[i]) / area
-                )
-                f_0 = (
-                    self.surfaces[i].f_0
-                    - (
-                        self.surfaces[i].variable("q_sol0").values[time_i]
-                        + self.surfaces[i].variable("q_swig0").values[time_i]
+                    self.surfaces[i].variable("q_swig1").values[time_i] = (
+                        -self.Q_igsw[i] / area
                     )
-                    * area
-                )
-                f = (
-                    -Q_rad
-                    - (self.surfaces[i].variable("q_sol1").values[time_i] - q_sol_10)
-                    * area
-                    - f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
-                )
+                    self.surfaces[i].variable("q_swig0").values[time_i] = (
+                        E_swig_int
+                        * self.surfaces[i].radiant_property(
+                            "alpha_other_side", "solar_diffuse", 1
+                        )
+                    )
+                    self.surfaces[i].variable("q_lwig1").values[time_i] = (
+                        -(self.Q_iglw[i]) / area
+                    )
+                    f_0 = (
+                        self.surfaces[i].f_0
+                        - (
+                            self.surfaces[i].variable("q_sol0").values[time_i]
+                            + self.surfaces[i].variable("q_swig0").values[time_i]
+                        )
+                        * area
+                    )
+                    f = (
+                        -Q_rad
+                        - (self.surfaces[i].variable("q_sol1").values[time_i] - q_sol_10)
+                        * area
+                        - f_0 * self.surfaces[i].k_01 / self.surfaces[i].k[0]
+                    )
+                else:
+                    if self.sides[i] == 0:
+                        self.surfaces[i].variable("q_sol0").values[time_i] = (
+                            -(self.Q_dir[i] + self.Q_dif[i]) / area
+                        )
+                        self.surfaces[i].variable("q_swig0").values[time_i] = (
+                            -self.Q_igsw[i] / area
+                        )
+                        self.surfaces[i].variable("q_lwig0").values[time_i] = (
+                            -(self.Q_iglw[i]) / area
+                        )
+                        f = (
+                            -self.surfaces[i].area
+                            * self.surfaces[i].variable("p_0").values[time_i]
+                            - Q_rad
+                        )
+                    else:
+                        self.surfaces[i].variable("q_sol1").values[time_i] = (
+                            -(self.Q_dir[i] + self.Q_dif[i]) / area
+                        )
+                        self.surfaces[i].variable("q_swig1").values[time_i] = (
+                            -self.Q_igsw[i] / area
+                        )
+                        self.surfaces[i].variable("q_lwig1").values[time_i] = (
+                            -(self.Q_iglw[i]) / area
+                        )
+                        f = (
+                            -self.surfaces[i].area
+                            * self.surfaces[i].variable("p_1").values[time_i]
+                            - Q_rad
+                        )
                 self.FS_vector[i] = f
 
     def _calculate_FIN_WS_matrices_(self, time_i): # Without Systems

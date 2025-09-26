@@ -289,6 +289,15 @@ class Building_surface(Surface):
         holes_2D = []
         for opening in self.openings:
             holes_2D.append(opening.get_polygon_2D())
-        return Polygon_3D(
-            name, origin, azimuth, altitude, pol_2D, holes_2D, color="white"
-        )
+        if self.parameter("surface_type").value == "EXTERIOR":
+            return Polygon_3D(
+                name, origin, azimuth, altitude, pol_2D, holes_2D, color="white"
+            )
+        elif self.parameter("surface_type").value == "INTERIOR":
+            return Polygon_3D(
+                name, origin, azimuth, altitude, pol_2D, holes_2D, color="green", shading=False, calculate_shadows=False
+            )
+        elif self.parameter("surface_type").value == "UNDERGROUND":         
+            return Polygon_3D(
+                name, origin, azimuth, altitude, pol_2D, holes_2D, color="brown", shading=False, calculate_shadows=False
+            )

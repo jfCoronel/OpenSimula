@@ -5,8 +5,10 @@ from OpenSimula.Parameters import (
     Parameter_component,
     Parameter_float,
     Parameter_float_list,
+    Parameter_options,
 )
 from OpenSimula.Variable import Variable
+from shapely.geometry import Polygon
 from OpenSimula.visual_3D.Polygon_3D import Polygon_3D
 
 
@@ -15,17 +17,30 @@ class Opening(Component):
         Component.__init__(self, name, project)
         # Parameters
         self.parameter("type").value = "Opening"
-        self.parameter("description").value = "Rectangular opening in building surfaces"
+        self.parameter("description").value = (
+            "Openings (windows/doors) in building surfaces"
+        )
         self.add_parameter(
             Parameter_component("surface", "not_defined", ["Building_surface"])
         )
         self.add_parameter(
             Parameter_component("opening_type", "not_defined", ["Opening_type"])
         )
+        self.add_parameter(
+            Parameter_options("shape", "RECTANGLE", ["RECTANGLE", "POLYGON"])
+        )
         self.add_parameter(Parameter_float_list("ref_point", [0, 0], "m"))
         self.add_parameter(Parameter_float("width", 1, "m", min=0.0))
         self.add_parameter(Parameter_float("height", 1, "m", min=0.0))
-        self.add_parameter(Parameter_float("setback", 0, "m", min=0.0))
+        self.add_parameter(
+            Parameter_float_list("x_polygon", [0, 10, 10, 0], "m", min=float("-inf"))
+        )
+        self.add_parameter(
+            Parameter_float_list("y_polygon", [0, 0, 10, 10], "m", min=float("-inf"))
+        )
+        self.add_parameter(
+            Parameter_float("setback", 0, "m", min=0.0)
+        )  # Only for rectangular openings
         self.add_parameter(Parameter_float_list("h_cv", [19.3, 2], "W/m²K", min=0))
 
         self.H_RD = 5.705  # 4*sigma*(293^3)
@@ -61,30 +76,48 @@ class Opening(Component):
         if self.parameter("surface").value == "not_defined":
             msg = f"{self.parameter('name').value}, its surface must be defined."
             errors.append(Message(msg, "ERROR"))
+        # TODO: Test surface_type EXTERIOR or INTERIOR
         # Test opening_type defined
         if self.parameter("opening_type").value == "not_defined":
             msg = (
                 f"{self.parameter('name').value}, opening must define its Opening_type."
             )
             errors.append(Message(msg, "ERROR"))
+        # Test if Polygon shape that x_polygon and y_polygon has the same size
+        if self.parameter("shape").value == "POLYGON":
+            if len(self.parameter("x_polygon").value) != len(
+                self.parameter("y_polygon").value
+            ):
+                msg = f"{self.parameter('name').value}, x_polygo and y_polygon must have the same size."
+                errors.append(Message(msg, "ERROR"))
         return errors
 
     def get_building(self):
-        return self.parameter("surface").component.get_building()
+        return self.get_surface().get_building()
 
-    def get_space(self):
-        return self.parameter("surface").component.get_space()
+    def get_space(self, side=0):
+        return self.get_surface().get_space(side)
 
+    def get_surface(self):
+        return self.parameter("surface").component
+    
+    def is_exterior(self):
+        return (self.get_surface().parameter("surface_type").value == "EXTERIOR")
+
+    # _______ pre_simulation _______
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         self._file_met = self.project().parameter("simulation_file_met").component
-        self._calculate_K()
-        self.f_dif_setback = self._f_diffuse_setback()
-        self._sunny_index = self.project().env_3D.get_sunny_index(
-            self.parameter("name").value
-        )
+        self._calculate_K_()
+        self.f_dif_setback = self._f_diffuse_setback_()
+        if self.is_exterior():
+            self._sunny_index = self.project().env_3D.get_sunny_index(
+                self.parameter("name").value
+            )
+        else:
+            self._sunny_index = None
 
-    def _calculate_K(self):
+    def _calculate_K_(self):
         self.k = [0, 0]
         self.k[0] = self.area * (
             -self.parameter("h_cv").value[0]
@@ -99,14 +132,38 @@ class Opening(Component):
             self.area / self.parameter("opening_type").component.thermal_resistance()
         )
 
+    def _f_diffuse_setback_(self):
+        if (
+            self.parameter("shape").value == "POLYGON"
+            or self.parameter("setback").value == 0
+        ):
+            return 1
+        else:
+            X = self.parameter("width").value / self.parameter("setback").value
+            Y = self.parameter("height").value / self.parameter("setback").value
+            F = (
+                2
+                / (math.pi * X * Y)
+                * (
+                    math.log(((1 + X**2) * (1 + Y**2) / (1 + X**2 + Y**2)) ** 0.5)
+                    + X * ((1 + Y**2) ** 0.5) * math.atan(X / ((1 + Y**2) ** 0.5))
+                    + Y * ((1 + X**2)) ** 0.5 * math.atan(Y / ((1 + X**2)) ** 0.5)
+                    - X * math.atan(X)
+                    - Y * math.atan(Y)
+                )
+            )
+            return 1 - F
+
+    # _______ pre_iteration _______
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        self._calculate_variables_pre_iteration(time_index)
+        if self.is_exterior():
+            self._calculate_exterior_variables_pre_iteration_(time_index)
 
-    def _calculate_variables_pre_iteration(self, time_i):
+    def _calculate_exterior_variables_pre_iteration_(self, time_i):
         self._T_ext = self._file_met.variable("temperature").values[time_i]
         # Solar radiation from the surface where the opening is located
-        surface = self.parameter("surface").component
+        surface = self.get_surface()
         # Diffuse solar radiation
         E_dif_sunny = surface.variable("E_dif_sunny").values[time_i]
         self.variable("E_dif_sunny").values[time_i] = E_dif_sunny
@@ -126,7 +183,11 @@ class Opening(Component):
             surface.orientation_angle("altitude", 0),
         )
         self.variable("theta_sun").values[time_i] = theta
-        if theta is not None and self.parameter("setback").value > 0:
+        if (
+            theta is not None
+            and self.parameter("shape").value == "RECTANGLE"
+            and self.parameter("setback").value > 0
+        ):
             f_setback = self._f_setback_(
                 time_i,
                 surface.orientation_angle("azimuth", 0),
@@ -134,7 +195,7 @@ class Opening(Component):
             )
         else:
             f_setback = 1
-        E_dir = E_dir_sunny * self._calculate_direct_sunny_fraction(time_i) * f_setback
+        E_dir = E_dir_sunny * self._calculate_direct_sunny_fraction_(time_i) * f_setback
         self.variable("E_dir").values[time_i] = E_dir
 
         q_sol0 = self.radiant_property("alpha", "solar_diffuse", 0) * E_dif
@@ -163,7 +224,7 @@ class Opening(Component):
         )
         # q_sol0 will be corrected by the building
 
-    def _calculate_direct_sunny_fraction(self, time_i):
+    def _calculate_direct_sunny_fraction_(self, time_i):
         if self.project().parameter("shadow_calculation").value == "INSTANT":
             direct_sunny_fraction = self.project().env_3D.get_direct_sunny_fraction(
                 self._sunny_index
@@ -206,31 +267,14 @@ class Opening(Component):
             f_shadow_v = 1
         return (1 - f_shadow_h) * (1 - f_shadow_v)
 
-    def _f_diffuse_setback(self):
-        if self.parameter("setback").value == 0:
-            return 1
-        else:
-            X = self.parameter("width").value / self.parameter("setback").value
-            Y = self.parameter("height").value / self.parameter("setback").value
-            F = (
-                2
-                / (math.pi * X * Y)
-                * (
-                    math.log(((1 + X**2) * (1 + Y**2) / (1 + X**2 + Y**2)) ** 0.5)
-                    + X * ((1 + Y**2) ** 0.5) * math.atan(X / ((1 + Y**2) ** 0.5))
-                    + Y * ((1 + X**2)) ** 0.5 * math.atan(Y / ((1 + X**2)) ** 0.5)
-                    - X * math.atan(X)
-                    - Y * math.atan(Y)
-                )
-            )
-            return 1 - F
-
+    # _______ post_iteration _______
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
-        self._calculate_T_s0(time_index)
-        self._calculate_heat_fluxes(time_index)
+        if self.is_exterior():
+            self._calculate_T_s0_(time_index)
+        self._calculate_heat_fluxes_(time_index)
 
-    def _calculate_T_s0(self, time_i):
+    def _calculate_T_s0_(self, time_i):
         T_s0 = (
             self.f_0
             - (
@@ -242,38 +286,70 @@ class Opening(Component):
         ) / self.k[0]
         self.variable("T_s0").values[time_i] = T_s0
 
-    def _calculate_heat_fluxes(self, time_i):
+    def _calculate_heat_fluxes_(self, time_i):
         q_cd0 = (
             self.variable("T_s1").values[time_i] - self.variable("T_s0").values[time_i]
         ) / self.parameter("opening_type").component.thermal_resistance()
         self.variable("q_cd").values[time_i] = q_cd0
-        self.variable("q_cv0").values[time_i] = self.parameter("h_cv").value[0] * (
-            self._T_ext - self.variable("T_s0").values[time_i]
-        )
-        T_z = (
-            self.parameter("surface")
-            .component.get_space().variable("temperature")
-            .values[time_i]
-        )
-        self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[1] * (
-            T_z - self.variable("T_s1").values[time_i]
-        )
-        h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
-        self.variable("q_lwt0").values[time_i] = h_rd * (
-            self.variable("T_rm").values[time_i] - self.variable("T_s0").values[time_i]
-        )
-
-        self.variable("q_lwt1").values[time_i] = (
-            +self.variable("q_cd").values[time_i]
-            - self.variable("q_cv1").values[time_i]
-            - self.variable("q_sol1").values[time_i]
-            - self.variable("q_swig1").values[time_i]
-            - self.variable("q_lwig1").values[time_i]
-        )
+        if self.is_exterior():
+            self.variable("q_cv0").values[time_i] = self.parameter("h_cv").value[0] * (
+                self._T_ext - self.variable("T_s0").values[time_i]
+            )
+            T_z = self.get_surface().get_space().variable("temperature").values[time_i]
+            self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[1] * (
+                T_z - self.variable("T_s1").values[time_i]
+            )
+            h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+            self.variable("q_lwt0").values[time_i] = h_rd * (
+                self.variable("T_rm").values[time_i]
+                - self.variable("T_s0").values[time_i]
+            )
+            self.variable("q_lwt1").values[time_i] = (
+                +self.variable("q_cd").values[time_i]
+                - self.variable("q_cv1").values[time_i]
+                - self.variable("q_sol1").values[time_i]
+                - self.variable("q_swig1").values[time_i]
+                - self.variable("q_lwig1").values[time_i]
+            )
+        else:  # interior
+            self.variable("q_cv0").values[time_i] = self.parameter("h_cv").value[0] * (
+                self.get_space(0).variable("temperature").values[time_i]
+                - self.variable("T_s0").values[time_i]
+            )
+            self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[1] * (
+                self.get_space(1).variable("temperature").values[time_i]
+                - self.variable("T_s1").values[time_i]
+            )
+            self.variable("q_lwt0").values[time_i] = (
+                -self.variable("q_cd0").values[time_i]
+                - self.variable("q_cv0").values[time_i]
+                - self.variable("q_sol0").values[time_i]
+                - self.variable("q_swig0").values[time_i]
+                - self.variable("q_lwig0").values[time_i]
+            )
+            self.variable("q_lwt1").values[time_i] = (
+                -self.variable("q_cd1").values[time_i]
+                - self.variable("q_cv1").values[time_i]
+                - self.variable("q_sol1").values[time_i]
+                - self.variable("q_swig1").values[time_i]
+                - self.variable("q_lwig1").values[time_i]
+            )
 
     @property
     def area(self):
-        return self.parameter("width").value * self.parameter("height").value
+        if self.parameter("shape").value == "RECTANGLE":
+            return self.parameter("width").value * self.parameter("height").value
+        elif self.parameter("shape").value == "POLYGON":
+            polygon = []
+            n = len(self.parameter("x_polygon").value)
+            for i in range(0, n):
+                polygon.append(
+                    [
+                        self.parameter("x_polygon").value[i],
+                        self.parameter("y_polygon").value[i],
+                    ]
+                )
+            return Polygon(polygon).area
 
     def radiant_property(self, prop, radiation_type, side, theta=0):
         return self.parameter("opening_type").component.radiant_property(
@@ -281,27 +357,36 @@ class Opening(Component):
         )
 
     def orientation_angle(self, angle, side, coordinate_system="global"):
-        return self.parameter("surface").component.orientation_angle(
-            angle, side, coordinate_system
-        )
+        return self.get_surface().orientation_angle(angle, side, coordinate_system)
 
     def is_virtual(self):
         return False
 
     def get_origin(self, coordinate_system="global"):
-        sur_component = self.parameter("surface").component
-        return sur_component.get_origin(coordinate_system)
+        return self.get_surface().get_origin(coordinate_system)
 
     def get_polygon_2D(self):  # Get polygon_2D
         ref = self.parameter("ref_point").value
-        w = self.parameter("width").value
-        h = self.parameter("height").value
-        return [
-            [ref[0], ref[1]],
-            [ref[0] + w, ref[1]],
-            [ref[0] + w, ref[1] + h],
-            [ref[0], ref[1] + h],
-        ]
+        if self.parameter("shape").value == "RECTANGLE":
+            w = self.parameter("width").value
+            h = self.parameter("height").value
+            return [
+                [ref[0], ref[1]],
+                [ref[0] + w, ref[1]],
+                [ref[0] + w, ref[1] + h],
+                [ref[0], ref[1] + h],
+            ]
+        elif self.parameter("shape").value == "POLYGON":
+            polygon2D = []
+            n = len(self.parameter("x_polygon").value)
+            for i in range(0, n):
+                polygon2D.append(
+                    [
+                        self.parameter("x_polygon").value[i] + ref[0],
+                        self.parameter("y_polygon").value[i] + ref[1],
+                    ]
+                )
+            return polygon2D
 
     def get_polygon_3D(self):
         azimuth = self.orientation_angle("azimuth", 0, "global")
@@ -309,6 +394,19 @@ class Opening(Component):
         origin = self.get_origin("global")
         pol_2D = self.get_polygon_2D()
         name = self.parameter("name").value
-        return Polygon_3D(
-            name, origin, azimuth, altitude, pol_2D, color="blue", opacity=0.6
-        )
+        if self.is_exterior():
+            return Polygon_3D(
+                name, origin, azimuth, altitude, pol_2D, color="blue", opacity=0.6
+            )
+        else:
+            return Polygon_3D(
+                name,
+                origin,
+                azimuth,
+                altitude,
+                pol_2D,
+                color="blue",
+                opacity=0.6,
+                shading=False,
+                calculate_shadows=False,
+            )
