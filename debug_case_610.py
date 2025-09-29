@@ -314,13 +314,13 @@ case610_dict = {
             "name": "overhang",
             "coordinate_system": "GLOBAL",
             "ref_point": [
-                0,
                 -1,
-                2.7
+                0,
+                2.5
             ],
             "calculate_solar_radiation": True,
-            "width": 8,
-            "height": 1,
+            "width": 1,
+            "height": 6,
             "azimuth": 0,
             "altitude": 90
         },
@@ -341,10 +341,10 @@ sim = osm.Simulation()
 pro = sim.new_project("pro")
 pro.read_dict(case610_dict)
 #pro.show_3D()
-date = dt.datetime(2001,1,1,12,0,0)
+date = dt.datetime(2001,12,21,12,0,0)
 #pro.show_3D_shadows(date)
 pro.show_3D_shadows_animation(date)
-pro.simulate()
+#pro.simulate()
 # print(pro.component("Building").KZ_matrix)
 # print(pro.component("Building").KS_matrix)
 # print(pro.component("Building").KZS_matrix)
@@ -354,13 +354,13 @@ pro.simulate()
 
 
 # Heating and Cooling Loads
-load = pro.component("spaces_1").variable("system_sensible_heat").values
-annual_heating = np.where(load>0,load,0).sum()/1e6
-annual_cooling = np.where(load<0,-load,0).sum()/1e6
-peak_heating = load.max()/1000
-peak_cooling = -load.min()/1000
+# load = pro.component("spaces_1").variable("system_sensible_heat").values
+# annual_heating = np.where(load>0,load,0).sum()/1e6
+# annual_cooling = np.where(load<0,-load,0).sum()/1e6
+# peak_heating = load.max()/1000
+# peak_cooling = -load.min()/1000
 
-print(f"Annual heating load: {annual_heating:.4f} MWh")
-print(f"Peak heating load: {peak_heating:.4f} kW")
-print(f"Annual cooling load: {annual_cooling:.4f} MWh")
-print(f"Peak cooling load: {peak_cooling:.4f} kW")
+# print(f"Annual heating load: {annual_heating:.4f} MWh")
+# print(f"Peak heating load: {peak_heating:.4f} kW")
+# print(f"Annual cooling load: {annual_cooling:.4f} MWh")
+# print(f"Peak cooling load: {peak_cooling:.4f} kW")

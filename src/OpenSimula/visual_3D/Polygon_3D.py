@@ -172,10 +172,17 @@ class Polygon_3D():
             projected_point_1 = self._get_projected_point_(point_1, sun_position)
             if len(projected_point_1) > 0 and len(projected_point_0) > 0:
                 projected_points.append(projected_point_1)
-            elif (len(projected_point_1) > 0 and len(projected_point_0)==0) or (len(projected_point_1) == 0 and len(projected_point_0) > 0):
+            elif len(projected_point_1) > 0 and len(projected_point_0)==0:
                 intersection_point = self._get_intersection_with_plane_(point_0, point_1)
-                projected_intersection_point = self._get_projected_point_(intersection_point, sun_position)
-                projected_points.append(projected_intersection_point)
+                if len(intersection_point) > 0:
+                    projected_intersection_point = self._get_projected_point_(intersection_point, sun_position)
+                    projected_points.append(projected_intersection_point)
+                projected_points.append(projected_point_1)
+            elif len(projected_point_1) == 0 and len(projected_point_0) > 0:
+                intersection_point = self._get_intersection_with_plane_(point_0, point_1)
+                if len(intersection_point) > 0:
+                    projected_intersection_point = self._get_projected_point_(intersection_point, sun_position)
+                    projected_points.append(projected_intersection_point)    
             point_0 = np.array(point_1)
             if len(projected_point_1) > 0:
                 projected_point_0 = np.array(projected_point_1)
