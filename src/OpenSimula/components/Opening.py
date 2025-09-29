@@ -321,14 +321,14 @@ class Opening(Component):
                 - self.variable("T_s1").values[time_i]
             )
             self.variable("q_lwt0").values[time_i] = (
-                -self.variable("q_cd0").values[time_i]
+                -self.variable("q_cd").values[time_i]
                 - self.variable("q_cv0").values[time_i]
                 - self.variable("q_sol0").values[time_i]
                 - self.variable("q_swig0").values[time_i]
                 - self.variable("q_lwig0").values[time_i]
             )
             self.variable("q_lwt1").values[time_i] = (
-                -self.variable("q_cd1").values[time_i]
+                + self.variable("q_cd").values[time_i]
                 - self.variable("q_cv1").values[time_i]
                 - self.variable("q_sol1").values[time_i]
                 - self.variable("q_swig1").values[time_i]

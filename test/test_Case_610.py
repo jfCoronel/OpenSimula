@@ -309,7 +309,7 @@ case610_dict = {
             ]
         },
         {
-            "type": "Shadow_surface",
+            "type": "Solar_surface",
             "name": "overhang",
             "building": "Building",
             "ref_point": [

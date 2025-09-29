@@ -153,9 +153,9 @@ class Polygon_3D():
         if exterior_points != None:
             if polygon_to_project.has_holes():
                 holes = []
-                for hole in polygon_to_project.holes3D:
+                for hole in polygon_to_project.holes2D:
                     hole_points = self._get_projected_points_(
-                        Polygon_3D(polygon_to_project.origin, polygon_to_project.azimuth, polygon_to_project.altitude, hole), sun_position,False)
+                        Polygon_3D("holes", polygon_to_project.origin, polygon_to_project.azimuth, polygon_to_project.altitude, hole), sun_position)
                     if hole_points != None:
                         holes.append(hole_points)
                 return Polygon(exterior_points, holes)
@@ -164,27 +164,48 @@ class Polygon_3D():
         else:
             return None
 
-    def _get_projected_points_(self,polygon_to_project, sun_position, test_is_back=True):
+    def _get_projected_points_(self,polygon_to_project, sun_position):
         projected_points = []
-        if test_is_back:
-            algun_punto_delante = False
-        else:
-            algun_punto_delante = True
-        for point in polygon_to_project.polygon3D:
-            k = (np.sum(self.normal_vector * point)-self.equation_d) / \
-                (np.sum(self.normal_vector * sun_position))
-            projected_point_3D = point - k * sun_position
-            vector = projected_point_3D - self.origin
-            projected_point_2D = np.array(
-                [np.sum(self.x_axis*vector), np.sum(self.y_axis*vector)])
-            projected_points.append(projected_point_2D)
-            if (k > 1e-6):  # Por delante 
-                algun_punto_delante = True
-        # TODO: que ocurre cuando tengo planos cortantes ...
-        if algun_punto_delante:
-            return projected_points
-        else:
+        point_0 = polygon_to_project.polygon3D[-1]
+        projected_point_0 = self._get_projected_point_(point_0, sun_position)
+        for point_1 in polygon_to_project.polygon3D:
+            projected_point_1 = self._get_projected_point_(point_1, sun_position)
+            if len(projected_point_1) > 0 and len(projected_point_0) > 0:
+                projected_points.append(projected_point_1)
+            elif (len(projected_point_1) > 0 and len(projected_point_0)==0) or (len(projected_point_1) == 0 and len(projected_point_0) > 0):
+                intersection_point = self._get_intersection_with_plane_(point_0, point_1)
+                projected_intersection_point = self._get_projected_point_(intersection_point, sun_position)
+                projected_points.append(projected_intersection_point)
+            point_0 = np.array(point_1)
+            if len(projected_point_1) > 0:
+                projected_point_0 = np.array(projected_point_1)
+            else:
+                projected_point_0 = np.array([])
+        if len(projected_points) < 3:
             return None
+        else:
+            return projected_points
+    
+    def _get_projected_point_(self, point, sun_position):
+        d = np.sum(self.normal_vector*point)-self.equation_d
+        k = d/np.sum(self.normal_vector*sun_position)
+        if (k > -1e-6):  # Por delante
+            projected_point_3D = point - k*sun_position
+            vector = projected_point_3D - self.origin
+            projected_point_2D = np.array([np.sum(self.x_axis*vector), np.sum(self.y_axis*vector)])
+            return projected_point_2D
+        else:
+            return np.array([])
+        
+    def _get_intersection_with_plane_(self, point_0,point_1):
+        d0 = np.sum(self.normal_vector*point_0)-self.equation_d
+        d1 = np.sum(self.normal_vector*point_1)-self.equation_d
+        if (d0*d1 < -1e-10):  # Si están en lados opuestos
+            t = d0/(d0-d1)
+            intersection_point = point_0 + t*(point_1-point_0)
+            return intersection_point
+        else:
+            return np.array([])
 
     def get_sunny_shadow_polygon3D(self, environment_3D, sun_position):
         sunny_polygons, shadow_polygons = self._get_sunny_shadow_shapely_polygon_(environment_3D, sun_position)

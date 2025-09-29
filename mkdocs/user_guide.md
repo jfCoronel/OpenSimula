@@ -58,7 +58,7 @@ Projects contain a set of components defining a case that can be temporarily sim
                     "Building_surface",
                     "Building_surface",
                     "Virtual_surface",
-                    "Shadow_surface",
+                    "Solar_surface",
                     "Opening",
                     "Space",
                     "Building",

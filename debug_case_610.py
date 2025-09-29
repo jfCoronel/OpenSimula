@@ -1,4 +1,5 @@
 import datetime as dt
+import numpy as np
 import OpenSimula as osm
 
 case610_dict = {
@@ -227,8 +228,9 @@ case610_dict = {
                 0.5,
                 0.2
             ],
-            "width": 3,
-            "height": 2,
+            "shape": "POLYGON",
+            "x_polygon":[0, 3, 3, 0],
+            "y_polygon":[0, 0, 2, 2],
             "h_cv": [
                 8.0,
                 2.4
@@ -308,14 +310,15 @@ case610_dict = {
             ]
         },
         {
-            "type": "Shadow_surface",
+            "type": "Solar_surface",
             "name": "overhang",
-            "building": "Building",
+            "coordinate_system": "GLOBAL",
             "ref_point": [
                 0,
                 -1,
                 2.7
             ],
+            "calculate_solar_radiation": True,
             "width": 8,
             "height": 1,
             "azimuth": 0,
@@ -340,7 +343,7 @@ pro.read_dict(case610_dict)
 #pro.show_3D()
 date = dt.datetime(2001,1,1,12,0,0)
 #pro.show_3D_shadows(date)
-#pro.show_3D_shadows_animation(date)
+pro.show_3D_shadows_animation(date)
 pro.simulate()
 # print(pro.component("Building").KZ_matrix)
 # print(pro.component("Building").KS_matrix)
@@ -350,3 +353,14 @@ pro.simulate()
 # print(pro.component("Building").FS_vector)
 
 
+# Heating and Cooling Loads
+load = pro.component("spaces_1").variable("system_sensible_heat").values
+annual_heating = np.where(load>0,load,0).sum()/1e6
+annual_cooling = np.where(load<0,-load,0).sum()/1e6
+peak_heating = load.max()/1000
+peak_cooling = -load.min()/1000
+
+print(f"Annual heating load: {annual_heating:.4f} MWh")
+print(f"Peak heating load: {peak_heating:.4f} kW")
+print(f"Annual cooling load: {annual_cooling:.4f} MWh")
+print(f"Peak cooling load: {peak_cooling:.4f} kW")

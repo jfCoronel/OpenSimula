@@ -170,7 +170,7 @@ class Building(Component):
                                 self.surfaces[i].area
                                 * self.surfaces[i].parameter("h_cv").value[0]
                             )
-                elif s_type == "INTERIOR":
+                elif surface_type == "INTERIOR":
                     k = self.surfaces[i].k
                     k_01 = self.surfaces[i].k_01
                     self.KS_matrix[i][i] += k[self.sides[i]]
@@ -453,11 +453,7 @@ class Building(Component):
                         self.surfaces[i].variable("q_lwig0").values[time_i] = (
                             -(self.Q_iglw[i]) / area
                         )
-                        f = (
-                            -self.surfaces[i].area
-                            * self.surfaces[i].variable("p_0").values[time_i]
-                            - Q_rad
-                        )
+                        f = - Q_rad
                     else:
                         self.surfaces[i].variable("q_sol1").values[time_i] = (
                             -(self.Q_dir[i] + self.Q_dif[i]) / area
@@ -468,11 +464,7 @@ class Building(Component):
                         self.surfaces[i].variable("q_lwig1").values[time_i] = (
                             -(self.Q_iglw[i]) / area
                         )
-                        f = (
-                            -self.surfaces[i].area
-                            * self.surfaces[i].variable("p_1").values[time_i]
-                            - Q_rad
-                        )
+                        f = - Q_rad
                 self.FS_vector[i] = f
 
     def _calculate_FIN_WS_matrices_(self, time_i): # Without Systems

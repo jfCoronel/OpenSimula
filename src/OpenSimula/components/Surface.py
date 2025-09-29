@@ -43,10 +43,6 @@ class Surface(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
-        # calculate rot_matrix
-        # azi = math.radians(self.orientation_angle("azimuth", 0))
-        # alt = math.radians(self.orientation_angle("altitude", 0))
-        # self.normal_vector = np.array([math.cos(alt)*math.cos(azi-math.pi/2), math.cos(alt)*math.sin(azi-math.pi/2), math.sin(alt)])
 
     @property
     def area(self):

@@ -8,7 +8,7 @@ Base component for the definition of a building. The building is made up of a se
 - **albedo** [_float_, unit = "frac", default = 0.3, min = 0, max = 1]: Solar reflectivity of the ground surrounding the building. Used to calculate the solar radiation reflected to the exterior surfaces of the building.
 - **initial_temperature** [_float_, unit = "°C", default = 20]: Initial temperature of all building components at the beginning of the simulation.
 - **initial_humidity** [_float_, unit = "g/kg", default = 7.3]: Initial absolute humidity of all building spaces at the beginning of the simulation.
-- **shadow_calculation** [_option_, default = "INSTANT", options = ["NO","INSTANT","INTERPOLATION"]]: Procedure used for the exterior calculation of the shadows produced by the shading surfaces "Shadow_surface" and the building itself. “NO": no shadows are calculated, "INSTANT": Shadows are calculated for each instant of simulated time. "INTERPOLATION": The shadows are calculated for 36 x 18 = 648 fixed solar positions and then the shadows for every time step are obtained by interpolating on these tables.
+- **shadow_calculation** [_option_, default = "INSTANT", options = ["NO","INSTANT","INTERPOLATION"]]: Procedure used for the exterior calculation of the shadows produced by the shading surfaces "Solar_surface" and the building itself. “NO": no shadows are calculated, "INSTANT": Shadows are calculated for each instant of simulated time. "INTERPOLATION": The shadows are calculated for 36 x 18 = 648 fixed solar positions and then the shadows for every time step are obtained by interpolating on these tables.
 
 
 The following figure shows the building's coordinate system:
@@ -381,7 +381,7 @@ After the simulation we will have the following variables of this component, all
 - __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
 - __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
 
-### Shadow_surface
+### Solar_surface
 
 Component for defining shading surfaces external to the building.
 
@@ -401,7 +401,7 @@ Component for defining shading surfaces external to the building.
 <pre><code class="python">
 ...
 
-overhang = osm.components.Shadow_surface("overhang")
+overhang = osm.components.Solar_surface("overhang")
 param = {
             "building": "Building",
             "ref_point": [0,-1,2.7],

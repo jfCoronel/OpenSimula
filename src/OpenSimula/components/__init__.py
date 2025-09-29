@@ -14,7 +14,7 @@ from OpenSimula.components.Building import Building
 from OpenSimula.components.Space import Space
 from OpenSimula.components.Building_surface import Building_surface
 from OpenSimula.components.Virtual_surface import Virtual_surface
-from OpenSimula.components.Shadow_surface import Shadow_surface
+from OpenSimula.components.Solar_surface import Solar_surface
 from OpenSimula.components.Opening import Opening
 from OpenSimula.components.Calculator import Calculator
 from OpenSimula.components.HVAC_DX_equipment import HVAC_DX_equipment
@@ -29,7 +29,7 @@ DEFAULT_COMPONENTS_ORDER = [
                     "Space_type",
                     "Building_surface",
                     "Virtual_surface",
-                    "Shadow_surface",
+                    "Solar_surface",
                     "Opening",
                     "Space",
                     "Building",
