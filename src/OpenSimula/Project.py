@@ -409,7 +409,7 @@ class Project(Parameter_container):
 
         return errors
 
-    def simulate(self, show_percentage=10):
+    def simulate(self):
         """Project Time Simulation"""
         n = self.parameter("n_time_steps").value
         date = dt.datetime.strptime(

@@ -12,18 +12,20 @@ pip install OpenSimula
 
 OpenSimula uses in different parts of the code the following Python packages, which will be installed automatically when OpenSimula is installed:
 
-- NumPy
+- numPy
 - pandas
-- SciPy
+- openpyxl
+- sciPy
 - shapely
 - psychrolib
-- pyvista[jupyter]
+- vedo
 - plotly
 - dash
 - dash_bootstrap_components
 - dash_ag_grid
 - triangle
-
+- nbformat
+- tqdm
 
 ### First example
 
@@ -120,19 +122,10 @@ We will get the following in response to these commands:
 Reading project data from dictonary
 Reading completed.
 Checking project: First example project
-ok
+Checking completed.
+Calculating solar direct shadows ...
 Simulating First example project: ...
-10%: N_iter: 1.00
-20%: N_iter: 1.00
-30%: N_iter: 1.00
-40%: N_iter: 1.00
-50%: N_iter: 1.00
-60%: N_iter: 1.00
-70%: N_iter: 1.00
-80%: N_iter: 1.00
-90%: N_iter: 1.00
-100%: N_iter: 1.00
-Simulation completed.
+100%|██████████| 8760/8760 [00:03<00:00, 2357.52step/s, n_iter=1]
 </code></pre>
 
 After the simulation, each of the components will have its time variables calculated. In our case the `year` component has a temporary variable called `values` that we can obtain. the Simulation.plot function can be used to draw an interactive graph (plotly library), the first argument are the dates of the simulation steps (pro.dates() return the array of simulated dates) and the second a list of the varibles to draw.

@@ -341,9 +341,9 @@ sim = osm.Simulation()
 pro = sim.new_project("pro")
 pro.read_dict(case610_dict)
 #pro.show_3D()
-date = dt.datetime(2001,12,21,12,0,0)
+date = dt.datetime(2001,3,21,12,0,0)
 #pro.show_3D_shadows(date)
-#pro.show_3D_shadows_animation(date)
+pro.show_3D_shadows_animation(date)
 pro.simulate()
 
 

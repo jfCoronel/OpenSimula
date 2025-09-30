@@ -5,10 +5,9 @@ Base component for the definition of a building. The building is made up of a se
 
 #### Parameters
 - **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Angle formed between the x-axis of the building and the east (Global x-axis). The coordinates of all building elements refer to the building coordinate system. 
-- **albedo** [_float_, unit = "frac", default = 0.3, min = 0, max = 1]: Solar reflectivity of the ground surrounding the building. Used to calculate the solar radiation reflected to the exterior surfaces of the building.
+- **ref_point** [_float-list_, unit = "m", default = [0,0,0]]: Three-dimensional coordinate of the building reference point (coordinates origin). All surfaces in the building will be defined relative to the building's coordinate origin.
 - **initial_temperature** [_float_, unit = "°C", default = 20]: Initial temperature of all building components at the beginning of the simulation.
 - **initial_humidity** [_float_, unit = "g/kg", default = 7.3]: Initial absolute humidity of all building spaces at the beginning of the simulation.
-- **shadow_calculation** [_option_, default = "INSTANT", options = ["NO","INSTANT","INTERPOLATION"]]: Procedure used for the exterior calculation of the shadows produced by the shading surfaces "Solar_surface" and the building itself. “NO": no shadows are calculated, "INSTANT": Shadows are calculated for each instant of simulated time. "INTERPOLATION": The shadows are calculated for 36 x 18 = 648 fixed solar positions and then the shadows for every time step are obtained by interpolating on these tables.
 
 
 The following figure shows the building's coordinate system:
@@ -21,20 +20,10 @@ The following figure shows the building's coordinate system:
 
 building = osm.components.Building("building",project)
 param = {
-    "azimuth": 90,
-    "albedo": 0.4
+    "azimuth": 90
 }
 building.set_parameters(param)
 </code></pre>
-
-#### functions
-The Building component include the following functions:
-
-- **show3D(hide, opacity, coordinate_system, space)**: Displays in Jupyter an interactive 3D visualization of the building (using pyVista). _hide_: (default value: []) List of the types of components that we do not want to show, for example [“Building_surface”, "Building_surface"] will hide these two types of components. _opacity_: Opacity of the surfaces, 1 (default value) for totally opaque and 0 for totally transparent. _coordinate_system_: Coordinate system in which the building will be displayed, “global” (default value), “local” the coordinate system of the building. _space_: (default value: “all”) If a space name is specified, the rest of the spaces will be shown dimmed (opacity = 0.25).
-
- - **show3D_shadows(date)**: Calculates and displays an interactive 3D visualization of the building with the shadows occurring for the date specified. _date_: Python datetime object specifying a specific date. See next figure as example.
-
-![show3D_shadows](img/show3D_shadows.png) 
 
 ### Space_type
 

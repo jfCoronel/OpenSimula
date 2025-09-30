@@ -8,7 +8,7 @@ ___OpenSimula___ project. Github site [![Github logo](img/github_logo.png)](http
 
 The main objective is the thermal and energy simulation of different systems and installations, mainly in buildings, although it can be used to simulate any component that presents a temporal variation.
 
-![Building shadows example](img/shadows_example.png)
+<img src="img/shadows_example.png" alt="Building shadows example" width="600"/>
 
 ![Plot variables example](img/plot_example.png)
 
@@ -52,7 +52,9 @@ This is the list of changes to OpenSimula between each release. For full details
 
  __Current Version 0.5.0__
 
-- 0.5.0 (...): WYEC2 Files added to "File_met", New "HVAC_coil_equipment" and "HVAC_fan_equipment" added, HVAC_DX_system and HVAC_DX_equipment adjusted, New HVAC_SZW_system (Single Zone Water System) created.
+- 0.5.0 (September 30, 2025): Surfaces grouped into Building_surface and Solar_surface. Use of the VEDO library for 3D visualization 
+- 0.4.1 (March 13, 2025): Stable versions of HVAC_DX_system and HVAC_DX_equipment. Passed all cases of section 9. 
+- 0.4.2 (June 11, 2025): WYEC2 Files added to "File_met", New "HVAC_coil_equipment" and "HVAC_fan_equipment" added, HVAC_DX_system and HVAC_DX_equipment adjusted, New HVAC_SZW_system (Single Zone Water System) created.
 - 0.4.1 (March 13, 2025): Stable versions of HVAC_DX_system and HVAC_DX_equipment. Passed all cases of section 9. “Space-cooling equipment performance tests” of ASHRAE 140-2023.
 - 0.3.2 (February 20, 2025): Debugging HVAC_DX_system and HVAC_DX_equipment. Passed cases CE100 to CE340 of section 9. “Space-cooling equipment performance tests” of ASHRAE 140-2023.
 - 0.3.1 (January 24, 2025): Implementation HVAC_DX_system and HVAC_DX_equipment
