@@ -14,7 +14,7 @@ class Building_surface(Surface):
         self.parameter("description").value = "Building surface"
         self.add_parameter(Parameter_component("construction", "not_defined", ["Construction"]))
         self.add_parameter(Parameter_component_list("spaces", ["not_defined", "not_defined"], ["Space"]))
-        self.add_parameter(Parameter_options("surface_type", "EXTERIOR", ["EXTERIOR", "INTERIOR", "UNDERGROUND"]))
+        self.add_parameter(Parameter_options("surface_type", "EXTERIOR", ["EXTERIOR", "INTERIOR", "UNDERGROUND", "VIRTUAL"]))
         self.add_parameter(Parameter_float_list("h_cv", [19.3, 2], "W/m²K", min=0))
 
         # Constants
@@ -51,18 +51,20 @@ class Building_surface(Surface):
             if self.parameter("spaces").value[0] == "not_defined":
                 msg = f"{self.parameter('name').value}, must define its space."
                 errors.append(Message(msg, "ERROR"))
-        elif surface_type == "INTERIOR":
+        elif surface_type == "INTERIOR" or surface_type == "VIRTUAL":
             if (
                 self.parameter("spaces").value[0] == "not_defined"
                 or self.parameter("spaces").value[1] == "not_defined"
             ):
                 msg = f"{self.parameter('name').value}, must define two spaces."
                 errors.append(Message(msg, "ERROR"))
-        # Test construction defined
-        if self.parameter("construction").value == "not_defined":
+        # Test construction defined for non-virtual surfaces
+        if surface_type != "VIRTUAL" and self.parameter("construction").value == "not_defined":
             msg = f"{self.parameter('name').value}, Building surfaces must define its construction."
             errors.append(Message(msg, "ERROR"))
-        self._create_openings_list_()
+        self._surface_type_ = self.parameter("surface_type").value
+        if self._surface_type_ == "EXTERIOR" or self._surface_type_ == "INTERIOR":
+            self._create_openings_list_()
         return errors
 
     def get_building(self):
@@ -72,7 +74,13 @@ class Building_surface(Surface):
         return self.parameter("spaces").component[side]
     
     def radiant_property(self, prop, radiation_type, side, theta=0):
-        return self.parameter("construction").component.radiant_property(prop, radiation_type, side, theta)
+        if self.parameter("surface_type").value == "VIRTUAL":
+            if prop == "tau":
+                return 1
+            else:
+                return 0
+        else:
+            return self.parameter("construction").component.radiant_property(prop, radiation_type, side, theta)
 
     # ____________ pre_simulation ____________
     def pre_simulation(self, n_time_steps, delta_t):
@@ -81,9 +89,13 @@ class Building_surface(Surface):
         self._albedo = self.project().parameter("albedo").value
         self._T_ini = self.get_building().parameter("initial_temperature").value
         self._F_sky = (1 + math.sin(math.radians(self.parameter("altitude").value))) / 2
-        self._create_openings_list_()
-        self._calculate_K_()
-        self._sunny_index_ = self.project().env_3D.get_sunny_index(self.parameter("name").value)
+        self._surface_type_ = self.parameter("surface_type").value
+        if self._surface_type_ == "EXTERIOR" or self._surface_type_ == "INTERIOR":
+            self._create_openings_list_()
+        if self._surface_type_ != "VIRTUAL":
+            self._calculate_K_()
+        if self._surface_type_ == "EXTERIOR":
+            self._sunny_index_ = self.project().env_3D.get_sunny_index(self.parameter("name").value)
 
     def _create_openings_list_(self):
         project_openings_list = self.project().component_list(comp_type="Opening")
@@ -115,24 +127,22 @@ class Building_surface(Surface):
     #________ pre_iteration ____________
     def pre_iteration(self, time_i, date, daylight_saving):
         super().pre_iteration(time_i, date, daylight_saving)
-        surface_type = self.parameter("surface_type").value
         # Meterological data
         self._T_ext = self._file_met.variable("temperature").values[time_i]
-        # Trasient part
-        self._p_0_, self._p_1_ = self.parameter("construction").component.get_P(
-            time_i,
-            self.variable("T_s0").values,
-            self.variable("T_s1").values,
-            self.variable("q_cd0").values,
-            self.variable("q_cd1").values,
-            self._T_ini,
-        )
-        self.variable("p_0").values[time_i] = self._p_0_
-        self.variable("p_1").values[time_i] = self._p_1_
-       
-        if surface_type == "EXTERIOR":
+        if self._surface_type_ != "VIRTUAL":
+            # Trasient part
+            self._p_0_, self._p_1_ = self.parameter("construction").component.get_P(
+                time_i,
+                self.variable("T_s0").values,
+                self.variable("T_s1").values,
+                self.variable("q_cd0").values,
+                self.variable("q_cd1").values,
+                self._T_ini)
+            self.variable("p_0").values[time_i] = self._p_0_
+            self.variable("p_1").values[time_i] = self._p_1_
+        if self._surface_type_ == "EXTERIOR":
             self._pre_iteration_exterior_(time_i)
-        elif surface_type == "UNDERGROUND":
+        elif self._surface_type_ == "UNDERGROUND":
             self.variable("T_s0").values[time_i] = self._file_met.variable("underground_temperature").values[time_i]
             
     def _pre_iteration_exterior_(self, time_i):
@@ -196,17 +206,16 @@ class Building_surface(Surface):
     #________ post_iteration ____________
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
-        surface_type = self.parameter("surface_type").value
-        if surface_type == "EXTERIOR":
+        if self._surface_type_ == "EXTERIOR":
             self._calculate_exterior_T_s0_(time_index)
-        self._calculate_heat_fluxes_(time_index)
+        if self._surface_type_ != "VIRTUAL":
+            self._calculate_heat_fluxes_(time_index)
 
     def _calculate_exterior_T_s0_(self, time_i):
         T_s0 = (self.f_0 - self.k_01 * self.variable("T_s1").values[time_i]) / self.k[0]
         self.variable("T_s0").values[time_i] = T_s0
 
     def _calculate_heat_fluxes_(self, time_i):
-        surface_type = self.parameter("surface_type").value
         self.variable("q_cd0").values[time_i] = (
             self.a_0 * self.variable("T_s0").values[time_i]
             + self.a_01 * self.variable("T_s1").values[time_i]
@@ -217,7 +226,7 @@ class Building_surface(Surface):
             + self.a_1 * self.variable("T_s1").values[time_i]
             + self.variable("p_1").values[time_i]
         )
-        if surface_type == "EXTERIOR":
+        if self._surface_type_ == "EXTERIOR":
             self.variable("q_cv0").values[time_i] = self.parameter("h_cv").value[0] * (
                 self._T_ext - self.variable("T_s0").values[time_i]
             )
@@ -236,7 +245,7 @@ class Building_surface(Surface):
                 - self.variable("q_swig1").values[time_i]
                 - self.variable("q_lwig1").values[time_i]
             )
-        elif surface_type == "INTERIOR":
+        elif self._surface_type_ == "INTERIOR":
             self.variable("q_cv0").values[time_i] = self.parameter("h_cv").value[0] * (
                 self.get_space(0).variable("temperature").values[time_i]
                 - self.variable("T_s0").values[time_i]
@@ -259,7 +268,7 @@ class Building_surface(Surface):
                 - self.variable("q_swig1").values[time_i]
                 - self.variable("q_lwig1").values[time_i]
             )
-        elif surface_type == "UNDERGROUND":
+        elif self._surface_type_ == "UNDERGROUND":
             self.variable("q_cv0").values[time_i] = -self.variable("q_cd0").values[time_i]
             self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value * (
                 self.get_space().variable("temperature").values[time_i]
@@ -276,8 +285,9 @@ class Building_surface(Surface):
     @property
     def area(self):
         area = super().area
-        for opening in self.openings:
-            area -= opening.area
+        if self._surface_type_ == "EXTERIOR" or self._surface_type_ == "INTERIOR":
+            for opening in self.openings:
+                area -= opening.area
         return area
 
     def get_polygon_3D(self):
@@ -287,17 +297,22 @@ class Building_surface(Surface):
         pol_2D = self.get_polygon_2D()
         name = self.parameter("name").value
         holes_2D = []
-        for opening in self.openings:
-            holes_2D.append(opening.get_polygon_2D())
-        if self.parameter("surface_type").value == "EXTERIOR":
+        if self._surface_type_ == "EXTERIOR" or self._surface_type_ == "INTERIOR":
+            for opening in self.openings:
+                holes_2D.append(opening.get_polygon_2D())
+        if self._surface_type_ == "EXTERIOR":
             return Polygon_3D(
                 name, origin, azimuth, altitude, pol_2D, holes_2D, color="white"
             )
-        elif self.parameter("surface_type").value == "INTERIOR":
+        elif self._surface_type_ == "INTERIOR":
             return Polygon_3D(
                 name, origin, azimuth, altitude, pol_2D, holes_2D, color="green", shading=False, calculate_shadows=False
             )
-        elif self.parameter("surface_type").value == "UNDERGROUND":         
+        elif self._surface_type_ == "UNDERGROUND":         
             return Polygon_3D(
                 name, origin, azimuth, altitude, pol_2D, holes_2D, color="brown", shading=False, calculate_shadows=False
+            )
+        elif self._surface_type_ == "VIRTUAL":
+            return Polygon_3D(
+                name, origin, azimuth, altitude, pol_2D, color="green", opacity=0.4, shading=False, calculate_shadows=False
             )

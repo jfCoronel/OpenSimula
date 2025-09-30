@@ -2,18 +2,32 @@ import datetime as dt
 import numpy as np
 import OpenSimula as osm
 
-case610_dict = {
-    "name": "Case 610",
+case960_dict = {
+    "name": "Case 960",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
-    "simulation_file_met": "Sevilla",
+    "simulation_file_met": "Denver",
     "components": [
         {
             "type": "File_met",
-            "name": "Sevilla",
-            "file_type": "MET",
-            "file_name": "mets/sevilla.met"
+            "name": "Denver",
+            "file_type": "TMY3",
+            "file_name": "mets/725650TY.tmy3"
+        },
+        {
+            "type": "Material",
+            "name": "Concrete_block",
+            "conductivity": 0.51,
+            "density": 1400,
+            "specific_heat": 1000
+        },
+        {
+            "type": "Material",
+            "name": "Concrete_slab",
+            "conductivity": 1.13,
+            "density": 1400,
+            "specific_heat": 1000
         },
         {
             "type": "Material",
@@ -38,6 +52,13 @@ case610_dict = {
         },
         {
             "type": "Material",
+            "name": "Foam_insulation",
+            "conductivity": 0.04,
+            "density": 10,
+            "specific_heat": 1400
+        },
+        {
+            "type": "Material",
             "name": "Insulation",
             "conductivity": 0.04,
             "density": 0.1,
@@ -58,6 +79,13 @@ case610_dict = {
             "specific_heat": 900
         },
         {
+            "type": "Material",
+            "name": "interior_wall_material",
+            "conductivity": 0.510,
+            "density": 1400,
+            "specific_heat": 1000
+        },
+        {
             "type": "Construction",
             "name": "Wall",
             "solar_alpha": [
@@ -66,13 +94,13 @@ case610_dict = {
             ],
             "materials": [
                 "Wood_siding",
-                "Fiberglass_quilt",
-                "Plasterboard"
+                "Foam_insulation",
+                "Concrete_block"
             ],
             "thicknesses": [
                 0.009,
-                0.066,
-                0.012
+                0.0615,
+                0.100
             ]
         },
         {
@@ -84,11 +112,11 @@ case610_dict = {
             ],
             "materials": [
                 "Insulation",
-                "Timber_flooring"
+                "Concrete_slab"
             ],
             "thicknesses": [
-                1.003,
-                0.025
+                1.007,
+                0.080
             ]
         },
         {
@@ -107,6 +135,20 @@ case610_dict = {
                 0.019,
                 0.1118,
                 0.010
+            ]
+        },
+        {
+            "type": "Construction",
+            "name": "interior_wall_const",
+            "solar_alpha": [
+                0.6,
+                0.6
+            ],
+            "materials": [
+                "interior_wall_material"
+            ],
+            "thicknesses": [
+                0.20
             ]
         },
         {
@@ -149,13 +191,21 @@ case610_dict = {
             "infiltration": "0.5"
         },
         {
+            "type": "Space_type",
+            "name": "sun_zone_gains",
+            "people_density": "0",
+            "light_density": "0",
+            "other_gains_density": "0",
+            "infiltration": "0.5"
+        },
+        {
             "type": "Building",
             "name": "Building",
             "azimuth": 0
         },
         {
             "type": "Space",
-            "name": "spaces_1",
+            "name": "back_zone",
             "building": "Building",
             "spaces_type": "constant_gain_space",
             "floor_area": 48,
@@ -163,10 +213,19 @@ case610_dict = {
             "furniture_weight": 0
         },
         {
+            "type": "Space",
+            "name": "sun_zone",
+            "building": "Building",
+            "spaces_type": "sun_zone_gains",
+            "floor_area": 16,
+            "volume": 43.2,
+            "furniture_weight": 0
+        },
+        {
             "type": "Building_surface",
             "name": "north_wall",
             "construction": "Wall",
-            "spaces": "spaces_1",
+            "spaces": "back_zone",
             "ref_point": [
                 8,
                 6,
@@ -185,7 +244,7 @@ case610_dict = {
             "type": "Building_surface",
             "name": "east_wall",
             "construction": "Wall",
-            "spaces": "spaces_1",
+            "spaces": "back_zone",
             "ref_point": [
                 8,
                 0,
@@ -202,12 +261,31 @@ case610_dict = {
         },
         {
             "type": "Building_surface",
+            "name": "east_wall_2",
+            "construction": "Wall",
+            "spaces": "sun_zone",
+            "ref_point": [
+                8,
+                -2,
+                0
+            ],
+            "width": 2,
+            "height": 2.7,
+            "azimuth": 90,
+            "altitude": 0,
+            "h_cv": [
+                11.9,
+                2.2
+            ]
+        },
+        {
+            "type": "Building_surface",
             "name": "south_wall",
             "construction": "Wall",
-            "spaces": "spaces_1",
+            "spaces": "sun_zone",
             "ref_point": [
                 0,
-                0,
+                -2,
                 0
             ],
             "width": 8,
@@ -226,11 +304,10 @@ case610_dict = {
             "opening_type": "Window",
             "ref_point": [
                 0.5,
-                0.2
+                0.5
             ],
-            "shape": "POLYGON",
-            "x_polygon":[0, 3, 3, 0],
-            "y_polygon":[0, 0, 2, 2],
+            "width": 3,
+            "height": 2,
             "h_cv": [
                 8.0,
                 2.4
@@ -243,7 +320,7 @@ case610_dict = {
             "opening_type": "Window",
             "ref_point": [
                 4.5,
-                0.2
+                0.5
             ],
             "width": 3,
             "height": 2,
@@ -256,7 +333,7 @@ case610_dict = {
             "type": "Building_surface",
             "name": "west_wall",
             "construction": "Wall",
-            "spaces": "spaces_1",
+            "spaces": "back_zone",
             "ref_point": [
                 0,
                 6,
@@ -273,9 +350,28 @@ case610_dict = {
         },
         {
             "type": "Building_surface",
+            "name": "west_wall_2",
+            "construction": "Wall",
+            "spaces": "sun_zone",
+            "ref_point": [
+                0,
+                0,
+                0
+            ],
+            "width": 2,
+            "height": 2.7,
+            "azimuth": -90,
+            "altitude": 0,
+            "h_cv": [
+                11.9,
+                2.2
+            ]
+        },
+        {
+            "type": "Building_surface",
             "name": "roof_wall",
             "construction": "Roof",
-            "spaces": "spaces_1",
+            "spaces": "back_zone",
             "ref_point": [
                 0,
                 0,
@@ -292,9 +388,28 @@ case610_dict = {
         },
         {
             "type": "Building_surface",
+            "name": "roof_wall_2",
+            "construction": "Roof",
+            "spaces": "sun_zone",
+            "ref_point": [
+                0,
+                -2,
+                2.7
+            ],
+            "width": 8,
+            "height": 2,
+            "azimuth": 0,
+            "altitude": 90,
+            "h_cv": [
+                14.4,
+                1.8
+            ]
+        },
+        {
+            "type": "Building_surface",
             "name": "floor_wall",
             "construction": "Floor",
-            "spaces": "spaces_1",
+            "spaces": "back_zone",
             "ref_point": [
                 0,
                 6,
@@ -310,24 +425,39 @@ case610_dict = {
             ]
         },
         {
-            "type": "Solar_surface",
-            "name": "overhang",
-            "coordinate_system": "GLOBAL",
+            "type": "Building_surface",
+            "name": "floor_wall_2",
+            "construction": "Floor",
+            "spaces": "sun_zone",
             "ref_point": [
                 0,
-                -1,
-                2.7
+                0,
+                0
             ],
-            "calculate_solar_radiation": True,
             "width": 8,
-            "height": 1,
+            "height": 2,
             "azimuth": 0,
-            "altitude": 90
+            "altitude": -90,
+            "h_cv": [
+                0.8,
+                2.2
+            ]
+        },
+        {
+            "type": "Building_surface",
+            "name": "virtual_wall",
+            "surface_type": "VIRTUAL",
+            "spaces": ["sun_zone","back_zone"],
+            "ref_point": [0,0,0],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 0,
+            "altitude": 0,
         },
         {
             "type": "HVAC_perfect_system",
             "name": "system",
-            "spaces": "spaces_1",
+            "spaces": "back_zone",
             "outdoor_air_flow": "0",
             "heating_setpoint": "20",
             "cooling_setpoint": "27",
@@ -339,16 +469,16 @@ case610_dict = {
 
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case610_dict)
+pro.read_dict(case960_dict)
 #pro.show_3D()
-date = dt.datetime(2001,12,21,12,0,0)
+date = dt.datetime(2001,1,1,12,0,0)
 #pro.show_3D_shadows(date)
-#pro.show_3D_shadows_animation(date)
+pro.show_3D_shadows_animation(date)
 pro.simulate()
 
 
 # Heating and Cooling Loads
-load = pro.component("spaces_1").variable("system_sensible_heat").values
+load = pro.component("back_zone").variable("system_sensible_heat").values
 annual_heating = np.where(load>0,load,0).sum()/1e6
 annual_cooling = np.where(load<0,-load,0).sum()/1e6
 peak_heating = load.max()/1000

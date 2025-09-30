@@ -248,9 +248,9 @@ class HVAC_SZW_system(Component): # HVAC Single Zone Water system
             self.F_OA = self.F_OA_min
 
     def _simulate_system(self):
-        if self.h_coil != None and self.Q_required > 0: # Heating    
+        if self.h_coil is not None and self.Q_required > 0: # Heating    
             self._simulate_heating()
-        elif self.c_coil != None and self.Q_required < 0: # Cooling
+        elif self.c_coil is not None and self.Q_required < 0: # Cooling
              self._simulate_cooling()
         else: # Venting
             self.state = 3

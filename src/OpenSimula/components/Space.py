@@ -108,15 +108,13 @@ class Space(Component):
                     for opening in surface.openings:
                         self.surfaces.append(opening)
                         self.sides.append(1)
-        # Virtual Surface
-        surfaces_list = self.project().component_list("Virtual_surface")
-        for surface in surfaces_list:
-            if surface.parameter("spaces").component[0] == self:
-                self.surfaces.append(surface)
-                self.sides.append(0)
-            elif surface.parameter("spaces").component[1] == self:
-                self.surfaces.append(surface)
-                self.sides.append(1)
+            elif surface_type == "VIRTUAL":
+                if surface.get_space(0) == self:
+                    self.surfaces.append(surface)
+                    self.sides.append(0)
+                elif surface.get_space(1) == self:
+                    self.surfaces.append(surface)
+                    self.sides.append(1)
 
     def _coplanar(self, surf1, side1, surf2, side2):
         az_1 = surf1.orientation_angle("azimuth", side1)

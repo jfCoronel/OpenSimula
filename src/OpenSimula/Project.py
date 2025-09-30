@@ -6,6 +6,7 @@ from dash import Dash, callback, Input, Output, html, State
 import dash_ag_grid as dag
 import dash_bootstrap_components as dbc
 import psychrolib as sicro
+from tqdm import trange
 from OpenSimula.Message import Message
 from OpenSimula.Parameter_container import Parameter_container
 from OpenSimula.Parameters import (
@@ -169,7 +170,7 @@ class Project(Parameter_container):
                         if "name" in component:
                             name = component["name"]
                         comp = self.new_component(component["type"], name)
-                        if comp == None:
+                        if comp is None:
                             msg = (
                                 self._get_error_header_()
                                 + f'Component type {component["type"]} does not exist.'
@@ -430,7 +431,7 @@ class Project(Parameter_container):
         else:
             met_file = None
         try:
-            if met_file != None:
+            if met_file is not None:
                 altitude = met_file.altitude
                 atm_p = sicro.GetStandardAtmPressure(altitude)
                 w_50 = sicro.GetHumRatioFromRelHum(22.5, 0.5, atm_p)
@@ -461,25 +462,15 @@ class Project(Parameter_container):
             Message(f"Simulating {self.parameter('name').value}: ...", "CONSOLE")
         )
 
-        show_percent = show_percentage
-        n_iter_acum = 0
-        for i in range(n):
-            if (100.0 * (i + 1) / n) >= show_percent:
-                self._sim_.message(
-                    Message(
-                        f"{int(show_percent)}%: N_iter: {(n_iter_acum/(n*show_percentage/100)):.2f}",
-                        "CONSOLE",
-                    )
-                )
-                show_percent = show_percent + show_percentage
-                n_iter_acum = 0
+        tq = trange(n, unit="step", colour="blue")
+        for i in tq:
             daylight_saving = False
             if self.parameter("daylight_saving").value:
                 if date > date_dls_start and date < date_dls_end:
                     daylight_saving = True
 
             # Update Shadows
-            if self.parameter("shadow_calculation").value == "INSTANT" and met_file != None:
+            if self.parameter("shadow_calculation").value == "INSTANT" and met_file is not None:
                 cos = met_file.sun_cosines(date)
                 if len(cos) == 3:
                     self.env_3D.calculate_shadows(cos,create_polygons=False)
@@ -493,13 +484,12 @@ class Project(Parameter_container):
                 if self._iteration_(i, date, daylight_saving, n_iter):
                     converge = True
                 n_iter += 1
+            tq.set_postfix(n_iter=n_iter)
             self._sim_df.at[i, "n_iterations"] = n_iter
             self._sim_df.at[i, "converged"] = converge
-            n_iter_acum += n_iter
             self._post_iteration_(i, date, daylight_saving, converge)
             date = date + dt.timedelta(0, delta_t)
 
-        self._sim_.message(Message("Simulation completed.", "CONSOLE"))
         n_not_converged = (
             len(self._sim_df["converged"]) - self._sim_df["converged"].sum()
         )
@@ -632,7 +622,7 @@ class Project(Parameter_container):
                     self.del_component(self.component(row["name"]))
                 self._n_clicks_del_comp_ = n_clicks_del
             else:
-                if changed != None:
+                if changed is not None:
                     if changed[0]["colId"] == "name":
                         self.component(changed[0]["oldValue"]).parameter(
                             "name"

@@ -22,7 +22,7 @@ class Simulation:
         Args:
             project_name (string): Name of the project to be added to the simulation environment
         """
-        if self.project(project_name) == None:
+        if self.project(project_name) is None:
             pro = Project(project_name, self)
             self._projects_.append(pro)
             return pro
@@ -118,7 +118,7 @@ class Simulation:
                 series[variables[i].parent.parameter(
                     "name").value+":"+variables[i].key] = variables[i].values
         data = pd.DataFrame(series)
-        if frequency != None:
+        if frequency is not None:
             if value == "mean":
                 data = data.resample(frequency, on='date').mean()
             elif value == "sum":
@@ -199,7 +199,7 @@ class Simulation:
                     self.del_project(self.project(row["name"]))
                 self._n_clicks_del_project_ = n_clicks_del
             else:
-                if changed != None:
+                if changed is not None:
                     if changed[0]["colId"] == "name":
                         self.project(changed[0]['oldValue']).parameter(
                             "name").value = changed[0]["value"]

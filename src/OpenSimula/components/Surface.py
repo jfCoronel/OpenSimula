@@ -93,9 +93,6 @@ class Surface(Component):
         """
         return 0
 
-    def is_virtual(self):
-        return False
-
     def get_origin(self, coordinate_system="global"):
         if self.get_building() is not None:
             if coordinate_system == "global":

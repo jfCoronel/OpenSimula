@@ -359,9 +359,6 @@ class Opening(Component):
     def orientation_angle(self, angle, side, coordinate_system="global"):
         return self.get_surface().orientation_angle(angle, side, coordinate_system)
 
-    def is_virtual(self):
-        return False
-
     def get_origin(self, coordinate_system="global"):
         return self.get_surface().get_origin(coordinate_system)
 

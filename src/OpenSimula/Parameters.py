@@ -438,7 +438,7 @@ class Parameter_component(Parameter):
         if self.external:
             splits = self.value.split("->")
             proj = self.parent.project()._sim_.project(splits[0])
-            if proj == None:
+            if proj is None:
                 return None
             else:
                 return proj.component(splits[1])
@@ -455,7 +455,7 @@ class Parameter_component(Parameter):
             if type(comp).__name__ not in self.allowed_types:
                 msg = self._get_error_header_()+f"{self.value} component is not of one of the allowed types."
                 errors.append(Message(msg,"ERROR"))
-        if comp == None and self.value != "not_defined":
+        if comp is None and self.value != "not_defined":
             msg = self._get_error_header_() + f"{self.value} component not found."
             errors.append(Message(msg,"ERROR"))
         return errors
@@ -508,7 +508,7 @@ class Parameter_component_list(Parameter):
             if self.external[i]:
                 splits = element.split("->")
                 proj = self.parent.project()._sim_.project(splits[0])
-                if proj == None:
+                if proj is None:
                     components.append(None)
                 else:
                     components.append(proj.component(splits[1]))
@@ -524,7 +524,7 @@ class Parameter_component_list(Parameter):
                 if type(comps[i]).__name__ not in self.allowed_types:
                     msg = self._get_error_header_()+f"{self.value[i]} component is not of one of the allowed types."
                     errors.append(Message(msg,"ERROR"))
-            if comps[i] == None and self.value[i] != "not_defined":
+            if comps[i] is None and self.value[i] != "not_defined":
                 msg = self._get_error_header_() + f"{self.value[i]} component not found."
                 errors.append(Message(msg,"ERROR"))
         return errors
@@ -594,7 +594,7 @@ class Parameter_variable(Parameter):
     def check(self):
         errors = []
         var = self.variable
-        if var == None and self._symbol_ != "not_defined":
+        if var is None and self._symbol_ != "not_defined":
             msg = self._get_error_header_() + f"{self.value} component or variable not found."
             errors.append(Message(msg,"ERROR"))
         return errors
@@ -681,7 +681,7 @@ class Parameter_variable_list(Parameter):
         errors = []
         for i in range(len(self._value_)):
             var = self.variable[i]
-            if var == None and self.symbol[i] != "not_defined":
+            if var is None and self.symbol[i] != "not_defined":
                 msg = self._get_error_header_() + f"{self.value} component or variable not found."
                 errors.append(Message(msg,"ERROR"))
         return errors

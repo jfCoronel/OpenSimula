@@ -61,7 +61,7 @@ class Component(Parameter_container):
             for col in pos_neg_columns:
                 data[col + "_pos"] = data[col].apply(lambda x: x if x > 0 else 0)
                 data[col + "_neg"] = data[col].apply(lambda x: x if x < 0 else 0)
-        if frequency != None:
+        if frequency is not None:
             if value == "mean":
                 data = data.resample(frequency, on='date').mean()
             elif value == "sum":
@@ -70,7 +70,7 @@ class Component(Parameter_container):
                 data = data.resample(frequency, on='date').max()
             elif value == "min":
                 data = data.resample(frequency, on='date').min()
-        if interval != None:
+        if interval is not None:
             data = data[(data['date'] > interval[0]) &
                         (data['date'] < interval[1])]
         return data

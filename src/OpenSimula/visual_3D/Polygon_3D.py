@@ -137,7 +137,7 @@ class Polygon_3D():
             # Calculate sunny polygon
             sunny_polygon = self.shapely_polygon
             for shadow_polygon in shadows_2D:
-                if shadow_polygon != None:
+                if shadow_polygon is not None:
                     sunny_polygon = sunny_polygon.difference(shadow_polygon)
             if sunny_polygon.is_empty:
                 sunny_polygon = None
@@ -150,13 +150,13 @@ class Polygon_3D():
     
     def _calculate_shapely_projected_polygon_(self, polygon_to_project, sun_position):
         exterior_points = self._get_projected_points_(polygon_to_project, sun_position)
-        if exterior_points != None:
+        if exterior_points is not None:
             if polygon_to_project.has_holes():
                 holes = []
                 for hole in polygon_to_project.holes2D:
                     hole_points = self._get_projected_points_(
                         Polygon_3D("holes", polygon_to_project.origin, polygon_to_project.azimuth, polygon_to_project.altitude, hole), sun_position)
-                    if hole_points != None:
+                    if hole_points is not None:
                         holes.append(hole_points)
                 return Polygon(exterior_points, holes)
             else:
@@ -223,7 +223,7 @@ class Polygon_3D():
     # Para dibujarlos en 3D
     def _shapely_multipolygon_to_polygons_3D_(self, shapely_polygon, type="sunny"):
         polygon_list = []
-        if shapely_polygon != None:
+        if shapely_polygon is not None:
             if shapely_polygon.geom_type == 'MultiPolygon':
                 polygons = list(shapely_polygon.geoms)
                 for pol in polygons:

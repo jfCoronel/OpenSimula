@@ -183,14 +183,11 @@ class Building(Component):
                                 self.surfaces[i].area
                                 * self.surfaces[i].parameter("h_cv").value[self.sides[i]]
                             )
-            elif s_type == "Virtual_surface":
-                self.KS_matrix[i][i] += 1.0
-                for j in range(self._n_spaces):
-                    if (
-                        self.spaces[j]
-                        == self.surfaces[i].parameter("spaces").component[self.sides[i]]
-                    ):
-                        self.KSZ_matrix[i][j] = 0
+                elif surface_type == "VIRTUAL":
+                    self.KS_matrix[i][i] += 1.0
+                    for j in range(self._n_spaces):
+                        if (self.spaces[j] == self.surfaces[i].parameter("spaces").component[self.sides[i]]):
+                            self.KSZ_matrix[i][j] = 0
             elif s_type == "Opening":
                 k = self.surfaces[i].k
                 k_01 = self.surfaces[i].k_01
@@ -395,8 +392,8 @@ class Building(Component):
                             - Q_rad
                         )
                         self.FS_vector[i] = f
-            elif s_type == "Virtual_surface":
-                self.FS_vector[i] = 0.0
+                elif surface_type == "VIRTUAL":
+                    self.FS_vector[i] = 0.0
             elif s_type == "Opening":
                 if self.surfaces[i].is_exterior():
                     q_sol_10 = -(self.Q_dir[i] + self.Q_dif[i]) / area
@@ -502,7 +499,7 @@ class Building(Component):
         
         # Store TS
         for i in range(self._n_surfaces):
-            if self.surfaces[i].parameter("type").value != "Virtual_surface":
+            if self.surfaces[i].parameter("type").value == "Building_surface" and self.surfaces[i].parameter("surface_type").value != "VIRTUAL":
                 if self.sides[i] == 0:
                     self.surfaces[i].variable("T_s0").values[time_i] = self.TS_vector[i]
                 else:

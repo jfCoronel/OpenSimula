@@ -128,11 +128,11 @@ class Environment_3D:
             self.pol_shadows = []
 
         for polygon in self.pol_3D:
-            if polygon.calculate_shadows == True:
+            if polygon.calculate_shadows:
                 sunny_polygons, shadow_polygons = polygon.get_sunny_shadow_polygon3D(
                     self, sun_position
                 )
-                if sunny_polygons != None:
+                if sunny_polygons is not None:
                     sunny_area = 0
                     for sunny_polygon in sunny_polygons:
                         if create_polygons:
@@ -142,14 +142,14 @@ class Environment_3D:
                 else:
                     self.sunny_fraction.append(0)  # No sunny area
                 if create_polygons:
-                    if shadow_polygons != None:
+                    if shadow_polygons is not None:
                         for shadow_polygon in shadow_polygons:
                             self.pol_shadows.append(shadow_polygon)
     
     def get_sunny_polygon_list(self):
         sunny_polygons = []
         for polygon in self.pol_3D:
-            if polygon.calculate_shadows == True:
+            if polygon.calculate_shadows:
                 sunny_polygons.append(polygon)
         return sunny_polygons
     
