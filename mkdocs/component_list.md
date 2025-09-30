@@ -13,5 +13,5 @@ We have divided the list of all components into several groups of related compon
 - [Components for reading files](component_list_files.md): File_met, File_data.
 - [Constructive components](component_list_constructions.md): Material, Construction, Glazing, Frame, Opening_type.
 - [Building definition components](component_list_building.md): Building, Space_type, Space, Building_surface, Opening, Solar_surface.
-- [HVAC systems components](component_list_HVAC_systems.md): HVAC_perfect_system.
+- [HVAC systems components](component_list_HVAC_systems.md): HVAC_perfect_system, HVAC_DX_equipment, HVAC_DX_system, HVAC_coil_equipment, HVAC_fan_equipment, HVAC_SZW_system.
 - [Components for various utilities](component_list_utils.md): Calculator.
