@@ -151,9 +151,7 @@ case610_dict = {
         {
             "type": "Building",
             "name": "Building",
-            "albedo": 0.2,
-            "azimuth": 0,
-            "shadow_calculation": "INSTANT"
+            "azimuth": 0
         },
         {
             "type": "Space",
