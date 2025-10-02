@@ -3,7 +3,7 @@ Information for building a new version:
 Change version number in __init__.py, pyproject.toml, mkdocs/index.md
 
 Test all the cases:
-    > pytest test
+    > uv run pytest test
 
 Build documentation (source dir: mkdocs, dist dir: docs):
     > uv run mkdocs build --clean
