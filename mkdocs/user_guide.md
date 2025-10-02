@@ -1,15 +1,15 @@
 ## User Guide
 
-In this guide you will find information on how to use OpenSimula from an environment that can run Python.
+In this guide you will find information on how to use opensimula from an environment that can run Python.
 
-The best environment to start using OpenSimula is with [Jupyter notebooks](https://jupyter.org/).
+The best environment to start using opensimula is with [Jupyter notebooks](https://jupyter.org/).
 
 ### Simulation environment
 
-Once we have OpenSimula installed, the base component to work with OpenSimula is the “Simulation” object that we must import and create an instance of it, which we will call “sim”.
+Once we have opensimula installed, the base component to work with opensimula is the “Simulation” object that we must import and create an instance of it, which we will call “sim”.
 
 <pre><code class="python">
-import OpenSimula.Simulation as Simulation
+import opensimula.Simulation as Simulation
 
 sim = Simulation()
 </code></pre>
@@ -17,7 +17,7 @@ sim = Simulation()
 The simulation object will be used to create and manage the different projects. To create a new project in our simulation environment we will use the `new_project(name)` function. the project name is stored in a parameter of the project that can be changed later.
 
 <pre><code class="python">
-import OpenSimula.Simulation as Simulation
+import opensimula.Simulation as Simulation
 
 sim = Simulation()
 pro = sim.new_project("Project 1")
@@ -71,7 +71,7 @@ Projects contain a set of components defining a case that can be temporarily sim
 Example of project for the simulation of the first week of june with 15 min time step.
 
 <pre><code class="python">
-import OpenSimula.Simulation as Simulation
+import opensimula.Simulation as Simulation
 
 sim = Simulation()
 pro = sim.new_project("Project one")
@@ -84,7 +84,7 @@ pro.parameter("initial_time").value = "01/06/2001 00:00:00"
 Project and component parameters can be changed one by one or in bulk using a dictionary and the `set_parameter(dictonary)` function, or interactively using the project and component editors.
 
 <pre><code class="python">
-import OpenSimula.Simulation as Simulation
+import opensimula.Simulation as Simulation
 
 sim = Simulation()
 pro = sim.new_project("Project one")
@@ -134,7 +134,7 @@ the first simulation instant is the initial_time plus 1/2 of the time_step. For 
 
 ## Components
 
-Components are objects included in projects that contain parameters and variables. [Component list](component_list.md) describe the different types of Components in OpenSimula.
+Components are objects included in projects that contain parameters and variables. [Component list](component_list.md) describe the different types of Components in opensimula.
 
 As an example, we will see how to create three different types of components and how to manage them in our project. this code is a continuation of the definition of the previous project.
 

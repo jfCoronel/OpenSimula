@@ -1,5 +1,5 @@
 import numpy as np
-from OpenSimula.Child import Child
+from opensimula.Child import Child
 
 # _________________ Variable ___________________________
 

@@ -1,6 +1,6 @@
 import pandas as pd
-from OpenSimula.Parameters import Parameter_string
-from OpenSimula.Message import Message
+from opensimula.Parameters import Parameter_string
+from opensimula.Message import Message
 
 class Parameter_container:
     """Class to manage a list of Paramaters

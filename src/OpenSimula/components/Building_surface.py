@@ -1,9 +1,9 @@
 import math
-from OpenSimula.Message import Message
-from OpenSimula.components.Surface import Surface
-from OpenSimula.Parameters import Parameter_component, Parameter_float_list, Parameter_options, Parameter_component_list
-from OpenSimula.Variable import Variable
-from OpenSimula.visual_3D.Polygon_3D import Polygon_3D
+from opensimula.Message import Message
+from opensimula.components.Surface import Surface
+from opensimula.Parameters import Parameter_component, Parameter_float_list, Parameter_options, Parameter_component_list
+from opensimula.Variable import Variable
+from opensimula.visual_3D.Polygon_3D import Polygon_3D
 
 
 class Building_surface(Surface):

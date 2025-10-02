@@ -1,16 +1,16 @@
 ## Getting Started
 
-The best environment to start using OpenSimula is with [Jupyter notebooks](https://jupyter.org/) or [Google Colab](https://colab.research.google.com/). We recommend the use of [JupyterLab Desktop](https://github.com/jupyterlab/jupyterlab-desktop)
+The best environment to start using opensimula is with [Jupyter notebooks](https://jupyter.org/) or [Google Colab](https://colab.research.google.com/). We recommend the use of [JupyterLab Desktop](https://github.com/jupyterlab/jupyterlab-desktop)
 
-### Installing OpenSiumula
+### Installing opensimula
 
-To install OpenSimula you can use any of the methods that Python makes possible. For example, to install using pip we must use:
+To install opensimula you can use any of the methods that Python makes possible. For example, to install using pip we must use:
 
 <pre>
-pip install OpenSimula
+pip install opensimula
 </pre>
 
-OpenSimula uses in different parts of the code the following Python packages, which will be installed automatically when OpenSimula is installed:
+opensimula uses in different parts of the code the following Python packages, which will be installed automatically when opensimula is installed:
 
 - numPy
 - pandas
@@ -80,7 +80,7 @@ project_dict = {
 }
 </code></pre>
 
-All OpenSimula projects must contain the project definition parameters and a key called `components` with the list of project components. The project parameters in this example are:
+All opensimula projects must contain the project definition parameters and a key called `components` with the list of project components. The project parameters in this example are:
 
 - `name`: project name.
 - `time_step`: Time step used for simulation in seconds.
@@ -105,10 +105,10 @@ Finally, the `Year_schedule` named `year` sets three annual periods using the `p
 - August 1st to September 1st: `holiday_week`.
 - September 1st to December 31st: `working_week`.
 
-To simulate this project that we have defined, we first import the OpenSimula.Simulation object to create a simulation environment in the `sim` variable, a project within that simulation environment called `pro`. We load the project reading the dictionary that we have explained previously with the `read_dict` function available for projects and we simulate it using the `simulate()` function. 
+To simulate this project that we have defined, we first import the opensimula.Simulation object to create a simulation environment in the `sim` variable, a project within that simulation environment called `pro`. We load the project reading the dictionary that we have explained previously with the `read_dict` function available for projects and we simulate it using the `simulate()` function. 
 
 <pre><code class="python">
-import OpenSimula.Simulation as Simulation
+import opensimula.Simulation as Simulation
 
 sim = Simulation()
 pro = sim.new_project("First example project")

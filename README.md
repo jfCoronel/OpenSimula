@@ -1,7 +1,7 @@
-![Logo](https://jfcoronel.github.io/OpenSimula/img/logo_opensimula.png)
+![Logo](https://jfcoronel.github.io/opensimula/img/logo_opensimula.png)
 Component-based time simulation environment in Python
 
-[Documentation page](https://jfcoronel.github.io/OpenSimula/)
+[Documentation page](https://jfcoronel.github.io/opensimula/)
 
 ## Main Developers
 

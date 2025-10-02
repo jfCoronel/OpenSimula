@@ -1,6 +1,6 @@
 [project]
-name = "OpenSimula"
-version = "0.5.0"
+name = "opensimula"
+version = "0.5.1"
 requires-python = ">=3.12"
 authors = [
   { name="Juan F. Coronel", email="jfc@us.es" },

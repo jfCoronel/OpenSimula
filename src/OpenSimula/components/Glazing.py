@@ -1,7 +1,7 @@
 import math
 from scipy.integrate import quad
-from OpenSimula.Component import Component
-from OpenSimula.Parameters import Parameter_float, Parameter_float_list, Parameter_math_exp, Parameter_math_exp_list
+from opensimula.Component import Component
+from opensimula.Parameters import Parameter_float, Parameter_float_list, Parameter_math_exp, Parameter_math_exp_list
 
 
 class Glazing(Component):

@@ -1,7 +1,7 @@
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options
-from OpenSimula.Component import Component
-from OpenSimula.Variable import Variable
+from opensimula.Message import Message
+from opensimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options
+from opensimula.Component import Component
+from opensimula.Variable import Variable
 import psychrolib as sicro
 
 

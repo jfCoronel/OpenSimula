@@ -2,9 +2,9 @@
 ![Logo](img/logo_opensimula.png) 
 
 This site contains the documentation for the
-___OpenSimula___ project. Github site [![Github logo](img/github_logo.png)](https://github.com/jfCoronel/OpenSimula)
+___opensimula___ project. Github site [![Github logo](img/github_logo.png)](https://github.com/jfCoronel/opensimula)
 
-`OpenSimula` is a component-based time simulation environment in Python. 
+`opensimula` is a component-based time simulation environment in Python. 
 
 The main objective is the thermal and energy simulation of different systems and installations, mainly in buildings, although it can be used to simulate any component that presents a temporal variation.
 
@@ -15,7 +15,7 @@ The main objective is the thermal and energy simulation of different systems and
 
 ### Structure
 
-The general object structure provided by OpenSimula is composed of three main elements:
+The general object structure provided by opensimula is composed of three main elements:
 
 - Simulation: The global environment for simulation.
 - Project: A set of components that define a problem that can be temporarily simulated.
@@ -48,7 +48,7 @@ information generated during the simulation.
 
 ## Release notes
 
-This is the list of changes to OpenSimula between each release. For full details, see the commit logs.
+This is the list of changes to opensimula between each release. For full details, see the commit logs.
 
  __Current Version 0.5.0__
 

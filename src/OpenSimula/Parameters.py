@@ -1,7 +1,7 @@
 import sys
 import math  #Needed for expressions
-from OpenSimula.Child import Child
-from OpenSimula.Message import Message
+from opensimula.Child import Child
+from opensimula.Message import Message
 
 # ___________________ Parameter _________________________
 

@@ -127,7 +127,7 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
         <li class="first-level active"><a href="#getting-started">Getting Started</a></li>
-            <li class="second-level"><a href="#installing-opensiumula">Installing OpenSiumula</a></li>
+            <li class="second-level"><a href="#installing-opensimula">Installing opensimula</a></li>
                 
             <li class="second-level"><a href="#first-example">First example</a></li>
                 
@@ -136,14 +136,14 @@
         <div class="col-md-9" role="main">
 
 <h2 id="getting-started">Getting Started</h2>
-<p>The best environment to start using OpenSimula is with <a href="https://jupyter.org/">Jupyter notebooks</a> or <a href="https://colab.research.google.com/">Google Colab</a>. We recommend the use of <a href="https://github.com/jupyterlab/jupyterlab-desktop">JupyterLab Desktop</a></p>
-<h3 id="installing-opensiumula">Installing OpenSiumula</h3>
-<p>To install OpenSimula you can use any of the methods that Python makes possible. For example, to install using pip we must use:</p>
+<p>The best environment to start using opensimula is with <a href="https://jupyter.org/">Jupyter notebooks</a> or <a href="https://colab.research.google.com/">Google Colab</a>. We recommend the use of <a href="https://github.com/jupyterlab/jupyterlab-desktop">JupyterLab Desktop</a></p>
+<h3 id="installing-opensimula">Installing opensimula</h3>
+<p>To install opensimula you can use any of the methods that Python makes possible. For example, to install using pip we must use:</p>
 <pre>
-pip install OpenSimula
+pip install opensimula
 </pre>
 
-<p>OpenSimula uses in different parts of the code the following Python packages, which will be installed automatically when OpenSimula is installed:</p>
+<p>opensimula uses in different parts of the code the following Python packages, which will be installed automatically when opensimula is installed:</p>
 <ul>
 <li>numPy</li>
 <li>pandas</li>
@@ -211,7 +211,7 @@ project_dict = {
 }
 </code></pre>
 
-<p>All OpenSimula projects must contain the project definition parameters and a key called <code>components</code> with the list of project components. The project parameters in this example are:</p>
+<p>All opensimula projects must contain the project definition parameters and a key called <code>components</code> with the list of project components. The project parameters in this example are:</p>
 <ul>
 <li><code>name</code>: project name.</li>
 <li><code>time_step</code>: Time step used for simulation in seconds.</li>
@@ -234,9 +234,9 @@ project_dict = {
 <li>August 1st to September 1st: <code>holiday_week</code>.</li>
 <li>September 1st to December 31st: <code>working_week</code>.</li>
 </ul>
-<p>To simulate this project that we have defined, we first import the OpenSimula.Simulation object to create a simulation environment in the <code>sim</code> variable, a project within that simulation environment called <code>pro</code>. We load the project reading the dictionary that we have explained previously with the <code>read_dict</code> function available for projects and we simulate it using the <code>simulate()</code> function. </p>
+<p>To simulate this project that we have defined, we first import the opensimula.Simulation object to create a simulation environment in the <code>sim</code> variable, a project within that simulation environment called <code>pro</code>. We load the project reading the dictionary that we have explained previously with the <code>read_dict</code> function available for projects and we simulate it using the <code>simulate()</code> function. </p>
 <pre><code class="python">
-import OpenSimula.Simulation as Simulation
+import opensimula.Simulation as Simulation
 
 sim = Simulation()
 pro = sim.new_project("First example project")

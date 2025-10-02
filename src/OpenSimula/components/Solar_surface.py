@@ -1,8 +1,8 @@
 import math
-from OpenSimula.Message import Message
-from OpenSimula.components.Surface import Surface
-from OpenSimula.Parameters import Parameter_component, Parameter_options, Parameter_boolean
-from OpenSimula.visual_3D.Polygon_3D import Polygon_3D
+from opensimula.Message import Message
+from opensimula.components.Surface import Surface
+from opensimula.Parameters import Parameter_component, Parameter_options, Parameter_boolean
+from opensimula.visual_3D.Polygon_3D import Polygon_3D
 
 
 class Solar_surface(Surface):

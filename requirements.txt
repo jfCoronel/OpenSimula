@@ -98,7 +98,7 @@ notebook==7.2.0
 notebook_shim==0.2.4
 numpy==1.26.1
 openpyxl==3.1.2
--e git+https://github.com/jfCoronel/OpenSimula.git@97272e073dcc9bc0026eb03299e8b78f645c37d6#egg=OpenSimula
+-e git+https://github.com/jfCoronel/opensimula.git@97272e073dcc9bc0026eb03299e8b78f645c37d6#egg=opensimula
 overrides==7.7.0
 packaging==24.2
 pandas==2.0.3

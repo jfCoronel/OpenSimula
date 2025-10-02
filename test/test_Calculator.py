@@ -1,4 +1,4 @@
-import OpenSimula as osm
+import opensimula as osm
 import pytest
 
 calculator_dict = {

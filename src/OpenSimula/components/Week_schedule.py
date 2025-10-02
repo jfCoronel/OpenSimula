@@ -1,6 +1,6 @@
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_component_list
-from OpenSimula.Component import Component
+from opensimula.Message import Message
+from opensimula.Parameters import Parameter_component_list
+from opensimula.Component import Component
 
 
 class Week_schedule(Component):

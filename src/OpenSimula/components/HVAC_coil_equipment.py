@@ -1,6 +1,6 @@
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_float, Parameter_float_list, Parameter_math_exp, Parameter_options, Parameter_boolean
-from OpenSimula.Component import Component
+from opensimula.Message import Message
+from opensimula.Parameters import Parameter_float, Parameter_float_list, Parameter_math_exp, Parameter_options, Parameter_boolean
+from opensimula.Component import Component
 from scipy.optimize import fsolve
 import psychrolib as sicro
 

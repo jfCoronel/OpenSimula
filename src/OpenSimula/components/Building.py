@@ -1,7 +1,7 @@
 import numpy as np
-from OpenSimula.Component import Component
-from OpenSimula.Parameters import Parameter_float,Parameter_float_list
-from OpenSimula.Message import Message
+from opensimula.Component import Component
+from opensimula.Parameters import Parameter_float,Parameter_float_list
+from opensimula.Message import Message
 
 class Building(Component):
     def __init__(self, name, project):

@@ -1,10 +1,10 @@
 import math
 import numpy as np
-from OpenSimula.Component import Component
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_options, Parameter_float, Parameter_float_list
+from opensimula.Component import Component
+from opensimula.Message import Message
+from opensimula.Parameters import Parameter_options, Parameter_float, Parameter_float_list
 from shapely.geometry import Polygon
-from OpenSimula.Variable import Variable
+from opensimula.Variable import Variable
 
 
 class Surface(Component):

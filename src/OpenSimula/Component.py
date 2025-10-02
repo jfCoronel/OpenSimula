@@ -1,7 +1,7 @@
 import pandas as pd
-from OpenSimula.Parameter_container import Parameter_container
-from OpenSimula.Parameters import Parameter_string
-from OpenSimula.Variable import Variable
+from opensimula.Parameter_container import Parameter_container
+from opensimula.Parameters import Parameter_string
+from opensimula.Variable import Variable
 
 
 class Component(Parameter_container):

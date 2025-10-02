@@ -1,6 +1,6 @@
-from OpenSimula.Component import Component
-from OpenSimula.Parameters import Parameter_float, Parameter_math_exp, Parameter_variable_list
-from OpenSimula.Variable import Variable
+from opensimula.Component import Component
+from opensimula.Parameters import Parameter_float, Parameter_math_exp, Parameter_variable_list
+from opensimula.Variable import Variable
 
 
 class Space_type(Component):

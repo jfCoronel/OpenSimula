@@ -1,5 +1,5 @@
 import pytest
-import OpenSimula as osm
+import opensimula as osm
 
 project = {
     "name": "Project test meteo",

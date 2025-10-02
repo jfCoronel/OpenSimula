@@ -1,6 +1,6 @@
-from OpenSimula.Component import Component
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_float, Parameter_component
+from opensimula.Component import Component
+from opensimula.Message import Message
+from opensimula.Parameters import Parameter_float, Parameter_component
 
 
 class Opening_type(Component):

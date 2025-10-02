@@ -1,6 +1,6 @@
 import datetime as dt
 import numpy as np
-import OpenSimula as osm
+import opensimula as osm
 
 case960_dict = {
     "name": "Case 960",

@@ -2,10 +2,10 @@ import pandas as pd
 import datetime as dt
 import numpy as np
 import math
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_string, Parameter_options, Parameter_int
-from OpenSimula.Component import Component
-from OpenSimula.Variable import Variable
+from opensimula.Message import Message
+from opensimula.Parameters import Parameter_string, Parameter_options, Parameter_int
+from opensimula.Component import Component
+from opensimula.Variable import Variable
 
 
 class File_data(Component):

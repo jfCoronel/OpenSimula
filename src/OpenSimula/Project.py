@@ -7,9 +7,9 @@ import dash_ag_grid as dag
 import dash_bootstrap_components as dbc
 import psychrolib as sicro
 from tqdm import trange
-from OpenSimula.Message import Message
-from OpenSimula.Parameter_container import Parameter_container
-from OpenSimula.Parameters import (
+from opensimula.Message import Message
+from opensimula.Parameter_container import Parameter_container
+from opensimula.Parameters import (
     Parameter_component,
     Parameter_int,
     Parameter_string,
@@ -18,8 +18,8 @@ from OpenSimula.Parameters import (
     Parameter_options,
     Parameter_float
 )
-from OpenSimula.components import *
-from OpenSimula.visual_3D.Environment_3D import Environment_3D
+from opensimula.components import *
+from opensimula.visual_3D.Environment_3D import Environment_3D
 
 
 class Project(Parameter_container):

@@ -1,11 +1,11 @@
 from bisect import bisect
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import (
+from opensimula.Message import Message
+from opensimula.Parameters import (
     Parameter_int_list,
     Parameter_float_list,
     Parameter_options,
 )
-from OpenSimula.Component import Component
+from opensimula.Component import Component
 
 
 class Day_schedule(Component):

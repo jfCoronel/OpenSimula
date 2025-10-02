@@ -1,4 +1,4 @@
-import OpenSimula as osm
+import opensimula as osm
 
 project_dic = {
     "name": "Test project",

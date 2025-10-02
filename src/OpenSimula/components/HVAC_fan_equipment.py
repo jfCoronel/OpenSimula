@@ -1,5 +1,5 @@
-from OpenSimula.Parameters import Parameter_float, Parameter_math_exp
-from OpenSimula.Component import Component
+from opensimula.Parameters import Parameter_float, Parameter_math_exp
+from opensimula.Component import Component
 
 class HVAC_fan_equipment(Component):
     def __init__(self, name, project):

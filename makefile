@@ -5,7 +5,7 @@ help:
 	@echo 'Usage: make <subcommand>'
 	@echo ''
 	@echo 'Subcommands:'
-	@echo '    install       Install OpenSimula locally in source mode'
+	@echo '    install       Install opensimula locally in source mode'
 	@echo '    deploy        Register and upload a new release to PyPI'
 	@echo '    build         Build a source distribution'
 	@echo '    docs          Build documentation'

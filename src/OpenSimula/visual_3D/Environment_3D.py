@@ -86,7 +86,7 @@ class Environment_3D:
             plt.add(text_obj[0])
             plt.render()
         
-        plt = vedo.Plotter(title="OpenSimula")
+        plt = vedo.Plotter(title="opensimula")
         plt.add_callback('mouse click', on_left_click)
         plt.show(*meshes, axes=1, viewup="z").close()
 
@@ -105,7 +105,7 @@ class Environment_3D:
         # Show first frame
         self.calculate_shadows(cosines[0], create_polygons=True)
         meshes.append(self.get_vedo_meshes(polygons_type))
-        plt = vedo.Plotter(title="OpenSimula", axes=1)  
+        plt = vedo.Plotter(title="opensimula", axes=1)  
         plt.add(meshes[0])
         plt.add_slider(
             slider_func,

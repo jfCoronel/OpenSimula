@@ -4,10 +4,10 @@ import math
 import re  # Regular Expressions
 import pandas as pd
 import psychrolib as sicro
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_string, Parameter_options
-from OpenSimula.Component import Component
-from OpenSimula.Variable import Variable
+from opensimula.Message import Message
+from opensimula.Parameters import Parameter_string, Parameter_options
+from opensimula.Component import Component
+from opensimula.Variable import Variable
 
 
 class File_met(Component):

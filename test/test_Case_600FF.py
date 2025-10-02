@@ -1,4 +1,4 @@
-import OpenSimula as osm
+import opensimula as osm
 import pytest
 
 case600FF_dict = {

@@ -1,9 +1,9 @@
 import datetime as dt
 from bisect import bisect
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_component_list, Parameter_string_list
-from OpenSimula.Component import Component
-from OpenSimula.Variable import Variable
+from opensimula.Message import Message
+from opensimula.Parameters import Parameter_component_list, Parameter_string_list
+from opensimula.Component import Component
+from opensimula.Variable import Variable
 
 
 class Year_schedule(Component):

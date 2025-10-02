@@ -1,8 +1,8 @@
-from OpenSimula.Component import Component
-from OpenSimula.Message import Message
-from OpenSimula.Parameters import Parameter_component, Parameter_float
-from OpenSimula.Variable import Variable
-from OpenSimula.Iterative_process import Iterative_process
+from opensimula.Component import Component
+from opensimula.Message import Message
+from opensimula.Parameters import Parameter_component, Parameter_float
+from opensimula.Variable import Variable
+from opensimula.Iterative_process import Iterative_process
 import numpy as np
 import psychrolib as sicro
 import math
