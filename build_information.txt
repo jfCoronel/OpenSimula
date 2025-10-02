@@ -9,7 +9,6 @@ Build documentation (source dir: mkdocs, dist dir: docs):
     > uv run mkdocs build --clean
 
 Deploy to Pypi:
-    > rm -rf build
 	> rm -rf dist
 	> uv build
 	> uv publish

@@ -50,8 +50,9 @@ information generated during the simulation.
 
 This is the list of changes to opensimula between each release. For full details, see the commit logs.
 
- __Current Version 0.5.0__
+ __Current Version 0.5.2__
 
+- 0.5.2 (October 2, 2025): Changed the name of the pypi package from OpenSimula to opensimula. HVAC_MZW_system under development.
 - 0.5.0 (September 30, 2025): Surfaces grouped into Building_surface and Solar_surface. Use of the VEDO library for 3D visualization 
 - 0.4.1 (March 13, 2025): Stable versions of HVAC_DX_system and HVAC_DX_equipment. Passed all cases of section 9. 
 - 0.4.2 (June 11, 2025): WYEC2 Files added to "File_met", New "HVAC_coil_equipment" and "HVAC_fan_equipment" added, HVAC_DX_system and HVAC_DX_equipment adjusted, New HVAC_SZW_system (Single Zone Water System) created.
