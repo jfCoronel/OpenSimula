@@ -7,11 +7,6 @@ authors = [
 ]
 description = "Component-based time simulation environment in Python"
 readme = "README.md"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
 dependencies = [
     "dash>=3.2.0",
     "dash-ag-grid>=32.3.2",
@@ -35,3 +30,8 @@ dev = [
     "mkdocs>=1.6.1",
     "pytest>=8.4.2",
 ]
+
+[build-system]
+requires = ["setuptools>=61.2", "wheel"]
+
+

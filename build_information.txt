@@ -6,32 +6,15 @@ Test all the cases:
     > pytest test
 
 Build documentation (source dir: mkdocs, dist dir: docs):
-    > mkdocs build --clean
+    > uv run mkdocs build --clean
 
 Deploy to Pypi:
     > rm -rf build
 	> rm -rf dist
-	> python -m build
-	> twine upload dist/*
+	> uv build
+	> uv publish
+    username: __token__
+    password: el token API
 
 Make commit with the name of the version
-
-Python libraries needed for OpenSimula:
-In a clean python version:
-- numpy
-- pandas
-- scipy
-- shapely
-- psychrolib
-- pyvista: 
-    pip install "pyvista[jupyter]"
-    or
-    pip install pyvista, ipywidgets, trame, trame-vtk, trame-vuetify
-- plotly
-- dash
-- dash_bootstrap_components
-- dash_ag_grid
-- triangle:
-    pip install triangle
-    pip install git+https://github.com/drufat/triangle.git # For Macos Apple Silicon
 

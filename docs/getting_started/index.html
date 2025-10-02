@@ -145,17 +145,20 @@ pip install OpenSimula
 
 <p>OpenSimula uses in different parts of the code the following Python packages, which will be installed automatically when OpenSimula is installed:</p>
 <ul>
-<li>NumPy</li>
+<li>numPy</li>
 <li>pandas</li>
-<li>SciPy</li>
+<li>openpyxl</li>
+<li>sciPy</li>
 <li>shapely</li>
 <li>psychrolib</li>
-<li>pyvista[jupyter]</li>
+<li>vedo</li>
 <li>plotly</li>
 <li>dash</li>
 <li>dash_bootstrap_components</li>
 <li>dash_ag_grid</li>
 <li>triangle</li>
+<li>nbformat</li>
+<li>tqdm</li>
 </ul>
 <h3 id="first-example">First example</h3>
 <p>First we are going to define a Python dictionary that contains the information of our project:</p>
@@ -246,19 +249,10 @@ pro.simulate()
 Reading project data from dictonary
 Reading completed.
 Checking project: First example project
-ok
+Checking completed.
+Calculating solar direct shadows ...
 Simulating First example project: ...
-10%: N_iter: 1.00
-20%: N_iter: 1.00
-30%: N_iter: 1.00
-40%: N_iter: 1.00
-50%: N_iter: 1.00
-60%: N_iter: 1.00
-70%: N_iter: 1.00
-80%: N_iter: 1.00
-90%: N_iter: 1.00
-100%: N_iter: 1.00
-Simulation completed.
+100%|██████████| 8760/8760 [00:03<00:00, 2357.52step/s, n_iter=1]
 </code></pre>
 
 <p>After the simulation, each of the components will have its time variables calculated. In our case the <code>year</code> component has a temporary variable called <code>values</code> that we can obtain. the Simulation.plot function can be used to draw an interactive graph (plotly library), the first argument are the dates of the simulation steps (pro.dates() return the array of simulated dates) and the second a list of the varibles to draw.</p>
