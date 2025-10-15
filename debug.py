@@ -1,7 +1,9 @@
 import opensimula as osm
 
-case_AE401 = {
-    "name": "case_AE401",
+import opensimula as osm
+
+case_AE301 = {
+    "name": "case_AE301",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -308,21 +310,21 @@ case_AE401 = {
         {
             "type": "HVAC_fan_equipment",
             "name": "supply_fan",
-            "nominal_air_flow": 0.60296,
+            "nominal_air_flow": 0.61353,
             "nominal_pressure": 498,
             "nominal_power": 436.483,
         },
         {
             "type": "HVAC_fan_equipment",
             "name": "return_fan",
-            "nominal_air_flow": 0.3711,
+            "nominal_air_flow": 0.37756,
             "nominal_pressure": 249,
             "nominal_power": 134.3,
         },
         {
             "type": "HVAC_coil_equipment",
             "name": "coil",
-            "nominal_air_flow": 0.60296,
+            "nominal_air_flow": 0.61353,
             "nominal_heating_capacity": 10000,
             "nominal_heating_water_flow": 0.556e-3,
             "nominal_total_cooling_capacity": 0,
@@ -331,7 +333,7 @@ case_AE401 = {
         {
             "type": "HVAC_coil_equipment",
             "name": "reheat_coil_1",
-            "nominal_air_flow": 0.27829,
+            "nominal_air_flow": 0.28317,
             "nominal_heating_capacity": 10000,
             "nominal_heating_water_flow": 0.556e-3,
             "nominal_total_cooling_capacity": 0,
@@ -340,7 +342,7 @@ case_AE401 = {
         {
             "type": "HVAC_coil_equipment",
             "name": "reheat_coil_2",
-            "nominal_air_flow": 0.32467,
+            "nominal_air_flow": 0.33036,
             "nominal_heating_capacity": 10000,
             "nominal_heating_water_flow": 0.556e-3,
             "nominal_total_cooling_capacity": 0,
@@ -355,16 +357,14 @@ case_AE401 = {
             "return_fan": "return_fan",
             "heating_coil": "coil",
             "supply_fan": "supply_fan",
-            "air_flow": 0.60296,
-            "return_air_flow": 0.3711,
-            "outdoor_air_fraction": 0.38461,
+            "air_flow": 0.61353,
+            "return_air_flow": 0.37756,
+            "outdoor_air_fraction": 0.38462,
             "cooling_water_flow": 0,
             "heating_water_flow": 2.222e-3,
             "supply_heating_setpoint": "7.7835",
             "system_on_off": "1",
             "reheat": True,
-            "vav": True,
-            "min_air_flow_fractions": [0.33333, 0.42857],
             "reheat_coils": ["reheat_coil_1","reheat_coil_2"],
             "spaces_setpoint": ["21.111","22.222"]
         }
@@ -373,6 +373,6 @@ case_AE401 = {
 
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case_AE401)
+pro.read_dict(case_AE301)
 #pro.show_3D()
 pro.simulate()
