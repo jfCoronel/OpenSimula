@@ -416,6 +416,11 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 )
                 self.M_w = -Q_lat / self.props["LAMBDA"]
         self.w_CA = self.M_w / self.m_air_supply + self.w_MA
+         # Test saturation
+        w_sat = sicro.GetSatHumRatio(self.T_CA, self.props["ATM_PRESSURE"])*1000
+        if self.w_CA > w_sat:
+            self.w_CA = w_sat
+            self.M_w = (self.w_CA - self.w_MA) * self.m_air_supply
 
     def _update_supply_mass_flow(self):
         # Fan inlet
