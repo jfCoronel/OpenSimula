@@ -1,7 +1,7 @@
 import opensimula as osm
 
-case_AE326 = {
-    "name": "case_AE326",
+case_AE401 = {
+    "name": "case_AE401",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -11,7 +11,7 @@ case_AE326 = {
             "type": "File_met",
             "name": "T_ext_cte",
             "file_type": "TMY2",
-            "file_name": "mets/AE106.TM2"
+            "file_name": "mets/AE101.TM2"
         },    
         {
             "type": "Material",
@@ -39,7 +39,7 @@ case_AE326 = {
             "people_sensible": 0,
             "people_latent": 12.21,
             "light_density": "0",
-            "other_gains_density": "30.521",
+            "other_gains_density": "-61.0625",
             "other_gains_radiant_fraction": 0,
             "infiltration": "0"
         },
@@ -50,7 +50,7 @@ case_AE326 = {
             "people_sensible": 0,
             "people_latent": 18.31667,
             "light_density": "0",
-            "other_gains_density": "48.8542",
+            "other_gains_density": "-48.8542",
             "other_gains_radiant_fraction": 0,
             "infiltration": "0"
         },
@@ -311,6 +311,7 @@ case_AE326 = {
             "nominal_air_flow": 0.61353,
             "nominal_pressure": 498,
             "nominal_power": 436.483,
+            "power_expression": "F_air"
         },
         {
             "type": "HVAC_fan_equipment",
@@ -318,15 +319,16 @@ case_AE326 = {
             "nominal_air_flow": 0.37756,
             "nominal_pressure": 249,
             "nominal_power": 134.3,
+            "power_expression": "F_air"
         },
         {
-           "type": "HVAC_coil_equipment",
+            "type": "HVAC_coil_equipment",
             "name": "coil",
             "nominal_air_flow": 0.61353,
-            "nominal_heating_capacity": 0,
-            "nominal_total_cooling_capacity": 21319,
-            "nominal_sensible_cooling_capacity": 13880,
-            "nominal_cooling_water_flow": 1.018e-3
+            "nominal_heating_capacity": 10000,
+            "nominal_heating_water_flow": 0.556e-3,
+            "nominal_total_cooling_capacity": 0,
+            "nominal_sensible_cooling_capacity": 0,
         },
         {
             "type": "HVAC_coil_equipment",
@@ -353,27 +355,26 @@ case_AE326 = {
             "air_flow_fractions": [0.46154, 0.53846],
             "return_air_flow_fractions": [0.5, 0.5],
             "return_fan": "return_fan",
-            "cooling_coil": "coil",
+            "heating_coil": "coil",
             "supply_fan": "supply_fan",
             "air_flow": 0.61353,
             "return_air_flow": 0.37756,
-            "outdoor_air_fraction": 0.38461,
-            "cooling_water_flow": 6.83e-4,
-            "heating_water_flow": 0,
-            "supply_cooling_setpoint": "12.78",
+            "outdoor_air_fraction": 0.38462,
+            "cooling_water_flow": 0,
+            "heating_water_flow": 2.222e-3,
             "supply_heating_setpoint": "7.7835",
             "system_on_off": "1",
             "reheat": True,
+            "vav": True,
+            "min_air_flow_fractions": [0.33333, 0.42857],
             "reheat_coils": ["reheat_coil_1","reheat_coil_2"],
-            "spaces_setpoint": ["23.333","24.444"],
-            "water_flow_control": "PROPORTIONAL",
-            "economizer": "TEMPERATURE"
+            "spaces_setpoint": ["21.111","22.222"]
         }
     ]
 }
 
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case_AE326)
+pro.read_dict(case_AE401)
 #pro.show_3D()
 pro.simulate()
