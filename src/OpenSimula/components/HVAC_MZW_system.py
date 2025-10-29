@@ -328,7 +328,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
 
         # Calculate F_OA based on return air flow
         if self.is_vav:
-            self.F_OA = (self.air_flow - v_return) / self.air_flow
+            self.F_OA = (self.air_flow * self.F_flow_total - v_return) / (self.air_flow* self.F_flow_total)
 
         # Return fan
         if self.return_fan is None:  # No return fan
@@ -407,22 +407,15 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                         return self.return_fan.get_power(self.return_air_flow) * f_load
 
     def _simulate_economizer(self):
-        if (
-            self.parameter("economizer").value == "TEMPERATURE"
-            or self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"
-        ):
-            on_economizer = (
-                self.T_OA < self.T_RA - self.parameter("economizer_DT").value
-            )
+        if (self.parameter("economizer").value == "TEMPERATURE" or self.parameter("economizer").value == "TEMPERATURE_NOT_INTEGRATED"):
+            on_economizer = (self.T_OA < self.T_RA - self.parameter("economizer_DT").value)
         elif self.parameter("economizer").value == "ENTHALPY":
             h_OA = sicro.GetMoistAirEnthalpy(self.T_OA, self.w_OA / 1000)
             h_RA = sicro.GetMoistAirEnthalpy(self.T_RA, self.w_RA / 1000)
             on_economizer = h_OA < h_RA
         elif self.parameter("economizer").value == "ENTHALPY_LIMITED":
             h_OA = sicro.GetMoistAirEnthalpy(self.T_OA, self.w_OA / 1000)
-            on_economizer = (
-                h_OA < self.parameter("economizer_enthalpy_limit").value * 1000
-            )
+            on_economizer = (h_OA < self.parameter("economizer_enthalpy_limit").value * 1000)
 
         if on_economizer:
             if self.Q_required < 0:
@@ -537,9 +530,6 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             self.T_CA, self.w_CA / 1000, self.props["ATM_PRESSURE"]
         )
         for i in range(len(self.spaces)):
-            space = self.spaces[i]
-            reheat_needed = True
-            f_air_flow = 1.0
             air_flow = {
                 "name": self.parameter("name").value,
                 "M_a": 0,
@@ -548,25 +538,37 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 "Q_s": 0,
                 "M_w": 0,
             }
-            # Remove flow
+            space = self.spaces[i]
+            reheat_needed = True
+            f_air_flow = 1.0
+            # Remove uncontrolled system if exists
+            space.del_uncontrol_system(self.parameter("name").value)
+            # Add maximun air flow as uncontrolled system
+            air_flow["M_a"] = (self.air_flow * self.rho_CA * self.air_flow_fractions[i])
             space.add_uncontrol_system(air_flow)
+            reheat_needed = True
+            # VAV control
             if self.is_vav:
                 f_air_flow = self._get_vav_supply_fraction_required(i, space, self.air_flow * self.rho_CA * self.air_flow_fractions[i])
-                reheat_needed = False
-                if f_air_flow > 1.0:
-                    f_air_flow = 1.0
-                elif f_air_flow < self.min_air_flow_fractions[i]:
+                if f_air_flow >= 1.0:
+                    reheat_needed = False
+                if f_air_flow < self.min_air_flow_fractions[i]:
                     f_air_flow = self.min_air_flow_fractions[i]
+                    # Set uncontrolled system with min air flow
+                    air_flow["M_a"] = (self.air_flow * self.rho_CA * self.air_flow_fractions[i] * f_air_flow)
+                    space.add_uncontrol_system(air_flow)
                     reheat_needed = True
-
-            self.F_flow[i] = f_air_flow
+                else:
+                    # changing de VAV flow, remove uncontrolled system
+                    space.del_uncontrol_system(self.parameter("name").value)
+                    reheat_needed = False
+                    air_flow["M_a"] = (self.air_flow * self.rho_CA * self.air_flow_fractions[i] * f_air_flow)
+                    space.set_control_system(air_flow)
+                self.F_flow[i] = f_air_flow
+            else:
+                self.F_flow[i] = 1.0
             self.F_flow_total += self.air_flow_fractions[i] * f_air_flow
-            air_flow["M_a"] = (
-                self.air_flow * self.rho_CA * self.air_flow_fractions[i] * f_air_flow
-            )
-            # Always added as uncontrolled system, reheat is added as controlled if needed
-            space.add_uncontrol_system(air_flow)
-
+            # Reheat control
             if self.is_reheat:
                 reheat_coil = self.reheat_coils[i]
                 if reheat_coil is not None and reheat_needed:
@@ -608,10 +610,8 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 * self.props["C_PA"]
                 * (self.T_SA - self.T_space_sp[i])
             )
-            if Q_sens_required < Q_system_max:
-                vav_supply_fraction = 1.0
-            else:
-                vav_supply_fraction = Q_sens_required / Q_system_max
+            Q_sens_system = Q_system_max + Q_sens_required
+            vav_supply_fraction = Q_sens_system / Q_system_max
         else:
             vav_supply_fraction = 1.0
         return vav_supply_fraction

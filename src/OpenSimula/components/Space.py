@@ -345,10 +345,13 @@ class Space(Component):
 
     def add_uncontrol_system(self,system_dic):
         # Delete if exist
-        self.uncontrol_systems = [air for air in self.uncontrol_systems if air['name'] != system_dic["name"] ]
+        self.del_uncontrol_system(system_dic["name"])
         # Append
         self.uncontrol_systems.append(system_dic)
     
+    def del_uncontrol_system(self,system_name):
+        self.uncontrol_systems = [air for air in self.uncontrol_systems if air['name'] != system_name]
+
     def set_control_system(self,system_dic):
         self.control_system = system_dic
 
