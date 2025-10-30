@@ -1,5 +1,4 @@
 from opensimula.Project import Project
-from opensimula.Message import Message
 import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots

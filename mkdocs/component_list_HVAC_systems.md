@@ -274,13 +274,14 @@ equipment.set_parameters(param)
 
 ### HVAC_SZW_system
 
-Component for the simulation of single zone water air-conditioning system. It can be used for one space conditioning, using coil an fans equipments previously defined.
+Component for the simulation of single zone water air-conditioning system. It can be used for one space conditioning, using coil and fan equipments previously defined.
 
 ![HVAC_SZW_system](img/HVAC_SZW_system.png)
 
 #### Parameters
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be air-conditioned by this system.
-- **coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used by this system.
+- **cooling_coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used for cooling by this system.
+- **heating_coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used for heating by this system.
 - **supply_fan** [_component_, default = "not_defined", component type = HVAC_fan_equipment]: Reference to the "HVAC_fan_equipment" component used as supply fan by this system.
 - **return_fan** [_component_, default = "not_defined", component type = HVAC_fan_equipment]: Reference to the "HVAC_fan_equipment" component used as return fan by this system (if present).
 - **air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Coil inlet air flow used for all the simulation.
@@ -288,18 +289,18 @@ Component for the simulation of single zone water air-conditioning system. It ca
 - **outdoor_air_fraction** [_math_exp_, unit = "frac", default = 0]: Outdoor air flow fraction at the coil inlet used for the simulation.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
 - **heating_setpoint** [_math_exp_, unit = "°C", default = "20"]: Space heating setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
-- **cooling_setpoint** [_math_exp_, unit = "°C", default = "25"]: Space Cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
-- **sytem_on_off** [_math_exp_, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
-- **fan_operation** [_option_, default = "CONTINUOUS", options = ["CONTINUOUS","CYCLING"]]: If the value is “CONTINUOUS” the fans will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify “CYCLING” the fans will run a fraction of time equal to the partial load at which the equipment operates, therefore, when there is no load there will be no consumption of the fan.
-- **water_source** [_option_, default = "UNKNOWN", options = ["UNKNOWN","WATER_LOOP"]]: If the value is “unknown”, the simulation will be carried out assuming that we always have the defined water flow under the required conditions. If the value is “WATER_LOOP” it has not yet been developed.
+- **cooling_setpoint** [_math_exp_, unit = "°C", default = "25"]: Space cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
+- **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
+- **fan_operation** [_option_, default = "CONTINUOUS", options = ["CONTINUOUS","CYCLING"]]: If the value is "CONTINUOUS" the fans will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify "CYCLING" the fans will run a fraction of time equal to the partial load at which the equipment operates, therefore, when there is no load there will be no consumption of the fan.
+- **water_source** [_option_, default = "UNKNOWN", options = ["UNKNOWN","WATER_LOOP"]]: If the value is "UNKNOWN", the simulation will be carried out assuming that we always have the defined water flow under the required conditions. If the value is "WATER_LOOP" it has not yet been developed.
 - **cooling_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet cooling water flow.
 - **heating_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet heating water flow.
-- **inlet_cooling_water_temp** [_float_, unit = "°C", default = 7, min = 0]: Inlet cooling water tempeture used for "UNKNOWN" water source.
-- **inlet_heating_water_temp** [_float_, unit = "°C", default = 50, min = 0]: Inlet heating water tempeture used for "UNKNOWN" water source.
-- **water_flow_control** [_option_, default = "ON_OFF", options = ["ON_OFF","PROPORTINAL"]]: If the selected option is “ON_OFF” the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time, therefore the latent load will be calculated by multiplying the latent load at design flow by that fraction of time. If we select “PROPORTIONAL” it is assumed that the water flow rate is adjusted progressively, the required coil outlet temperature will be calculated and using the adp effectiveness the ADP and the supplied latent load will be obtained.
-- **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is “NO” no economizer will be used, for the other options the economizer see HVAC_DX_System. 
-- **economizer_DT** [_float_, unit = "ºC", default = 0, min = 0]: For economizers type “TEMPERATURE” and “TEMPERATURE_NOT_INTEGRATED” set the temperature difference between the return air and the outside air at which the economizer starts to operate.
-- **economizer_enthalpy_limit** [_float_, unit = "kJ/kg", default = 0, min = 0]: For economizers type ENTHALPY_LIMITED set the maximun outdoor air enthalpy at which the economizer does not operate.
+- **inlet_cooling_water_temp** [_float_, unit = "°C", default = 7]: Inlet cooling water temperature used for "UNKNOWN" water source.
+- **inlet_heating_water_temp** [_float_, unit = "°C", default = 50]: Inlet heating water temperature used for "UNKNOWN" water source.
+- **water_flow_control** [_option_, default = "ON_OFF", options = ["ON_OFF","PROPORTIONAL"]]: If the selected option is "ON_OFF" the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time, therefore the latent load will be calculated by multiplying the latent load at design flow by that fraction of time. If we select "PROPORTIONAL" it is assumed that the water flow rate is adjusted progressively, the required coil outlet temperature will be calculated and using the adp effectiveness the ADP and the supplied latent load will be obtained.
+- **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is "NO" no economizer will be used, for the other options the economizer see HVAC_DX_system.
+- **economizer_DT** [_float_, unit = "ºC", default = 0, min = 0]: For economizers type "TEMPERATURE" and "TEMPERATURE_NOT_INTEGRATED" set the temperature difference between the return air and the outside air at which the economizer starts to operate.
+- **economizer_enthalpy_limit** [_float_, unit = "kJ/kg", default = 0, min = 0]: For economizers type ENTHALPY_LIMITED set the maximum outdoor air enthalpy at which the economizer does not operate.
 
 **Example:**
 <pre><code class="python">
@@ -307,14 +308,15 @@ Component for the simulation of single zone water air-conditioning system. It ca
 
 system = osm.components.HVAC_SZW_system("system",project)
 param = {
-        "spaces": "spaces_1",
-        "coil": "coil",
+        "space": "space_1",
+        "cooling_coil": "cooling_coil",
+        "heating_coil": "heating_coil",
         "supply_fan": "supply_fan",
         "air_flow": 0.28536,
-        "outdoor_air_fraction": 0.33333,
+        "outdoor_air_fraction": "0.33333",
         "cooling_water_flow": 3.415e-4,
         "cooling_setpoint": "23.333",
-        "heating_setpoint": "0",
+        "heating_setpoint": "20",
         "system_on_off": "1",
 }
 system.set_parameters(param)
@@ -324,31 +326,137 @@ system.set_parameters(param)
 
 After the simulation we will have the following variables of this component:
 
-- __state__ [flag]: Operation of the system: off (0), heating (1), heating at maximum capacity (2), colling (-1), cooling at maximum capacity (-2), venting (3).
-- __Q_sensible__ [W]: Sensible heat supplied by the coil, positive for heating and cooling.
-- __Q_latent__ [W]: Latent heat supplied by the coil, positive for dehumidification.
-- __Q_total__ [W]: Total heat supplied by the coil, sensible + latent. 
+- __state__ [flag]: Operation of the system: off (0), heating (1), heating at maximum capacity (2), cooling (-1), cooling at maximum capacity (-2), venting (3).
+- __Q_sensible__ [W]: Sensible heat supplied by the coil, positive for heating and negative for cooling.
+- __Q_latent__ [W]: Latent heat removed by the coil, positive for dehumidification.
+- __Q_total__ [W]: Total heat supplied by the coil, sensible + latent.
 - __heating_setpoint__ [°C]: Heating setpoint temperature.
 - __cooling_setpoint__ [°C]: Cooling setpoint temperature.
 - __supply_fan_power__ [W]: Electrical power consumed by the supply fan.
-- __return_fan_power__ [W]: Electrical power consumed by the supply fan.
-- __m_air_flow__ [kg/s]: Dry air mass flow rate at coil inlet.       
-- __outdoor_air_fraction__ [frac]: fraction of outside air in supply air.       
+- __return_fan_power__ [W]: Electrical power consumed by the return fan.
+- __m_air_flow__ [kg/s]: Dry air mass flow rate at coil inlet.
+- __m_return_air_flow__ [kg/s]: Dry air mass flow rate in return air.
+- __outdoor_air_fraction__ [frac]: Fraction of outside air in supply air.
 - __T_OA__ [ºC]: Outdoor air dry bulb temperature.
 - __T_OAwb__ [ºC]: Outdoor wet bulb temperature.
-- __T_MA__ [ºC]: Mixed air dry bulb temperature, at the coil inlet of the indoor unit.
-- __T_MAwb__ [ºC]: Mixed air wet bulb temperature, at the coil inlet of the indoor unit.
-- __F_load__ [frac]: Partial load state of the system, calculated as the thermal power 
-supplied at a given instant divided by the cooling or heating capacity at the current operation conditions. Positive for heating and negative for cooling
+- __T_MA__ [ºC]: Mixed air dry bulb temperature, at the coil inlet.
+- __T_MAwb__ [ºC]: Mixed air wet bulb temperature, at the coil inlet.
+- __T_RA__ [ºC]: Return air dry bulb temperature (after return fan if present).
+- __F_load__ [frac]: Partial load state of the system, calculated as the thermal power supplied at a given instant divided by the cooling or heating capacity at the current operation conditions.
 - __T_CA__ [ºC]: Coil outlet air dry bulb temperature.
 - __w_CA__ [g/kg]: Coil outlet air absolute humidity.
-- __T_SA__ [ºC]: Supply air dry bulb temperature.
+- __T_SA__ [ºC]: Supply air dry bulb temperature (after supply fan).
 - __w_SA__ [g/kg]: Supply air absolute humidity.
 - __T_iw__ [ºC]: Coil inlet water temperature.
 - __T_ow__ [ºC]: Coil outlet water temperature.
-- __T_ADP__ [ºC]: ADP (Aparatus Dew Point) temperature of the coil.
+- __T_ADP__ [ºC]: ADP (Apparatus Dew Point) temperature of the coil.
 - __epsilon__ [frac]: Coil effectiveness.
 - __epsilon_adp__ [frac]: Coil ADP effectiveness = 1 - Bypass Factor.
+
+### HVAC_MZW_system
+
+Component for the simulation of multi-zone water air-conditioning system. It can be used for multiple spaces conditioning, using coil and fan equipments previously defined. This system supports VAV (Variable Air Volume) and reheat configurations.
+
+![HVAC_MZW_system](img/HVAC_MZW_system.png)
+
+#### Parameters
+- **spaces** [_component_list_, default = ["not_defined", "not_defined"], component type = Space]: List of references to the "Space" components to be air-conditioned by this system.
+- **air_flow_fractions** [_float_list_, unit = "frac", default = [0.5, 0.5], min = 0, max = 1]: Fraction of total supply air flow assigned to each space. The sum of all fractions must equal 1.
+- **cooling_coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used for cooling by this system.
+- **heating_coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used for central heating by this system.
+- **supply_fan** [_component_, default = "not_defined", component type = HVAC_fan_equipment]: Reference to the "HVAC_fan_equipment" component used as supply fan by this system.
+- **return_fan** [_component_, default = "not_defined", component type = HVAC_fan_equipment]: Reference to the "HVAC_fan_equipment" component used as return fan by this system (if present).
+- **air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Total system air flow at coil inlet for desgin conditions.
+- **return_air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Total return air flow at design conditions, used if return fan present.
+- **return_air_flow_fractions** [_float_list_, unit = "frac", default = [0.5, 0.5], min = 0, max = 1]: Fraction of return air flow from each space. The sum of all fractions must equal 1.
+- **min_air_flow_fractions** [_float_list_, unit = "frac", default = [0.3333, 0.4286], min = 0, max = 1]: Minimum air flow fraction for each space when VAV is enabled.
+- **outdoor_air_fraction** [_math_exp_, unit = "frac", default = "0"]: Outdoor air flow fraction at the coil inlet used for the simulation.
+- **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
+- **supply_heating_setpoint** [_math_exp_, unit = "°C", default = "10"]: Supply air heating setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
+- **supply_cooling_setpoint** [_math_exp_, unit = "°C", default = "15"]: Supply air cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
+- **heating_setpoint_position** [_option_, default = "SYSTEM_OUTPUT", options = ["SYSTEM_OUTPUT","COIL_OUTPUT"]]: Position where heating setpoint is controlled. "SYSTEM_OUTPUT" controls temperature after supply fan, "COIL_OUTPUT" controls at coil outlet.
+- **cooling_setpoint_position** [_option_, default = "SYSTEM_OUTPUT", options = ["SYSTEM_OUTPUT","COIL_OUTPUT"]]: Position where cooling setpoint is controlled. "SYSTEM_OUTPUT" controls temperature after supply fan, "COIL_OUTPUT" controls at coil outlet.
+- **spaces_setpoint** [_math_exp_list_, unit = "°C", default = ["20", "20"]]: Space temperature setpoint for each zone. Used for reheat and VAV control.
+- **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
+- **fan_operation** [_option_, default = "CONTINUOUS", options = ["CONTINUOUS","CYCLING"]]: If the value is "CONTINUOUS" the fans will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify "CYCLING" the fans will run a fraction of time equal to the partial load at which the equipment operates.
+- **water_source** [_option_, default = "UNKNOWN", options = ["UNKNOWN","WATER_LOOP"]]: If the value is "UNKNOWN", the simulation will be carried out assuming that we always have the defined water flow under the required conditions. If the value is "WATER_LOOP" it has not yet been developed.
+- **cooling_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet cooling water flow.
+- **heating_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet heating water flow.
+- **inlet_cooling_water_temp** [_float_, unit = "°C", default = 7]: Inlet cooling water temperature used for "UNKNOWN" water source.
+- **inlet_heating_water_temp** [_float_, unit = "°C", default = 50]: Inlet heating water temperature used for "UNKNOWN" water source.
+- **water_flow_control** [_option_, default = "ON_OFF", options = ["ON_OFF","PROPORTIONAL"]]: If the selected option is "ON_OFF" the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time. If we select "PROPORTIONAL" it is assumed that the water flow rate is adjusted progressively.
+- **economizer** [_option_, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is "NO" no economizer will be used, for the other options the economizer see HVAC_DX_system.
+- **economizer_DT** [_float_, unit = "ºC", default = 0, min = 0]: For economizers type "TEMPERATURE" and "TEMPERATURE_NOT_INTEGRATED" set the temperature difference between the return air and the outside air at which the economizer starts to operate.
+- **economizer_enthalpy_limit** [_float_, unit = "kJ/kg", default = 0, min = 0]: For economizers type ENTHALPY_LIMITED set the maximum outdoor air enthalpy at which the economizer does not operate.
+- **reheat** [_boolean_, default = False]: Enable reheat coils for each zone.
+- **vav** [_boolean_, default = False]: Enable Variable Air Volume (VAV) control for each zone.
+- **reheat_coils** [_component_list_, default = ["not_defined", "not_defined"], component type = HVAC_coil_equipment]: List of reheat coil references for each zone (required if reheat is enabled).
+
+**Example:**
+<pre><code class="python">
+...
+
+system = osm.components.HVAC_MZW_system("system",project)
+param = {
+        "spaces": ["space_1", "space_2"],
+        "air_flow_fractions": [0.6, 0.4],
+        "cooling_coil": "cooling_coil",
+        "heating_coil": "heating_coil",
+        "supply_fan": "supply_fan",
+        "air_flow": 0.5,
+        "outdoor_air_fraction": "0.2",
+        "cooling_water_flow": 5e-4,
+        "supply_cooling_setpoint": "13",
+        "supply_heating_setpoint": "40",
+        "spaces_setpoint": ["22", "20"],
+        "system_on_off": "1",
+        "vav": True,
+        "reheat": True,
+        "reheat_coils": ["reheat_coil_1", "reheat_coil_2"]
+}
+system.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component:
+
+- __state__ [flag]: Operation of the system: off (0), heating (1), heating at maximum capacity (2), cooling (-1), cooling at maximum capacity (-2), venting (3).
+- __Q_sensible__ [W]: Sensible heat supplied by the main coil, positive for heating and negative for cooling.
+- __Q_latent__ [W]: Latent heat removed by the coil, positive for dehumidification.
+- __Q_total__ [W]: Total heat supplied by the main coil, sensible + latent.
+- __supply_heating_setpoint__ [°C]: Supply air heating setpoint temperature.
+- __supply_cooling_setpoint__ [°C]: Supply air cooling setpoint temperature.
+- __supply_fan_power__ [W]: Electrical power consumed by the supply fan.
+- __return_fan_power__ [W]: Electrical power consumed by the return fan.
+- __m_air_flow__ [kg/s]: Total dry air mass flow rate at coil inlet.
+- __m_return_air_flow__ [kg/s]: Total dry air mass flow rate in return air.
+- __F_flow__ [frac]: Total system air flow fraction (for VAV systems).
+- __outdoor_air_fraction__ [frac]: Fraction of outside air in supply air.
+- __T_OA__ [ºC]: Outdoor air dry bulb temperature.
+- __T_OAwb__ [ºC]: Outdoor wet bulb temperature.
+- __T_MA__ [ºC]: Mixed air dry bulb temperature, at the coil inlet.
+- __T_MAwb__ [ºC]: Mixed air wet bulb temperature, at the coil inlet.
+- __T_ZA__ [ºC]: Mixed zone air temperature (weighted average from all zones).
+- __T_RA__ [ºC]: Return air dry bulb temperature (after return fan if present).
+- __w_RA__ [g/kg]: Return air absolute humidity.
+- __F_load__ [frac]: Partial load state of the system, calculated as the thermal power supplied at a given instant divided by the cooling or heating capacity at the current operation conditions.
+- __T_CA__ [ºC]: Coil outlet air dry bulb temperature.
+- __w_CA__ [g/kg]: Coil outlet air absolute humidity.
+- __T_SA__ [ºC]: Supply air dry bulb temperature (after supply fan).
+- __w_SA__ [g/kg]: Supply air absolute humidity.
+- __T_iw__ [ºC]: Coil inlet water temperature.
+- __T_ow__ [ºC]: Coil outlet water temperature.
+- __T_ADP__ [ºC]: ADP (Apparatus Dew Point) temperature of the coil.
+- __epsilon__ [frac]: Coil effectiveness.
+- __epsilon_adp__ [frac]: Coil ADP effectiveness = 1 - Bypass Factor.
+
+For each space (i = 0, 1, 2, ...):
+- __spaces_setpoint_i__ [°C]: Temperature setpoint for space i.
+- __Q_reheat_i__ [W]: Reheat power supplied to space i (if reheat enabled).
+- __T_SA_i__ [ºC]: Supply air temperature to space i (after reheat if enabled).
+- __m_air_flow_i__ [kg/s]: Air mass flow rate supplied to space i.
+- __F_flow_i__ [frac]: Air flow fraction for space i (relative to nominal flow).
 
 
 
