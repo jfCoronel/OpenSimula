@@ -33,7 +33,7 @@ def _(osm):
                 "type": "File_met",
                 "name": "Denver",
                 "file_type": "TMY3",
-                "file_name": "../mets/725650TY.tmy3"
+                "file_name": "mets/725650TY.tmy3"
             },
             {
                 "type": "Material",
@@ -343,18 +343,57 @@ def _(osm):
     sim = osm.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case600_dict)
-
-    return (pro,)
+    return pro, sim
 
 
 @app.cell
 def _(pro):
-    pro.show_3D()
+    import datetime as dt
+    #pro.show_3D()
+    date = dt.datetime(2001,3,21,12,0,0)
+    #pro.show_3D_shadows(date)
+    pro.show_3D_shadows_animation(date)
     return
 
 
 @app.cell
-def _():
+def _(pro):
+    pro.simulate()
+    return
+
+
+@app.cell
+def _(pro):
+    import pandas as pd
+    import numpy as np
+
+    # Heating and Cooling Loads
+    load = pro.component("spaces_1").variable("system_sensible_heat").values
+    annual_heating = np.where(load>0,load,0).sum()/1e6
+    annual_cooling = np.where(load<0,-load,0).sum()/1e6
+    peak_heating = load.max()/1000
+    i_peak_heating = np.argmax(load)
+    peak_cooling = -load.min()/1000
+    i_peak_cooling = np.argmin(load)
+
+    excel = pd.DataFrame()
+    excel["Annual_heating"] = [annual_heating]
+    excel["Annual_cooling"] = [annual_cooling]
+    excel["Peak_heating"] = [peak_heating]
+    excel["Heating_month"] = [pro.dates()[i_peak_heating].strftime("%b")]
+    excel["Heating_day"] = [pro.dates()[i_peak_heating].strftime("%d")]
+    excel["Heating_hour"] = [int(pro.dates()[i_peak_heating].strftime("%H"))+1]
+    excel["Peak_cooling"] = [peak_cooling]
+    excel["Cooling_month"] = [pro.dates()[i_peak_cooling].strftime("%b")]
+    excel["Cooling_day"] = [pro.dates()[i_peak_cooling].strftime("%d")]
+    excel["Cooling_hour"] = [int(pro.dates()[i_peak_cooling].strftime("%H"))+1]
+    excel
+    return
+
+
+@app.cell
+def _(pro, sim):
+    sim.plot(pro.dates(),[pro.component("east_wall").variable("E_dir"),pro.component("south_wall").variable("E_dir") ])
     return
 
 
