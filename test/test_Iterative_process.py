@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 import math
 import pytest
 
@@ -6,7 +6,7 @@ def test_Iterative_process():
     def y(x):
         return math.cos(x)
     x_i = 0.5
-    itera = osm.Iterative_process(x_i)    
+    itera = osim.Iterative_process(x_i)    
     while not itera.converged():
         x_i = itera.estimate_next_x(y(x_i))
 

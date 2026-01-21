@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 import pytest
 
 project_dic = {
@@ -79,7 +79,7 @@ project_dic = {
 
 
 def test_walls_1h():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     pro = sim.new_project("Constructions test")
     pro.read_dict(project_dic)
     pro.simulate()
@@ -104,7 +104,7 @@ def test_walls_1h():
 
 
 def test_walls_15min():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     pro = sim.new_project("Constructions test")
     pro.read_dict(project_dic)
     pro.parameter("time_step").value = 60*15

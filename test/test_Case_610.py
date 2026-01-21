@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 import pytest
 import numpy as np
 
@@ -337,7 +337,7 @@ case610_dict = {
 }
 
 def test_HVAC_perfect_system():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case610_dict)
     pro.simulate()

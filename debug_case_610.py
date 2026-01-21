@@ -1,6 +1,6 @@
 import datetime as dt
 import numpy as np
-import opensimula as osm
+import opensimula as osim
 
 case610_dict = {
     "name": "Case 610",
@@ -337,7 +337,7 @@ case610_dict = {
 }
 
 
-sim = osm.Simulation()
+sim = osim.Simulation()
 pro = sim.new_project("pro")
 pro.read_dict(case610_dict)
 #pro.show_3D()

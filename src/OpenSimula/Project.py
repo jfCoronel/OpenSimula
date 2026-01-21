@@ -158,6 +158,41 @@ class Project(Parameter_container):
         except KeyError:
             return None
 
+    def duplicate_component(self, component_name, new_name):
+        """Duplicate an existing component with a new name
+
+        Args:
+            component_name (string): name of the component to duplicate
+            new_name (string): name for the new component
+
+        Returns:
+            Component: the new duplicated component, None if error
+        """
+        original = self.component(component_name)
+        if original is None:
+            msg = self._get_error_header_() + f"Component '{component_name}' not found."
+            self._sim_.message(Message(msg, "ERROR"))
+            return None
+
+        # Get parameter dictionary from original component
+        comp_dict = {}
+        for key, param in original.parameter_dict().items():
+            comp_dict[key] = param.value
+
+        # Create new component of the same type
+        new_comp = self.new_component(comp_dict["type"], new_name)
+        if new_comp is None:
+            msg = self._get_error_header_() + f"Could not create component of type '{comp_dict['type']}'."
+            self._sim_.message(Message(msg, "ERROR"))
+            return None
+
+        # Copy parameters (except name and type)
+        for key, value in comp_dict.items():
+            if key != "name" and key != "type":
+                new_comp.parameter(key).value = value
+
+        return new_comp
+
     def _get_error_header_(self):
         return f'Project "{self.parameter("name").value}". '
 

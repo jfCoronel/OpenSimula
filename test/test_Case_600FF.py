@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 import pytest
 
 case600FF_dict = {
@@ -311,7 +311,7 @@ case600FF_dict = {
 }
 
 def test_ff_temperature():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case600FF_dict)
     pro.simulate()

@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 import pytest
 import numpy as np
 
@@ -356,7 +356,7 @@ case610_dict = {
 
 
 def test_HVAC_DX_system_without_vent():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case610_dict)
     pro.simulate()
@@ -381,7 +381,7 @@ def test_HVAC_DX_system_without_vent():
     
 
 def test_HVAC_DX_system_with_vent():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case610_dict)
     pro.component("system").parameter("outdoor_air_fraction").value = 0.1

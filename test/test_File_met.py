@@ -1,5 +1,5 @@
 import pytest
-import opensimula as osm
+import opensimula as osim
 
 project = {
     "name": "Project test meteo",
@@ -28,7 +28,7 @@ project = {
 
 
 def test_File_met_1h():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project)
     p1.simulate()
@@ -42,7 +42,7 @@ def test_File_met_1h():
 
 
 def test_File_met_15m():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project)
     p1.parameter("time_step").value = 15*60
@@ -58,7 +58,7 @@ def test_File_met_15m():
 
 
 def test_File_tmy3_1h():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project)
     p1.simulate()
@@ -83,7 +83,7 @@ def test_File_tmy3_1h():
 
 
 def test_File_tmy2_1h():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project)
     p1.simulate()
@@ -97,3 +97,37 @@ def test_File_tmy2_1h():
     assert hr[12] == pytest.approx(16, 0.001)
     assert r_dir[12] == pytest.approx(8, 0.1)
     assert r_dif[12] == pytest.approx(137, 0.1)
+
+
+def test_ground_temperature_kasuda():
+    """Test ground temperature calculation using Kasuda (1965) model."""
+    sim = osim.Simulation()
+    p1 = sim.new_project("p1")
+    p1.read_dict(project)
+    p1.simulate()
+
+    # Get File_met component
+    met = p1.component("sevilla")
+
+    # Test at different depths with typical soil diffusivity
+    # 0.04 m²/day = 0.04 / 86400 m²/s ≈ 4.63e-7 m²/s (typical for moist soil)
+    alpha = 4.63e-7  # m²/s
+
+    # Surface (z=0): should follow air temperature pattern
+    var_z0 = met.ground_temperature(0.0, alpha)
+    assert len(var_z0.values) == 8760
+
+    # Deep (z=3m): should be close to annual average with small variation
+    var_z3 = met.ground_temperature(3.0, alpha)
+    assert len(var_z3.values) == 8760
+
+    # At depth, temperature should be more stable (smaller range)
+    range_z0 = max(var_z0.values) - min(var_z0.values)
+    range_z3 = max(var_z3.values) - min(var_z3.values)
+    assert range_z3 < range_z0  # Deeper = more stable
+
+    # At great depth, temperature approaches annual mean
+    var_z10 = met.ground_temperature(10.0, alpha)
+    T_mean = met._T_average
+    # At 10m, temperature should be very close to annual mean
+    assert abs(var_z10.values[0] - T_mean) < 2.0  # Within 2°C of mean

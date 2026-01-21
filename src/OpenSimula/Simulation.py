@@ -114,8 +114,11 @@ class Simulation:
             if i < len(names):
                 series[names[i]] = variables[i].values
             else:
-                series[variables[i].parent.parameter(
-                    "name").value+":"+variables[i].key] = variables[i].values
+                if variables[i].parent is not None:
+                    series[variables[i].parent.parameter(
+                        "name").value+":"+variables[i].key] = variables[i].values
+                else:
+                    series[variables[i].key] = variables[i].values
         data = pd.DataFrame(series)
         if frequency is not None:
             if value == "mean":
@@ -134,8 +137,11 @@ class Simulation:
             if i < len(names):
                 name = names[i]
             else:
-                name = variables[i].parent.parameter(
-                    "name").value+":"+variables[i].key
+                if variables[i].parent is not None:
+                    name = variables[i].parent.parameter(
+                        "name").value+":"+variables[i].key
+                else:
+                    name = variables[i].key
             fig = px.line(data, x='date', y=name)
             fig.for_each_trace(lambda t: t.update(name=name))
             fig.update_traces(showlegend=True)

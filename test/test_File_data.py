@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 
 project_dic = {
     "name": "Test project",
@@ -17,7 +17,7 @@ project_dic = {
 
 
 def test_File_data_CSV():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project_dic)
     p1.simulate()
@@ -29,7 +29,7 @@ def test_File_data_CSV():
 
 
 def test_File_data_EXCEL():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project_dic)
     p1.component("datas").parameter("file_type").value = "EXCEL"
@@ -45,7 +45,7 @@ def test_File_data_EXCEL():
 
 
 def test_File_data_CSV_2h():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project_dic)
     p1.component("datas").set_parameters(
@@ -58,7 +58,7 @@ def test_File_data_CSV_2h():
 
 
 def test_File_data_CSV_05h():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project_dic)
     p1.component("datas").set_parameters(

@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 import pytest
 
 case_dict = {
@@ -23,7 +23,7 @@ case_dict = {
 
 
 def test_points():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case_dict)
 

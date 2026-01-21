@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 import pytest
 
 calculator_dict = {
@@ -25,7 +25,7 @@ calculator_dict = {
 
 
 def test_conversion():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(calculator_dict)
     pro.simulate()

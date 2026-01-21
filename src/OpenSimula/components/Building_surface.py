@@ -96,6 +96,12 @@ class Building_surface(Surface):
             self._calculate_K_()
         if self._surface_type_ == "EXTERIOR":
             self._sunny_index_ = self.project().env_3D.get_sunny_index(self.parameter("name").value)
+        if self._surface_type_ == "UNDERGROUND":
+            # create new construction for underground surfaces
+            self.constr_underground = self.project().duplicate_component(
+                self.parameter("construction").component.parameter("name").value,
+                self.parameter("name").value + "_underground_construction",
+            )
 
     def _create_openings_list_(self):
         project_openings_list = self.project().component_list(comp_type="Opening")
@@ -270,7 +276,7 @@ class Building_surface(Surface):
             )
         elif self._surface_type_ == "UNDERGROUND":
             self.variable("q_cv0").values[time_i] = -self.variable("q_cd0").values[time_i]
-            self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value * (
+            self.variable("q_cv1").values[time_i] = self.parameter("h_cv").value[0] * (
                 self.get_space().variable("temperature").values[time_i]
                 - self.variable("T_s1").values[time_i]
             )

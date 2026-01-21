@@ -15,9 +15,9 @@ app = marimo.App(width="full")
 @app.cell
 def _():
     import marimo as mo
-    import opensimula as osm
+    import opensimula as osim
     mo.md("## Testing Marimo notebooks & Opensimula")
-    return (osm,)
+    return (osim,)
 
 
 @app.cell

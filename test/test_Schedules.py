@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 
 project_dic = {
     "name": "Test project",
@@ -48,7 +48,7 @@ project_dic = {
 
 
 def test_schedule_step():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project_dic)
     p1.simulate()
@@ -58,7 +58,7 @@ def test_schedule_step():
 
 
 def test_schedule_linear():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project_dic)
     p1.component("working_day").parameter("interpolation").value = "LINEAR"
@@ -69,7 +69,7 @@ def test_schedule_linear():
 
 
 def test_daylight_savings():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(project_dic)
     p1.parameter("daylight_saving").value = True

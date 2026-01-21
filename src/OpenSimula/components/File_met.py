@@ -564,6 +564,72 @@ class File_met(Component):
         delta = range_max - range_min
         return (((shiftedx % delta) + delta) % delta) + range_min
 
+    def ground_temperature(self, z, alpha):
+        """Calculate ground temperature at depth z using Kasuda (1965) correlation.
+
+        The Kasuda model calculates undisturbed ground temperature as a function
+        of depth and time of year, based on surface temperature variations.
+
+        Args:
+            z (float): Depth below ground surface (m)
+            alpha (float): Thermal diffusivity of the ground (m²/s)
+
+        Returns:
+            Variable: A Variable object with hourly ground temperature values (°C)
+                     for the simulation period (8760 hours)
+
+        Reference:
+            Kasuda, T. and Archenbach, P.R. (1965). Earth Temperature and Thermal
+            Diffusivity at Selected Stations in the United States. ASHRAE Transactions, 71(1).
+        """
+        # Convert alpha from m²/s to m²/day for use in Kasuda equation
+        # 1 day = 24 * 3600 seconds = 86400 seconds
+        alpha_day = alpha * 86400.0
+
+        # Calculate monthly average temperatures
+        monthly_temps = np.zeros(12)
+        for month in range(12):
+            start_hour = month * 730  # Approximate hours per month (8760/12)
+            end_hour = min((month + 1) * 730, 8760)
+            monthly_temps[month] = np.mean(self.temperature[start_hour:end_hour])
+
+        # T_mean: Annual average temperature
+        T_mean = self._T_average
+
+        # T_amp: Amplitude (half the difference between max and min monthly averages)
+        T_amp = (np.max(monthly_temps) - np.min(monthly_temps)) / 2
+
+        # t_shift: Day of year with minimum surface temperature
+        # Find the month with minimum temperature and convert to day of year
+        min_month = np.argmin(monthly_temps)
+        t_shift = (min_month + 0.5) * 30.44  # Day at middle of minimum month
+
+        # Create Variable for ground temperature
+        var = Variable(
+            f"ground_temp_z{z:.2f}",
+            "°C",
+            f"Ground temperature at depth {z} m (Kasuda model)"
+        )
+        var.initialise(8760)
+
+        # Calculate ground temperature for each hour
+        for hour in range(8760):
+            # Day of year (1-365)
+            day = hour / 24.0 + 1
+
+            # Kasuda equation (uses alpha in m²/day)
+            # Phase lag factor
+            phase_lag = z / 2.0 * math.sqrt(365.0 / (math.pi * alpha_day))
+            # Damping factor
+            damping = math.exp(-z * math.sqrt(math.pi / (365.0 * alpha_day)))
+            # Temperature at depth z
+            T_ground = T_mean - T_amp * damping * math.cos(
+                2.0 * math.pi / 365.0 * (day - t_shift - phase_lag)
+            )
+            var.values[hour] = T_ground
+
+        return var
+
 
 def read_tmy3(filename, encoding=None):
     """Read a TMY3 file into a pandas dataframe.

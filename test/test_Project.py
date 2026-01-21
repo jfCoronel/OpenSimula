@@ -1,4 +1,4 @@
-import opensimula as osm
+import opensimula as osim
 
 p1_dic = {
     "name": "project 1",
@@ -44,7 +44,7 @@ p2_dic = {
 
 
 def test_project_parameters():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("Project 1")
     p1.parameter("description").value = "Project 1 description"
 
@@ -54,7 +54,7 @@ def test_project_parameters():
 
 
 def test_managing_components():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("Project 1")
 
     m1 = p1.new_component("Material", "Material 1")
@@ -64,7 +64,7 @@ def test_managing_components():
 
 
 def test_load_from_dict():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(p1_dic)
 
@@ -82,7 +82,7 @@ def test_load_from_dict():
 
 
 def test_load_from_dic_two_projects():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(p1_dic)
     p2 = sim.new_project("p2")
@@ -95,7 +95,7 @@ def test_load_from_dic_two_projects():
 
 
 def test_load_from_json_files():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_json("test/test_project_1.json")
     p2 = sim.new_project("p2")
@@ -108,7 +108,7 @@ def test_load_from_json_files():
 
 
 def test_write_to_dict_json_file():
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     p1 = sim.new_project("p1")
     p1.read_dict(p1_dic)
     dic_p1 = p1.write_dict()
@@ -120,3 +120,33 @@ def test_write_to_dict_json_file():
     p2 = sim.new_project("p2")
     p2.read_dict(p2_dic)
     p2.write_json("test/test_project_2_written.json")
+
+
+def test_duplicate_component():
+    sim = osim.Simulation()
+    p1 = sim.new_project("p1")
+    p1.read_dict(p1_dic)
+
+    # Duplicate comp 1
+    new_comp = p1.duplicate_component("comp 1", "comp 1 copy")
+
+    assert new_comp is not None
+    assert new_comp.parameter("name").value == "comp 1 copy"
+    assert new_comp.parameter("type").value == "Test_component"
+    assert new_comp.parameter("boolean").value == True
+    assert new_comp.parameter("string").value == "Hola mundo"
+    assert new_comp.parameter("int").value == 24
+    assert new_comp.parameter("float").value == 34.5
+    assert new_comp.parameter("options").value == "Two"
+    assert new_comp.parameter("boolean_list").value == [True, True]
+    assert new_comp.parameter("string_list").value == ["Hola 1", "Hola 2"]
+    assert new_comp.parameter("int_list").value == [1, 2]
+    assert new_comp.parameter("float_list").value == [1.1, 2.1]
+
+    # Check component is in the project
+    assert len(p1.component_list()) == 3
+    assert p1.component("comp 1 copy") == new_comp
+
+    # Test duplicating non-existent component
+    result = p1.duplicate_component("non_existent", "new_name")
+    assert result is None
