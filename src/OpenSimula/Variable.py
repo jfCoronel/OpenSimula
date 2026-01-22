@@ -25,6 +25,10 @@ class Variable(Child):
     def values(self):
         return self._values_
 
+    @values.setter
+    def values(self, values):
+        self._values_ = values
+
     @property
     def unit(self):
         return self._unit_

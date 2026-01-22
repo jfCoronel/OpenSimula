@@ -1,17 +1,19 @@
 import opensimula as osim
 
-case610_dict = {
-    "name": "Case 610",
+import opensimula as osm
+
+case600_dict = {
+    "name": "Case 600",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
-    "simulation_file_met": "Sevilla",
+    "simulation_file_met": "Denver",
     "components": [
         {
             "type": "File_met",
-            "name": "Sevilla",
-            "file_type": "MET",
-            "file_name": "mets/sevilla.met"
+            "name": "Denver",
+            "file_type": "TMY3",
+            "file_name": "mets/725650TY.tmy3"
         },
         {
             "type": "Material",
@@ -56,6 +58,13 @@ case610_dict = {
             "specific_heat": 900
         },
         {
+            "type": "Material",
+            "name": "Ground",
+            "conductivity": 1.9,
+            "density": 1490,
+            "specific_heat": 1800
+        },
+        {
             "type": "Construction",
             "name": "Wall",
             "solar_alpha": [
@@ -85,7 +94,7 @@ case610_dict = {
                 "Timber_flooring"
             ],
             "thicknesses": [
-                1.003,
+                0.05,
                 0.025
             ]
         },
@@ -149,7 +158,7 @@ case610_dict = {
         {
             "type": "Building",
             "name": "Building",
-            "azimuth": 0
+            "azimuth": 0,
         },
         {
             "type": "Space",
@@ -226,9 +235,8 @@ case610_dict = {
                 0.5,
                 0.2
             ],
-            "shape": "POLYGON",
-            "x_polygon":[0, 3, 3, 0],
-            "y_polygon":[0, 0, 2, 2],
+            "width": 3,
+            "height": 2,
             "h_cv": [
                 8.0,
                 2.4
@@ -293,6 +301,7 @@ case610_dict = {
             "name": "floor_wall",
             "surface_type": "UNDERGROUND",
             "construction": "Floor",
+            "ground_material": "Ground",
             "spaces": "spaces_1",
             "ref_point": [
                 0,
@@ -303,22 +312,9 @@ case610_dict = {
             "height": 6,
             "azimuth": 0,
             "altitude": -90,
-            "h_cv": [0.8]
-        },
-        {
-            "type": "Solar_surface",
-            "name": "overhang",
-            "coordinate_system": "GLOBAL",
-            "ref_point": [
-                0,
-                -1,
-                2.7
-            ],
-            "calculate_solar_radiation": True,
-            "width": 8,
-            "height": 1,
-            "azimuth": 0,
-            "altitude": 90
+            "h_cv": [
+                10,2.2
+            ]
         },
         {
             "type": "HVAC_perfect_system",
@@ -333,8 +329,8 @@ case610_dict = {
 }
 
 
-sim = osim.Simulation()
+sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(case610_dict)
+pro.read_dict(case600_dict)
 pro.simulate()
 

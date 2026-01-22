@@ -56,6 +56,18 @@ class Surface(Component):
                                self.parameter("y_polygon").value[i]])
             return Polygon(polygon).area
 
+    @property
+    def perimeter(self):
+        if (self.parameter("shape").value == "RECTANGLE"):
+            return 2 * (self.parameter("width").value + self.parameter("height").value)
+        elif (self.parameter("shape").value == "POLYGON"):
+            polygon = []
+            n = len(self.parameter("x_polygon").value)
+            for i in range(0, n):
+                polygon.append([self.parameter("x_polygon").value[i],
+                               self.parameter("y_polygon").value[i]])
+            return Polygon(polygon).length
+
     # exterior normal vector
     def orientation_angle(self, angle, side, coordinate_system="global"):
         if angle == "azimuth":

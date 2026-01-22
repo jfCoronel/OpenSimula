@@ -59,7 +59,7 @@ project_dic = {
             "name": "Heavy wall",
             "solar_alpha": [0.8, 0.8],
             "materials": ["Heavy material"],
-            "thicknesses": [0.25],
+            "thicknesses": [0.5],
         },
         {
             "type": "Construction",

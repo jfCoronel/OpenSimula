@@ -28,6 +28,20 @@ class Construction(Component):
             errors.append(Message(msg, "error"))
         return errors
 
+    def add_exterior_layer(self, material_name, thickness):
+        """Add a new exterior layer (at index 0) to the construction.
+
+        Args:
+            material_name (str): Name of the material component to add
+            thickness (float): Thickness of the layer in meters
+        """
+        materials = self.parameter("materials").value
+        thicknesses = self.parameter("thicknesses").value
+        materials.insert(0, material_name)
+        thicknesses.insert(0, thickness)
+        self.parameter("materials").value = materials
+        self.parameter("thicknesses").value = thicknesses
+
     # Functions for Transfer Function Calculation
 
     def pre_simulation(self, n_time_steps, delta_t):

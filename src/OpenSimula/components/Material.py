@@ -12,3 +12,10 @@ class Material(Component):
         self.add_parameter(Parameter_float("specific_heat", 1000, "J/(kg·K)", min=0.001))
         self.add_parameter(Parameter_boolean("use_resistance", False))
         self.add_parameter(Parameter_float("thermal_resistance", 1, "(m²·K)/W", min=0))
+
+    def thermal_diffusivity(self):
+        """Returns thermal diffusivity α = k / (ρ · cp) in m²/s"""
+        k = self.parameter("conductivity").value
+        rho = self.parameter("density").value
+        cp = self.parameter("specific_heat").value
+        return k / (rho * cp)
