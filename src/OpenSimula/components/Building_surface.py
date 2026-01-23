@@ -129,7 +129,6 @@ class Building_surface(Surface):
         self._construction_ = self.parameter("construction").component
         if self._surface_type_ == "EXTERIOR" or self._surface_type_ == "INTERIOR":
             self._create_openings_list_()
-        if self._surface_type_ != "VIRTUAL":
             self._calculate_K_()
         if self._surface_type_ == "EXTERIOR":
             self._sunny_index_ = self.project().env_3D.get_sunny_index(
@@ -138,6 +137,7 @@ class Building_surface(Surface):
         if self._surface_type_ == "UNDERGROUND":
             self._create_underground_construction_()
             self._construction_.pre_simulation(n_time_steps, delta_t) # is not included in list of project components
+            self._calculate_K_()
             # Exterior temperature from meteorological file
             alpha = self.parameter("ground_material").component.thermal_diffusivity()
             self.variable("T_s0").values = self._file_met.ground_temperature(self._ground_thickness_,alpha).values
@@ -167,7 +167,7 @@ class Building_surface(Surface):
         # e_ground = R_ground * k_g  # m
         # # add ground material at the exterior side
         # self._ground_thickness_ = max(e_ground, 0.05)  # minimum 5 cm
-        self._ground_thickness_ = 0.5  # fixed 50 cm. To be improved
+        self._ground_thickness_ = 0.3  # fixed 50 cm. To be improved
         self._construction_.add_exterior_layer(
             self.parameter("ground_material").component.parameter("name").value,
             self._ground_thickness_,

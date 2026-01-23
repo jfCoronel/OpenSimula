@@ -263,7 +263,11 @@ class File_met(Component):
         p = self.variable("pressure").values[time_index]
         self.variable("abs_humidity").values[time_index] = sicro.GetHumRatioFromRelHum(
             T, HR, p)*1000
-        self.variable("dew_point_temp").values[time_index] = sicro.GetTDewPointFromRelHum(
+        if HR < 0.01:
+            self.variable("dew_point_temp").values[time_index] = sicro.GetTDewPointFromRelHum(
+                T, 0.01)
+        else:
+            self.variable("dew_point_temp").values[time_index] = sicro.GetTDewPointFromRelHum(
             T, HR)
         self.variable("wet_bulb_temp").values[time_index] = sicro.GetTWetBulbFromRelHum(
             T, HR, p)
@@ -312,15 +316,18 @@ class File_met(Component):
         """
         SIGMA = 5.6697E-8
         for i in range(len(self.temperature)):
-            dp_temp = sicro.GetTDewPointFromRelHum(
-                self.temperature[i], self.rel_humidity[i]/100)
-            epsilon_clear = 0.787 + 0.764 * \
-                math.log((dp_temp+273.15)/273)  # Clark & Allen
-            N = self.opaque_cloud_cover[i]/10  # opaque cover sky in tenths
-            epsilon = epsilon_clear * \
-                (1+0.0224*N-0.0035*N**2+0.00028*N**3)  # Walton
-            ir = SIGMA * epsilon * (self.temperature[i] + 273.15)**4
-            self.sky_temperature[i] = (ir/SIGMA)**0.25 - 273.15
+            try:
+                dp_temp = sicro.GetTDewPointFromRelHum(
+                    self.temperature[i], self.rel_humidity[i]/100)
+                epsilon_clear = 0.787 + 0.764 * \
+                    math.log((dp_temp+273.15)/273)  # Clark & Allen
+                N = self.opaque_cloud_cover[i]/10  # opaque cover sky in tenths
+                epsilon = epsilon_clear * \
+                    (1+0.0224*N-0.0035*N**2+0.00028*N**3)  # Walton
+                ir = SIGMA * epsilon * (self.temperature[i] + 273.15)**4
+                self.sky_temperature[i] = (ir/SIGMA)**0.25 - 273.15
+            except:
+                self.sky_temperature[i] = self.temperature[i]-10
 
     def solar_direct_rad(self, time_index, surf_azimuth, surf_altitude):
         """Solar Direct radiation over surface

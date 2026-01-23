@@ -84,8 +84,13 @@ class HVAC_perfect_system(Component):
             self._calculate_required_M()
             self._control_system["Q_s"] = self._Q_spa
             self._control_system["M_w"] = self._M_spa
-        self._space.set_control_system(self._control_system)
-        return True
+            self._space.set_control_system(self._control_system)
+            if n_iter == 0: 
+                return False # Force first iteration 
+            else:
+                return True
+        else:
+            return True
     
     def _calculate_required_Q(self):
         K_t,F_t = self._space.get_thermal_equation(False)
