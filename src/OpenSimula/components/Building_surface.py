@@ -136,41 +136,84 @@ class Building_surface(Surface):
             )
         if self._surface_type_ == "UNDERGROUND":
             self._create_underground_construction_()
-            self._construction_.pre_simulation(n_time_steps, delta_t) # is not included in list of project components
+            self._construction_.pre_simulation(
+                n_time_steps, delta_t
+            )  # is not included in list of project components
             self._calculate_K_()
-            # Exterior temperature from meteorological file
-            alpha = self.parameter("ground_material").component.thermal_diffusivity()
-            self.variable("T_s0").values = self._file_met.ground_temperature(self._ground_thickness_,alpha).values
+            self._calculate_ground_U_hat_()
 
     def _create_underground_construction_(self):
-        # Comprobar si existe y borrarla capa
+        # Test if underground construction already exists and delete it
         und_cons_name = self.parameter("name").value + "_und_cons"
         if self.project().component(und_cons_name) is not None:
             self.project().del_component(self.project().component(und_cons_name))
+        # Test if virtual material already exists and delete it
+        vir_mat_name = self.parameter("name").value + "_vir_mat"
+        if self.project().component(vir_mat_name) is not None:
+            self.project().del_component(self.project().component(vir_mat_name))
+        # create virtual material with zero properties
+        vir_mat = self.project().new_component("Material", vir_mat_name)
+        vir_mat.set_parameters({"density": 1, "specific_heat": 1, "conductivity": 1})
         # create new construction for underground surfaces
         self._construction_ = self.project().duplicate_component(
             self.parameter("construction").component.parameter("name").value,
             und_cons_name,
         )
         # Equivalent thickness UNE-EN ISO 13370:2017
-        # R_cons = self._construction_.thermal_resistance()  # m²K/W
-        # k_g = self.parameter("ground_material").component.parameter("conductivity").value
-        # d_f = 0.3 + k_g * (
-        #     1/self.parameter("h_cv").value[0] + 1/self.parameter("h_cv").value[1] + R_cons
-        # )  # m
-        # B = self.area/(4*self.perimeter*self.parameter("exterior_perimeter_fraction").value)
-        # if d_f < B:
-        #     U_tot = (2*k_g)/(math.pi*B+d_f)*math.log((math.pi*B/d_f)+1)
-        # else: # Well insulated
-        #     U_tot = k_g/(d_f+0.457*B)
-        # R_ground = 1/U_tot - R_cons  # m²K/W
-        # e_ground = R_ground * k_g  # m
-        # # add ground material at the exterior side
-        # self._ground_thickness_ = max(e_ground, 0.05)  # minimum 5 cm
-        self._ground_thickness_ = 0.3  # fixed 50 cm. To be improved
+        self._B_prime_ = (
+            2
+            * self.area
+            / (self.perimeter * self.parameter("exterior_perimeter_fraction").value)
+        )
+        R_cons = self._construction_.thermal_resistance()  # m²K/W
+        self._k_g_ = (
+            self.parameter("ground_material").component.parameter("conductivity").value
+        )
+        w = 0.3  # Thickness of perimetral walls
+        self._d_t_ = w + self._k_g_ * (
+            1 / self.parameter("h_cv").value[0]
+            + 1 / self.parameter("h_cv").value[1]
+            + R_cons
+        )  # m
+
+        if self._d_t_ < self._B_prime_:
+            self._U_tot_ = (
+                (2 * self._k_g_)
+                / (math.pi * self._B_prime_ + self._d_t_)
+                * math.log((math.pi * self._B_prime_ / self._d_t_) + 1)
+            )
+        else:  # Well insulated
+            self._U_tot_ = self._k_g_ / (self._d_t_ + 0.457 * self._B_prime_)
+
+        # adding 0,5m of ground material t
+        self._ground_thickness_ = 0.5  # fixed 50 cm.
         self._construction_.add_exterior_layer(
             self.parameter("ground_material").component.parameter("name").value,
             self._ground_thickness_,
+        )
+        # Thermal resistanace of the virtual layer
+        R_vi = (
+            1 / self._U_tot_
+            - 1 / self.parameter("h_cv").value[0]
+            - R_cons
+            - 0.5 / self._k_g_
+        )  # m²K/W
+        k_vi = 0.1 / R_vi
+        # Add virtual layer to the construction
+        vir_mat.parameter("conductivity").value = k_vi
+        self._construction_.add_exterior_layer(vir_mat_name, 0.1)
+
+    def _calculate_ground_U_hat_(self):
+        # Exterior temperature from meteorological file
+        # Dinamics transmitance (U_hat and U_hat_ext)
+        periodo_segundos = 31536000  # Un año
+        rho_g = self.parameter("ground_material").component.parameter("density").value
+        c_p_g = (
+            self.parameter("ground_material").component.parameter("specific_heat").value
+        )
+        d_p = math.sqrt((self._k_g_ * periodo_segundos) / (math.pi * rho_g * c_p_g))
+        self._U_hat_ext_ = self._k_g_ / math.sqrt(
+            (0.457 * self._B_prime_ + self._d_t_) ** 2 + d_p**2
         )
 
     def _create_openings_list_(self):
@@ -193,7 +236,7 @@ class Building_surface(Surface):
         elif self._surface_type_ == "INTERIOR":
             self.k[0] = self.area * (self.a_0 - self.parameter("h_cv").value[0])
             self.k[1] = self.area * (self.a_1 - self.parameter("h_cv").value[1])
-        elif self._surface_type_ == "UNDERGROUND": 
+        elif self._surface_type_ == "UNDERGROUND":
             self.k[0] = 1  # not used
             self.k[1] = self.area * (
                 self.a_1 - self.parameter("h_cv").value[1]
@@ -218,6 +261,14 @@ class Building_surface(Surface):
             self.variable("p_1").values[time_i] = self._p_1_
         if self._surface_type_ == "EXTERIOR":
             self._pre_iteration_exterior_(time_i)
+        if self._surface_type_ == "UNDERGROUND":
+            year_start = date.replace(month=1, day=1, hour=0, minute=0, second=0)
+            seconds_elapsed = (date - year_start).total_seconds()
+            m = seconds_elapsed / 2629800
+            self.variable("T_s0").values[time_i] = (
+                self._file_met.T_average
+                + self._U_hat_ext_ / self._U_tot_ * self._file_met.DT_monthly_amplitude * math.cos(2 * math.pi *m / 12)
+                )
 
     def _pre_iteration_exterior_(self, time_i):
         # Meterological data

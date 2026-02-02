@@ -85,6 +85,17 @@ class File_met(Component):
             self.reference_time_longitude = 0
             # These four values must be changed later
             errors = self._read_wyec2_file(errors)
+        # Average air temperature
+        self.T_average = np.average(self.temperature)
+        # Monthly temperature amplitude
+        monthly_temps = []
+        for month in range(12):
+            # Get hours for each month (approximate, using 730 hours per month)
+            start_hour = month * 730
+            end_hour = min((month + 1) * 730, 8760)
+            monthly_temps.append(np.mean(self.temperature[start_hour:end_hour]))
+        self.DT_monthly_amplitude = np.max(monthly_temps) - np.min(monthly_temps)
+        
         return errors
 
     def _read_met_file(self, errors):
@@ -116,7 +127,6 @@ class File_met(Component):
                 # Atmosfera estándar con T = 20ºC
                 self.pressure[t] = 101325 * math.exp(-1.1654e-4*self.altitude)
 
-        self._T_average = np.average(self.temperature)
         return errors
 
     def _read_tmy3_file(self, errors):
@@ -142,7 +152,6 @@ class File_met(Component):
             self.opaque_cloud_cover = data["OpqCld (tenths)"].to_numpy(
             ) * 10  # tenth to %
             self._t_sky_calculation()
-            self._T_average = np.average(self.temperature)
             return errors
         except OSError as error:
             msg =f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
@@ -173,7 +182,6 @@ class File_met(Component):
             self.opaque_cloud_cover = data["OpqCld"].to_numpy(
             ) * 10  # tenth to %
             self._t_sky_calculation()
-            self._T_average = np.average(self.temperature)
             return errors
         except OSError as error:
             msg = f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
@@ -194,7 +202,6 @@ class File_met(Component):
             self.total_cloud_cover = data["total_cloud_cover"].to_numpy() 
             self.opaque_cloud_cover = data["opaque_cloud_cover"].to_numpy()
             self._t_sky_calculation()
-            self._T_average = np.average(self.temperature)
             return errors
         except OSError as error:
             msg = f"Error in component: {self.parameter('name').value}, could not open/read file: {self.parameter('file_name').value}"
@@ -224,7 +231,7 @@ class File_met(Component):
             self.variable("sol_azimuth").values[time_index] = azi
             self.variable("sol_altitude").values[time_index] = alt
         self.variable(
-            "underground_temperature").values[time_index] = self._T_average
+            "underground_temperature").values[time_index] = self.T_average
         if self.parameter("file_type").value == "MET":
             i, j, f = self._get_solar_interpolation_tuple_(date, solar_hour)
         elif self.parameter("file_type").value == "TMY3":
@@ -601,7 +608,7 @@ class File_met(Component):
             monthly_temps[month] = np.mean(self.temperature[start_hour:end_hour])
 
         # T_mean: Annual average temperature
-        T_mean = self._T_average
+        T_mean = self.T_average
 
         # T_amp: Amplitude (half the difference between max and min monthly averages)
         T_amp = (np.max(monthly_temps) - np.min(monthly_temps)) / 2
