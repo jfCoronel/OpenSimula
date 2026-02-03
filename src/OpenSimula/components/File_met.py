@@ -95,6 +95,9 @@ class File_met(Component):
             end_hour = min((month + 1) * 730, 8760)
             monthly_temps.append(np.mean(self.temperature[start_hour:end_hour]))
         self.DT_monthly_amplitude = np.max(monthly_temps) - np.min(monthly_temps)
+        # Mes de la temperatura máxima y minima
+        self.month_max_temp = np.argmax(monthly_temps) + 1
+        self.month_min_temp = np.argmin(monthly_temps) + 1
         
         return errors
 

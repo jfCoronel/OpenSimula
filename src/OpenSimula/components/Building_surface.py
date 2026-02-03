@@ -34,11 +34,15 @@ class Building_surface(Surface):
             )
         )
         self.add_parameter(Parameter_float_list("h_cv", [19.3, 2], "W/m²K", min=0))
+        # Only for underground surfaces
         self.add_parameter(
             Parameter_component("ground_material", "not_defined", ["Material"])
         )
         self.add_parameter(
             Parameter_float("exterior_perimeter_fraction", 1, "frac", min=0, max=1)
+        )
+        self.add_parameter(
+            Parameter_float("exterior_perimeter_wall_thickness", 0.3, "m", min=0)
         )
 
         # Constants
@@ -169,7 +173,7 @@ class Building_surface(Surface):
         self._k_g_ = (
             self.parameter("ground_material").component.parameter("conductivity").value
         )
-        w = 0.3  # Thickness of perimetral walls
+        w = self.parameter("exterior_perimeter_wall_thickness").value  # Thickness of perimetral walls
         self._d_t_ = w + self._k_g_ * (
             1 / self.parameter("h_cv").value[0]
             + 1 / self.parameter("h_cv").value[1]
@@ -264,10 +268,13 @@ class Building_surface(Surface):
         if self._surface_type_ == "UNDERGROUND":
             year_start = date.replace(month=1, day=1, hour=0, minute=0, second=0)
             seconds_elapsed = (date - year_start).total_seconds()
-            m = seconds_elapsed / 2629800
+            DT = self._file_met.DT_monthly_amplitude/2
+            T_avg = self._file_met.T_average
+            tau = self._file_met.month_min_temp - 1
+            m = seconds_elapsed / 2628000
             self.variable("T_s0").values[time_i] = (
-                self._file_met.T_average
-                + self._U_hat_ext_ / self._U_tot_ * self._file_met.DT_monthly_amplitude * math.cos(2 * math.pi *m / 12)
+                T_avg
+                - self._U_hat_ext_ / self._U_tot_ * DT * math.cos(2 * math.pi * (m-tau) / 12)
                 )
 
     def _pre_iteration_exterior_(self, time_i):
