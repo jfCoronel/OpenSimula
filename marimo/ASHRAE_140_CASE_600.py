@@ -8,7 +8,7 @@
 
 import marimo
 
-__generated_with = "0.19.2"
+__generated_with = "0.19.8"
 app = marimo.App(width="full")
 
 
@@ -21,7 +21,7 @@ def _():
 
 
 @app.cell
-def _(osm):
+def _(osim):
     case600_dict = {
         "name": "Case 600",
         "time_step": 3600,
@@ -33,7 +33,7 @@ def _(osm):
                 "type": "File_met",
                 "name": "Denver",
                 "file_type": "TMY3",
-                "file_name": "mets/725650TY.tmy3"
+                "file_name": "../mets/725650TY.tmy3"
             },
             {
                 "type": "Material",
@@ -340,7 +340,7 @@ def _(osm):
         ]
     }
 
-    sim = osm.Simulation()
+    sim = osim.Simulation()
     pro = sim.new_project("pro")
     pro.read_dict(case600_dict)
     return pro, sim
@@ -349,9 +349,9 @@ def _(osm):
 @app.cell
 def _(pro):
     import datetime as dt
-    #pro.show_3D()
+    # pro.show_3D()
     date = dt.datetime(2001,3,21,12,0,0)
-    #pro.show_3D_shadows(date)
+    # pro.show_3D_shadows(date)
     pro.show_3D_shadows_animation(date)
     return
 
@@ -376,7 +376,7 @@ def _(pro):
     peak_cooling = -load.min()/1000
     i_peak_cooling = np.argmin(load)
 
-    excel = pd.DataFrame()
+    excel =  pd.DataFrame()
     excel["Annual_heating"] = [annual_heating]
     excel["Annual_cooling"] = [annual_cooling]
     excel["Peak_heating"] = [peak_heating]
@@ -393,7 +393,8 @@ def _(pro):
 
 @app.cell
 def _(pro, sim):
-    sim.plot(pro.dates(),[pro.component("east_wall").variable("E_dir"),pro.component("south_wall").variable("E_dir") ])
+    vars =[pro.component("east_wall").variable("E_dir"),pro.component("south_wall").variable("E_dir")]
+    sim.plot(pro.dates(),vars)
     return
 
 

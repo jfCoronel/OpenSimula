@@ -270,7 +270,7 @@ class Building_surface(Surface):
             seconds_elapsed = (date - year_start).total_seconds()
             DT = self._file_met.DT_monthly_amplitude/2
             T_avg = self._file_met.T_average
-            tau = self._file_met.month_min_temp - 1
+            tau = self._file_met.month_min_temp # One month of delay for the minimum temperature, as in UNE-EN ISO 13370:2017
             m = seconds_elapsed / 2628000
             self.variable("T_s0").values[time_i] = (
                 T_avg
