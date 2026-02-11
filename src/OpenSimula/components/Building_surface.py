@@ -44,6 +44,9 @@ class Building_surface(Surface):
         self.add_parameter(
             Parameter_float("exterior_perimeter_wall_thickness", 0.3, "m", min=0)
         )
+        self.add_parameter(
+            Parameter_float("groundwater_depth", 0, "m", min=0)
+        )
 
         # Constants
         self.H_RD = 5.705  # 4*sigma*(293^3)
@@ -188,6 +191,13 @@ class Building_surface(Surface):
             )
         else:  # Well insulated
             self._U_tot_ = self._k_g_ / (self._d_t_ + 0.457 * self._B_prime_)
+        
+        # Gorundwater effect
+        groundwater_depth = self.parameter("groundwater_depth").value
+        self._G_w_ = 1.0
+        if groundwater_depth > 0:
+            self._G_w_ = 1 + math.exp(-2*groundwater_depth / self._B_prime_)
+        self._U_tot_ *= self._G_w_
 
         # adding 0,5m of ground material t
         self._ground_thickness_ = 0.5  # fixed 50 cm.
@@ -216,7 +226,7 @@ class Building_surface(Surface):
             self.parameter("ground_material").component.parameter("specific_heat").value
         )
         d_p = math.sqrt((self._k_g_ * periodo_segundos) / (math.pi * rho_g * c_p_g))
-        self._U_hat_ext_ = self._k_g_ / math.sqrt(
+        self._U_hat_ext_ = self._G_w_ * self._k_g_ / math.sqrt(
             (0.457 * self._B_prime_ + self._d_t_) ** 2 + d_p**2
         )
 
