@@ -1,7 +1,7 @@
 import opensimula as osm
 
-caseGC30b_dict = {
-    "name": "Case GC30b",
+caseGC50b_dict = {
+    "name": "Case GC50b",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -17,7 +17,7 @@ caseGC30b_dict = {
         {
             "type": "Material",
             "name": "Insulation",
-            "conductivity": 0.01,
+            "conductivity": 0.0001,
             "density": 1,
             "specific_heat": 1
         },
@@ -91,7 +91,7 @@ caseGC30b_dict = {
             "altitude": 0,
             "h_cv": [
                 100,
-                100
+                7.95
             ]
         },
         {
@@ -110,7 +110,7 @@ caseGC30b_dict = {
             "altitude": 0,
             "h_cv": [
                 100,
-                100
+                7.95
             ]
         },
         {
@@ -129,7 +129,7 @@ caseGC30b_dict = {
             "altitude": 0,
             "h_cv": [
                 100,
-                100
+                7.95
             ]
         },
         {
@@ -148,7 +148,7 @@ caseGC30b_dict = {
             "altitude": 0,
             "h_cv": [
                 100,
-                100
+                7.95
             ]
         },
         {
@@ -167,7 +167,7 @@ caseGC30b_dict = {
             "altitude": 90,
             "h_cv": [
                 100,
-                100
+                7.95
             ]
         },
         {
@@ -176,6 +176,7 @@ caseGC30b_dict = {
             "surface_type": "UNDERGROUND",
             "construction": "Floor_Slab",
             "ground_material": "Ground",
+            "exterior_perimeter_wall_thickness": 0.24,
             "spaces": "space_1",
             "ref_point": [
                 0,
@@ -188,7 +189,7 @@ caseGC30b_dict = {
             "altitude": -90,
             "h_cv": [
                 100,
-                100
+                7.95
             ]
         },
         {
@@ -203,9 +204,8 @@ caseGC30b_dict = {
     ]
 }
 
-
 sim = osm.Simulation()
 pro = sim.new_project("pro")
-pro.read_dict(caseGC30b_dict)
+pro.read_dict(caseGC50b_dict)
 pro.simulate()
 

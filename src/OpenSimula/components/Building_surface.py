@@ -208,7 +208,7 @@ class Building_surface(Surface):
         # Thermal resistanace of the virtual layer
         R_vi = (
             1 / self._U_tot_
-            - 1 / self.parameter("h_cv").value[0]
+            - 1 / self.parameter("h_cv").value[1]
             - R_cons
             - 0.5 / self._k_g_
         )  # m²K/W

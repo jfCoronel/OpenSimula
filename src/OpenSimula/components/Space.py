@@ -264,7 +264,7 @@ class Space(Component):
         w = F_hum/K_hum
         if (w < 0):
             w = 0
-        if (T< 100): # Sicro limits
+        if (T> -100 and T< 100): # Sicro limits
             max_hum = sicro.GetHumRatioFromRelHum(T, 1, self.props["ATM_PRESSURE"])*1000
             if (w > max_hum):
                 w = max_hum

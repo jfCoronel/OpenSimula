@@ -168,7 +168,7 @@ class Building(Component):
                         if self.spaces[j] == self.surfaces[i].get_space():
                             self.KSZ_matrix[i][j] = (
                                 self.surfaces[i].area
-                                * self.surfaces[i].parameter("h_cv").value[0]
+                                * self.surfaces[i].parameter("h_cv").value[self.sides[i]]
                             )
                 elif surface_type == "INTERIOR":
                     k = self.surfaces[i].k
