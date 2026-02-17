@@ -323,7 +323,7 @@ case610_dict = {
             "altitude": 90
         },
         {
-            "type": "HVAC_DX_equipment",
+            "type": "DX_unit",
             "name": "HVAC_equipment",
             "nominal_air_flow": 0.417,
             "nominal_total_cooling_capacity": 6900,

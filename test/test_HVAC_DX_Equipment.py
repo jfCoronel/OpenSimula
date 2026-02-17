@@ -2,10 +2,10 @@ import opensimula as osim
 import pytest
 
 case_dict = {
-    "name": "Test_HVAC_DX_equipment",
+    "name": "Test_DX_unit",
     "components": [
         {
-            "type": "HVAC_DX_equipment",
+            "type": "DX_unit",
             "name": "HVAC_equipment",
             "nominal_air_flow": 0.4248,
             "nominal_total_cooling_capacity": 7951,

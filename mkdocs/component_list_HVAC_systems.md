@@ -47,7 +47,7 @@ After the simulation we will have the following variables of this component:
 - __dehumidifying_setpoint__ [%]: High relative humidity setpoint.
 - __state__ [flag]: Operation of the system: off (0), heating (1), colling (-1), venting (3).
 
-### HVAC_DX_equipment
+### DX_unit
 
 Component to define a direct expansion air conditioning equipment. It can be used to define compact or split 1x1 units. 
 
@@ -93,7 +93,7 @@ supplied at a given instant divided by the cooling or heating capacity at the cu
 <pre><code class="python">
 ...
 
-equipment = osm.components.HVAC_DX_equipment("equipment",project)
+equipment = osm.components.DX_unit("equipment",project)
 param = {
             "nominal_air_flow": 0.417,
             "nominal_total_cooling_capacity": 6000,
@@ -116,14 +116,14 @@ equipment.set_parameters(param)
 
 ### HVAC_DX_system
 
-Component for the simulation of an air-conditioning system for a space and using equipment in direct expansion "HVAC_DX_equipment".
+Component for the simulation of an air-conditioning system for a space and using equipment in direct expansion "DX_unit".
 
 ![HVAC_DX_system](img/HVAC_DX_system.png)
 
 
 #### Parameters
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be air-conditioned by this system.
-- **equipment** [_component_, default = "not_defined", component type = HVAC_DX_equipment]: Reference to the "HVAC_DX_equipment" component used by this system.
+- **equipment** [_component_, default = "not_defined", component type = DX_unit]: Reference to the "DX_unit" component used by this system.
 - **air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet air flow used for all the simulation.
 - **outdoor_air_fraction** [_math_exp_, unit = "frac", default = 0]: Outdoor air flow fraction used for the simulation. The outside air is mixed with the return air from the room before it enters the indoor coil.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
@@ -194,7 +194,7 @@ supplied at a given instant divided by the cooling or heating capacity at the cu
 - __w_SA__ [g/kg]: Supply air absolute humidity.
 - __efficiency_degradation__ [frac]: EER or COP degradation factor obtained from the _EER_expression_ or _COP_expression_ of the equipment.
 
-### HVAC_coil_equipment
+### Water_coil
 
 Component to define water coil equipment for air heating or cooling. 
 
@@ -228,7 +228,7 @@ All mathematical expressions can include the following independent variables.
 <pre><code class="python">
 ...
 
-equipment = osm.components.HVAC_coil_equipment("coil",project)
+equipment = osm.components.Water_coil("coil",project)
 param = {
         "nominal_air_flow": 0.28536,
         "nominal_heating_capacity": 0,
@@ -240,7 +240,7 @@ equipment.set_parameters(param)
 </code></pre>
 
 
-### HVAC_fan_equipment
+### Fan
 
 Component to define fans. 
 
@@ -262,7 +262,7 @@ All mathematical expressions can include the following independent variables.
 <pre><code class="python">
 ...
 
-equipment = osm.components.HVAC_fan_equipment("fan",project)
+equipment = osm.components.Fan("fan",project)
 param = {
         "nominal_air_flow":0.28867,
         "nominal_pressure": 498,
@@ -280,10 +280,10 @@ Component for the simulation of single zone water air-conditioning system. It ca
 
 #### Parameters
 - **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be air-conditioned by this system.
-- **cooling_coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used for cooling by this system.
-- **heating_coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used for heating by this system.
-- **supply_fan** [_component_, default = "not_defined", component type = HVAC_fan_equipment]: Reference to the "HVAC_fan_equipment" component used as supply fan by this system.
-- **return_fan** [_component_, default = "not_defined", component type = HVAC_fan_equipment]: Reference to the "HVAC_fan_equipment" component used as return fan by this system (if present).
+- **cooling_coil** [_component_, default = "not_defined", component type = Water_coil]: Reference to the "Water_coil" component used for cooling by this system.
+- **heating_coil** [_component_, default = "not_defined", component type = Water_coil]: Reference to the "Water_coil" component used for heating by this system.
+- **supply_fan** [_component_, default = "not_defined", component type = Fan]: Reference to the "Fan" component used as supply fan by this system.
+- **return_fan** [_component_, default = "not_defined", component type = Fan]: Reference to the "Fan" component used as return fan by this system (if present).
 - **air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Coil inlet air flow used for all the simulation.
 - **return_air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Return air flow used if return fan present.
 - **outdoor_air_fraction** [_math_exp_, unit = "frac", default = 0]: Outdoor air flow fraction at the coil inlet used for the simulation.
@@ -362,10 +362,10 @@ Component for the simulation of multi-zone water air-conditioning system. It can
 #### Parameters
 - **spaces** [_component_list_, default = ["not_defined", "not_defined"], component type = Space]: List of references to the "Space" components to be air-conditioned by this system.
 - **air_flow_fractions** [_float_list_, unit = "frac", default = [0.5, 0.5], min = 0, max = 1]: Fraction of total supply air flow assigned to each space. The sum of all fractions must equal 1.
-- **cooling_coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used for cooling by this system.
-- **heating_coil** [_component_, default = "not_defined", component type = HVAC_coil_equipment]: Reference to the "HVAC_coil_equipment" component used for central heating by this system.
-- **supply_fan** [_component_, default = "not_defined", component type = HVAC_fan_equipment]: Reference to the "HVAC_fan_equipment" component used as supply fan by this system.
-- **return_fan** [_component_, default = "not_defined", component type = HVAC_fan_equipment]: Reference to the "HVAC_fan_equipment" component used as return fan by this system (if present).
+- **cooling_coil** [_component_, default = "not_defined", component type = Water_coil]: Reference to the "Water_coil" component used for cooling by this system.
+- **heating_coil** [_component_, default = "not_defined", component type = Water_coil]: Reference to the "Water_coil" component used for central heating by this system.
+- **supply_fan** [_component_, default = "not_defined", component type = Fan]: Reference to the "Fan" component used as supply fan by this system.
+- **return_fan** [_component_, default = "not_defined", component type = Fan]: Reference to the "Fan" component used as return fan by this system (if present).
 - **air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Total system air flow at coil inlet for desgin conditions.
 - **return_air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Total return air flow at design conditions, used if return fan present.
 - **return_air_flow_fractions** [_float_list_, unit = "frac", default = [0.5, 0.5], min = 0, max = 1]: Fraction of return air flow from each space. The sum of all fractions must equal 1.
@@ -390,7 +390,7 @@ Component for the simulation of multi-zone water air-conditioning system. It can
 - **economizer_enthalpy_limit** [_float_, unit = "kJ/kg", default = 0, min = 0]: For economizers type ENTHALPY_LIMITED set the maximum outdoor air enthalpy at which the economizer does not operate.
 - **reheat** [_boolean_, default = False]: Enable reheat coils for each zone.
 - **vav** [_boolean_, default = False]: Enable Variable Air Volume (VAV) control for each zone.
-- **reheat_coils** [_component_list_, default = ["not_defined", "not_defined"], component type = HVAC_coil_equipment]: List of reheat coil references for each zone (required if reheat is enabled).
+- **reheat_coils** [_component_list_, default = ["not_defined", "not_defined"], component type = Water_coil]: List of reheat coil references for each zone (required if reheat is enabled).
 
 **Example:**
 <pre><code class="python">

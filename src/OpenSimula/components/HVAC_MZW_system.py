@@ -32,16 +32,16 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             )
         )
         self.add_parameter(
-            Parameter_component("cooling_coil", "not_defined", ["HVAC_coil_equipment"])
+            Parameter_component("cooling_coil", "not_defined", ["Water_coil"])
         )
         self.add_parameter(
-            Parameter_component("heating_coil", "not_defined", ["HVAC_coil_equipment"])
+            Parameter_component("heating_coil", "not_defined", ["Water_coil"])
         )
         self.add_parameter(
-            Parameter_component("supply_fan", "not_defined", ["HVAC_fan_equipment"])
+            Parameter_component("supply_fan", "not_defined", ["Fan"])
         )
         self.add_parameter(
-            Parameter_component("return_fan", "not_defined", ["HVAC_fan_equipment"])
+            Parameter_component("return_fan", "not_defined", ["Fan"])
         )
         self.add_parameter(Parameter_float("air_flow", 1, "m³/s", min=0))
         self.add_parameter(
@@ -108,7 +108,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         self.add_parameter(Parameter_boolean("vav", False))
         self.add_parameter(
             Parameter_component_list(
-                "reheat_coils", ["not_defined", "not_defined"], ["HVAC_coil_equipment"]
+                "reheat_coils", ["not_defined", "not_defined"], ["Water_coil"]
             )
         )
 

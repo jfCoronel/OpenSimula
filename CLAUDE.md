@@ -110,7 +110,7 @@ Parameters (src/opensimula/Parameters.py) provide type-safe configuration:
 - **HVAC_SZW_system**: Single-zone water-based HVAC
 - **HVAC_MZW_system**: Multi-zone water-based HVAC
 - **HVAC_perfect_system**: Ideal loads system for testing
-- **HVAC_DX_equipment**, **HVAC_coil_equipment**, **HVAC_fan_equipment**: Equipment models
+- **DX_unit**, **Water_coil**, **Fan**: Equipment models
 
 #### Schedule Components
 - **Day_schedule**: Daily schedules with time steps and values

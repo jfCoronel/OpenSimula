@@ -1,11 +1,11 @@
 from opensimula.Parameters import Parameter_float, Parameter_math_exp
 from opensimula.Component import Component
 
-class HVAC_fan_equipment(Component):
+class Fan(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "HVAC_fan_equipment"
-        self.parameter("description").value = "HVAC Fan equipment manufacturer information"
+        self.parameter("type").value = "Fan"
+        self.parameter("description").value = "Fan equipment manufacturer information"
         self.add_parameter(Parameter_float("nominal_air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_pressure", 1, "Pa", min=0))
         self.add_parameter(Parameter_float("nominal_power", 1, "W", min=0))

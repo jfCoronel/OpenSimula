@@ -4,11 +4,11 @@ from opensimula.Component import Component
 from scipy.optimize import fsolve
 import psychrolib as sicro
 
-class HVAC_coil_equipment(Component):
+class Water_coil(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "HVAC_coil_equipment"
-        self.parameter("description").value = "HVAC coil equipment manufacturer information"
+        self.parameter("type").value = "Water_coil"
+        self.parameter("description").value = "Water coil equipment manufacturer information"
         self.add_parameter(Parameter_float("nominal_air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_cooling_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_total_cooling_capacity", 0, "W", min=0))

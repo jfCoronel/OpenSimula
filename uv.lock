@@ -1143,7 +1143,7 @@ wheels = [
 
 [[package]]
 name = "opensimula"
-version = "0.6.1"
+version = "0.7.0.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "dash" },

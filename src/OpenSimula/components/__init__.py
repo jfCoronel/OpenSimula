@@ -16,9 +16,9 @@ from opensimula.components.Building_surface import Building_surface
 from opensimula.components.Solar_surface import Solar_surface
 from opensimula.components.Opening import Opening
 from opensimula.components.Calculator import Calculator
-from opensimula.components.HVAC_DX_equipment import HVAC_DX_equipment
-from opensimula.components.HVAC_coil_equipment import HVAC_coil_equipment
-from opensimula.components.HVAC_fan_equipment import HVAC_fan_equipment
+from opensimula.components.DX_unit import DX_unit
+from opensimula.components.Water_coil import Water_coil
+from opensimula.components.Fan import Fan
 from opensimula.components.HVAC_DX_system import HVAC_DX_system
 from opensimula.components.HVAC_SZW_system import HVAC_SZW_system
 from opensimula.components.HVAC_MZW_system import HVAC_MZW_system

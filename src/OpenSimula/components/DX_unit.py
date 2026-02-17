@@ -3,11 +3,11 @@ from opensimula.Parameters import Parameter_float, Parameter_float_list, Paramet
 from opensimula.Component import Component
 from scipy.optimize import fsolve
 
-class HVAC_DX_equipment(Component):
+class DX_unit(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "HVAC_DX_equipment"
-        self.parameter("description").value = "HVAC Direct Expansion equipment manufacturer information"
+        self.parameter("type").value = "DX_unit"
+        self.parameter("description").value = "Direct Expansion unit manufacturer information"
         self.add_parameter(Parameter_float("nominal_air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_total_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_sensible_cooling_capacity", 0, "W", min=0))

@@ -10,7 +10,7 @@ class HVAC_DX_system(Component):
         Component.__init__(self, name, project)
         self.parameter("type").value = "HVAC_DX_system"
         self.parameter("description").value = "HVAC Direct Expansion system for time simulation"
-        self.add_parameter(Parameter_component("equipment", "not_defined", ["HVAC_DX_equipment"]))
+        self.add_parameter(Parameter_component("equipment", "not_defined", ["DX_unit"]))
         self.add_parameter(Parameter_component("spaces", "not_defined", ["Space"])) # Space, TODO: Add Air_distribution, Energy_load
         self.add_parameter(Parameter_float("air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_math_exp("outdoor_air_fraction", "0", "frac"))
