@@ -16,4 +16,3 @@ Deploy to Pypi:
     password: el token API
 
 Make commit with the name of the version
-

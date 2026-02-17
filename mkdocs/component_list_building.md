@@ -147,13 +147,19 @@ Component to define the Building surfaces of the building: vertical or inclined 
 - **surface_type** [_option_, default = "EXTERIOR", options = ["EXTERIOR", "INTERIOR", "UNDERGROUND", "VIRTUAL"]]: Surface type: “EXTERIOR” for exterior walls, roofs, and ceilings; “INTERIOR” for interior walls or floors; ‘UNDERGROUND’ for buried walls or floors in contact with the ground; and “VIRTUAL” used to define gaps between two spaces. Spaces in opensimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.
 - **construction** [_component_, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition, not used for "VIRTUAL" surface_type.
 - **spaces** [_component-list_, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1 in "INTERIOR" and "VIRTUAL" surface_type. For "EXTERIOR" and "UNDERGROUND" only de first element fo de list is used.
-- **h_cv** [_float-list_, unit = "W/m²K", default = [19.3,2], min = 0]: Convective film coefficients of the exterior and interior surfaces or side 0 and 1, respectively. For "VIRTUAL" surface_type these values are not used, and for "UNDERGROUND" only the first value is used as interior coefficient.
+- **h_cv** [_float-list_, unit = "W/m²K", default = [19.3,2], min = 0]: Convective film coefficients of the exterior and interior surfaces or side 0 and 1, respectively. For "VIRTUAL" surface_type these values are not used, and for "UNDERGROUND" the first value is the exterior ground surface coefficient and the second is the interior coefficient.
+- **ground_material** [_component_, default = "not_defined", component type = Material]: Reference to the "Material" component that defines the ground thermal properties, used only for "UNDERGROUND" surface_type. A exterior layer of this material (0.5 m) will be added to the construction.
+- **exterior_perimeter_fraction** [_float_, unit = "frac", default = 1, min = 0, max = 1]: Part of the outer perimeter of the enclosure that is in contact with the ground outside the building. Used only for "UNDERGROUND" surface_type.
+- **exterior_perimeter_wall_thickness** [_float_, unit = "m", default = 0.3, min = 0]: Thickness of the exterior walls surrounding the slab in contact with the ground. Used only for "UNDERGROUND" surface_type.
+- **groundwater_depth** [_float_, unit = "m", default = 0, min = 0]: Depth at which the water table is found. The average annual temperature at that depth is used. If its value is 0, there is no water table. Used only for "UNDERGROUND" surface_type.
 
 The following figures show the surface coordinate system versus the building coordinate system for rectangular or polygonal surfaces.
 
 ![Rectangular surface coordinate system](img/rectangular_surface_coordinate_system.png)
 
 ![Polygon surface coordinate system](img/polygon_surface_coordinate_system.png)
+
+The simulation of slabs in contact with the ground is carried out for the “UNDERGROUND” surface_type in accordance with the provisions of standard UNE-EN ISO 13370:2017 in Appendix F: Application to dynamic calculation programs.
 
 **Example:**
 <pre><code class="python">

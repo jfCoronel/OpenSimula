@@ -128,6 +128,6 @@ def test_ground_temperature_kasuda():
 
     # At great depth, temperature approaches annual mean
     var_z10 = met.ground_temperature(10.0, alpha)
-    T_mean = met._T_average
+    T_mean = met.T_average
     # At 10m, temperature should be very close to annual mean
     assert abs(var_z10.values[0] - T_mean) < 2.0  # Within 2°C of mean

@@ -50,8 +50,9 @@ information generated during the simulation.
 
 This is the list of changes to opensimula between each release. For full details, see the commit logs.
 
- __Current Version 0.6.0__
+ __Current Version 0.6.1__
 
+- 0.6.1 (February 17, 2026): Building_surface ground-coupled "UNDERGROUND" surfeca passed ASHHRAE 140 Section 8 Tests.
 - 0.6.0 (October 30, 2025): HVAC_MZW_system passed ASHHRAE 140 Tests.
 - 0.5.2 (October 2, 2025): Changed the name of the pypi package from OpenSimula to opensimula. HVAC_MZW_system under development.
 - 0.5.0 (September 30, 2025): Surfaces grouped into Building_surface and Solar_surface. Use of the VEDO library for 3D visualization 

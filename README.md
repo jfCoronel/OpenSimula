@@ -17,9 +17,8 @@ Component-based time simulation environment in Python
 - dash
 - dash_bootstrap_components
 - dash_ag_grid
-- pyvista
-- trame
-- trame-vtk
-- trame-vuetify
-- ipywidgets
-
+- nbformat
+- openpyxl
+- tqdm
+- triangle
+- vedo
