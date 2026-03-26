@@ -12,7 +12,7 @@ class Surface(Component):
         Component.__init__(self, name, project)
         # Parameters
         self.parameter("type").value = "Surface"
-        self.add_parameter(Parameter_float("azimuth", 0, "°", min=-180, max=180))  # Surface x vs Building x -> S: 0º, E: 90º, W: -90º, N: 180º
+        self.add_parameter(Parameter_float("azimuth", 0, "°", min=-180, max=180))  # Angle from building -Y axis to horizontal projection of exterior normal -> S: 0º, E: 90º, W: -90º, N: 180º
         self.add_parameter(Parameter_float("altitude", 0, "°", min=-90, max=90))  # Surface y vs Building y -> vertical: 0º, facing up: 90º, facing down: -90º
         self.add_parameter(Parameter_options(
             "shape", "RECTANGLE", ["RECTANGLE", "POLYGON"]))

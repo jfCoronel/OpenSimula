@@ -115,9 +115,9 @@ project_dict = {
 | `pro.simulate()` | Run the time simulation; shows progress bar |
 | `pro.simulation_dataframe()` | DataFrame with iteration count per time step |
 | `pro.dates()` | numpy array of datetime per time step (winter time, no DST) |
-| `pro.show_3D()` | (Jupyter) Interactive 3D view of building geometry |
-| `pro.show_3D_shadows(date)` | (Jupyter) 3D view with shadows for a specific `datetime` |
-| `pro.show_3D_shadows_animation(date)` | (Jupyter) Animated shadows for a full day |
+| `pro.show_3D(jupyter=False)` | 3D view of building geometry. `jupyter=True` renders inline in the notebook; `jupyter=False` (default) opens an external interactive window. |
+| `pro.show_3D_shadows(date, jupyter=False)` | 3D view with shadows for a specific `datetime`. Same `jupyter` argument. |
+| `pro.show_3D_shadows_animation(date, jupyter=False)` | Animated shadows for a full day. With `jupyter=True` renders as an HTML animation inline; with `jupyter=False` opens an interactive window with a slider. |
 | `pro.component_editor(type)` | (Jupyter) Interactive form to create/delete/edit components |
 
 ### Component Functions
@@ -536,8 +536,8 @@ Wall, roof, floor, or slab with a multilayer construction. Computes dynamic cond
 - `x_polygon` [float-list, m, default `[0,10,10,0]`] — X-coordinates of polygon vertices in surface local frame (only if `shape = "POLYGON"`).
 - `y_polygon` [float-list, m, default `[0,0,10,10]`] — Y-coordinates of polygon vertices (only if `shape = "POLYGON"`).
 - `ref_point` [float-list, m, default `[0,0,0]`] — 3D position of surface origin in building coordinates. For rectangles: lower-left corner when viewed from outside.
-- `azimuth` [float, °, default 0, −180 to 180] — Angle from building X-axis to the projection of the surface X-axis.
-- `altitude` [float, °, default 0, −90 to 90] — Angle from building Z-axis to the surface Y-axis. 90° = vertical wall; 0° = horizontal roof (facing up); −90° = floor (facing down).
+- `azimuth` [float, °, default 0, −180 to 180] — Angle from the building −Y axis to the horizontal projection of the surface's external normal, measured clockwise when viewed from above. 0° = south-facing (normal along −Y, when building azimuth = 0); 90° = east-facing; 180° = north-facing; −90° = west-facing.
+- `altitude` [float, °, default 0, −90 to 90] — Elevation angle of the surface outward normal above the horizontal plane. 0° = vertical wall (normal is horizontal); 90° = horizontal roof facing up (normal points straight up); −90° = floor facing down (normal points straight down).
 - `surface_type` [option, default `"EXTERIOR"`, options `["EXTERIOR","INTERIOR","UNDERGROUND","VIRTUAL"]`] — `EXTERIOR`: exposed to outdoor; `INTERIOR`: between two spaces; `UNDERGROUND`: in contact with ground (per ISO 13370); `VIRTUAL`: gap between spaces (used to close a thermal zone with no heat exchange).
 - `construction` [component, default `"not_defined"`, type `Construction`] — Construction assembly (not used for `VIRTUAL`).
 - `spaces` [component-list, default `["not_defined","not_defined"]`, type `Space`] — For `EXTERIOR`/`UNDERGROUND`: one space (index 0 = interior side). For `INTERIOR`/`VIRTUAL`: two spaces [side 0, side 1].
@@ -552,8 +552,8 @@ Wall, roof, floor, or slab with a multilayer construction. Computes dynamic cond
     "type": "Building_surface", "name": "south_wall",
     "shape": "RECTANGLE", "width": 5.0, "height": 3.0,
     "ref_point": [0, 0, 0],
-    "azimuth": 180,    # 0=North, 90=East, 180=South, -90=West
-    "altitude": 90,    # 90=vertical wall
+    "azimuth": 0,      # 0=South, 90=East, 180=North, -90=West
+    "altitude": 0,     # 0=vertical wall, 90=horizontal roof (up), -90=floor (down)
     "surface_type": "EXTERIOR",
     "construction": "ext_wall",
     "spaces": ["zone_1"],
@@ -629,8 +629,8 @@ External shading or solar-radiation monitoring surface (overhang, fin, adjacent 
 - `height` [float, m, default 1, min 0] — Height (only if `shape = "RECTANGLE"`).
 - `x_polygon`, `y_polygon` [float-list, m] — Polygon vertices (only if `shape = "POLYGON"`).
 - `ref_point` [float-list, m, default `[0,0,0]`] — 3D origin of the surface.
-- `azimuth` [float, °, default 0, −180 to 180] — Orientation angle.
-- `altitude` [float, °, default 0, −90 to 90] — Tilt angle. 0° = horizontal; 90° = vertical.
+- `azimuth` [float, °, default 0, −180 to 180] — Orientation angle. Same convention as `Building_surface`: angle from building −Y axis to the horizontal projection of the external normal. 0° = south; 90° = east; 180° = north; −90° = west. For horizontal surfaces (altitude = ±90°) the normal is vertical and azimuth only affects the orientation of the surface's local X-axis.
+- `altitude` [float, °, default 0, −90 to 90] — Elevation angle of the surface outward normal above the horizontal plane. 0° = vertical; 90° = horizontal facing up; −90° = horizontal facing down.
 - `cast_shadows` [boolean, default `True`] — Whether this surface casts shadows on building surfaces.
 - `calculate_solar_radiation` [boolean, default `False`] — Whether to compute and store incident solar radiation variables for this surface. Variables are only generated when `True`.
 
@@ -640,7 +640,7 @@ External shading or solar-radiation monitoring surface (overhang, fin, adjacent 
     "coordinate_system": "BUILDING", "building": "building",
     "shape": "RECTANGLE", "width": 2.0, "height": 0.5,
     "ref_point": [0, 3.0, 0],
-    "azimuth": 180, "altitude": 0,    # horizontal overhang on south façade
+    "azimuth": 0, "altitude": 90,     # horizontal overhang on south façade (normal points up)
     "cast_shadows": True,
     "calculate_solar_radiation": False
 }
@@ -1153,6 +1153,240 @@ Error message: `solera, Underground surfaces must define its ground material.`
 - **Underground surfaces**: `surface_type = "UNDERGROUND"` applies ISO 13370 Annex F ground coupling; always provide `ground_material`.
 - **DX expressions**: use the correction expressions only if you have manufacturer performance data; default `"1"` applies nominal values at all conditions.
 - **Unique names**: every component in a project must have a unique name — this includes `Construction`, `Material`, and `Building_surface` components, which are easy to accidentally duplicate.
+
+---
+
+## Complete Building Example (50 m² with HVAC_perfect_system)
+
+This is the reference building definition to use when creating a simple building simulation. Note the correct `altitude` values.
+
+```python
+import opensimula.Simulation as Simulation
+
+sim = Simulation()
+pro = sim.new_project("Edificio 50m2")
+
+project_dict = {
+    "name": "Edificio 50m2",
+    "time_step": 3600,
+    "n_time_steps": 8760,
+    "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "met",
+    "shadow_calculation": "INTERPOLATION",
+    "components": [
+        # ── Clima ──────────────────────────────────────────────────────────
+        {
+            "type": "File_met", "name": "met",
+            "file_name": "../../mets/sevilla.met",
+            "file_type": "MET"
+        },
+        # ── Horarios de ocupación (lunes-viernes 8-18h) ───────────────────
+        {
+            "type": "Day_schedule", "name": "dia_laborable",
+            "time_steps": [8*3600, 10*3600],
+            "values": [0, 1, 0],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Day_schedule", "name": "dia_festivo",
+            "time_steps": [],
+            "values": [0],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Week_schedule", "name": "semana_tipo",
+            "days_schedules": [
+                "dia_laborable", "dia_laborable", "dia_laborable",
+                "dia_laborable", "dia_laborable", "dia_festivo", "dia_festivo"
+            ]
+        },
+        {
+            "type": "Year_schedule", "name": "horario_ocupacion",
+            "periods": [],
+            "weeks_schedules": ["semana_tipo"]
+        },
+        # ── Materiales ─────────────────────────────────────────────────────
+        {
+            "type": "Material", "name": "hormigon",
+            "conductivity": 1.95, "density": 2240, "specific_heat": 900
+        },
+        {
+            "type": "Material", "name": "ladrillo",
+            "conductivity": 0.81, "density": 1600, "specific_heat": 840
+        },
+        {
+            "type": "Material", "name": "aislante",
+            "conductivity": 0.04, "density": 30, "specific_heat": 1000
+        },
+        {
+            "type": "Material", "name": "yeso",
+            "conductivity": 0.57, "density": 1100, "specific_heat": 1000
+        },
+        # ── Construcciones ─────────────────────────────────────────────────
+        {
+            "type": "Construction", "name": "const_muro_ext",
+            "solar_alpha": [0.6, 0.6],
+            "lw_epsilon": [0.9, 0.9],
+            "materials": ["ladrillo", "aislante", "yeso"],
+            "thicknesses": [0.15, 0.06, 0.015]
+        },
+        {
+            "type": "Construction", "name": "const_cubierta",
+            "solar_alpha": [0.6, 0.6],
+            "lw_epsilon": [0.9, 0.9],
+            "materials": ["hormigon", "aislante", "yeso"],
+            "thicknesses": [0.20, 0.08, 0.015]
+        },
+        {
+            "type": "Construction", "name": "const_solera",
+            "solar_alpha": [0.6, 0.6],
+            "lw_epsilon": [0.9, 0.9],
+            "materials": ["hormigon", "aislante"],
+            "thicknesses": [0.15, 0.05]
+        },
+        # ── Ventanas: doble acristalamiento + marco PVC ────────────────────
+        {
+            "type": "Glazing", "name": "doble_vidrio",
+            "solar_tau": 0.731,
+            "solar_rho": [0.133, 0.133],
+            "lw_epsilon": [0.837, 0.837],
+            "g": [0.776, 0.776],
+            "U": 2.914
+        },
+        {
+            "type": "Frame", "name": "marco_pvc",
+            "solar_alpha": [0.6, 0.6],
+            "lw_epsilon": [0.9, 0.9],
+            "thermal_resistance": 0.35
+        },
+        {
+            "type": "Opening_type", "name": "ventana_doble",
+            "glazing": "doble_vidrio",
+            "frame": "marco_pvc",
+            "glazing_fraction": 0.8,
+            "frame_fraction": 0.2
+        },
+        # ── Edificio ───────────────────────────────────────────────────────
+        {
+            "type": "Building", "name": "edificio",
+            "azimuth": 0,
+            "ref_point": [0, 0, 0],
+            "initial_temperature": 20
+        },
+        # ── Space_type con ganancias internas y infiltración ───────────────
+        {
+            "type": "Space_type", "name": "tipo_espacio",
+            "input_variables": ["f = horario_ocupacion.values"],
+            "people_density": "0.1 * f",
+            "people_sensible": 75,
+            "people_latent": 55,
+            "people_radiant_fraction": 0.5,
+            "light_density": "10 * f",
+            "light_radiant_fraction": 0.5,
+            "other_gains_density": "8 * f",
+            "other_gains_radiant_fraction": 0.3,
+            "other_gains_latent_fraction": 0.0,
+            "infiltration": "0.3"
+        },
+        # ── Espacio: planta rectangular 5 x 10 m, altura 3 m ──────────────
+        {
+            "type": "Space", "name": "zona",
+            "building": "edificio",
+            "spaces_type": "tipo_espacio",
+            "floor_area": 50,
+            "volume": 150,
+            "furniture_weight": 10
+        },
+        # ── Superficies ────────────────────────────────────────────────────
+        # azimuth: 0=sur, 90=este, 180=norte, -90=oeste (ángulo desde eje -Y del edificio a normal exterior)
+        # altitude: 0=cerramiento vertical, 90=cubierta (normal hacia arriba), -90=suelo (normal hacia abajo)
+        {
+            "type": "Building_surface", "name": "fachada_sur",
+            "shape": "RECTANGLE", "width": 10.0, "height": 3.0,
+            "ref_point": [0, 0, 0],
+            "azimuth": 0, "altitude": 0,       # cerramiento vertical, normal hacia el sur
+            "surface_type": "EXTERIOR",
+            "construction": "const_muro_ext",
+            "spaces": ["zona"]
+        },
+        {
+            "type": "Building_surface", "name": "fachada_norte",
+            "shape": "RECTANGLE", "width": 10.0, "height": 3.0,
+            "ref_point": [10, 5, 0],
+            "azimuth": 180, "altitude": 0,     # cerramiento vertical, normal hacia el norte
+            "surface_type": "EXTERIOR",
+            "construction": "const_muro_ext",
+            "spaces": ["zona"]
+        },
+        {
+            "type": "Building_surface", "name": "fachada_este",
+            "shape": "RECTANGLE", "width": 5.0, "height": 3.0,
+            "ref_point": [10, 0, 0],
+            "azimuth": 90, "altitude": 0,      # cerramiento vertical
+            "surface_type": "EXTERIOR",
+            "construction": "const_muro_ext",
+            "spaces": ["zona"]
+        },
+        {
+            "type": "Building_surface", "name": "fachada_oeste",
+            "shape": "RECTANGLE", "width": 5.0, "height": 3.0,
+            "ref_point": [0, 5, 0],
+            "azimuth": -90, "altitude": 0,     # cerramiento vertical
+            "surface_type": "EXTERIOR",
+            "construction": "const_muro_ext",
+            "spaces": ["zona"]
+        },
+        {
+            "type": "Building_surface", "name": "cubierta",
+            "shape": "RECTANGLE", "width": 10.0, "height": 5.0,
+            "ref_point": [0, 0, 3],
+            "azimuth": 0, "altitude": 90,      # cubierta horizontal (normal hacia arriba)
+            "surface_type": "EXTERIOR",
+            "construction": "const_cubierta",
+            "spaces": ["zona"]
+        },
+        {
+            "type": "Building_surface", "name": "solera",
+            "shape": "RECTANGLE", "width": 10.0, "height": 5.0,
+            "ref_point": [0, 5, 0],
+            "azimuth": 0, "altitude": -90,     # suelo (normal hacia abajo)
+            "surface_type": "UNDERGROUND",
+            "construction": "const_solera",
+            "ground_material": "hormigon",
+            "spaces": ["zona"]
+        },
+        # ── Ventanas Este y Oeste (1.5 x 1.2 m, centradas) ────────────────
+        {
+            "type": "Opening", "name": "ventana_este",
+            "surface": "fachada_este",
+            "shape": "RECTANGLE", "width": 1.5, "height": 1.2,
+            "ref_point": [1.75, 0.9],
+            "opening_type": "ventana_doble",
+            "setback": 0.1
+        },
+        {
+            "type": "Opening", "name": "ventana_oeste",
+            "surface": "fachada_oeste",
+            "shape": "RECTANGLE", "width": 1.5, "height": 1.2,
+            "ref_point": [1.75, 0.9],
+            "opening_type": "ventana_doble",
+            "setback": 0.1
+        },
+        # ── Sistema HVAC perfecto ──────────────────────────────────────────
+        {
+            "type": "HVAC_perfect_system", "name": "hvac",
+            "spaces": "zona",
+            "input_variables": ["f = horario_ocupacion.values"],
+            "outdoor_air_flow": "0.05 * f",
+            "heating_setpoint": "20",
+            "cooling_setpoint": "25"
+        }
+    ]
+}
+
+pro.read_dict(project_dict)
+pro.simulate()
+```
 
 ---
 

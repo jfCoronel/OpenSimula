@@ -676,23 +676,23 @@ class Project(Parameter_container):
             if hasattr(component, "get_polygon_3D"):
                 env_3D.add_polygon_3D(component.get_polygon_3D())
            
-    def show_3D(self):
+    def show_3D(self, jupyter=False):
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
-        env_3D.show(polygons_type="initial")
-    
-    def show_3D_shadows(self, date):
+        env_3D.show(polygons_type="initial", jupyter=jupyter)
+
+    def show_3D_shadows(self, date, jupyter=False):
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
         file_met = self.parameter("simulation_file_met").component
         cos = file_met.sun_cosines(date)
         if len(cos) == 3:
             env_3D.calculate_shadows(cos)
-            env_3D.show(polygons_type="Building_shadows")
+            env_3D.show(polygons_type="Building_shadows", jupyter=jupyter)
         else:
             self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
 
-    def show_3D_shadows_animation(self, date):
+    def show_3D_shadows_animation(self, date, jupyter=False):
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
         file_met = self.parameter("simulation_file_met").component
@@ -701,9 +701,9 @@ class Project(Parameter_container):
         for hour in range(24):
             new_date = date.replace(hour=hour, minute=0, second=0)
             cos = file_met.sun_cosines(new_date)
-            if len(cos) == 3: # Day time
+            if len(cos) == 3:  # Day time
                 texts.append(new_date.strftime("%H:%M,  %d/%m/%Y"))
                 cosines.append(cos)
-        env_3D.show_animation(texts, cosines, polygons_type="Building_shadows")
+        env_3D.show_animation(texts, cosines, polygons_type="Building_shadows", jupyter=jupyter)
 
             

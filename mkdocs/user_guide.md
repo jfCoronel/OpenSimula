@@ -121,11 +121,11 @@ The following is a list of the most useful functions of the Project object:
 
 ![Component editor example](img/component_editor.png)
 
-- **show_3D()**: Displays an interactive 3D visualization window of all the components with 3D representation, like Buildings (using vedo).
+- **show_3D(jupyter=False)**: Displays an interactive 3D visualization window of all the components with 3D representation, like Buildings (using vedo). Set _jupyter=True_ to render an interactive Plotly figure directly inside a Jupyter notebook instead of opening an external window.
 
- - **show_3D_shadows(date)**: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the date specified. _date_: Python datetime object specifying a specific date.
+- **show_3D_shadows(date, jupyter=False)**: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the date specified. _date_: Python datetime object specifying a specific date. Set _jupyter=True_ to render inside a Jupyter notebook.
 
- - **show_3D_shadows_animation(date)**: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the day date specified, with the slider bar at the bottom, you can change the time of day and see an animation of the shadows. _date_: Python datetime object specifying a specific date. See next figure as example:
+- **show_3D_shadows_animation(date, jupyter=False)**: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the day date specified, with the slider bar at the bottom, you can change the time of day and see an animation of the shadows. _date_: Python datetime object specifying a specific date. Set _jupyter=True_ to render an animated Plotly figure directly inside a Jupyter notebook. See next figure as example:
 
 ![Building shadows example](img/shadows_example.png)
 
