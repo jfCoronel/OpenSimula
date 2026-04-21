@@ -19,6 +19,7 @@ from opensimula.components.Calculator import Calculator
 from opensimula.components.DX_unit import DX_unit
 from opensimula.components.Water_coil import Water_coil
 from opensimula.components.Fan import Fan
+from opensimula.components.Pump import Pump
 from opensimula.components.HVAC_DX_system import HVAC_DX_system
 from opensimula.components.HVAC_SZW_system import HVAC_SZW_system
 from opensimula.components.HVAC_MZW_system import HVAC_MZW_system
