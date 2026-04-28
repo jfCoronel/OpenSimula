@@ -24,6 +24,7 @@ from opensimula.components.HVAC_DX_system import HVAC_DX_system
 from opensimula.components.HVAC_SZW_system import HVAC_SZW_system
 from opensimula.components.HVAC_MZW_system import HVAC_MZW_system
 from opensimula.components.HVAC_perfect_system import HVAC_perfect_system
+from opensimula.components.Chiller_heat_pump import Chiller_heat_pump
 
 DEFAULT_COMPONENTS_ORDER = [
                     "Space_type",

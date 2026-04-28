@@ -1,4 +1,4 @@
-## Component List for HVAC system definition
+## Component List for air side HVAC system definition
 ### HVAC_perfect_system
 
 Component for the perfect conditioning of a space. With this component we can obtain the heating and cooling loads (sensible and latent).
