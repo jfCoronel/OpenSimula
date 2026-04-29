@@ -1,8 +1,8 @@
 import math
 import numpy as np
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, MultiPoint
+from shapely.ops import triangulate as shapely_triangulate
 import vedo
-from triangle import triangulate
 
 class Polygon_3D():
     def __init__(self, name, origin, azimuth, altitude, polygon2D, holes2D=[], color="white", opacity=1.0, visible=True,shading=True,calculate_shadows=True):
@@ -74,32 +74,27 @@ class Polygon_3D():
         return mesh
 
     def _triangulate_(self):
-        def edge_idxs(nv):
-            i = np.append(np.arange(nv), 0)
-            return np.stack([i[:-1], i[1:]], axis=1)
+        all_verts = list(self.polygon2D)
+        for hole in self.holes2D:
+            all_verts.extend(hole)
 
-        nv = 0
-        verts, edges = [], []
-        for loop in (self.polygon2D, *self.holes2D):
-            verts.append(loop)
-            edges.append(nv + edge_idxs(len(loop)))
-            nv += len(loop)
+        tris = [t for t in shapely_triangulate(MultiPoint(all_verts))
+                if self.shapely_polygon.contains(t.centroid)]
 
-        verts, edges = np.concatenate(verts), np.concatenate(edges)
-        # Triangulate needs to know a single interior point for each hole
-        holes = np.array([np.mean(h, axis=0) for h in self.holes2D])
-        # Because triangulate is a wrapper around a C library the syntax is a little weird, 'p' here means planar straight line graph
-        if self.has_holes():
-            d = triangulate(dict(vertices=verts, segments=edges, holes=holes), opts='p')
-        else:
-            d = triangulate(dict(vertices=verts, segments=edges), opts='p')
-        # Convert back 
-        v, f = d['vertices'], d['triangles']
-        nv, nf = len(v), len(f)
-        points = np.concatenate([v, np.zeros((nv, 1))], axis=1)
-        # Creo que lo tengo que hacer en 2D y luego pasarlo a 3D
-        #faces = np.concatenate([np.full((nf, 1), 3), f], axis=1).reshape(-1)
-        return (self._convert_2D_to_3D_(points), f)
+        vert_map = {}
+        verts = []
+        faces = []
+        for tri in tris:
+            face = []
+            for c in list(tri.exterior.coords)[:-1]:
+                key = (round(c[0], 10), round(c[1], 10))
+                if key not in vert_map:
+                    vert_map[key] = len(verts)
+                    verts.append(c)
+                face.append(vert_map[key])
+            faces.append(face)
+
+        return (self._convert_2D_to_3D_(np.array(verts)), np.array(faces))
 
     def _are_vertices_counterclockwise_(self,puntos):
         # Se suma el primer punto al final para cerrar el polígono.

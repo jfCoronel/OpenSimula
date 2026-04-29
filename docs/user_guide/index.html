@@ -258,13 +258,13 @@ pro.set_parameters(param)
 <p><img alt="Component editor example" src="../img/component_editor.png" /></p>
 <ul>
 <li>
-<p><strong>show_3D()</strong>: Displays an interactive 3D visualization window of all the components with 3D representation, like Buildings (using vedo).</p>
+<p><strong>show_3D(jupyter=False)</strong>: Displays an interactive 3D visualization window of all the components with 3D representation, like Buildings (using vedo). Set <em>jupyter=True</em> to render an interactive Plotly figure directly inside a Jupyter notebook instead of opening an external window.</p>
 </li>
 <li>
-<p><strong>show_3D_shadows(date)</strong>: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the date specified. <em>date</em>: Python datetime object specifying a specific date.</p>
+<p><strong>show_3D_shadows(date, jupyter=False)</strong>: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the date specified. <em>date</em>: Python datetime object specifying a specific date. Set <em>jupyter=True</em> to render inside a Jupyter notebook.</p>
 </li>
 <li>
-<p><strong>show_3D_shadows_animation(date)</strong>: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the day date specified, with the slider bar at the bottom, you can change the time of day and see an animation of the shadows. <em>date</em>: Python datetime object specifying a specific date. See next figure as example:</p>
+<p><strong>show_3D_shadows_animation(date, jupyter=False)</strong>: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the day date specified, with the slider bar at the bottom, you can change the time of day and see an animation of the shadows. <em>date</em>: Python datetime object specifying a specific date. Set <em>jupyter=True</em> to render an animated Plotly figure directly inside a Jupyter notebook. See next figure as example:</p>
 </li>
 </ul>
 <p><img alt="Building shadows example" src="../img/shadows_example.png" /></p>

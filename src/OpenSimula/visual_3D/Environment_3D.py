@@ -132,6 +132,24 @@ class Environment_3D:
             lighting=dict(ambient=0.85, diffuse=0.5, specular=0.05),
         )
 
+    def _merge_outlines_to_plotly_(self, polygon_list):
+        """Merge outlines of multiple Polygon_3D into a single go.Scatter3d."""
+        import plotly.graph_objects as go
+        xs, ys, zs = [], [], []
+        for pol in polygon_list:
+            boundary = np.array(pol.polygon3D)
+            if len(boundary) == 0:
+                continue
+            xs.extend(list(boundary[:, 0]) + [boundary[0, 0], None])
+            ys.extend(list(boundary[:, 1]) + [boundary[0, 1], None])
+            zs.extend(list(boundary[:, 2]) + [boundary[0, 2], None])
+        return go.Scatter3d(
+            x=xs, y=ys, z=zs,
+            mode="lines",
+            line=dict(color="black", width=2),
+            showlegend=False, hoverinfo="skip",
+        )
+
     def _scene_bounds_(self, pols):
         """Return (xmin, xmax, ymin, ymax, zmin, zmax) for a list of Polygon_3D."""
         all_pts = np.concatenate([np.array(p.polygon3D) for p in pols if len(p.polygon3D) > 0], axis=0)
@@ -182,16 +200,19 @@ class Environment_3D:
     def _plotly_scene_layout_(self):
         import plotly.graph_objects as go
         axis_style = dict(
-            showbackground=False,
+            showbackground=True,
+            backgroundcolor="rgb(220, 220, 220)",
             tickfont=dict(size=9, color="gray"),
             title_font=dict(size=10, color="gray"),
         )
         return go.Layout(
+            paper_bgcolor="rgb(235, 235, 235)",
             scene=dict(
                 xaxis=dict(title="X [m]", **axis_style),
                 yaxis=dict(title="Y [m]", **axis_style),
                 zaxis=dict(title="Z [m]", **axis_style),
                 aspectmode="data",
+                bgcolor="rgb(235, 235, 235)",
             ),
             margin=dict(l=0, r=0, t=0, b=0),
             showlegend=False,
@@ -256,15 +277,19 @@ class Environment_3D:
             # Build frames (sunny + shadow merged meshes update per frame)
             self.calculate_shadows(cosines[0], create_polygons=True)
             init_sunny = self._merge_to_plotly_(self.pol_sunny, "sunny")
+            init_sunny_outline = self._merge_outlines_to_plotly_(self.pol_sunny)
             init_shadow = self._merge_to_plotly_(self.pol_shadows, "shadow")
+            init_shadow_outline = self._merge_outlines_to_plotly_(self.pol_shadows)
 
             frames = []
             for i, (cos, text) in enumerate(zip(cosines, texts)):
                 self.calculate_shadows(cos, create_polygons=True)
                 frames.append(go.Frame(
                     data=[self._merge_to_plotly_(self.pol_sunny, "sunny"),
-                          self._merge_to_plotly_(self.pol_shadows, "shadow")],
-                    traces=[n_static, n_static + 1],
+                          self._merge_outlines_to_plotly_(self.pol_sunny),
+                          self._merge_to_plotly_(self.pol_shadows, "shadow"),
+                          self._merge_outlines_to_plotly_(self.pol_shadows)],
+                    traces=[n_static, n_static + 1, n_static + 2, n_static + 3],
                     name=str(i),
                     layout=go.Layout(title_text=text),
                 ))
@@ -296,7 +321,7 @@ class Environment_3D:
                 )],
             )
             go.Figure(
-                data=static_traces + [init_sunny, init_shadow],
+                data=static_traces + [init_sunny, init_sunny_outline, init_shadow, init_shadow_outline],
                 layout=layout,
                 frames=frames,
             ).show()

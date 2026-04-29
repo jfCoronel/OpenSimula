@@ -20,8 +20,7 @@ dependencies = [
     "scipy>=1.16.2",
     "shapely>=2.1.1",
     "tqdm>=4.67.1",
-    "triangle>=20250106",
-    "vedo>=2025.5.4",
+"vedo>=2025.5.4",
 ]
 
 [dependency-groups]
