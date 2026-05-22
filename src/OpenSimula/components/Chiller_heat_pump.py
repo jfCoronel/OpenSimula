@@ -40,7 +40,7 @@ class Chiller_heat_pump(Component):
         """
         Q_required: Required heating load
         Returns (Q_eq,f_load).
-        Q_eq: Net heat given by the equipment
+        Q_eq: Heating load given by the equipment
         f_load: Fraction of load (0-1)
         """
         if self.parameter("chiller_type").value == "CHILLER":

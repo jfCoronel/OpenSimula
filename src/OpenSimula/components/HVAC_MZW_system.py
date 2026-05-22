@@ -76,7 +76,13 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             Parameter_options("fan_operation", "CONTINUOUS", ["CONTINUOUS", "CYCLING"])
         )
         self.add_parameter(
-            Parameter_options("water_source", "UNKNOWN", ["UNKNOWN", "WATER_LOOP"])
+            Parameter_options("water_source", "UNKNOWN", ["UNKNOWN", "WATER_SYSTEM"])
+        )
+        self.add_parameter(
+            Parameter_component("cooling_water_system", "not_defined", ["HVAC_water_system"])
+        )
+        self.add_parameter(
+            Parameter_component("heating_water_system", "not_defined", ["HVAC_water_system"])
         )
         self.add_parameter(Parameter_float("cooling_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("heating_water_flow", 1, "m³/s", min=0))
@@ -111,6 +117,13 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 "reheat_coils", ["not_defined", "not_defined"], ["Water_coil"]
             )
         )
+        self.add_parameter(
+            Parameter_options("reheat_water_source", "UNKNOWN", ["UNKNOWN", "WATER_SYSTEM"])
+        )
+        self.add_parameter(
+            Parameter_component("reheat_water_system", "not_defined", ["HVAC_water_system"])
+        )
+
 
         # Variables
         self.add_variable(
@@ -181,6 +194,24 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         if self.parameter("supply_fan").value == "not_defined":
             msg = (
                 f"{self.parameter('name').value}, must define its supply fan equipment."
+            )
+            errors.append(Message(msg, "ERROR"))
+        # Test cooling water system defined
+        if self.parameter("water_source").value == "WATER_SYSTEM" and self.parameter("cooling_water_system").value == "not_defined":
+            msg = (
+                f"{self.parameter('name').value}, must define its cooling water system."
+            )
+            errors.append(Message(msg, "ERROR"))
+        # Test heating water system defined
+        if self.parameter("water_source").value == "WATER_SYSTEM" and self.parameter("heating_water_system").value == "not_defined":
+            msg = (
+                f"{self.parameter('name').value}, must define its heating water system."
+            )
+            errors.append(Message(msg, "ERROR"))
+        # Test reheat water system defined
+        if self.parameter("reheat_water_source").value == "WATER_SYSTEM" and self.parameter("reheat_water_system").value == "not_defined":
+            msg = (
+                f"{self.parameter('name').value}, must define its reheat water system."
             )
             errors.append(Message(msg, "ERROR"))
         # Test file_met defined

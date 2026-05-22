@@ -20,5 +20,4 @@ Component-based time simulation environment in Python
 - nbformat
 - openpyxl
 - tqdm
-- triangle
 - vedo

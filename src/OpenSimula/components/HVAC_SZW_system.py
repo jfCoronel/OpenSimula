@@ -42,7 +42,13 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
             Parameter_options("fan_operation", "CONTINUOUS", ["CONTINUOUS", "CYCLING"])
         )
         self.add_parameter(
-            Parameter_options("water_source", "UNKNOWN", ["UNKNOWN", "WATER_LOOP"])
+            Parameter_options("water_source", "UNKNOWN", ["UNKNOWN", "WATER_SYSTEM"])
+        )
+        self.add_parameter(
+            Parameter_component("cooling_water_system", "not_defined", ["HVAC_water_system"])
+        )
+        self.add_parameter(
+            Parameter_component("heating_water_system", "not_defined", ["HVAC_water_system"])
         )
         self.add_parameter(Parameter_float("cooling_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("heating_water_flow", 1, "m³/s", min=0))
@@ -118,6 +124,18 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         if self.parameter("supply_fan").value == "not_defined":
             msg = (
                 f"{self.parameter('name').value}, must define its supply fan equipment."
+            )
+            errors.append(Message(msg, "ERROR"))
+        # Test cooling water system defined
+        if self.parameter("water_source").value == "WATER_SYSTEM" and self.parameter("cooling_water_system").value == "not_defined":
+            msg = (
+                f"{self.parameter('name').value}, must define its cooling water system."
+            )
+            errors.append(Message(msg, "ERROR"))
+        # Test heating water system defined
+        if self.parameter("water_source").value == "WATER_SYSTEM" and self.parameter("heating_water_system").value == "not_defined":
+            msg = (
+                f"{self.parameter('name').value}, must define its heating water system."
             )
             errors.append(Message(msg, "ERROR"))
         # Test file_met defined
@@ -213,6 +231,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 self._calculate_required_Q()
             self._calculate_mixed_air()
             self._simulate_system()
+            self._send_water_to_system()
             self._update_supply_mass_flow()
             self._send_air_to_space()
         return True
@@ -336,10 +355,23 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
             self.M_w = 0
 
     def _simulate_heating(self):
+        if self.parameter("water_source").value == "UNKNOWN":
+            heating_Tw = self.heating_water_temp
+        elif self.parameter("water_source").value == "WATER_SYSTEM": # from water system
+            if not self.parameter("heating_water_system").component.on_off:
+               self.state = 2
+               self.F_load = 0
+               self.Q_coil = 0
+               self.T_CA = self.T_MA
+               self.Q_eq = self._get_fan_power("supply", 1)+ self.Q_return_fan_required
+               self.M_w = 0
+               self.w_CA = self.w_MA
+               return
+            heating_Tw = self.parameter("heating_water_system").component.get_coil_inlet_T()
         capacity, self.epsilon = self.h_coil.get_heating_capacity(
             self.T_MA,
             self.T_MAwb,
-            self.heating_water_temp,
+            heating_Tw,
             self.air_flow,
             self.heating_water_flow,
         )
@@ -365,11 +397,24 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         self.T_CA = self.T_MA + self.Q_coil / (self.m_air_supply * self.props["C_PA"])
 
     def _simulate_cooling(self):
+        if self.parameter("water_source").value == "UNKNOWN":
+            cooling_Tw = self.cooling_water_temp
+        elif self.parameter("water_source").value == "WATER_SYSTEM": # from water system
+            if not self.parameter("cooling_water_system").component.on_off:
+               self.state = -2
+               self.F_load = 0
+               self.Q_coil = 0
+               self.T_CA = self.T_MA
+               self.Q_eq = self._get_fan_power("supply", 1)+ self.Q_return_fan_required
+               self.M_w = 0
+               self.w_CA = self.w_MA
+               return
+            cooling_Tw = self.parameter("cooling_water_system").component.get_coil_inlet_T()
         capacity_sen, capacity_lat, self.T_ADP, self.epsilon, self.epsilon_adp = (
             self.c_coil.get_cooling_capacity(
                 self.T_MA,
                 self.T_MAwb,
-                self.cooling_water_temp,
+                cooling_Tw,
                 self.air_flow,
                 self.cooling_water_flow,
             )
@@ -421,6 +466,13 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         if self.w_CA > w_sat:
             self.w_CA = w_sat
             self.M_w = (self.w_CA - self.w_MA) * self.m_air_supply
+
+    def _send_water_to_system(self):
+        if self.parameter("water_source").value == "WATER_SYSTEM": # from water system
+            if self.state == 1 or self.state == 2:  # Heating
+                self.parameter("heating_water_system").component.add_coil_load(self.Q_coil)
+            elif self.state == -1 or self.state == -2:  # Cooling
+                self.parameter("cooling_water_system").component.add_coil_load(-self.Q_coil)
 
     def _update_supply_mass_flow(self):
         # Fan inlet
