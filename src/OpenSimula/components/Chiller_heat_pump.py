@@ -36,13 +36,14 @@ class Chiller_heat_pump(Component):
             errors.append(Message(msg, "ERROR"))
         return errors
         
-    def get_heating_load(self,T_wo,T_ci,T_wbci,F_water,Q_required):
+    def get_heating_load(self,T_wo,T_ci,T_wbci,water_flow,Q_required):
         """
         Q_required: Required heating load
         Returns (Q_eq,f_load).
         Q_eq: Heating load given by the equipment
         f_load: Fraction of load (0-1)
         """
+        F_water = water_flow/self.parameter("nominal_water_flow").value
         if self.parameter("chiller_type").value == "CHILLER":
              return (0, 0)
         else:
@@ -57,15 +58,16 @@ class Chiller_heat_pump(Component):
                 f_load = Q_required/capacity
                 return (Q_required, f_load)           
            
-    def get_heating_power(self,T_wo, T_ci,T_wbci,F_water,Q_required):
+    def get_heating_power(self,T_wo, T_ci,T_wbci,water_flow,Q_required):
         """
         Returns (tot_power,COP).
         """        
         if self.parameter("chiller_type").value == "CHILLER":
             return (0,0)
         else:
-            Q, F_load = self.get_heating_load(T_wo, T_ci,T_wbci,F_water,Q_required)
+            Q, F_load = self.get_heating_load(T_wo, T_ci,T_wbci,water_flow,Q_required)
             # variables dictonary
+            F_water = water_flow/self.parameter("nominal_water_flow").value
             var_dic = self._var_state_dic([T_wo, T_ci,T_wbci,F_water,F_load])
             # Total power
             nom_power = self.parameter("nominal_heating_power").value
@@ -78,13 +80,14 @@ class Chiller_heat_pump(Component):
             COP = Q/power
             return (power, COP)
             
-    def get_cooling_load(self,T_wo,T_ci,T_wbci,F_water,Q_required):
+    def get_cooling_load(self,T_wo,T_ci,T_wbci,water_flow,Q_required):
         """
         Q_required: Required cooling load
         Returns (Q_eq,f_load).
         Q_eq: Total cool given by the equipment
         f_load: Fraction of load (0-1)
         """
+        F_water = water_flow/self.parameter("nominal_water_flow").value
         if self.parameter("chiller_type").value == "HEAT_PUMP":
             return (0,0)
         else:
@@ -98,15 +101,16 @@ class Chiller_heat_pump(Component):
                 f_load = Q_required/capacity
                 return (Q_required, f_load)   
 
-    def get_cooling_power(self,T_wo, T_ci,T_wbci,F_water,Q_required):
+    def get_cooling_power(self,T_wo, T_ci,T_wbci,water_flow,Q_required):
         """
         Returns (tot_power,EER).
         """        
         if self.parameter("chiller_type").value == "HEAT_PUMP":
             return (0,0)
         else:
-            Q, F_load = self.get_cooling_load(T_wo, T_ci,T_wbci,F_water,Q_required)
+            Q, F_load = self.get_cooling_load(T_wo, T_ci,T_wbci,water_flow,Q_required)
             # variables dictonary
+            F_water = water_flow/self.parameter("nominal_water_flow").value
             var_dic = self._var_state_dic([T_wo, T_ci,T_wbci,F_water,F_load])
             # Power
             nom_power = self.parameter("nominal_cooling_power").value

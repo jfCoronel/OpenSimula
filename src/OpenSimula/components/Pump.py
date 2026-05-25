@@ -9,6 +9,7 @@ class Pump(Component):
         self.add_parameter(Parameter_float("nominal_water_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("nominal_pressure", 1, "Pa", min=0))
         self.add_parameter(Parameter_float("nominal_power", 1, "W", min=0))
+        self.add_parameter(Parameter_float("power_to_heat_fraction", 1, "frac", min=0, max=1))
         self.add_parameter(Parameter_math_exp("pressure_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("power_expression", "1", "frac"))
 
@@ -34,7 +35,12 @@ class Pump(Component):
         var_dic = {"F_water":water_flow/self._nominal_water_flow}
         # Power
         power = self._nominal_power * self.parameter("power_expression").evaluate(var_dic)
-        return power       
+        return power      
+
+    def get_heat_gain(self,water_flow):
+        power = self.get_power(water_flow)
+        heat_gain = power * self.parameter("power_to_heat_fraction").value
+        return heat_gain 
     
     
 

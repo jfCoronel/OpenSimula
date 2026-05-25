@@ -10,11 +10,11 @@ class Water_coil(Component):
         self.parameter("type").value = "Water_coil"
         self.parameter("description").value = "Water coil equipment manufacturer information"
         self.add_parameter(Parameter_float("nominal_air_flow", 1, "m³/s", min=0))
-        self.add_parameter(Parameter_float("nominal_cooling_water_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("nominal_cooling_water_flow", 1, "dm³/s", min=0))
         self.add_parameter(Parameter_float("nominal_total_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_sensible_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_cooling_conditions", [27, 19, 7], "ºC"))
-        self.add_parameter(Parameter_float("nominal_heating_water_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("nominal_heating_water_flow", 1, "dm³/s", min=0))
         self.add_parameter(Parameter_float("nominal_heating_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_heating_conditions", [20, 15, 50], "ºC"))
         self.add_parameter(Parameter_math_exp("heating_epsilon_expression", "1", "frac"))
@@ -44,14 +44,14 @@ class Water_coil(Component):
         self._nominal_air_flow = self.parameter("nominal_air_flow").value
         # Heating
         self._nominal_heating_capacity = self.parameter("nominal_heating_capacity").value
-        self._nominal_heating_water_flow = self.parameter("nominal_heating_water_flow").value
+        self._nominal_heating_water_flow = self.parameter("nominal_heating_water_flow").value/1000 # Convert to m³/s
         self._T_idb_HN = self.parameter("nominal_heating_conditions").value[0]
         self._T_iwb_HN = self.parameter("nominal_heating_conditions").value[1]
         self._T_iw_HN = self.parameter("nominal_heating_conditions").value[2]
         # Cooling
         self._nominal_total_cooling_capacity = self.parameter("nominal_total_cooling_capacity").value
         self._nominal_sensible_cooling_capacity = self.parameter("nominal_sensible_cooling_capacity").value
-        self._nominal_cooling_water_flow = self.parameter("nominal_cooling_water_flow").value
+        self._nominal_cooling_water_flow = self.parameter("nominal_cooling_water_flow").value/1000 # Convert to m³/s
         self._T_idb_CN = self.parameter("nominal_cooling_conditions").value[0]
         self._T_iwb_CN = self.parameter("nominal_cooling_conditions").value[1]
         self._T_iw_CN = self.parameter("nominal_cooling_conditions").value[2]
@@ -97,11 +97,12 @@ class Water_coil(Component):
 
     def calculate_ADP(self,T_i,w_i,T_o,w_o,p):
         def func(x):
-            w_adp = sicro.GetHumRatioFromRelHum(x,1,p)
-            w_adp2 = w_i - (T_i -x) * (w_i - w_o)/(T_i-T_o)
+            T = float(x[0])
+            w_adp = sicro.GetHumRatioFromRelHum(T,1,p)
+            w_adp2 = w_i - (T_i - T) * (w_i - w_o)/(T_i-T_o)
             return w_adp - w_adp2
         solucion = fsolve(func, x0=T_o -1,xtol=1e-3)
-        return solucion[0]      
+        return solucion[0]
 
     def get_heating_capacity(self,T_idb,T_iwb,T_iw,air_flow,water_flow):
         if self._nominal_heating_capacity > 0:
@@ -182,9 +183,10 @@ class Water_coil(Component):
 
     def get_T_adp_from_h_adp(self,h_adp,T_ini):
         def func(x):
-            return (h_adp - sicro.GetSatAirEnthalpy(x,self.props["ATM_PRESSURE"]))
+            T = float(x[0])
+            return (h_adp - sicro.GetSatAirEnthalpy(T,self.props["ATM_PRESSURE"]))
         solucion = fsolve(func, x0=T_ini,xtol=1e-3)
-        return solucion[0]      
+        return solucion[0]
     
     def _var_state_dic(self, values):
         max = self.parameter("expression_max_values").value

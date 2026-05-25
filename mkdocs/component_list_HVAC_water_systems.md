@@ -6,7 +6,7 @@ Component to define pump equipment for water circuits.
 This equipment can be used for one or more HVAC systems.
 
 #### Parameters
-- **nominal_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Nominal inlet water flow.
+- **nominal_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Nominal inlet water flow.
 - **nominal_pressure** [_float_, unit = "Pa", default = 1, min = 0]: Nominal pressure rise produced by the pump.
 - **nominal_power** [_float_, unit = "W", default = 1, min = 0]: Electrical power consumed by the pump at nominal conditions.
 - **pressure_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the pressure rise of the pump in conditions different from the nominal ones.
@@ -40,7 +40,7 @@ This equipment can be used for one or more HVAC systems.
 #### Parameters
 - **chiller_type** [_option_, default = "CHILLER", options = ["CHILLER", "HEAT_PUMP", "CHILLER_HEAT_PUMP"]]: Type of equipment. "CHILLER" provides only cooling, "HEAT_PUMP" provides only heating, "CHILLER_HEAT_PUMP" provides both cooling and heating.
 - **condensation_type** [_option_, default = "AIR_CONDENSED", options = ["AIR_CONDENSED", "WATER_CONDENSED"]]: Condensation type. "AIR_CONDENSED" for air-cooled equipment and "WATER_CONDENSED" for water-cooled equipment.
-- **nominal_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Nominal chilled or hot water flow.
+- **nominal_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Nominal chilled or hot water flow.
 - **nominal_cooling_capacity** [_float_, unit = "W", default = 0, min = 0]: Cooling capacity at nominal cooling conditions.
 - **nominal_cooling_power** [_float_, unit = "W", default = 0, min = 0]: Electrical power consumed by the equipment at nominal cooling conditions.
 - **nominal_cooling_conditions** [_float-list_, unit = "ºC", default = [35, 12, 7]]: Nominal cooling conditions, in order: condenser inlet dry bulb temperature, chilled water inlet (return) temperature, chilled water outlet (supply) temperature.

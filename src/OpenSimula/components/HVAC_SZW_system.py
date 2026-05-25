@@ -50,8 +50,8 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         self.add_parameter(
             Parameter_component("heating_water_system", "not_defined", ["HVAC_water_system"])
         )
-        self.add_parameter(Parameter_float("cooling_water_flow", 1, "m³/s", min=0))
-        self.add_parameter(Parameter_float("heating_water_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("cooling_water_flow", 1, "dm³/s", min=0))
+        self.add_parameter(Parameter_float("heating_water_flow", 1, "dm³/s", min=0))
         self.add_parameter(Parameter_float("inlet_cooling_water_temp", 7, "ºC"))
         self.add_parameter(Parameter_float("inlet_heating_water_temp", 50, "ºC"))
         self.add_parameter(
@@ -161,18 +161,8 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         self.return_air_flow = self.parameter("return_air_flow").value
 
         # Water flows and temperatures
-        self.cooling_water_flow = self.parameter("cooling_water_flow").value
-        self.heating_water_flow = self.parameter("heating_water_flow").value
-        if self.c_coil:
-            self.cooling_F_water = (
-                self.cooling_water_flow
-                / self.c_coil.parameter("nominal_cooling_water_flow").value
-            )
-        if self.h_coil:
-            self.heating_F_water = (
-                self.heating_water_flow
-                / self.h_coil.parameter("nominal_heating_water_flow").value
-            )
+        self.cooling_water_flow = self.parameter("cooling_water_flow").value/1000 # Convert to m³/s
+        self.heating_water_flow = self.parameter("heating_water_flow").value/1000 # Convert to m³/s
         self.cooling_water_temp = self.parameter("inlet_cooling_water_temp").value
         self.heating_water_temp = self.parameter("inlet_heating_water_temp").value
         # Fan operation

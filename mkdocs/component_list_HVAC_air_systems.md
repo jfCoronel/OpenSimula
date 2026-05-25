@@ -202,11 +202,11 @@ This equipment can be used for one or more HVAC systems.
 
 #### Parameters
 - **nominal_air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Nominal inlet air flow.
-- **nominal_cooling_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Nominal inlet cooling water flow.
+- **nominal_cooling_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Nominal inlet cooling water flow.
 - **nominal_total_cooling_capacity** [_float_, unit = "W", default = 0, min = 0]: Total cooling capacity at nominal cooling conditions.
 - **nominal_sensible_cooling_capacity** [_float_, unit = "W", default = 0, min = 0]: Sensible cooling capacity at nominal cooling conditions.
 - **nominal_cooling_conditions** [_float-list_, unit = "ºC", default = [27, 19, 7]]: Nominal cooling conditions, in order: inlet dry bulb temperature, inlet wet bulb temperature, inlet water temperature.
-- **nominal_heating_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Nominal inlet heating water flow.
+- **nominal_heating_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Nominal inlet heating water flow.
 - **nominal_heating_capacity** [_float_, unit = "W", default = 0, min = 0]: Heating capacity at nominal heating conditions.
 - **nominal_heating_conditions** [_float-list_, unit = "ºC", default = [20, 15, 50]]: Nominal heating conditions, in order: inlet dry bulb temperature, inlet wet bulb temperature, inlet water temperature.
 - **heating_epsilon_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the heating effectiveness of the equipment in conditions different from the nominal ones. 
@@ -293,8 +293,8 @@ Component for the simulation of single zone water air-conditioning system. It ca
 - **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
 - **fan_operation** [_option_, default = "CONTINUOUS", options = ["CONTINUOUS","CYCLING"]]: If the value is "CONTINUOUS" the fans will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify "CYCLING" the fans will run a fraction of time equal to the partial load at which the equipment operates, therefore, when there is no load there will be no consumption of the fan.
 - **water_source** [_option_, default = "UNKNOWN", options = ["UNKNOWN","WATER_LOOP"]]: If the value is "UNKNOWN", the simulation will be carried out assuming that we always have the defined water flow under the required conditions. If the value is "WATER_LOOP" it has not yet been developed.
-- **cooling_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet cooling water flow.
-- **heating_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet heating water flow.
+- **cooling_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Inlet cooling water flow.
+- **heating_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Inlet heating water flow.
 - **inlet_cooling_water_temp** [_float_, unit = "°C", default = 7]: Inlet cooling water temperature used for "UNKNOWN" water source.
 - **inlet_heating_water_temp** [_float_, unit = "°C", default = 50]: Inlet heating water temperature used for "UNKNOWN" water source.
 - **water_flow_control** [_option_, default = "ON_OFF", options = ["ON_OFF","PROPORTIONAL"]]: If the selected option is "ON_OFF" the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time, therefore the latent load will be calculated by multiplying the latent load at design flow by that fraction of time. If we select "PROPORTIONAL" it is assumed that the water flow rate is adjusted progressively, the required coil outlet temperature will be calculated and using the adp effectiveness the ADP and the supplied latent load will be obtained.
@@ -380,8 +380,8 @@ Component for the simulation of multi-zone water air-conditioning system. It can
 - **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
 - **fan_operation** [_option_, default = "CONTINUOUS", options = ["CONTINUOUS","CYCLING"]]: If the value is "CONTINUOUS" the fans will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify "CYCLING" the fans will run a fraction of time equal to the partial load at which the equipment operates.
 - **water_source** [_option_, default = "UNKNOWN", options = ["UNKNOWN","WATER_LOOP"]]: If the value is "UNKNOWN", the simulation will be carried out assuming that we always have the defined water flow under the required conditions. If the value is "WATER_LOOP" it has not yet been developed.
-- **cooling_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet cooling water flow.
-- **heating_water_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet heating water flow.
+- **cooling_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Inlet cooling water flow.
+- **heating_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Inlet heating water flow.
 - **inlet_cooling_water_temp** [_float_, unit = "°C", default = 7]: Inlet cooling water temperature used for "UNKNOWN" water source.
 - **inlet_heating_water_temp** [_float_, unit = "°C", default = 50]: Inlet heating water temperature used for "UNKNOWN" water source.
 - **water_flow_control** [_option_, default = "ON_OFF", options = ["ON_OFF","PROPORTIONAL"]]: If the selected option is "ON_OFF" the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time. If we select "PROPORTIONAL" it is assumed that the water flow rate is adjusted progressively.
