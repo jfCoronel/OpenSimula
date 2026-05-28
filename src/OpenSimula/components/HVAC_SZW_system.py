@@ -343,6 +343,8 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
             self.Q_coil = 0
             self.Q_eq = self._get_fan_power("supply", 0) + self.Q_return_fan_required
             self.M_w = 0
+            self.T_CA = self.T_MA
+            self.w_CA = self.w_MA
 
     def _simulate_heating(self):
         if self.parameter("water_source").value == "UNKNOWN":
