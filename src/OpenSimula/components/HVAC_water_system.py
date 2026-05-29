@@ -20,7 +20,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.add_parameter(
             Parameter_component("pump", "not_defined", ["Pump"])
         )
-        self.add_parameter(Parameter_float("design_water_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("design_water_flow", 1, "dm³/s", min=0))
         self.add_parameter(Parameter_float("initial_water_temp", 20, "°C"))
         self.add_parameter(Parameter_float("total_water_volume", 1, "m³", min=0))
         self.add_parameter(Parameter_variable_list("input_variables", []))
@@ -73,6 +73,8 @@ class HVAC_water_system(Component):  # HVAC Water system
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
+        self.props = self._sim_.props
+        self.delta_t = delta_t
         self.file_met = self.project().parameter("simulation_file_met").component
         # Parameters
         self.generator = self.parameter("water_thermal_generator").component
@@ -97,21 +99,22 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.T_WGI_pre = self.variable("T_WGI").values[time_index-1]
             self.T_WCI_pre = self.variable("T_WCI").values[time_index-1]
             self.T_WCO_pre = self.variable("T_WCO").values[time_index-1]
+        self.T_wavg = self.T_wavg_pre   
         self.T_WCI = self.T_WCI_pre # For coils inlet temperature, we consider the previous iteration value, as the coils are before the pump and generator in the water circuit
         # Water mass flow
-        self.water_flow = self.parameter("design_water_flow").value
+        self.water_flow = self.parameter("design_water_flow").value/1000  # Convert from dm³/s to m³/s
         self.variable("water_flow").values[time_index] = self.water_flow
 
         # variables dictonary
         self.var_dic = self.get_parameter_variable_dictionary(time_index)
-        self.var_dic["T_wavg"] = self.T_wavg_pre
+        self.var_dic["T_wavg"] = self.T_wavg
         self.Q_loss = self.parameter("Q_loss_expression").evaluate(self.var_dic)
 
         # setpoints
         self.T_heat_sp = self.parameter("heating_water_setpoint").evaluate(self.var_dic)
         self.variable("heating_water_setpoint").values[time_index] = self.T_heat_sp
         self.T_cool_sp = self.parameter("cooling_water_setpoint").evaluate(self.var_dic)
-        self.variable("cooling_setpoint").values[time_index] = self.T_cool_sp
+        self.variable("cooling_water_setpoint").values[time_index] = self.T_cool_sp
 
         # on/off
         self.on_off = self.parameter("system_on_off").evaluate(self.var_dic)
@@ -135,8 +138,6 @@ class HVAC_water_system(Component):  # HVAC Water system
     def add_coil_load(self, Q_coil):
         self.Q_coils += Q_coil
 
-### Por aquí ...
-
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
         if self.on_off: 
@@ -149,7 +150,8 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.var_dic["T_wavg"] = self.T_wavg
             self.Q_loss = self.parameter("Q_loss_expression").evaluate(self.var_dic)
 
-            # If Q_gen_iter == Q_gen, then we have convergence in the generator, if not, we need to iterate again
+            # Por aquí
+            # Meterlo en un proceso de convergencia
             if (self.Q_gen_iter == self.Q_gen):
                 return True
             else:   
@@ -172,11 +174,27 @@ class HVAC_water_system(Component):  # HVAC Water system
                 return False
 
     def _calculate_Q_required(self):
-        delta_U = self.parameter("total_water_volume").value * self.props["RHOCP_W"](self.T_wavg) * (self.T_wavg - self.T_wavg_pre)/self.delta_t
-        self.Q_gen_required = self.Q_coils + self.Q_loss - self.Q_pump + delta_U
-        
+        if self.Q_coils > 0:
+            self.state = 1
+        elif self.Q_coils < 0:
+            self.state = -1
+        else:
+            self.state = 2
+        Q = -self.Q_coils - self.Q_loss + self.Q_pump
+        T_FF = Q/(self.parameter("total_water_volume").value * self.props["RHOCP_W"](self.T_wavg))+self.T_WGO_pre
+        if self.state == 1 and T_FF < self.T_heat_sp: # Heating
+            delta_U = self.parameter("total_water_volume").value * self.props["RHOCP_W"](self.T_wavg) * (self.T_wavg - self.T_wavg_pre)/self.delta_t
+            self.Q_gen_required =  -Q + delta_U
+        elif self.state == -1 and T_FF > self.T_cool_sp: # Cooling
+            delta_U = self.parameter("total_water_volume").value * self.props["RHOCP_W"](self.T_wavg) * (self.T_wavg - self.T_wavg_pre)/self.delta_t
+            self.Q_gen_required =  -Q + delta_U
+        else:
+            self.Q_gen_required = 0
+            self.T_WGO = T_FF
+            self.Q_gen = 0
+                
     def _get_Q_gen(self):
-        if self.Q_gen_required >= 0: # Heating
+        if self.Q_gen_required > 0: # Heating
             self.state = 1
             self.T_WGO = self.T_heat_sp
             self.Q_gen, self.f_load = self.generator.get_heating_load(self.T_WGO, self.T_OA, self.T_OAwb, self.water_flow, self.Q_gen_required)
@@ -187,7 +205,7 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.Q_gen = -self.Q_gen
     
     def _check_Q_gen(self):
-        if self.Q_gen_required >= 0: # Heating
+        if self.Q_gen_required > 0: # Heating
             if self.Q_gen < self.Q_gen_required:
                 delta_T = (self.Q_gen+self.Q_pump-self.Q_coils-self.Q_loss)*self.delta_t/(self.parameter("total_water_volume").value * self.props["RHOCP_W"](self.T_wavg))
                 self.T_WGO = self.T_WGO_pre + delta_T
@@ -201,8 +219,6 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.T_WCO = self.T_WCI - (self.Q_coils)/mrho_cp
         self.T_WGI = self.T_WCO - (self.Q_loss/2)/mrho_cp
         self.T_wavg = (self.T_WGI + self.T_WGO+self.T_WCI+self.T_WCO)/4
-
-
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
@@ -221,6 +237,10 @@ class HVAC_water_system(Component):  # HVAC Water system
                 power, eff = self.generator.get_heating_power(self.T_WGO, self.T_OA, self.T_OAwb, self.water_flow, self.Q_gen_required)
             elif self.state == -1:  
                 power, eff = self.generator.get_cooling_power(self.T_WGO, self.T_OA, self.T_OAwb, self.water_flow, self.Q_gen_required)
+            elif self.state == 2:
+                power = 0
+                eff = 0
+                self.f_load = 0
             self.variable("generator_power").values[time_index] = power
             self.variable("generator_efficiency").values[time_index] = eff
             self.variable("generator_part_load").values[time_index] = self.f_load

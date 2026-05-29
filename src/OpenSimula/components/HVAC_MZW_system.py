@@ -702,11 +702,11 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 self.variable("T_ADP").values[time_index] = 0
                 self.variable("epsilon").values[time_index] = self.epsilon
             elif self.state == -1 or self.state == -2:  # Cooling
-                Q_s = -self.Q_coil
+                Q_s = self.Q_coil
                 Q_l = -self.M_w * self.props["LAMBDA"]
                 self.variable("Q_sensible").values[time_index] = Q_s
                 self.variable("Q_latent").values[time_index] = Q_l
-                self.variable("Q_total").values[time_index] = Q_s
+                self.variable("Q_total").values[time_index] = -Q_s + Q_l
                 self.variable("T_iw").values[time_index] = self.cooling_water_temp
                 self.variable("T_ow").values[time_index] = self.cooling_water_temp + (
                     Q_s + Q_l

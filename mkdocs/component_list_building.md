@@ -88,7 +88,7 @@ Component used to define each of the building's spaces. The spaces of a building
 - **volume** [_float_, unit = "m³", default = 1, min = 0]: Volume of the space.
 - **furniture_weight** [_float_, unit = "kg/m²", default = 10, min = 0]: Weight of the furniture in the space. Used to increase the thermal inertia of the space which will be added to that of the air (for the furniture a specific heat of 1000 J/kg·K will be used).
 - **convergence_DT** [_float_, unit = "°C", default = 0.01, min = 0]: Convergence temperature difference. In the iterative process, convergence will be considered to have occurred when the temperature difference between two successive iterations is less than this value.
-- **convergence_Dw** [_float_, unit = "g/kg", default = 0.01, min = 0]: Convergence hunidity difference. In the iterative process, convergence will be considered to have occurred when the absolute humidity difference between two successive iterations is less than this value.
+- **convergence_Dw** [_float_, unit = "g/kg", default = 0.1, min = 0]: Convergence hunidity difference. In the iterative process, convergence will be considered to have occurred when the absolute humidity difference between two successive iterations is less than this value.
 
 **Example:**
 <pre><code class="python">

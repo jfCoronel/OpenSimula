@@ -371,7 +371,37 @@ fancoil_dict = {
             "cooling_setpoint": "25",
             "input_variables":["f = HVAC_schedule.values"],
             "system_on_off": "1",
-            "water_flow_control": "PROPORTIONAL"
+            "water_flow_control": "ON_OFF",
+            "water_source": "WATER_SYSTEM",
+            "cooling_water_system": "water_system",
+            "heating_water_system": "water_system"
+        },
+        {
+            "type":"Pump",
+            "name":"pump",
+            "nominal_water_flow": 0.4137,
+            "nominal_pressure": 100000,
+            "nominal_power": 70,
+        },
+        {
+            "type":"Chiller_heat_pump",
+            "name":"heat_pump",
+            "chiller_type":"CHILLER_HEAT_PUMP",
+            "nominal_cooling_capacity": 8500,
+            "nominal_cooling_power": 3400,
+            "nominal_heating_capacity": 9000,
+            "nominal_heating_power": 3600,
+            "nominal_water_flow": 0.4137
+        },
+        {
+            "type":"HVAC_water_system",
+            "name":"water_system",
+            "water_thermal_generator": "heat_pump",
+            "pump": "pump",
+            "design_water_flow": 0.4137,
+            "heating_water_setpoint": "50",
+            "cooling_water_setpoint": "7",
+            "total_water_volume": 0.001,
         }
     ]
 }

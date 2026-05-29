@@ -464,7 +464,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
             if self.state == 1 or self.state == 2:  # Heating
                 self.parameter("heating_water_system").component.add_coil_load(self.Q_coil)
             elif self.state == -1 or self.state == -2:  # Cooling
-                self.parameter("cooling_water_system").component.add_coil_load(-self.Q_coil)
+                self.parameter("cooling_water_system").component.add_coil_load(self.Q_coil)
 
     def _update_supply_mass_flow(self):
         # Fan inlet
@@ -525,11 +525,11 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 self.variable("T_ADP").values[time_index] = 0
                 self.variable("epsilon").values[time_index] = self.epsilon
             elif self.state == -1 or self.state == -2:  # Cooling
-                Q_s = -self.Q_coil
+                Q_s = self.Q_coil
                 Q_l = -self.M_w * self.props["LAMBDA"]
                 self.variable("Q_sensible").values[time_index] = Q_s
                 self.variable("Q_latent").values[time_index] = Q_l
-                self.variable("Q_total").values[time_index] = Q_s
+                self.variable("Q_total").values[time_index] = -Q_s + Q_l
                 self.variable("T_iw").values[time_index] = self.cooling_water_temp
                 self.variable("T_ow").values[time_index] = self.cooling_water_temp + (
                     Q_s + Q_l
