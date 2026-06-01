@@ -359,7 +359,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                self.M_w = 0
                self.w_CA = self.w_MA
                return
-            heating_Tw = self.parameter("heating_water_system").component.get_coil_inlet_T()
+            heating_Tw = self.parameter("heating_water_system").component.get_heating_coil_inlet_T()
         capacity, self.epsilon = self.h_coil.get_heating_capacity(
             self.T_MA,
             self.T_MAwb,
@@ -401,7 +401,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                self.M_w = 0
                self.w_CA = self.w_MA
                return
-            cooling_Tw = self.parameter("cooling_water_system").component.get_coil_inlet_T()
+            cooling_Tw = self.parameter("cooling_water_system").component.get_cooling_coil_inlet_T()
         capacity_sen, capacity_lat, self.T_ADP, self.epsilon, self.epsilon_adp = (
             self.c_coil.get_cooling_capacity(
                 self.T_MA,

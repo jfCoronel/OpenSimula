@@ -401,7 +401,7 @@ fancoil_dict = {
             "design_water_flow": 0.4137,
             "heating_water_setpoint": "50",
             "cooling_water_setpoint": "7",
-            "total_water_volume": 0.001,
+            "total_water_volume": 0.1,
         }
     ]
 }
