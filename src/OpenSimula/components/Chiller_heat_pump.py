@@ -47,6 +47,8 @@ class Chiller_heat_pump(Component):
         if self.parameter("chiller_type").value == "CHILLER":
              return (0, 0)
         else:
+            if Q_required == 0:
+                return (0,0)
             # variables dictonary
             var_dic = self._var_state_dic([T_wo, T_ci,T_wbci,F_water,1]) #Full load
             # Capacity
@@ -65,6 +67,8 @@ class Chiller_heat_pump(Component):
         if self.parameter("chiller_type").value == "CHILLER":
             return (0,0)
         else:
+            if Q_required == 0:
+                return (0,0)
             Q, F_load = self.get_heating_load(T_wo, T_ci,T_wbci,water_flow,Q_required)
             # variables dictonary
             F_water = water_flow/self.parameter("nominal_water_flow").value
@@ -91,6 +95,8 @@ class Chiller_heat_pump(Component):
         if self.parameter("chiller_type").value == "HEAT_PUMP":
             return (0,0)
         else:
+            if Q_required == 0:
+                return (0,0)
             nom_capacity = self.parameter("nominal_cooling_capacity").value
             # variables dictonary
             var_dic = self._var_state_dic([T_wo,T_ci,T_wbci,F_water,1]) #Full load
@@ -108,6 +114,8 @@ class Chiller_heat_pump(Component):
         if self.parameter("chiller_type").value == "HEAT_PUMP":
             return (0,0)
         else:
+            if Q_required == 0:
+                return (0,0)
             Q, F_load = self.get_cooling_load(T_wo, T_ci,T_wbci,water_flow,Q_required)
             # variables dictonary
             F_water = water_flow/self.parameter("nominal_water_flow").value

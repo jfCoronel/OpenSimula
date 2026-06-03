@@ -361,19 +361,19 @@ fancoil_dict = {
             "name": "system",
             "space": "spaces_1",
             "heating_coil": "coil",
-            #"cooling_coil": "coil",
+            "cooling_coil": "coil",
             "supply_fan": "supply_fan",
             "air_flow": 0.4167,
             "outdoor_air_fraction": 0.15,
-            #"cooling_water_flow": 0.4137,
+            "cooling_water_flow": 0.4137,
             "heating_water_flow": 0.155,
             "heating_setpoint": "20",
-            #"cooling_setpoint": "25",
+            "cooling_setpoint": "25",
             "input_variables":["f = HVAC_schedule.values"],
             "system_on_off": "1",
             "water_flow_control": "ON_OFF",
             "water_source": "WATER_SYSTEM",
-            #"cooling_water_system": "water_system",
+            "cooling_water_system": "water_system",
             "heating_water_system": "water_system"
         },
         {
@@ -402,6 +402,9 @@ fancoil_dict = {
             "heating_water_setpoint": "50",
             "cooling_water_setpoint": "7",
             "total_water_volume": 0.1,
+            "pump_operation": "ON_COIL_LOAD",
+            "system_mode": "SCHEDULE_CONTROL",
+            "cooling_mode":"1"
         }
     ]
 }
