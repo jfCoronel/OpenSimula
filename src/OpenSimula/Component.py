@@ -38,7 +38,7 @@ class Component(Parameter_container):
 
         Args:
             units (bool, optional): Includes unit in the name of the variable. Defaults to True.
-            frequency (None or str, optional): frequency of the values: None, "H" Hour, "D" Day, "M" Month, "Y" Year . Defaults to None.
+            frequency (None or str, optional): frequency of the values: None, "hourly", "daily", "monthly", "yearly". Defaults to None.
             value (str, optional): "mean", "sum", "sum_pos", "sum_neg", "max" or "min". Defaults to "mean".
             interval (None or list of two dates): List with the start and end dates of the period to be included in the dataframe, if the value is None all values are included.
             pos_neg_columns (list of str, optional): List of variables that will be included in separate columns positive and negative values. Defaults to [].
@@ -62,14 +62,19 @@ class Component(Parameter_container):
                 data[col + "_pos"] = data[col].apply(lambda x: x if x > 0 else 0)
                 data[col + "_neg"] = data[col].apply(lambda x: x if x < 0 else 0)
         if frequency is not None:
+            freq={"hourly": "h", "daily": "D", "monthly": "ME", "yearly": "YE"}
             if value == "mean":
-                data = data.resample(frequency, on='date').mean()
+                data = data.resample(freq[frequency], on='date').mean()
             elif value == "sum":
-                data = data.resample(frequency, on='date').sum()
+                data = data.resample(freq[frequency], on='date').sum()
+            elif value == "sum_pos":
+                data = data.resample(freq[frequency], on='date').apply(lambda x: x.clip(lower=0).sum())
+            elif value == "sum_neg":
+                data = data.resample(freq[frequency], on='date').apply(lambda x: x.clip(upper=0).sum())
             elif value == "max":
-                data = data.resample(frequency, on='date').max()
+                data = data.resample(freq[frequency], on='date').max()
             elif value == "min":
-                data = data.resample(frequency, on='date').min()
+                data = data.resample(freq[frequency], on='date').min()
         if interval is not None:
             data = data[(data['date'] > interval[0]) &
                         (data['date'] < interval[1])]

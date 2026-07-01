@@ -96,18 +96,17 @@ class Simulation:
         """Return the list of messages"""
         return self._messages_
 
-    def plot(self, dates, variables, names=[], axis=[], frequency=None, value="mean"):
+    def plot(self, dates, variables, names=[], axis=[], frequency=None, value="mean",interval=None):
         """_summary_
         Draw variables graph (using plotly)
 
         Args:
             variables: List of hourly variables
             axis: list of axis y 1 or 2 to use for each variable, empty all in first axis
-            frequency (None or str, optional): frequency of the values: None, "H" Hour, "D" Day, "M" Month, "Y" Year . Defaults to None.
-            value (str, optional): "mean", "sum", "max" or "min". Defaults to "mean".
-
+            frequency (None or str, optional): frequency of the values: None, "hourly", "daily", "monthly", "yearly". Defaults to None.
+            value (str, optional): "mean", "sum", "sum_pos", "sum_neg", "max" or "min". Defaults to "mean".
+            interval (None or list of two dates): List with the start and end dates of the period to be included in the dataframe, if the value is None all values are included.
         """
-
         series = {}
         series["date"] = dates
         for i in range(len(variables)):
@@ -121,15 +120,24 @@ class Simulation:
                     series[variables[i].key] = variables[i].values
         data = pd.DataFrame(series)
         if frequency is not None:
+            freq={"hourly": "h", "daily": "D", "monthly": "ME", "yearly": "YE"}
             if value == "mean":
-                data = data.resample(frequency, on='date').mean()
+                data = data.resample(freq[frequency], on='date').mean()
             elif value == "sum":
-                data = data.resample(frequency, on='date').sum()
+                data = data.resample(freq[frequency], on='date').sum()
+            elif value == "sum_pos":
+                data = data.resample(freq[frequency], on='date').apply(lambda x: x.clip(lower=0).sum())
+            elif value == "sum_neg":
+                data = data.resample(freq[frequency], on='date').apply(lambda x: x.clip(upper=0).sum())
             elif value == "max":
-                data = data.resample(frequency, on='date').max()
+                data = data.resample(freq[frequency], on='date').max()
             elif value == "min":
-                data = data.resample(frequency, on='date').min()
+                data = data.resample(freq[frequency], on='date').min()
             data["date"] = data.index
+        if interval is not None:
+            data = data[(data['date'] > interval[0]) &
+                        (data['date'] < interval[1])]
+
 
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
 
