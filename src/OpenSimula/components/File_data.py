@@ -40,8 +40,9 @@ class File_data(Component):
                 self._df_ = pd.read_excel(self.parameter("file_name").value)
             # Create Variable
             for col in self._df_.columns:
-                self.add_variable(Variable(self._extract_name_(
-                    col), unit=self._extract_unit_(col)))
+                if self._is_numeric_(col):
+                    self.add_variable(Variable(self._extract_name_(
+                        col), unit=self._extract_unit_(col)))
 
         except Exception as ex:
             if type(ex).__name__ == "FileNotFoundError":
@@ -55,7 +56,7 @@ class File_data(Component):
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
 
-        self.data_array = self._df_.to_numpy()
+        self.data_array = self._df_.select_dtypes(include=np.number).to_numpy()
 
         if self.parameter("file_step").value == "SIMULATION":
             i = 0
@@ -100,6 +101,9 @@ class File_data(Component):
             return ""
         else:
             return name[name.rfind("[") + 1: name.rfind("]")].strip()
+    
+    def _is_numeric_(self, name):
+        return pd.api.types.is_numeric_dtype(self._df_[name])
 
     def _get_interpolation_tuple_(self, date):
         seconds = (date-self._initial_date_).total_seconds()
