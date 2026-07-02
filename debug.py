@@ -36,9 +36,16 @@ dict = {
         },
         {
             "type": "Day_schedule",
-            "name": "on_day",
+            "name": "heating_day",
             "time_steps": [],
             "values": [1],
+            "interpolation": "STEP",
+        },
+        {
+            "type": "Day_schedule",
+            "name": "cooling_day",
+            "time_steps": [],
+            "values": [-1],
             "interpolation": "STEP",
         },
         {
@@ -57,22 +64,29 @@ dict = {
         },
         {
             "type": "Week_schedule",
-            "name": "on_week",
+            "name": "heating_week",
             "days_schedules": [
-                "on_day"
+                "heating_day"
+            ],
+        },
+        {
+            "type": "Week_schedule",
+            "name": "cooling_week",
+            "days_schedules": [
+                "heating_day"
             ],
         },
         {
             "type": "Year_schedule",
-            "name": "HVAC_schedule",
+            "name": "on_schedule",
             "periods": [],
             "weeks_schedules": ["working_week"],
         },
         {
             "type": "Year_schedule",
-            "name": "winter_schedule",
+            "name": "mode_schedule",
             "periods": ["31/3","30/9"],
-            "weeks_schedules": ["on_week", "off_week", "on_week"],
+            "weeks_schedules": ["heating_week", "cooling_week", "heating_week"],
         },
         {
             "type":"Pump",
@@ -100,13 +114,12 @@ dict = {
             "heating_water_setpoint": "50",
             "cooling_water_setpoint": "7",
             "total_water_volume": 0.1,
+            "system_on_off":"g",
             "pump_operation": "ON_LOAD",
-            "system_mode": "LOAD_CONTROL",
-            "input_variables":["Q = data_file.Q_total","f = winter_schedule.values","g= HVAC_schedule.values"],
-            "cooling_mode":"1",
-            "heating_mode":"1",
-            "system_on_off":"1",
-            "Q_process":"3*Q",
+            "system_control": "SCHEDULE_CONTROL",
+            "system_mode":"f",
+            "input_variables":["Q = data_file.Q_total","f = mode_schedule.values","g= on_schedule.values"],
+            "Q_process":"Q",
         }
     ]
 }
