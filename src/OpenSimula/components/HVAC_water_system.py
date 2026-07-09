@@ -132,7 +132,7 @@ class HVAC_water_system(Component):  # HVAC Water system
 
         # on/off
         self.on_off = self.parameter("system_on_off").evaluate(self.var_dic)
-        self.variable("on_off").values[time_index] = self.T_cool_sp
+        self.variable("on_off").values[time_index] = self.on_off
 
         # Q_coils load
         self.Q_coils = 0
@@ -157,7 +157,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         else:
             return self.T_WCI
 
-    def add_coil_load(self, Q_coil): # Positive for heating, negative for cooling
+    def add_coil_load(self, Q_coil): # Positive when heating the water, negative when cooling the water
         self.Q_coils += Q_coil
     
     def _update_water_props(self):
@@ -172,13 +172,13 @@ class HVAC_water_system(Component):  # HVAC Water system
         self._simulate_pump()
         if self.on_off == 0 or (self.pump is not None and self.Q_pump == 0): # System off or pump defined stop
             self.water_flow = 0
-            self.T_WGO = self.T_WGO_pre + - self.Q_loss*self.delta_t/self.V_rho_cp
+            self.T_WGO = self.T_WGO_pre + self.Q_loss*self.delta_t/self.V_rho_cp
             self.Q_gen = 0
         else:
             self.water_flow = self.parameter("design_water_flow").value/1000  # Convert from dm³/s to m³/s
             if self.mode == 0: # standby
-                Q = self.Q_coils + self.Q_process + self.Q_loss - self.Q_pump
-                self.T_WGO = self.T_WGO_pre + - Q*self.delta_t/self.V_rho_cp
+                Q = self.Q_coils + self.Q_process + self.Q_loss + self.Q_pump
+                self.T_WGO = self.T_WGO_pre + Q*self.delta_t/self.V_rho_cp
                 self.Q_gen = 0
             else: # Heating or cooling
                 self._simulate_generator()            
@@ -191,9 +191,9 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.T_WCI = self.T_WCI_pre + deltaT
             self.T_WCO = self.T_WCO_pre + deltaT
         else:          
-            self.T_WCI = self.T_WGO - (self.Q_loss/2)/self.m_rho_cp
-            self.T_WCO = self.T_WCI - (self.Q_coils + self.Q_process)/self.m_rho_cp
-            self.T_WGI = self.T_WCO - (self.Q_loss/2-self.Q_pump)/self.m_rho_cp            
+            self.T_WCI = self.T_WGO + (self.Q_loss/2)/self.m_rho_cp
+            self.T_WCO = self.T_WCI + (self.Q_coils + self.Q_process)/self.m_rho_cp
+            self.T_WGI = self.T_WCO + (self.Q_loss/2+self.Q_pump)/self.m_rho_cp            
         
         # Update Q_loss
         self._update_water_props()
@@ -207,22 +207,22 @@ class HVAC_water_system(Component):  # HVAC Water system
     def _check_mode(self):
         if self.on_off:
             if self.parameter("system_control").value == "LOAD_CONTROL":
-                if self.Q_coils + self.Q_process > 0:
+                if self.Q_coils + self.Q_process < 0:
                     self.mode = 1 
-                elif self.Q_coils + self.Q_process < 0:
+                elif self.Q_coils + self.Q_process > 0:
                     self.mode = -1
                 else:
                     self.mode = 0
             elif self.parameter("system_control").value == "SCHEDULE_CONTROL":
                 if self.mode == 1: # Heating
-                    if self.Q_process < 0: # Not allowed in heating mode, set Q_process = 0
+                    if self.Q_process > 0: # Not allowed in heating mode, set Q_process = 0
                         self.Q_process = 0
-                    if self.Q_coils < 0: # Not allowed in heating mode, set Q_coils = 0
+                    if self.Q_coils > 0: # Not allowed in heating mode, set Q_coils = 0
                         self.Q_coils = 0
                 elif self.mode == -1: # Cooling
-                    if self.Q_process > 0: # Not allowed in cooling mode, set Q_process = 0
+                    if self.Q_process < 0: # Not allowed in cooling mode, set Q_process = 0
                         self.Q_process = 0
-                    if self.Q_coils > 0: # Not allowed in cooling mode, set Q_coils = 0
+                    if self.Q_coils < 0: # Not allowed in cooling mode, set Q_coils = 0
                         self.Q_coils = 0
 
     def _simulate_pump(self):
@@ -239,8 +239,8 @@ class HVAC_water_system(Component):  # HVAC Water system
 
 
     def _simulate_generator(self): # Heating or cooling mode
-        Q = self.Q_coils + self.Q_process + self.Q_loss - self.Q_pump
-        T_WGO_FF =-Q*self.delta_t/(self.V_rho_cp)+self.T_WGO_pre
+        Q = self.Q_coils + self.Q_process + self.Q_loss + self.Q_pump
+        T_WGO_FF = Q*self.delta_t/(self.V_rho_cp)+self.T_WGO_pre
 
         if self.mode == 1: # Heating
             if T_WGO_FF > self.T_heat_sp: # no Q required, generator off
@@ -248,27 +248,27 @@ class HVAC_water_system(Component):  # HVAC Water system
                 self.T_WGO = T_WGO_FF
             else: # Q required, generator on
                 self.T_WGO = self.T_heat_sp
-                Q_required = Q +self.V_rho_cp * (self.T_WGO - self.T_WGO_pre)/self.delta_t
+                Q_required = -Q + self.V_rho_cp * (self.T_WGO - self.T_WGO_pre)/self.delta_t
                 self.Q_gen, self.f_load = self.generator.get_heating_load(self.T_WGO, self.T_OA, self.T_OAwb, self.water_flow, Q_required)
                 if self.f_load == 1 or self.f_load == 0: # Not enough heating power, update T_WGO with the actual Q_gen
                     delta_T = (self.Q_gen+self.Q_pump-self.Q_coils-self.Q_process-self.Q_loss)*self.delta_t/self.V_rho_cp
                     self.T_WGO = self.T_WGO_pre + delta_T
                     if self.Q_process != 0: # Reduce Q_process
-                        self.Q_process = self.Q_gen+self.Q_pump-self.Q_coils-self.Q_loss
+                        self.Q_process = -self.Q_gen-self.Q_pump-self.Q_coils-self.Q_loss
         elif self.mode == -1: #Cooling
             if T_WGO_FF < self.T_cool_sp: # no Q required, generator off
                 self.Q_gen = 0
                 self.T_WGO = T_WGO_FF
             else: # Q required, generator on
                 self.T_WGO = self.T_cool_sp
-                Q_required = Q +self.V_rho_cp * (self.T_WGO - self.T_WGO_pre)/self.delta_t
+                Q_required = -Q + self.V_rho_cp * (self.T_WGO - self.T_WGO_pre)/self.delta_t
                 self.Q_gen, self.f_load = self.generator.get_cooling_load(self.T_WGO, self.T_OA, self.T_OAwb, self.water_flow, -Q_required)
                 self.Q_gen = -self.Q_gen
                 if self.f_load == 1 or self.f_load == 0: # Not enough cooling power, update T_WGO with the actual Q_gen
                     delta_T = (self.Q_gen+self.Q_pump-self.Q_coils-self.Q_process-self.Q_loss)*self.delta_t/self.V_rho_cp
                     self.T_WGO = self.T_WGO_pre + delta_T
                     if self.Q_process != 0: # Q_process not meeting the load
-                        self.Q_process = self.Q_gen+self.Q_pump-self.Q_coils-self.Q_loss
+                        self.Q_process = -self.Q_gen-self.Q_pump-self.Q_coils-self.Q_loss
 
     def limit_water_temperature(self, T):
         if T > self.max_water_temp:
@@ -305,7 +305,7 @@ class HVAC_water_system(Component):  # HVAC Water system
             if self.mode == 1:
                 power, eff = self.generator.get_heating_power(self.T_WGO, self.T_OA, self.T_OAwb, self.water_flow, self.Q_gen)
             elif self.mode == -1:  
-                power, eff = self.generator.get_cooling_power(self.T_WGO, self.T_OA, self.T_OAwb, self.water_flow, self.Q_gen)
+                power, eff = self.generator.get_cooling_power(self.T_WGO, self.T_OA, self.T_OAwb, self.water_flow, -self.Q_gen)
             elif self.mode == 0:
                 power = 0
                 eff = 0
