@@ -6,7 +6,7 @@ class Pump(Component):
         Component.__init__(self, name, project)
         self.parameter("type").value = "Pump"
         self.parameter("description").value = "Pump equipment manufacturer information"
-        self.add_parameter(Parameter_float("nominal_water_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("nominal_water_flow", 1, "dm³/s", min=0))
         self.add_parameter(Parameter_float("nominal_pressure", 1, "Pa", min=0))
         self.add_parameter(Parameter_float("nominal_power", 1, "W", min=0))
         self.add_parameter(Parameter_float("power_to_heat_fraction", 1, "frac", min=0, max=1))

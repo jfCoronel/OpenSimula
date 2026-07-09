@@ -9,18 +9,22 @@ class Chiller_heat_pump(Component):
         self.parameter("description").value = "Chiller equipment manufacturer information"
         self.add_parameter(Parameter_options("chiller_type", "CHILLER", ["CHILLER", "HEAT_PUMP", "CHILLER_HEAT_PUMP"]))
         self.add_parameter(Parameter_options("condensation_type", "AIR_CONDENSED", ["AIR_CONDENSED", "WATER_CONDENSED"]))
-        self.add_parameter(Parameter_float("nominal_water_flow", 1, "m³/s", min=0))
+        self.add_parameter(Parameter_float("nominal_water_flow", 1, "dm³/s", min=0))
         self.add_parameter(Parameter_float("nominal_cooling_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_cooling_power", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_cooling_conditions", [35, 12, 7], "ºC"))
-        self.add_parameter(Parameter_math_exp("cooling_capacity_expression", "1", "frac"))
-        self.add_parameter(Parameter_math_exp("cooling_power_expression", "1", "frac"))
+        default_cooling_capacity_expression = "1.1239+0.0316*T_wo-0.00986*T_ci"       
+        self.add_parameter(Parameter_math_exp("cooling_capacity_expression", default_cooling_capacity_expression, "frac"))
+        default_cooling_power_expression = "(0.7336-0.00923*T_wo+0.00945*T_ci)*(0.0878+1.138*F_load-0.2258*F_load**2)"       
+        self.add_parameter(Parameter_math_exp("cooling_power_expression", default_cooling_power_expression, "frac"))
         self.add_parameter(Parameter_math_exp("EER_expression", "1", "frac"))
         self.add_parameter(Parameter_float("nominal_heating_capacity", 0, "W", min=0))
         self.add_parameter(Parameter_float("nominal_heating_power", 0, "W", min=0))
         self.add_parameter(Parameter_float_list("nominal_heating_conditions", [7, 6, 40, 45], "ºC"))
-        self.add_parameter(Parameter_math_exp("heating_capacity_expression", "1", "frac"))
-        self.add_parameter(Parameter_math_exp("heating_power_expression", "1", "frac"))
+        default_heating_capacity_expression = "1.012+0.028*T_wbci-0.004*T_wo"       
+        self.add_parameter(Parameter_math_exp("heating_capacity_expression", default_heating_capacity_expression, "frac"))
+        default_heating_power_expression = "(0.505-0.0375*T_wbci+0.016*T_wo)*(0.0878+1.138*F_load-0.2258*F_load**2)"       
+        self.add_parameter(Parameter_math_exp("heating_power_expression", default_heating_power_expression, "frac"))
         self.add_parameter(Parameter_math_exp("COP_expression", "1", "frac"))
         self.add_parameter(Parameter_float_list("expression_max_values", [80,50,50,1.5,1], "-")) # T_wo, T_ci, T_wbci, F_water, F_load
         self.add_parameter(Parameter_float_list("expression_min_values", [0,-30,-30,0,0], "-")) # T_wo, T_ci, T_wbci, F_water, F_load

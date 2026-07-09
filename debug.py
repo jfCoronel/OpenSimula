@@ -11,19 +11,19 @@ dict = {
             "type": "File_met",
             "name": "Sevilla",
             "file_type": "MET",
-            "file_name": "mets/sevilla.met"
+            "file_name": "./mets/sevilla.met"
         },
         {
             "type": "File_data",
-            "name": "data_file",
+            "name": "process_load",
             "file_type": "CSV",
-            "file_name": "jupyter/debug/ASHRAE_140_CASE_610.csv",
+            "file_name": "./jupyter_test/process_load.csv",
             "file_step": "SIMULATION"
         },
         {
             "type": "Day_schedule",
             "name": "working_day",
-            "time_steps": [28800, 43200],
+            "time_steps": [8*3600, 9*3600],
             "values": [0, 1, 0],
             "interpolation": "STEP",
         },
@@ -73,7 +73,7 @@ dict = {
             "type": "Week_schedule",
             "name": "cooling_week",
             "days_schedules": [
-                "heating_day"
+                "cooling_day"
             ],
         },
         {
@@ -85,7 +85,7 @@ dict = {
         {
             "type": "Year_schedule",
             "name": "mode_schedule",
-            "periods": ["31/3","30/9"],
+            "periods": ["01/03","01/11"],
             "weeks_schedules": ["heating_week", "cooling_week", "heating_week"],
         },
         {
@@ -118,12 +118,11 @@ dict = {
             "pump_operation": "ON_LOAD",
             "system_control": "SCHEDULE_CONTROL",
             "system_mode":"f",
-            "input_variables":["Q = data_file.Q_total","f = mode_schedule.values","g= on_schedule.values"],
-            "Q_process":"Q",
+            "input_variables":["Q = process_load.Q","f = mode_schedule.values","g= on_schedule.values"],
+            "Q_process":"2.5*Q",
         }
     ]
 }
-
 sim = osm.Simulation()
 
 pro = sim.new_project("pro")
