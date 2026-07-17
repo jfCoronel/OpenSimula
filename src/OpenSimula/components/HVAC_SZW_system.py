@@ -502,11 +502,11 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         if self.parameter("water_source").value == "WATER_SYSTEM":  # from water system
             if self.state == 1 or self.state == 2:  # Heating
                 self.parameter("heating_water_system").component.add_coil_load(
-                    self.Q_coil
+                    -self.Q_coil
                 )
             elif self.state == -1 or self.state == -2:  # Cooling
                 self.parameter("cooling_water_system").component.add_coil_load(
-                    self.Q_coil
+                    -self.Q_coil
                 )
 
     def _update_supply_mass_flow(self):

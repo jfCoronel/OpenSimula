@@ -116,14 +116,9 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.T_WCO = self.T_WCO_pre
         self.T_WGI = self.T_WGI_pre
         self.T_WGO = self.T_WGO_pre
-        self._update_water_props()
 
         # variables dictonary
         self.var_dic = self.get_parameter_variable_dictionary(time_index)
-        self.var_dic["T_w"] = self.T_avg
-        self.var_dic["m_w"] = self.water_flow
-        self.Q_loss = self.parameter("Q_loss").evaluate(self.var_dic)
-        self.Q_process = self.parameter("Q_process").evaluate(self.var_dic)
 
         # setpoints
         self.T_heat_sp = self.parameter("heating_water_setpoint").evaluate(self.var_dic)
@@ -165,6 +160,13 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.T_avg = (self.T_WGO + self.T_WGI + self.T_WCI + self.T_WCO) / 4
         self.m_rho_cp = self.props["RHOCP_W"](self.T_avg) * self.water_flow/1000  # Convert from dm³/s to m³/s
         self.V_rho_cp = self.parameter("total_water_volume").value * self.props["RHOCP_W"](self.T_avg)
+    
+    def _update_Q_expressions(self):
+        self.var_dic["T_w"] = self.T_avg
+        self.var_dic["m_w"] = self.water_flow
+        self.Q_loss = self.parameter("Q_loss").evaluate(self.var_dic)
+        self.Q_process = self.parameter("Q_process").evaluate(self.var_dic)
+
 
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
@@ -173,10 +175,14 @@ class HVAC_water_system(Component):  # HVAC Water system
         self._simulate_pump()
         if self.on_off == 0 or (self.pump is not None and self.Q_pump == 0): # System off or pump defined stop
             self.water_flow = 0
+            self._update_water_props()
+            self._update_Q_expressions()
             self.T_WGO = self.T_WGO_pre + self.Q_loss*self.delta_t/self.V_rho_cp
             self.Q_gen = 0
         else:
             self.water_flow = self.parameter("design_water_flow").value
+            self._update_water_props()
+            self._update_Q_expressions()
             if self.mode == 0: # standby
                 Q = self.Q_coils + self.Q_process + self.Q_loss + self.Q_pump
                 self.T_WGO = self.T_WGO_pre + Q*self.delta_t/self.V_rho_cp
@@ -195,13 +201,6 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.T_WCI = self.T_WGO + (self.Q_loss/2)/self.m_rho_cp
             self.T_WCO = self.T_WCI + (self.Q_coils + self.Q_process)/self.m_rho_cp
             self.T_WGI = self.T_WCO + (self.Q_loss/2+self.Q_pump)/self.m_rho_cp            
-        
-        # Update Q_loss
-        self._update_water_props()
-        self.var_dic["T_w"] = self.T_avg
-        self.var_dic["m_w"] = self.water_flow
-        self.Q_loss = self.parameter("Q_loss").evaluate(self.var_dic)
-        self.Q_process = self.parameter("Q_process").evaluate(self.var_dic)
 
         # Colocar de nuevo Q_coils = 0 al inicio de cada iteración.
         self.Q_coils = 0
