@@ -50,8 +50,9 @@ information generated during the simulation.
 
 This is the list of changes to opensimula between each release. For full details, see the commit logs.
 
-  __Current Version 0.7.1__
+  __Current Version 0.8.0__
 
+- 0.8.0 (July 29, 2026): New water side HVAC components: "Pump", "Chiller_heat_pump" and "HVAC_water_system", allowing "HVAC_SZW_system" and "HVAC_MZW_system" coils (including reheat) to be fed from a shared water loop.
 - 0.7.1 (April 29, 2026): Removing "triangle" package from dependencies, updating 3D jupyter integrated view with plotly.
 - 0.7.0 (April 20, 2026): Renaming DX_unit, Water_coil and Fan components, adding 3D jupyter integrated view with plotly.
 - 0.6.1 (February 17, 2026): Building_surface ground-coupled "UNDERGROUND" surfeca passed ASHHRAE 140 Section 8 Tests.

@@ -115,7 +115,7 @@ process_water_system_dict = {
             "design_water_flow": 0.4137,
             "heating_water_setpoint": "50",
             "cooling_water_setpoint": "7",
-            "total_water_volume": 0.1,
+            "total_water_volume": 100,
             "system_on_off": "g",
             "pump_operation": "ON_LOAD",
             "system_control": "SCHEDULE_CONTROL",
@@ -163,14 +163,14 @@ def test_HVAC_water_system_process_load():
     cooling_generation = yearly_df["Q_gen_neg"].values[0] / 1e6
     heating_generation = yearly_df["Q_gen_pos"].values[0] / 1e6
 
-    assert cooling_load == pytest.approx(2.246582)
-    assert heating_load == pytest.approx(-0.12052)
+    assert cooling_load == pytest.approx(2.347613)
+    assert heating_load == pytest.approx(-0.120633)
     assert pump_heat == pytest.approx(0.12026)
     assert losses == pytest.approx(0.0)
-    assert delta_U_pos == pytest.approx(0.008737086, rel=1e-5)
-    assert delta_U_neg == pytest.approx(-0.005335120, rel=1e-5)
+    assert delta_U_pos == pytest.approx(0.008737083, rel=1e-5)
+    assert delta_U_neg == pytest.approx(-0.005335112, rel=1e-5)
     assert cooling_generation == pytest.approx(-2.460499, rel=1e-5)
-    assert heating_generation == pytest.approx(0.116618007, rel=1e-5)
+    assert heating_generation == pytest.approx(0.116661008, rel=1e-5)
 
     T_WGO = system.variable("T_WGO").values
     T_WGI = system.variable("T_WGI").values
@@ -178,7 +178,7 @@ def test_HVAC_water_system_process_load():
     assert T_WGO.max() == pytest.approx(50.54919761)
     assert T_WGO.min() == pytest.approx(7.0)
     assert T_WGI.max() == pytest.approx(50.58607334)
-    assert T_WGI.min() == pytest.approx(7.040288469)
+    assert T_WGI.min() == pytest.approx(7.044322697)
 
 
 def test_HVAC_water_system_high_load():
@@ -198,13 +198,13 @@ def test_HVAC_water_system_high_load():
     heating_generation = yearly_df["Q_gen_pos"].values[0] / 1e6
 
     assert cooling_load == pytest.approx(5.8690325)
-    assert heating_load == pytest.approx(-0.3013)
+    assert heating_load == pytest.approx(-0.3015825)
     assert pump_heat == pytest.approx(0.12026)
     assert losses == pytest.approx(0.0)
-    assert delta_U_pos == pytest.approx(0.0396344596, rel=1e-5)
-    assert delta_U_neg == pytest.approx(-0.0364659297, rel=1e-5)
+    assert delta_U_pos == pytest.approx(0.0396344704, rel=1e-5)
+    assert delta_U_neg == pytest.approx(-0.0364982622, rel=1e-5)
     assert cooling_generation == pytest.approx(-5.982142760, rel=1e-5)
-    assert heating_generation == pytest.approx(0.297356468, rel=1e-5)
+    assert heating_generation == pytest.approx(0.297568968, rel=1e-5)
 
     T_WGO = system.variable("T_WGO").values
     T_WGI = system.variable("T_WGI").values
@@ -213,7 +213,7 @@ def test_HVAC_water_system_high_load():
     assert T_WGO.max() == pytest.approx(69.50618103)
     assert T_WGO.min() == pytest.approx(7.0)
     assert T_WGI.max() == pytest.approx(75.29645168)
-    assert T_WGI.min() == pytest.approx(7.040288586)
+    assert T_WGI.min() == pytest.approx(7.050376000)
 
 
 def test_HVAC_water_system_losses():
@@ -235,16 +235,16 @@ def test_HVAC_water_system_losses():
     assert cooling_load == pytest.approx(2.347613)
     assert heating_load == pytest.approx(-0.120633)
     assert pump_heat == pytest.approx(0.12026)
-    assert losses == pytest.approx(0.345808280, rel=1e-5)
-    assert delta_U_pos == pytest.approx(0.0350031147, rel=1e-5)
-    assert delta_U_neg == pytest.approx(-0.0317224968, rel=1e-5)
-    assert cooling_generation == pytest.approx(-2.922284365, rel=1e-5)
-    assert heating_generation == pytest.approx(0.228625429, rel=1e-5)
+    assert losses == pytest.approx(0.347507630, rel=1e-5)
+    assert delta_U_pos == pytest.approx(0.034996512, rel=1e-5)
+    assert delta_U_neg == pytest.approx(-0.031717101, rel=1e-5)
+    assert cooling_generation == pytest.approx(-2.920090772, rel=1e-5)
+    assert heating_generation == pytest.approx(0.228622552, rel=1e-5)
 
     T_WGO = system.variable("T_WGO").values
     T_WGI = system.variable("T_WGI").values
 
     assert T_WGO.max() == pytest.approx(50.0)
     assert T_WGO.min() == pytest.approx(7.0)
-    assert T_WGI.max() == pytest.approx(49.719955965)
-    assert T_WGI.min() == pytest.approx(7.211026683)
+    assert T_WGI.max() == pytest.approx(49.711445727)
+    assert T_WGI.min() == pytest.approx(7.215906440)

@@ -84,3 +84,71 @@ param = {
 }
 chiller.set_parameters(param)
 </code></pre>
+
+### HVAC_water_system
+
+Component for the simulation of a hydronic water loop that supplies chilled and/or hot water to one or more coils (used by the air side HVAC systems, e.g. `HVAC_SZW_system` or `HVAC_MZW_system`) from a "Chiller_heat_pump" generator, optionally moved by a "Pump".
+
+#### Parameters
+- **water_thermal_generator** [_component_, default = "not_defined", component type = Chiller_heat_pump]: Reference to the "Chiller_heat_pump" component that heats and/or cools the loop water.
+- **pump** [_component_, default = "not_defined", component type = Pump]: Reference to the "Pump" component that circulates the loop water. If not defined, the pump heat gain and power are considered zero.
+- **design_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Loop water flow used while the system is on.
+- **initial_water_temp** [_float_, unit = "°C", default = 20]: Water temperature used to initialize the loop at the first time step.
+- **total_water_volume** [_float_, unit = "dm³", default = 1000, min = 0]: Total water volume of the loop, used to calculate its thermal inertia.
+- **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
+- **heating_water_setpoint** [_math_exp_, unit = "°C", default = "45"]: Hot water outlet setpoint temperature at the generator when the system is heating. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
+- **cooling_water_setpoint** [_math_exp_, unit = "°C", default = "7"]: Chilled water outlet setpoint temperature at the generator when the system is cooling. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
+- **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
+- **pump_operation** [_option_, default = "ALLWAYS_ON", options = ["ALLWAYS_ON", "ON_LOAD"]]: If "ALLWAYS_ON" the pump runs at design flow whenever the system is on. If "ON_LOAD" the pump (and water flow) only runs when there is a heating or cooling load from the coils or the process load.
+- **system_control** [_option_, default = "LOAD_CONTROL", options = ["LOAD_CONTROL", "SCHEDULE_CONTROL"]]: If "LOAD_CONTROL" the system switches automatically between heating and cooling depending on the sign of the load requested by the coils and the process load. If "SCHEDULE_CONTROL" the operating mode is set with the "system_mode" parameter, and any load of the opposite sign is not satisfied.
+- **system_mode** [_math_exp_, unit = "-1/0/1", default = "1"]: Operating mode used only when "system_control" is "SCHEDULE_CONTROL": -1 for cooling, 0 for standby, 1 for heating. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
+- **Q_loss** [_math_exp_, unit = "W", default = "0"]: Thermal losses (or gains, if negative) of the water loop to the environment.
+- **convergence_DT** [_float_, unit = "°C", default = 0.01, min = 0.0]: Convergence tolerance for the water loop outlet temperature at the generator, used by the iterative solution process.
+- **water_limits** [_float_list_, unit = "°C", default = [1, 99], min = 0, max = 100]: Minimum and maximum water temperatures allowed in the loop, used to limit the values of the reported temperature variables.
+- **Q_process** [_math_exp_, unit = "W", default = "0"]: Additional heat load applied directly to the water loop (positive heats the water, negative cools it), independent of the coils connected to the system.
+
+**Example:**
+<pre><code class="python">
+...
+
+water_system = osm.components.HVAC_water_system("water_system", project)
+param = {
+        "water_thermal_generator": "heat_pump",
+        "pump": "pump",
+        "design_water_flow": 0.4137,
+        "heating_water_setpoint": "50",
+        "cooling_water_setpoint": "7",
+        "total_water_volume": 100,
+        "pump_operation": "ON_LOAD",
+        "system_control": "SCHEDULE_CONTROL",
+        "input_variables": ["f = mode_schedule.values", "g = on_schedule.values"],
+        "system_mode": "f",
+        "system_on_off": "g"
+}
+water_system.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component:
+
+- __on_off__ [flag]: Operation of the system: off (0), on (1).
+- __mode__ [flag]: Operating mode of the system: cooling (-1), standby (0), heating (1).
+- __T_WGO__ [°C]: Generator outlet water temperature.
+- __T_WGI__ [°C]: Generator inlet water temperature.
+- __T_WCI__ [°C]: Coils inlet water temperature.
+- __T_WCO__ [°C]: Coils outlet water temperature.
+- __T_WAVG__ [°C]: Average water loop temperature.
+- __water_flow__ [dm³/s]: Loop water flow.
+- __Q_gen__ [W]: Heat supplied (positive) or removed (negative) by the generator.
+- __Q_coils__ [W]: Heat exchanged with the coils connected to the system, positive when heating the water, negative when cooling it.
+- __Q_process__ [W]: Additional process heat load applied to the water loop.
+- __Q_loss__ [W]: Thermal losses of the water loop to the environment.
+- __Q_pump__ [W]: Heat gain to the water from the pump.
+- __delta_U__ [W]: Rate of change of the internal energy stored in the water loop.
+- __pump_power__ [W]: Electrical power consumed by the pump.
+- __generator_power__ [W]: Electrical power consumed by the generator.
+- __generator_efficiency__ [-]: Generator efficiency (EER for cooling, COP for heating).
+- __generator_part_load__ [frac]: Partial load state of the generator.
+- __heating_water_setpoint__ [°C]: Heating water setpoint temperature.
+- __cooling_water_setpoint__ [°C]: Cooling water setpoint temperature.
