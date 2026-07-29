@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../img/favicon.ico">
+
+    
+    <title>component list HVAC water systems - OpenSimula</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
+
+    
+        
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
+        
+    
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            
+              <a class="navbar-brand" href="..">OpenSimula</a>
+            
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../getting_started/">Getting started</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../user_guide/">User guide</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../component_list/">Component list</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../developer_guide/">Developer guide</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#component-list-for-water-side-hvac-system-definition">Component List for water side HVAC system definition</a></li>
+            <li class="second-level"><a href="#pump">Pump</a></li>
+                
+                <li class="third-level"><a href="#parameters">Parameters</a></li>
+            <li class="second-level"><a href="#chiller_heat_pump">Chiller_heat_pump</a></li>
+                
+                <li class="third-level"><a href="#parameters_1">Parameters</a></li>
+            <li class="second-level"><a href="#hvac_water_system">HVAC_water_system</a></li>
+                
+                <li class="third-level"><a href="#parameters_2">Parameters</a></li>
+                <li class="third-level"><a href="#variables">Variables</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h2 id="component-list-for-water-side-hvac-system-definition">Component List for water side HVAC system definition</h2>
+<h3 id="pump">Pump</h3>
+<p>Component to define pump equipment for water circuits.</p>
+<p>This equipment can be used for one or more HVAC systems.</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><strong>nominal_water_flow</strong> [<em>float</em>, unit = "dm³/s", default = 1, min = 0]: Nominal inlet water flow.</li>
+<li><strong>nominal_pressure</strong> [<em>float</em>, unit = "Pa", default = 1, min = 0]: Nominal pressure rise produced by the pump.</li>
+<li><strong>nominal_power</strong> [<em>float</em>, unit = "W", default = 1, min = 0]: Electrical power consumed by the pump at nominal conditions.</li>
+<li><strong>pressure_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the pressure rise of the pump in conditions different from the nominal ones.</li>
+<li><strong>power_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the electrical power consumed by the pump in conditions different from the nominal ones.</li>
+</ul>
+<p>All mathematical expressions can include the following independent variable.</p>
+<ul>
+<li><em>F_water</em> [frac]: Actual water flow divided by nominal water flow.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+pump = osm.components.Pump("pump", project)
+param = {
+        "nominal_water_flow": 0.002,
+        "nominal_pressure": 30000,
+        "nominal_power": 100
+}
+pump.set_parameters(param)
+</code></pre>
+
+<h3 id="chiller_heat_pump">Chiller_heat_pump</h3>
+<p>Component to define chiller and/or heat pump water equipment for cooling and/or heating.</p>
+<p>This equipment can be used for one or more HVAC systems.</p>
+<h4 id="parameters_1">Parameters</h4>
+<ul>
+<li><strong>chiller_type</strong> [<em>option</em>, default = "CHILLER", options = ["CHILLER", "HEAT_PUMP", "CHILLER_HEAT_PUMP"]]: Type of equipment. "CHILLER" provides only cooling, "HEAT_PUMP" provides only heating, "CHILLER_HEAT_PUMP" provides both cooling and heating.</li>
+<li><strong>condensation_type</strong> [<em>option</em>, default = "AIR_CONDENSED", options = ["AIR_CONDENSED", "WATER_CONDENSED"]]: Condensation type. "AIR_CONDENSED" for air-cooled equipment and "WATER_CONDENSED" for water-cooled equipment.</li>
+<li><strong>nominal_water_flow</strong> [<em>float</em>, unit = "dm³/s", default = 1, min = 0]: Nominal chilled or hot water flow.</li>
+<li><strong>nominal_cooling_capacity</strong> [<em>float</em>, unit = "W", default = 0, min = 0]: Cooling capacity at nominal cooling conditions.</li>
+<li><strong>nominal_cooling_power</strong> [<em>float</em>, unit = "W", default = 0, min = 0]: Electrical power consumed by the equipment at nominal cooling conditions.</li>
+<li><strong>nominal_cooling_conditions</strong> [<em>float-list</em>, unit = "ºC", default = [35, 12, 7]]: Nominal cooling conditions, in order: condenser inlet dry bulb temperature, chilled water inlet (return) temperature, chilled water outlet (supply) temperature.</li>
+<li><strong>cooling_capacity_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the cooling capacity of the equipment in conditions different from the nominal ones.</li>
+<li><strong>cooling_power_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the electrical power consumption at full load cooling operation in conditions different from the nominal ones. If left at the default value "1", the <code>EER_expression</code> will be used instead.</li>
+<li><strong>EER_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the EER, defined as the cooling capacity divided by the electrical power consumption, in conditions different from the nominal ones. This expression should reflect the partial load behavior of the equipment. Used only when <code>cooling_power_expression</code> is "1".</li>
+<li><strong>nominal_heating_capacity</strong> [<em>float</em>, unit = "W", default = 0, min = 0]: Heating capacity at nominal heating conditions.</li>
+<li><strong>nominal_heating_power</strong> [<em>float</em>, unit = "W", default = 0, min = 0]: Electrical power consumed by the equipment at nominal heating conditions.</li>
+<li><strong>nominal_heating_conditions</strong> [<em>float-list</em>, unit = "ºC", default = [7, 6, 40, 45]]: Nominal heating conditions, in order: source inlet dry bulb temperature, source inlet wet bulb temperature, hot water inlet (return) temperature, hot water outlet (supply) temperature.</li>
+<li><strong>heating_capacity_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the heating capacity of the equipment in conditions different from the nominal ones.</li>
+<li><strong>heating_power_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the electrical power consumption at full load heating operation in conditions different from the nominal ones. If left at the default value "1", the <code>COP_expression</code> will be used instead.</li>
+<li><strong>COP_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the COP, defined as the heating capacity divided by the electrical power consumption, in conditions different from the nominal ones. This expression should reflect the partial load behavior of the equipment. Used only when <code>heating_power_expression</code> is "1".</li>
+<li><strong>expression_max_values</strong> [<em>float-list</em>, unit = "-", default = [80, 50, 50, 1.5, 1]]: Maximum values allowed in the mathematical expressions. The order is [ <em>T_wo</em> [ºC], <em>T_ci</em> [ºC], <em>T_wbci</em> [ºC], <em>F_water</em> [frac], <em>F_load</em> [frac] ]. If any variable exceeds these values, the maximum value is taken.</li>
+<li><strong>expression_min_values</strong> [<em>float-list</em>, unit = "-", default = [0, -30, -30, 0, 0]]: Minimum values allowed in the mathematical expressions. The order is [ <em>T_wo</em> [ºC], <em>T_ci</em> [ºC], <em>T_wbci</em> [ºC], <em>F_water</em> [frac], <em>F_load</em> [frac] ]. If any variable is lower than these values, the minimum value is taken.</li>
+</ul>
+<p>All mathematical expressions can include the following independent variables.</p>
+<ul>
+<li><em>T_wo</em> [ºC]: Chilled (cooling) or hot (heating) water outlet temperature.</li>
+<li><em>T_ci</em> [ºC]: Condenser/source inlet dry bulb temperature (outdoor air for AIR_CONDENSED, condenser water inlet for WATER_CONDENSED).</li>
+<li><em>T_wbci</em> [ºC]: Condenser/source inlet wet bulb temperature (relevant for AIR_CONDENSED type).</li>
+<li><em>F_water</em> [frac]: Actual water flow divided by nominal water flow.</li>
+</ul>
+<p><code>cooling_power_expression</code>, <code>EER_expression</code>, <code>heating_power_exporession</code> and <code>COP_expression</code> may also include the variable <em>F_load</em>,
+which represents the partial load state of the equipment, calculated as the thermal capacity
+supplied at a given instant divided by the full load capacity at the current operation conditions.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+chiller = osm.components.Chiller_heat_pump("chiller", project)
+param = {
+        "chiller_type": "CHILLER",
+        "condensation_type": "AIR_CONDENSED",
+        "nominal_water_flow": 0.003,
+        "nominal_cooling_capacity": 63000,
+        "nominal_cooling_power": 21000,
+        "nominal_cooling_conditions": [35, 12, 7],
+        "cooling_capacity_expression": "1",
+        "EER_expression": "1 + 0.02 * (35 - T_ci) - 0.03 * (T_wo - 7) + 0.2 * F_load - 0.2 * F_load**2"
+}
+chiller.set_parameters(param)
+</code></pre>
+
+<h3 id="hvac_water_system">HVAC_water_system</h3>
+<p>Component for the simulation of a hydronic water loop that supplies chilled and/or hot water to one or more coils (used by the air side HVAC systems, e.g. <code>HVAC_SZW_system</code> or <code>HVAC_MZW_system</code>) from a "Chiller_heat_pump" generator, optionally moved by a "Pump".</p>
+<h4 id="parameters_2">Parameters</h4>
+<ul>
+<li><strong>water_thermal_generator</strong> [<em>component</em>, default = "not_defined", component type = Chiller_heat_pump]: Reference to the "Chiller_heat_pump" component that heats and/or cools the loop water.</li>
+<li><strong>pump</strong> [<em>component</em>, default = "not_defined", component type = Pump]: Reference to the "Pump" component that circulates the loop water. If not defined, the pump heat gain and power are considered zero.</li>
+<li><strong>design_water_flow</strong> [<em>float</em>, unit = "dm³/s", default = 1, min = 0]: Loop water flow used while the system is on.</li>
+<li><strong>initial_water_temp</strong> [<em>float</em>, unit = "°C", default = 20]: Water temperature used to initialize the loop at the first time step.</li>
+<li><strong>total_water_volume</strong> [<em>float</em>, unit = "dm³", default = 1000, min = 0]: Total water volume of the loop, used to calculate its thermal inertia.</li>
+<li><strong>input_variables</strong> [<em>variable_list</em>, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.</li>
+<li><strong>heating_water_setpoint</strong> [<em>math_exp</em>, unit = "°C", default = "45"]: Hot water outlet setpoint temperature at the generator when the system is heating. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.</li>
+<li><strong>cooling_water_setpoint</strong> [<em>math_exp</em>, unit = "°C", default = "7"]: Chilled water outlet setpoint temperature at the generator when the system is cooling. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.</li>
+<li><strong>system_on_off</strong> [<em>math_exp</em>, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.</li>
+<li><strong>pump_operation</strong> [<em>option</em>, default = "ALLWAYS_ON", options = ["ALLWAYS_ON", "ON_LOAD"]]: If "ALLWAYS_ON" the pump runs at design flow whenever the system is on. If "ON_LOAD" the pump (and water flow) only runs when there is a heating or cooling load from the coils or the process load.</li>
+<li><strong>system_control</strong> [<em>option</em>, default = "LOAD_CONTROL", options = ["LOAD_CONTROL", "SCHEDULE_CONTROL"]]: If "LOAD_CONTROL" the system switches automatically between heating and cooling depending on the sign of the load requested by the coils and the process load. If "SCHEDULE_CONTROL" the operating mode is set with the "system_mode" parameter, and any load of the opposite sign is not satisfied.</li>
+<li><strong>system_mode</strong> [<em>math_exp</em>, unit = "-1/0/1", default = "1"]: Operating mode used only when "system_control" is "SCHEDULE_CONTROL": -1 for cooling, 0 for standby, 1 for heating. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.</li>
+<li><strong>Q_loss</strong> [<em>math_exp</em>, unit = "W", default = "0"]: Thermal losses (or gains, if negative) of the water loop to the environment.</li>
+<li><strong>convergence_DT</strong> [<em>float</em>, unit = "°C", default = 0.01, min = 0.0]: Convergence tolerance for the water loop outlet temperature at the generator, used by the iterative solution process.</li>
+<li><strong>water_limits</strong> [<em>float_list</em>, unit = "°C", default = [1, 99], min = 0, max = 100]: Minimum and maximum water temperatures allowed in the loop, used to limit the values of the reported temperature variables.</li>
+<li><strong>Q_process</strong> [<em>math_exp</em>, unit = "W", default = "0"]: Additional heat load applied directly to the water loop (positive heats the water, negative cools it), independent of the coils connected to the system.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="python">
+...
+
+water_system = osm.components.HVAC_water_system("water_system", project)
+param = {
+        "water_thermal_generator": "heat_pump",
+        "pump": "pump",
+        "design_water_flow": 0.4137,
+        "heating_water_setpoint": "50",
+        "cooling_water_setpoint": "7",
+        "total_water_volume": 100,
+        "pump_operation": "ON_LOAD",
+        "system_control": "SCHEDULE_CONTROL",
+        "input_variables": ["f = mode_schedule.values", "g = on_schedule.values"],
+        "system_mode": "f",
+        "system_on_off": "g"
+}
+water_system.set_parameters(param)
+</code></pre>
+
+<h4 id="variables">Variables</h4>
+<p>After the simulation we will have the following variables of this component:</p>
+<ul>
+<li><strong>on_off</strong> [flag]: Operation of the system: off (0), on (1).</li>
+<li><strong>mode</strong> [flag]: Operating mode of the system: cooling (-1), standby (0), heating (1).</li>
+<li><strong>T_WGO</strong> [°C]: Generator outlet water temperature.</li>
+<li><strong>T_WGI</strong> [°C]: Generator inlet water temperature.</li>
+<li><strong>T_WCI</strong> [°C]: Coils inlet water temperature.</li>
+<li><strong>T_WCO</strong> [°C]: Coils outlet water temperature.</li>
+<li><strong>T_WAVG</strong> [°C]: Average water loop temperature.</li>
+<li><strong>water_flow</strong> [dm³/s]: Loop water flow.</li>
+<li><strong>Q_gen</strong> [W]: Heat supplied (positive) or removed (negative) by the generator.</li>
+<li><strong>Q_coils</strong> [W]: Heat exchanged with the coils connected to the system, positive when heating the water, negative when cooling it.</li>
+<li><strong>Q_process</strong> [W]: Additional process heat load applied to the water loop.</li>
+<li><strong>Q_loss</strong> [W]: Thermal losses of the water loop to the environment.</li>
+<li><strong>Q_pump</strong> [W]: Heat gain to the water from the pump.</li>
+<li><strong>delta_U</strong> [W]: Rate of change of the internal energy stored in the water loop.</li>
+<li><strong>pump_power</strong> [W]: Electrical power consumed by the pump.</li>
+<li><strong>generator_power</strong> [W]: Electrical power consumed by the generator.</li>
+<li><strong>generator_efficiency</strong> [-]: Generator efficiency (EER for cooling, COP for heating).</li>
+<li><strong>generator_part_load</strong> [frac]: Partial load state of the generator.</li>
+<li><strong>heating_water_setpoint</strong> [°C]: Heating water setpoint temperature.</li>
+<li><strong>cooling_water_setpoint</strong> [°C]: Cooling water setpoint temperature.</li>
+</ul></div>
+        
+        
+    </div>
+
+    
+      <footer class="col-md-12 text-center">
+          
+          
+            <hr>
+            <p>
+            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+            </p>
+          
+
+          
+          
+      </footer>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
+
+    
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    <script>var base_url = ".."</script>
+    
+    <script src="../js/base.js"></script>
+    <script src="../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>

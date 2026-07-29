@@ -11,7 +11,7 @@
     <link rel="shortcut icon" href="../img/favicon.ico">
 
     
-    <title>component list HVAC systems - OpenSimula</title>
+    <title>component list HVAC air systems - OpenSimula</title>
     
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
@@ -116,7 +116,7 @@
         
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#component-list-for-hvac-system-definition">Component List for HVAC system definition</a></li>
+        <li class="first-level active"><a href="#component-list-for-air-side-hvac-system-definition">Component List for air side HVAC system definition</a></li>
             <li class="second-level"><a href="#hvac_perfect_system">HVAC_perfect_system</a></li>
                 
                 <li class="third-level"><a href="#parameters">Parameters</a></li>
@@ -146,7 +146,7 @@
 </div></div>
         <div class="col-md-9" role="main">
 
-<h2 id="component-list-for-hvac-system-definition">Component List for HVAC system definition</h2>
+<h2 id="component-list-for-air-side-hvac-system-definition">Component List for air side HVAC system definition</h2>
 <h3 id="hvac_perfect_system">HVAC_perfect_system</h3>
 <p>Component for the perfect conditioning of a space. With this component we can obtain the heating and cooling loads (sensible and latent).</p>
 <h4 id="parameters">Parameters</h4>
@@ -335,11 +335,11 @@ supplied at a given instant divided by the cooling or heating capacity at the cu
 <h4 id="parameters_3">Parameters</h4>
 <ul>
 <li><strong>nominal_air_flow</strong> [<em>float</em>, unit = "m³/s", default = 1, min = 0]: Nominal inlet air flow.</li>
-<li><strong>nominal_cooling_water_flow</strong> [<em>float</em>, unit = "m³/s", default = 1, min = 0]: Nominal inlet cooling water flow.</li>
+<li><strong>nominal_cooling_water_flow</strong> [<em>float</em>, unit = "dm³/s", default = 1, min = 0]: Nominal inlet cooling water flow.</li>
 <li><strong>nominal_total_cooling_capacity</strong> [<em>float</em>, unit = "W", default = 0, min = 0]: Total cooling capacity at nominal cooling conditions.</li>
 <li><strong>nominal_sensible_cooling_capacity</strong> [<em>float</em>, unit = "W", default = 0, min = 0]: Sensible cooling capacity at nominal cooling conditions.</li>
 <li><strong>nominal_cooling_conditions</strong> [<em>float-list</em>, unit = "ºC", default = [27, 19, 7]]: Nominal cooling conditions, in order: inlet dry bulb temperature, inlet wet bulb temperature, inlet water temperature.</li>
-<li><strong>nominal_heating_water_flow</strong> [<em>float</em>, unit = "m³/s", default = 1, min = 0]: Nominal inlet heating water flow.</li>
+<li><strong>nominal_heating_water_flow</strong> [<em>float</em>, unit = "dm³/s", default = 1, min = 0]: Nominal inlet heating water flow.</li>
 <li><strong>nominal_heating_capacity</strong> [<em>float</em>, unit = "W", default = 0, min = 0]: Heating capacity at nominal heating conditions.</li>
 <li><strong>nominal_heating_conditions</strong> [<em>float-list</em>, unit = "ºC", default = [20, 15, 50]]: Nominal heating conditions, in order: inlet dry bulb temperature, inlet wet bulb temperature, inlet water temperature.</li>
 <li><strong>heating_epsilon_expression</strong> [<em>math_exp</em>, unit = "frac", default = "1"]: Mathematical expression to correct the heating effectiveness of the equipment in conditions different from the nominal ones. </li>
@@ -417,11 +417,13 @@ equipment.set_parameters(param)
 <li><strong>cooling_setpoint</strong> [<em>math_exp</em>, unit = "°C", default = "25"]: Space cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
 <li><strong>system_on_off</strong> [<em>math_exp</em>, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.</li>
 <li><strong>fan_operation</strong> [<em>option</em>, default = "CONTINUOUS", options = ["CONTINUOUS","CYCLING"]]: If the value is "CONTINUOUS" the fans will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify "CYCLING" the fans will run a fraction of time equal to the partial load at which the equipment operates, therefore, when there is no load there will be no consumption of the fan.</li>
-<li><strong>water_source</strong> [<em>option</em>, default = "UNKNOWN", options = ["UNKNOWN","WATER_LOOP"]]: If the value is "UNKNOWN", the simulation will be carried out assuming that we always have the defined water flow under the required conditions. If the value is "WATER_LOOP" it has not yet been developed.</li>
-<li><strong>cooling_water_flow</strong> [<em>float</em>, unit = "m³/s", default = 1, min = 0]: Inlet cooling water flow.</li>
-<li><strong>heating_water_flow</strong> [<em>float</em>, unit = "m³/s", default = 1, min = 0]: Inlet heating water flow.</li>
-<li><strong>inlet_cooling_water_temp</strong> [<em>float</em>, unit = "°C", default = 7]: Inlet cooling water temperature used for "UNKNOWN" water source.</li>
-<li><strong>inlet_heating_water_temp</strong> [<em>float</em>, unit = "°C", default = 50]: Inlet heating water temperature used for "UNKNOWN" water source.</li>
+<li><strong>water_source</strong> [<em>option</em>, default = "UNKNOWN", options = ["UNKNOWN","WATER_SYSTEM"]]: If the value is "UNKNOWN", the simulation will be carried out assuming that the coils are always fed at a fixed inlet water temperature and flow, given by "inlet_cooling_water_temp"/"inlet_heating_water_temp" and "cooling_water_flow"/"heating_water_flow". If the value is "WATER_SYSTEM" the coils are connected to the "HVAC_water_system" components referenced in "cooling_water_system"/"heating_water_system", which supply the inlet water temperature and add the coil load to the water loop.</li>
+<li><strong>cooling_water_system</strong> [<em>component</em>, default = "not_defined", component type = HVAC_water_system]: Reference to the "HVAC_water_system" component that supplies the cooling coil when "water_source" is "WATER_SYSTEM".</li>
+<li><strong>heating_water_system</strong> [<em>component</em>, default = "not_defined", component type = HVAC_water_system]: Reference to the "HVAC_water_system" component that supplies the heating coil when "water_source" is "WATER_SYSTEM".</li>
+<li><strong>cooling_water_flow</strong> [<em>float</em>, unit = "dm³/s", default = 1, min = 0]: Cooling coil design water flow.</li>
+<li><strong>heating_water_flow</strong> [<em>float</em>, unit = "dm³/s", default = 1, min = 0]: Heating coil design water flow.</li>
+<li><strong>inlet_cooling_water_temp</strong> [<em>float</em>, unit = "°C", default = 7]: Inlet cooling water temperature used when "water_source" is "UNKNOWN".</li>
+<li><strong>inlet_heating_water_temp</strong> [<em>float</em>, unit = "°C", default = 50]: Inlet heating water temperature used when "water_source" is "UNKNOWN".</li>
 <li><strong>water_flow_control</strong> [<em>option</em>, default = "ON_OFF", options = ["ON_OFF","PROPORTIONAL"]]: If the selected option is "ON_OFF" the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time, therefore the latent load will be calculated by multiplying the latent load at design flow by that fraction of time. If we select "PROPORTIONAL" it is assumed that the water flow rate is adjusted progressively, the required coil outlet temperature will be calculated and using the adp effectiveness the ADP and the supplied latent load will be obtained.</li>
 <li><strong>economizer</strong> [<em>option</em>, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is "NO" no economizer will be used, for the other options the economizer see HVAC_DX_system.</li>
 <li><strong>economizer_DT</strong> [<em>float</em>, unit = "ºC", default = 0, min = 0]: For economizers type "TEMPERATURE" and "TEMPERATURE_NOT_INTEGRATED" set the temperature difference between the return air and the outside air at which the economizer starts to operate.</li>
@@ -501,11 +503,13 @@ system.set_parameters(param)
 <li><strong>spaces_setpoint</strong> [<em>math_exp_list</em>, unit = "°C", default = ["20", "20"]]: Space temperature setpoint for each zone. Used for reheat and VAV control.</li>
 <li><strong>system_on_off</strong> [<em>math_exp</em>, unit = "on/off", default = "1"]: If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.</li>
 <li><strong>fan_operation</strong> [<em>option</em>, default = "CONTINUOUS", options = ["CONTINUOUS","CYCLING"]]: If the value is "CONTINUOUS" the fans will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify "CYCLING" the fans will run a fraction of time equal to the partial load at which the equipment operates.</li>
-<li><strong>water_source</strong> [<em>option</em>, default = "UNKNOWN", options = ["UNKNOWN","WATER_LOOP"]]: If the value is "UNKNOWN", the simulation will be carried out assuming that we always have the defined water flow under the required conditions. If the value is "WATER_LOOP" it has not yet been developed.</li>
-<li><strong>cooling_water_flow</strong> [<em>float</em>, unit = "m³/s", default = 1, min = 0]: Inlet cooling water flow.</li>
-<li><strong>heating_water_flow</strong> [<em>float</em>, unit = "m³/s", default = 1, min = 0]: Inlet heating water flow.</li>
-<li><strong>inlet_cooling_water_temp</strong> [<em>float</em>, unit = "°C", default = 7]: Inlet cooling water temperature used for "UNKNOWN" water source.</li>
-<li><strong>inlet_heating_water_temp</strong> [<em>float</em>, unit = "°C", default = 50]: Inlet heating water temperature used for "UNKNOWN" water source.</li>
+<li><strong>water_source</strong> [<em>option</em>, default = "UNKNOWN", options = ["UNKNOWN","WATER_SYSTEM"]]: If the value is "UNKNOWN", the simulation will be carried out assuming that the coils are always fed at a fixed inlet water temperature and flow, given by "inlet_cooling_water_temp"/"inlet_heating_water_temp" and "cooling_water_flow"/"heating_water_flow". If the value is "WATER_SYSTEM" the coils are connected to the "HVAC_water_system" components referenced in "cooling_water_system"/"heating_water_system", which supply the inlet water temperature and add the coil load to the water loop.</li>
+<li><strong>cooling_water_system</strong> [<em>component</em>, default = "not_defined", component type = HVAC_water_system]: Reference to the "HVAC_water_system" component that supplies the cooling coil when "water_source" is "WATER_SYSTEM".</li>
+<li><strong>heating_water_system</strong> [<em>component</em>, default = "not_defined", component type = HVAC_water_system]: Reference to the "HVAC_water_system" component that supplies the central heating coil when "water_source" is "WATER_SYSTEM".</li>
+<li><strong>cooling_water_flow</strong> [<em>float</em>, unit = "dm³/s", default = 1, min = 0]: Cooling coil design water flow.</li>
+<li><strong>heating_water_flow</strong> [<em>float</em>, unit = "dm³/s", default = 1, min = 0]: Central heating coil design water flow.</li>
+<li><strong>inlet_cooling_water_temp</strong> [<em>float</em>, unit = "°C", default = 7]: Inlet cooling water temperature used when "water_source" is "UNKNOWN".</li>
+<li><strong>inlet_heating_water_temp</strong> [<em>float</em>, unit = "°C", default = 50]: Inlet heating water temperature used when "water_source" is "UNKNOWN".</li>
 <li><strong>water_flow_control</strong> [<em>option</em>, default = "ON_OFF", options = ["ON_OFF","PROPORTIONAL"]]: If the selected option is "ON_OFF" the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time. If we select "PROPORTIONAL" it is assumed that the water flow rate is adjusted progressively.</li>
 <li><strong>economizer</strong> [<em>option</em>, default = "NO", options = ["NO","TEMPERATURE","TEMPERATURE_NOT_INTEGRATED","ENTHALPY","ENTHALPY_LIMITED"]]: Free cooling using outside air (economizer). If the option selected is "NO" no economizer will be used, for the other options the economizer see HVAC_DX_system.</li>
 <li><strong>economizer_DT</strong> [<em>float</em>, unit = "ºC", default = 0, min = 0]: For economizers type "TEMPERATURE" and "TEMPERATURE_NOT_INTEGRATED" set the temperature difference between the return air and the outside air at which the economizer starts to operate.</li>
@@ -513,6 +517,8 @@ system.set_parameters(param)
 <li><strong>reheat</strong> [<em>boolean</em>, default = False]: Enable reheat coils for each zone.</li>
 <li><strong>vav</strong> [<em>boolean</em>, default = False]: Enable Variable Air Volume (VAV) control for each zone.</li>
 <li><strong>reheat_coils</strong> [<em>component_list</em>, default = ["not_defined", "not_defined"], component type = Water_coil]: List of reheat coil references for each zone (required if reheat is enabled).</li>
+<li><strong>reheat_water_source</strong> [<em>option</em>, default = "UNKNOWN", options = ["UNKNOWN","WATER_SYSTEM"]]: Same behaviour as "water_source" but applied to the reheat coils. If "WATER_SYSTEM" the reheat coils are connected to the "HVAC_water_system" referenced in "reheat_water_system".</li>
+<li><strong>reheat_water_system</strong> [<em>component</em>, default = "not_defined", component type = HVAC_water_system]: Reference to the "HVAC_water_system" component that supplies the reheat coils when "reheat_water_source" is "WATER_SYSTEM".</li>
 </ul>
 <p><strong>Example:</strong></p>
 <pre><code class="python">

@@ -224,7 +224,7 @@ office_space.set_parameters(param)
 <li><strong>volume</strong> [<em>float</em>, unit = "m³", default = 1, min = 0]: Volume of the space.</li>
 <li><strong>furniture_weight</strong> [<em>float</em>, unit = "kg/m²", default = 10, min = 0]: Weight of the furniture in the space. Used to increase the thermal inertia of the space which will be added to that of the air (for the furniture a specific heat of 1000 J/kg·K will be used).</li>
 <li><strong>convergence_DT</strong> [<em>float</em>, unit = "°C", default = 0.01, min = 0]: Convergence temperature difference. In the iterative process, convergence will be considered to have occurred when the temperature difference between two successive iterations is less than this value.</li>
-<li><strong>convergence_Dw</strong> [<em>float</em>, unit = "g/kg", default = 0.01, min = 0]: Convergence hunidity difference. In the iterative process, convergence will be considered to have occurred when the absolute humidity difference between two successive iterations is less than this value.</li>
+<li><strong>convergence_Dw</strong> [<em>float</em>, unit = "g/kg", default = 0.1, min = 0]: Convergence hunidity difference. In the iterative process, convergence will be considered to have occurred when the absolute humidity difference between two successive iterations is less than this value.</li>
 </ul>
 <p><strong>Example:</strong></p>
 <pre><code class="python">
