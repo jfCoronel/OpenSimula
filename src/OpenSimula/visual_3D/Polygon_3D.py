@@ -216,16 +216,33 @@ class Polygon_3D():
         return sunny_polygons_3D, shadow_polygons_3D
     
     # Para dibujarlos en 3D
+    # Below this area [m2], a polygon resulting from a shapely difference()
+    # is floating-point noise (near-collinear vertices), not real geometry.
+    # Such slivers triangulate to zero faces and would crash the 3D renderer.
+    _MIN_POLYGON_AREA_ = 1e-6
+
     def _shapely_multipolygon_to_polygons_3D_(self, shapely_polygon, type="sunny"):
         polygon_list = []
         if shapely_polygon is not None:
             if shapely_polygon.geom_type == 'MultiPolygon':
-                polygons = list(shapely_polygon.geoms)
-                for pol in polygons:
-                    polygon_list.append(self._shapely_to_polygon_3D_(pol,type))
+                for pol in shapely_polygon.geoms:
+                    if pol.area > self._MIN_POLYGON_AREA_:
+                        polygon_list.append(self._shapely_to_polygon_3D_(pol,type))
             elif shapely_polygon.geom_type == 'Polygon':
-                polygon_list.append(
-                    self._shapely_to_polygon_3D_(shapely_polygon,type))
+                if shapely_polygon.area > self._MIN_POLYGON_AREA_:
+                    polygon_list.append(
+                        self._shapely_to_polygon_3D_(shapely_polygon,type))
+            elif shapely_polygon.geom_type == 'GeometryCollection':
+                # difference() between near-tangent/coplanar polygons can return a
+                # GeometryCollection mixing degenerate LineStrings/Points/slivers with
+                # the actual resulting Polygon(s); keep only the real polygonal parts.
+                for geom in shapely_polygon.geoms:
+                    if geom.geom_type == 'Polygon' and geom.area > self._MIN_POLYGON_AREA_:
+                        polygon_list.append(self._shapely_to_polygon_3D_(geom, type))
+                    elif geom.geom_type == 'MultiPolygon':
+                        for pol in geom.geoms:
+                            if pol.area > self._MIN_POLYGON_AREA_:
+                                polygon_list.append(self._shapely_to_polygon_3D_(pol, type))
         return polygon_list
 
     def _shapely_to_polygon_3D_(self, shapely_pol, type="sunny"):
