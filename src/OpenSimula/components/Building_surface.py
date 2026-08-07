@@ -1,4 +1,6 @@
 import math
+from shapely.geometry import Polygon
+from shapely.validation import explain_validity
 from opensimula.Message import Message
 from opensimula.components.Surface import Surface
 from opensimula.Parameters import (
@@ -106,6 +108,31 @@ class Building_surface(Surface):
         # Create openings list
         if self._surface_type_ == "EXTERIOR" or self._surface_type_ == "INTERIOR":
             self._create_openings_list_()
+            errors.extend(self._check_polygon_validity_())
+        return errors
+
+    def _check_polygon_validity_(self):
+        """Warn when the surface outline plus its openings is not a valid polygon.
+
+        An opening touching the surface boundary (a door reaching the floor, a
+        window flush with a wall edge) produces a shell pinched by its hole.
+        Shapely flags it as invalid, and the boolean operations of the shadow
+        calculation give unspecified results on invalid input.
+        """
+        errors = []
+        if len(self.openings) == 0:
+            return errors
+        polygon = Polygon(
+            self.get_polygon_2D(), [op.get_polygon_2D() for op in self.openings]
+        )
+        if not polygon.is_valid:
+            msg = (
+                f"{self.parameter('name').value}, the surface outline with its openings "
+                f"is not a valid polygon ({explain_validity(polygon)}). Its openings "
+                "probably touch the surface boundary. Shadow results for this surface "
+                "may be unreliable."
+            )
+            errors.append(Message(msg, "WARNING"))
         return errors
 
     def get_building(self):

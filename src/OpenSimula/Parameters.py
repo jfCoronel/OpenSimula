@@ -184,7 +184,9 @@ class Parameter_string_list(Parameter):
         else:
             for el in value:
                 el = str(el)
-            self._value_ = value
+            # Own copy: keeping the caller list would let it be mutated from
+            # outside, and would be shared by every parameter assigned from it
+            self._value_ = list(value)
 
 
 # _____________ Parameter_int ___________________________
@@ -389,7 +391,9 @@ class Parameter_options_list(Parameter):
         else:
             for el in value:
                 el = str(el)
-            self._value_ = value
+            # Own copy: keeping the caller list would let it be mutated from
+            # outside, and would be shared by every parameter assigned from it
+            self._value_ = list(value)
 
     @property
     def options(self):
@@ -484,7 +488,9 @@ class Parameter_component_list(Parameter):
         # Is a list
         for el in value:
             el = str(el)
-        self._value_ = value
+        # Own copy: keeping the caller list would let it be mutated from
+        # outside, and would be shared by every parameter assigned from it
+        self._value_ = list(value)
 
         self._external_ = []
         for el in self.value:
@@ -622,7 +628,9 @@ class Parameter_variable_list(Parameter):
         # Is a list
         for el in value:
             el = str(el)
-        self._value_ = value
+        # Own copy: keeping the caller list would let it be mutated from
+        # outside, and would be shared by every parameter assigned from it
+        self._value_ = list(value)
 
         format_error = False
         self._symbol_ = []
@@ -744,7 +752,9 @@ class Parameter_math_exp_list(Parameter):
         # Is a list
         for el in value:
             el = str(el)
-        self._value_ = value
+        # Own copy: keeping the caller list would let it be mutated from
+        # outside, and would be shared by every parameter assigned from it
+        self._value_ = list(value)
 
     def evaluate(self, i, values_dic):
         try:

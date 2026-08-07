@@ -8,6 +8,7 @@ fancoil_dict = {
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
     "simulation_file_met": "Sevilla",
+    "shadow_calculation": "INSTANT",
     "components": [
         {
             "type": "File_met",

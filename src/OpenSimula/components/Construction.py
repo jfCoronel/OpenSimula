@@ -35,8 +35,10 @@ class Construction(Component):
             material_name (str): Name of the material component to add
             thickness (float): Thickness of the layer in meters
         """
-        materials = self.parameter("materials").value
-        thicknesses = self.parameter("thicknesses").value
+        # Copies, because the getter returns the parameter own list and
+        # inserting into it would modify the construction before validation
+        materials = list(self.parameter("materials").value)
+        thicknesses = list(self.parameter("thicknesses").value)
         materials.insert(0, material_name)
         thicknesses.insert(0, thickness)
         self.parameter("materials").value = materials

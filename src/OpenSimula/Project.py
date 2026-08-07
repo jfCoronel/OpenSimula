@@ -59,13 +59,14 @@ class Project(Parameter_container):
         )
         self.add_parameter(
             Parameter_options(
-                "shadow_calculation", "INSTANT", ["NO", "INSTANT", "INTERPOLATION"]
+                "shadow_calculation", "INTERPOLATION", ["NO", "INSTANT", "INTERPOLATION"]
             )
         )
         self.add_parameter(Parameter_float("albedo", 0.2, "frac", min=0, max=1))
 
         self._sim_ = sim
         self._components_ = []
+        self._components_dict_ = {}  # name -> component index, see component()
         sicro.SetUnitSystem(sicro.SI)
         atm_p = sicro.GetStandardAtmPressure(0)
         w_50 = sicro.GetHumRatioFromRelHum(22.5, 0.5, atm_p)
@@ -100,6 +101,13 @@ class Project(Parameter_container):
             component (Component): Component to be removed from the project
         """
         self._components_.remove(component)
+        # Drop every index entry pointing at it, so a later component reusing
+        # its name cannot resolve to the deleted one.
+        self._components_dict_ = {
+            key: comp
+            for key, comp in self._components_dict_.items()
+            if comp is not component
+        }
 
     def component(self, name):
         """Find and return component with its name
@@ -110,8 +118,16 @@ class Project(Parameter_container):
         Returns:
             component (Component): component found, None if not found.
         """
+        # Components are looked up by name millions of times during a
+        # simulation, so hits are served from an index. The cached component is
+        # revalidated against its current name because components can be
+        # renamed after being indexed; a stale entry falls back to the scan.
+        comp = self._components_dict_.get(name)
+        if comp is not None and comp.parameter("name").value == name:
+            return comp
         for comp in self._components_:
             if comp.parameter("name").value == name:
+                self._components_dict_[name] = comp
                 return comp
         return None
 

@@ -26,6 +26,10 @@ class Surface(Component):
         self.add_parameter(Parameter_float_list(
             "y_polygon", [0, 0, 10, 10], "m", min=float("-inf")))
         
+        # Orientation angles are constant while the parameters do not change,
+        # but they are read on every time step, so they are memoized here.
+        self._orientation_cache_ = {}
+
         # Variables
         self.add_variable(Variable("E_dir_sunny", "W/m²"))  # Without shadows
         self.add_variable(Variable("E_dir", "W/m²"))
@@ -43,6 +47,8 @@ class Surface(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
+        # Parameters may have changed since the last simulation
+        self._orientation_cache_ = {}
 
     @property
     def area(self):
@@ -70,6 +76,14 @@ class Surface(Component):
 
     # exterior normal vector
     def orientation_angle(self, angle, side, coordinate_system="global"):
+        key = (angle, side, coordinate_system)
+        value = self._orientation_cache_.get(key)
+        if value is None:
+            value = self._orientation_angle_(angle, side, coordinate_system)
+            self._orientation_cache_[key] = value
+        return value
+
+    def _orientation_angle_(self, angle, side, coordinate_system="global"):
         if angle == "azimuth":
             az = self.parameter("azimuth").value
             if self.get_building() is not None and coordinate_system == "global":

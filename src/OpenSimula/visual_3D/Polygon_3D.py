@@ -1,7 +1,7 @@
 import math
 import numpy as np
 from shapely.geometry import Polygon, MultiPoint
-from shapely.ops import triangulate as shapely_triangulate
+from shapely.ops import triangulate as shapely_triangulate, unary_union
 import vedo
 
 class Polygon_3D():
@@ -26,7 +26,8 @@ class Polygon_3D():
         self.holes3D = []
         for hole in self.holes2D:
             self.holes3D.append(self._convert_2D_to_3D_(hole))
-        self.shapely_polygon = Polygon(self.polygon2D, self.holes2D)
+        self.shapely_polygon = self._build_shapely_polygon_(
+            self.polygon2D, self.holes2D)
         self.area = self.shapely_polygon.area
         # self.centroid2D = self.shapely_polygon.centroid.coords[0]
         # self.centroid3D = self._convert_2D_to_3D_([self.centroid2D])[0]
@@ -36,6 +37,70 @@ class Polygon_3D():
         self.visible = visible
         self.shading = shading
         self.calculate_shadows = calculate_shadows
+        self._prepare_shadow_data_()
+
+    @staticmethod
+    def _build_shapely_polygon_(exterior, holes):
+        """Build the polygon of an outline with its holes.
+
+        Passing the holes to Polygon() fails when a hole touches the outline
+        (an opening flush with a surface edge, usual in imported geometry): the
+        shell gets pinched by its own hole and the result is an invalid polygon.
+        Subtracting the holes instead gives the equivalent valid single ring.
+
+        The subtraction is only used for those cases: when the direct form is
+        already valid it is kept as is, because the boolean operation re-nodes
+        the geometry and would perturb results that are correct today.
+        """
+        if not holes:
+            return Polygon(exterior)
+        polygon = Polygon(exterior, holes)
+        if polygon.is_valid:
+            return polygon
+        return Polygon(exterior).difference(
+            unary_union([Polygon(hole) for hole in holes])
+        )
+
+    def _prepare_shadow_data_(self):
+        """Cache the geometry used by the shadow projection as plain floats.
+
+        The projection works on 3-component vectors, where numpy's per-call
+        overhead dominates the arithmetic itself. Storing the same data as
+        Python floats/tuples makes the inner loops several times faster.
+        """
+        self._f_normal_ = (float(self.normal_vector[0]),
+                           float(self.normal_vector[1]),
+                           float(self.normal_vector[2]))
+        self._f_origin_ = (float(self.origin[0]), float(self.origin[1]),
+                           float(self.origin[2]))
+        self._f_x_axis_ = (float(self.x_axis[0]), float(self.x_axis[1]),
+                           float(self.x_axis[2]))
+        self._f_y_axis_ = (float(self.y_axis[0]), float(self.y_axis[1]),
+                           float(self.y_axis[2]))
+        self._f_equation_d_ = float(self.equation_d)
+        self._f_polygon3D_ = [(float(p[0]), float(p[1]), float(p[2]))
+                              for p in self.polygon3D]
+        self._f_holes3D_ = [[(float(p[0]), float(p[1]), float(p[2]))
+                             for p in hole] for hole in self.holes3D]
+        # Bounding sphere, to discard casting polygons lying entirely behind
+        # this polygon plane, before projecting any of their vertices.
+        points = self._f_polygon3D_
+        if points:
+            n_points = len(points)
+            c_x = sum(p[0] for p in points) / n_points
+            c_y = sum(p[1] for p in points) / n_points
+            c_z = sum(p[2] for p in points) / n_points
+            self._f_center_ = (c_x, c_y, c_z)
+            self._f_radius_ = max(
+                math.sqrt((p[0] - c_x) ** 2 + (p[1] - c_y) ** 2 + (p[2] - c_z) ** 2)
+                for p in points
+            )
+        else:
+            self._f_center_ = (0.0, 0.0, 0.0)
+            self._f_radius_ = 0.0
+        # Set of ids of the polygons coplanar with this one. Coplanarity does
+        # not depend on the sun position, so Environment_3D fills it once.
+        self._coplanar_ids_ = frozenset()
 
     def has_holes(self):
         if (len(self.holes2D) > 0):
@@ -110,104 +175,127 @@ class Polygon_3D():
 
     # Shadow calculations
     def is_facing_sun(self, sun_position):
-        escalar_p = np.sum(self.normal_vector*sun_position)
+        n_x, n_y, n_z = self._f_normal_
+        escalar_p = (n_x * sun_position[0] + n_y * sun_position[1]
+                     + n_z * sun_position[2])
         if escalar_p >= 1e-10:
             return True
         else:
             return False
 
     def _get_sunny_shadow_shapely_polygon_(self, environment_3D, sun_position):
-        if not self.is_facing_sun(sun_position):
-            sunny_polygon = None
-            shadow_polygon = self.shapely_polygon
-        else:
-            # Calculate projected shadows
-            shadows_2D = []
-            for shadow_polygon in environment_3D.pol_3D:
-                if shadow_polygon != self and shadow_polygon.shading == True:
-                    if shadow_polygon.is_facing_sun(sun_position):
-                        if not self.are_coplanar(shadow_polygon):
-                            shadows_2D.append(self._calculate_shapely_projected_polygon_(shadow_polygon, sun_position))
+        sun_x = float(sun_position[0])
+        sun_y = float(sun_position[1])
+        sun_z = float(sun_position[2])
+        n_x, n_y, n_z = self._f_normal_
+        # Cosine between the surface normal and the sun. It is the denominator
+        # of every point projection onto this plane, so it is computed once.
+        cos_sun = n_x * sun_x + n_y * sun_y + n_z * sun_z
+        if cos_sun < 1e-10:  # Not facing the sun
+            return None, self.shapely_polygon
 
-            # Calculate sunny polygon
-            sunny_polygon = self.shapely_polygon
-            for shadow_polygon in shadows_2D:
-                if shadow_polygon is not None:
-                    sunny_polygon = sunny_polygon.difference(shadow_polygon)
-            if sunny_polygon.is_empty:
-                sunny_polygon = None
-                shadow_polygon = self.shapely_polygon
-            else:
-                shadow_polygon = self.shapely_polygon.difference(sunny_polygon)
-                if shadow_polygon.is_empty:
-                    shadow_polygon = None
+        coplanar_ids = self._coplanar_ids_
+        equation_d = self._f_equation_d_
+        sunny_polygon = self.shapely_polygon
+        for shadow_polygon in environment_3D.pol_3D:
+            if shadow_polygon is self or not shadow_polygon.shading:
+                continue
+            if id(shadow_polygon) in coplanar_ids:
+                continue
+            s_x, s_y, s_z = shadow_polygon._f_normal_
+            if s_x * sun_x + s_y * sun_y + s_z * sun_z < 1e-10:
+                continue  # The casting polygon is not facing the sun
+            # Its bounding sphere is fully behind this plane: every vertex
+            # would be dropped by the projection, so it casts nothing here.
+            c_x, c_y, c_z = shadow_polygon._f_center_
+            if (n_x * c_x + n_y * c_y + n_z * c_z - equation_d
+                    + shadow_polygon._f_radius_) <= -1e-6:
+                continue
+            projected = self._calculate_shapely_projected_polygon_(
+                shadow_polygon, (sun_x, sun_y, sun_z), cos_sun
+            )
+            if projected is not None:
+                sunny_polygon = sunny_polygon.difference(projected)
+                if sunny_polygon.is_empty:  # Fully shaded, nothing left to cut
+                    return None, self.shapely_polygon
+
+        shadow_polygon = self.shapely_polygon.difference(sunny_polygon)
+        if shadow_polygon.is_empty:
+            shadow_polygon = None
         return sunny_polygon, shadow_polygon
-    
-    def _calculate_shapely_projected_polygon_(self, polygon_to_project, sun_position):
-        exterior_points = self._get_projected_points_(polygon_to_project, sun_position)
-        if exterior_points is not None:
-            if polygon_to_project.has_holes():
-                holes = []
-                for hole in polygon_to_project.holes2D:
-                    hole_points = self._get_projected_points_(
-                        Polygon_3D("holes", polygon_to_project.origin, polygon_to_project.azimuth, polygon_to_project.altitude, hole), sun_position)
-                    if hole_points is not None:
-                        holes.append(hole_points)
-                return Polygon(exterior_points, holes)
-            else:
-                return Polygon(exterior_points)
-        else:
-            return None
 
-    def _get_projected_points_(self,polygon_to_project, sun_position):
+    def _calculate_shapely_projected_polygon_(self, polygon_to_project, sun_position, cos_sun=None):
+        if cos_sun is None:
+            n_x, n_y, n_z = self._f_normal_
+            cos_sun = (n_x * sun_position[0] + n_y * sun_position[1]
+                       + n_z * sun_position[2])
+        exterior_points = self._get_projected_points_(
+            polygon_to_project._f_polygon3D_, sun_position, cos_sun
+        )
+        if exterior_points is None:
+            return None
+        if polygon_to_project._f_holes3D_:
+            holes = []
+            for hole in polygon_to_project._f_holes3D_:
+                hole_points = self._get_projected_points_(hole, sun_position, cos_sun)
+                if hole_points is not None:
+                    holes.append(hole_points)
+            # The projection is affine, so a hole touching the outline still
+            # touches it once projected: same invalid shell-with-hole as the
+            # surface it comes from.
+            return self._build_shapely_polygon_(exterior_points, holes)
+        return Polygon(exterior_points)
+
+    def _get_projected_points_(self, points_3D, sun_position, cos_sun):
+        """Project a 3D point ring onto this polygon plane, in its 2D axes.
+
+        Points behind the plane are dropped, and the edge crossing the plane is
+        cut at the intersection, so the projected outline stays closed.
+        """
+        sun_x, sun_y, sun_z = sun_position
+        n_x, n_y, n_z = self._f_normal_
+        eq_d = self._f_equation_d_
+        o_x, o_y, o_z = self._f_origin_
+        x_x, x_y, x_z = self._f_x_axis_
+        y_x, y_y, y_z = self._f_y_axis_
+
+        def project(p_x, p_y, p_z, dist):
+            k = dist / cos_sun
+            if k <= -1e-6:  # Behind the plane
+                return None
+            v_x = p_x - k * sun_x - o_x
+            v_y = p_y - k * sun_y - o_y
+            v_z = p_z - k * sun_z - o_z
+            return (x_x * v_x + x_y * v_y + x_z * v_z,
+                    y_x * v_x + y_y * v_y + y_z * v_z)
+
         projected_points = []
-        point_0 = polygon_to_project.polygon3D[-1]
-        projected_point_0 = self._get_projected_point_(point_0, sun_position)
-        for point_1 in polygon_to_project.polygon3D:
-            projected_point_1 = self._get_projected_point_(point_1, sun_position)
-            if len(projected_point_1) > 0 and len(projected_point_0) > 0:
+        point_0 = points_3D[-1]
+        d_0 = n_x * point_0[0] + n_y * point_0[1] + n_z * point_0[2] - eq_d
+        projected_point_0 = project(point_0[0], point_0[1], point_0[2], d_0)
+        for point_1 in points_3D:
+            d_1 = n_x * point_1[0] + n_y * point_1[1] + n_z * point_1[2] - eq_d
+            projected_point_1 = project(point_1[0], point_1[1], point_1[2], d_1)
+            if projected_point_1 is not None and projected_point_0 is not None:
                 projected_points.append(projected_point_1)
-            elif len(projected_point_1) > 0 and len(projected_point_0)==0:
-                intersection_point = self._get_intersection_with_plane_(point_0, point_1)
-                if len(intersection_point) > 0:
-                    projected_intersection_point = self._get_projected_point_(intersection_point, sun_position)
-                    projected_points.append(projected_intersection_point)
-                projected_points.append(projected_point_1)
-            elif len(projected_point_1) == 0 and len(projected_point_0) > 0:
-                intersection_point = self._get_intersection_with_plane_(point_0, point_1)
-                if len(intersection_point) > 0:
-                    projected_intersection_point = self._get_projected_point_(intersection_point, sun_position)
-                    projected_points.append(projected_intersection_point)    
-            point_0 = np.array(point_1)
-            if len(projected_point_1) > 0:
-                projected_point_0 = np.array(projected_point_1)
-            else:
-                projected_point_0 = np.array([])
+            elif projected_point_1 is not None or projected_point_0 is not None:
+                if d_0 * d_1 < -1e-10:  # The edge crosses the plane
+                    t = d_0 / (d_0 - d_1)
+                    i_x = point_0[0] + t * (point_1[0] - point_0[0])
+                    i_y = point_0[1] + t * (point_1[1] - point_0[1])
+                    i_z = point_0[2] + t * (point_1[2] - point_0[2])
+                    d_i = n_x * i_x + n_y * i_y + n_z * i_z - eq_d
+                    projected_intersection = project(i_x, i_y, i_z, d_i)
+                    if projected_intersection is not None:
+                        projected_points.append(projected_intersection)
+                if projected_point_1 is not None:
+                    projected_points.append(projected_point_1)
+            point_0 = point_1
+            d_0 = d_1
+            projected_point_0 = projected_point_1
         if len(projected_points) < 3:
             return None
-        else:
-            return projected_points
-    
-    def _get_projected_point_(self, point, sun_position):
-        d = np.sum(self.normal_vector*point)-self.equation_d
-        k = d/np.sum(self.normal_vector*sun_position)
-        if (k > -1e-6):  # Por delante
-            projected_point_3D = point - k*sun_position
-            vector = projected_point_3D - self.origin
-            projected_point_2D = np.array([np.sum(self.x_axis*vector), np.sum(self.y_axis*vector)])
-            return projected_point_2D
-        else:
-            return np.array([])
-        
-    def _get_intersection_with_plane_(self, point_0,point_1):
-        d0 = np.sum(self.normal_vector*point_0)-self.equation_d
-        d1 = np.sum(self.normal_vector*point_1)-self.equation_d
-        if (d0*d1 < -1e-10):  # Si están en lados opuestos
-            t = d0/(d0-d1)
-            intersection_point = point_0 + t*(point_1-point_0)
-            return intersection_point
-        else:
-            return np.array([])
+        return projected_points
 
     def get_sunny_shadow_polygon3D(self, environment_3D, sun_position):
         sunny_polygons, shadow_polygons = self._get_sunny_shadow_shapely_polygon_(environment_3D, sun_position)

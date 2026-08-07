@@ -4,6 +4,7 @@ import math
 from scipy.interpolate import RegularGridInterpolator
 import matplotlib.pyplot as plt
 import vedo as vedo
+from opensimula.visual_3D.Polygon_3D import Polygon_3D
 
 class Environment_3D:
     def __init__(self):
@@ -12,10 +13,26 @@ class Environment_3D:
         self.pol_shadows = []
         self.sunny_fraction = []
         self.solar_tables_calculated = False
+        self._coplanar_calculated_ = False
 
     def add_polygon_3D(self, polygon_3D):
         self.pol_3D.append(polygon_3D)
         self.sunny_fraction.append(1.0)
+        self._coplanar_calculated_ = False
+
+    def _calculate_coplanar_ids_(self):
+        """Precompute, for each polygon, which polygons are coplanar with it.
+
+        A coplanar polygon casts no shadow on this one and is skipped. The
+        relation does not depend on the sun position, so it is resolved once
+        instead of on every shadow calculation.
+        """
+        for polygon in self.pol_3D:
+            polygon._coplanar_ids_ = frozenset(
+                id(other) for other in self.pol_3D
+                if other is not polygon and polygon.are_coplanar(other)
+            )
+        self._coplanar_calculated_ = True
 
     def get_vedo_meshes(self, polygons_type="initial"):
         meshes = []
@@ -357,6 +374,8 @@ class Environment_3D:
         self.sunny_fraction = []
 
     def calculate_shadows(self, sun_position, create_polygons=True):
+        if not self._coplanar_calculated_:
+            self._calculate_coplanar_ids_()
         self.sunny_fraction = []
         if create_polygons:
             self.pol_sunny = []
@@ -364,22 +383,40 @@ class Environment_3D:
 
         for polygon in self.pol_3D:
             if polygon.calculate_shadows:
-                sunny_polygons, shadow_polygons = polygon.get_sunny_shadow_polygon3D(
+                sunny_shapely, shadow_shapely = polygon._get_sunny_shadow_shapely_polygon_(
                     self, sun_position
                 )
-                if sunny_polygons is not None:
+                if create_polygons:
+                    sunny_polygons = polygon._shapely_multipolygon_to_polygons_3D_(
+                        sunny_shapely, "sunny")
                     sunny_area = 0
                     for sunny_polygon in sunny_polygons:
-                        if create_polygons:
-                            self.pol_sunny.append(sunny_polygon)
+                        self.pol_sunny.append(sunny_polygon)
                         sunny_area += sunny_polygon.area
-                    self.sunny_fraction.append(sunny_area / polygon.area)
+                    for shadow_polygon in polygon._shapely_multipolygon_to_polygons_3D_(
+                            shadow_shapely, "shadow"):
+                        self.pol_shadows.append(shadow_polygon)
                 else:
-                    self.sunny_fraction.append(0)  # No sunny area
-                if create_polygons:
-                    if shadow_polygons is not None:
-                        for shadow_polygon in shadow_polygons:
-                            self.pol_shadows.append(shadow_polygon)
+                    # Only the sunny area is needed: skip building the
+                    # Polygon_3D objects, which is the expensive part.
+                    sunny_area = self._sunny_shapely_area_(sunny_shapely)
+                self.sunny_fraction.append(sunny_area / polygon.area)
+
+    def _sunny_shapely_area_(self, shapely_polygon):
+        """Area of a shapely geometry, discarding the same degenerate slivers
+        that _shapely_multipolygon_to_polygons_3D_ drops."""
+        if shapely_polygon is None:
+            return 0
+        geom_type = shapely_polygon.geom_type
+        if geom_type == "Polygon":
+            area = shapely_polygon.area
+            return area if area > Polygon_3D._MIN_POLYGON_AREA_ else 0
+        if geom_type in ("MultiPolygon", "GeometryCollection"):
+            area = 0
+            for geom in shapely_polygon.geoms:
+                area += self._sunny_shapely_area_(geom)
+            return area
+        return 0  # LineString, Point, ... : no area
     
     def get_sunny_polygon_list(self):
         sunny_polygons = []
