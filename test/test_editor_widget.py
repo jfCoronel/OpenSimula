@@ -60,13 +60,15 @@ def test_frontend_assets_are_present_and_loadable():
         assert asset.stat().st_size > 0
 
     source = (static / "editor.js").read_text()
-    # The widget contract with anywidget and the two CDN modules it needs.
+    # The widget contract with anywidget, and the one module it loads from a CDN.
     assert "export default" in source
-    assert "vanilla-jsoneditor@" in source
     assert "ajv@" in source
     # Ajv defaults to draft-07 and would refuse the 2020-12 schema, and without
     # discriminator the oneOf reports one error per component type.
     assert "discriminator: true" in source
+    # The form is built from the schema metadata, not from hardcoded fields.
+    for keyword in ("x-ref", "x-unit", "x-list", "x-format"):
+        assert keyword in source, f"{keyword} not used by the form builder"
 
 
 def test_document_is_json_serialisable(project):

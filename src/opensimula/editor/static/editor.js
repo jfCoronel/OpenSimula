@@ -1,4 +1,3 @@
-import { createJSONEditor } from "https://esm.sh/vanilla-jsoneditor@3.13.0";
 import Ajv2020 from "https://esm.sh/ajv@8.17.1/dist/2020";
 
 // How long to wait after the last keystroke before pushing the document to the
@@ -6,134 +5,469 @@ import Ajv2020 from "https://esm.sh/ajv@8.17.1/dist/2020";
 // character.
 const DEBOUNCE_MS = 400;
 
+// ____________________ schema helpers ____________________
+
+// A list parameter is {anyOf: [{type: array, items: ITEM}, ITEM], x-list: true}
+// because every *_list setter also accepts a bare scalar.
+const isList = (sch) => sch?.["x-list"] === true;
+const itemSchema = (sch) => (isList(sch) ? sch.anyOf[1] : sch);
+
+function fieldKind(sch) {
+  const item = itemSchema(sch);
+  if (item["x-ref"]) return "ref";
+  if (item.enum) return "enum";
+  if (item.type === "boolean") return "boolean";
+  if (item.type === "integer") return "integer";
+  if (item.type === "number") return "number";
+  if (item["x-format"] === "math-exp") return "math";
+  return "string";
+}
+
 function buildValidator(schema) {
-  if (!schema || Object.keys(schema).length === 0) {
-    return { validate: null, error: null };
-  }
+  if (!schema || Object.keys(schema).length === 0) return {};
   try {
     // discriminator:true makes Ajv pick the branch matching "type" instead of
     // reporting one failure per component type, which turns
     // "must NOT have additional properties" into "conductivity must be >= 0".
-    const ajv = new Ajv2020({
-      strict: false,
-      allErrors: true,
-      discriminator: true,
-    });
-    return { validate: ajv.compile(schema), error: null };
+    const ajv = new Ajv2020({ strict: false, allErrors: true, discriminator: true });
+    return { validate: ajv.compile(schema) };
   } catch (err) {
-    return { validate: null, error: String(err.message || err) };
+    return { schemaError: String(err.message || err) };
   }
 }
 
-function toValidationErrors(ajvErrors) {
-  return (ajvErrors || []).map((err) => ({
-    // Ajv gives "/components/3/conductivity"; the editor wants a path array.
-    path: (err.instancePath || "").split("/").filter((part) => part !== ""),
-    message: err.message,
-    severity: "error",
-  }));
+// ____________________ value coercion ____________________
+
+function parseScalar(kind, raw) {
+  if (kind === "integer") {
+    const n = parseInt(raw, 10);
+    return Number.isNaN(n) ? raw : n;
+  }
+  if (kind === "number" || kind === "math") {
+    if (raw.trim() === "") return raw;
+    const n = Number(raw);
+    // A math expression stays a string unless it is a plain constant.
+    return Number.isNaN(n) ? raw : n;
+  }
+  return raw;
 }
+
+const parseList = (kind, raw) =>
+  raw.split(",").map((part) => parseScalar(kind, part.trim())).filter(
+    (v) => v !== "",
+  );
+
+const formatList = (value) => (Array.isArray(value) ? value.join(", ") : String(value ?? ""));
 
 export default {
   render({ model, el }) {
-    const container = document.createElement("div");
-    container.className = "opensimula-editor";
-    el.appendChild(container);
+    let doc = structuredClone(model.get("value"));
+    let schema = model.get("schema");
+    let { validate, schemaError } = buildValidator(schema);
+    let selection = { kind: "project" };
+    let timer = null;
+    let errorsByPath = new Map();
+
+    const defs = () => schema.$defs || {};
+    const components = () => (Array.isArray(doc.components) ? doc.components : []);
+
+    const root = document.createElement("div");
+    root.className = "osm-editor";
+    root.innerHTML = `
+      <div class="osm-list">
+        <div class="osm-tree"></div>
+        <div class="osm-list-actions">
+          <select class="osm-new-type"></select>
+          <button class="osm-new" type="button">Add</button>
+          <button class="osm-delete" type="button">Delete</button>
+        </div>
+      </div>
+      <div class="osm-detail"></div>`;
+    el.appendChild(root);
 
     const status = document.createElement("div");
-    status.className = "opensimula-editor-status";
+    status.className = "osm-status";
     el.appendChild(status);
 
-    let { validate, error: schemaError } = buildValidator(model.get("schema"));
-    if (schemaError) {
-      status.textContent = `Schema could not be compiled: ${schemaError}`;
-      status.dataset.state = "error";
+    const tree = root.querySelector(".osm-tree");
+    const detail = root.querySelector(".osm-detail");
+    const newType = root.querySelector(".osm-new-type");
+    const collapsed = new Set();
+
+    // ____________________ sync ____________________
+
+    const publish = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        // Traitlets compares by identity, so this has to be a new object.
+        model.set("value", structuredClone(doc));
+        model.set("errors", collectErrors());
+        model.save_changes();
+      }, DEBOUNCE_MS);
+    };
+
+    // ____________________ validation ____________________
+
+    function danglingReferences() {
+      // The schema cannot check this: references are component names, and
+      // whether a name exists is a property of the document, not of the type.
+      const byName = new Map(components().map((c) => [c.name, c]));
+      const found = [];
+      const scan = (container, sch, basePath) => {
+        for (const [key, propSchema] of Object.entries(sch.properties || {})) {
+          const item = itemSchema(propSchema);
+          if (!item["x-ref"]) continue;
+          const raw = container[key];
+          if (raw === undefined) continue;
+          const values = Array.isArray(raw) ? raw : [raw];
+          values.forEach((name, i) => {
+            if (name === "not_defined" || name === "" || String(name).includes("->")) return;
+            const target = byName.get(name);
+            const allowed = item["x-ref"].allowed_types || [];
+            const path = isList(propSchema) ? `${basePath}/${key}/${i}` : `${basePath}/${key}`;
+            if (!target) {
+              found.push({ path, message: `no component named "${name}"`, severity: "warning" });
+            } else if (allowed.length && !allowed.includes(target.type)) {
+              found.push({
+                path,
+                message: `"${name}" is a ${target.type}, expected ${allowed.join(" or ")}`,
+                severity: "warning",
+              });
+            }
+          });
+        }
+      };
+      scan(doc, schema, "");
+      components().forEach((comp, i) => {
+        const def = defs()[comp.type];
+        if (def) scan(comp, def, `/components/${i}`);
+      });
+      return found;
     }
 
-    // Set while we are writing the editor's content from the model, so the
-    // resulting onChange does not bounce straight back to the kernel.
-    let applyingFromModel = false;
-    let timer = null;
+    function collectErrors() {
+      const found = [];
+      if (validate && !validate(doc)) {
+        for (const err of validate.errors || []) {
+          found.push({
+            path: (err.instancePath || "").split("/").filter((p) => p !== ""),
+            message: err.message,
+            severity: "error",
+          });
+        }
+      }
+      for (const warn of danglingReferences()) {
+        found.push({
+          path: warn.path.split("/").filter((p) => p !== ""),
+          message: warn.message,
+          severity: warn.severity,
+        });
+      }
+      return found;
+    }
 
-    const publish = (json) => {
-      // Traitlets compares by identity, so this has to be a new object.
-      model.set("value", { ...json });
-      model.set("errors", validate && !validate(json)
-        ? toValidationErrors(validate.errors)
-        : []);
-      model.save_changes();
-    };
-
-    const runValidator = (json) => {
-      if (!validate) return [];
-      return validate(json) ? [] : toValidationErrors(validate.errors);
-    };
-
-    const showStatus = (errors) => {
-      if (schemaError) return;
-      if (errors.length === 0) {
-        status.textContent = "Valid project";
+    function refreshErrors() {
+      const found = collectErrors();
+      errorsByPath = new Map();
+      for (const e of found) {
+        const key = "/" + e.path.join("/");
+        if (!errorsByPath.has(key)) errorsByPath.set(key, e);
+      }
+      const errors = found.filter((e) => e.severity === "error");
+      const warnings = found.filter((e) => e.severity === "warning");
+      if (schemaError) {
+        status.textContent = `Schema could not be compiled: ${schemaError}`;
+        status.dataset.state = "error";
+      } else if (errors.length === 0 && warnings.length === 0) {
+        status.textContent = "No problems";
         status.dataset.state = "ok";
       } else {
-        const first = errors[0];
-        const where = first.path.length ? `/${first.path.join("/")}` : "/";
-        status.textContent =
-          errors.length === 1
-            ? `1 error — ${where} ${first.message}`
-            : `${errors.length} errors — ${where} ${first.message}`;
-        status.dataset.state = "error";
+        const parts = [];
+        if (errors.length) parts.push(`${errors.length} error${errors.length > 1 ? "s" : ""}`);
+        if (warnings.length) parts.push(`${warnings.length} warning${warnings.length > 1 ? "s" : ""}`);
+        const first = errors[0] || warnings[0];
+        status.textContent = `${parts.join(", ")} — /${first.path.join("/")} ${first.message}`;
+        status.dataset.state = errors.length ? "error" : "warn";
       }
+      return found;
+    }
+
+    // ____________________ left panel ____________________
+
+    function pathOf(index, key) {
+      return index === null ? `/${key}` : `/components/${index}/${key}`;
+    }
+
+    function countsByType() {
+      const grouped = new Map();
+      components().forEach((comp, index) => {
+        if (!grouped.has(comp.type)) grouped.set(comp.type, []);
+        grouped.get(comp.type).push({ comp, index });
+      });
+      return grouped;
+    }
+
+    function renderTree() {
+      tree.innerHTML = "";
+      const projectRow = document.createElement("div");
+      projectRow.className = "osm-item osm-project";
+      projectRow.textContent = doc.name ? `Project: ${doc.name}` : "Project";
+      projectRow.classList.toggle("selected", selection.kind === "project");
+      projectRow.onclick = () => {
+        selection = { kind: "project" };
+        render();
+      };
+      tree.appendChild(projectRow);
+
+      const withErrors = new Set();
+      for (const key of errorsByPath.keys()) {
+        const match = key.match(/^\/components\/(\d+)/);
+        if (match) withErrors.add(Number(match[1]));
+      }
+
+      for (const [type, entries] of [...countsByType()].sort()) {
+        const header = document.createElement("div");
+        header.className = "osm-group";
+        header.textContent = `${collapsed.has(type) ? "▸" : "▾"} ${type} (${entries.length})`;
+        header.onclick = () => {
+          collapsed.has(type) ? collapsed.delete(type) : collapsed.add(type);
+          renderTree();
+        };
+        tree.appendChild(header);
+        if (collapsed.has(type)) continue;
+
+        for (const { comp, index } of entries) {
+          const row = document.createElement("div");
+          row.className = "osm-item";
+          row.textContent = comp.name ?? `(${type})`;
+          row.classList.toggle("selected", selection.kind === "component" && selection.index === index);
+          row.classList.toggle("has-error", withErrors.has(index));
+          row.onclick = () => {
+            selection = { kind: "component", index };
+            render();
+          };
+          tree.appendChild(row);
+        }
+      }
+    }
+
+    // ____________________ fields ____________________
+
+    function makeInput(kind, sch, value, onCommit) {
+      const item = itemSchema(sch);
+      let input;
+
+      if (kind === "boolean" && !isList(sch)) {
+        input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = value === true;
+        input.onchange = () => onCommit(input.checked);
+        return input;
+      }
+
+      if (kind === "enum" && !isList(sch)) {
+        input = document.createElement("select");
+        for (const option of item.enum) {
+          const el = document.createElement("option");
+          el.value = el.textContent = option;
+          input.appendChild(el);
+        }
+        input.value = value ?? "";
+        input.onchange = () => onCommit(input.value);
+        return input;
+      }
+
+      if (kind === "ref" && !isList(sch)) {
+        input = document.createElement("select");
+        const allowed = item["x-ref"].allowed_types || [];
+        const names = components()
+          .filter((c) => allowed.length === 0 || allowed.includes(c.type))
+          .map((c) => c.name);
+        // Keep whatever is stored even if it points nowhere, so opening the
+        // form never silently rewrites a dangling reference.
+        if (value !== undefined && !names.includes(value)) names.unshift(value);
+        for (const name of names) {
+          const el = document.createElement("option");
+          el.value = el.textContent = name;
+          input.appendChild(el);
+        }
+        input.value = value ?? "";
+        input.onchange = () => onCommit(input.value);
+        return input;
+      }
+
+      input = document.createElement("input");
+      if (isList(sch)) {
+        input.type = "text";
+        input.value = formatList(value);
+        input.placeholder = "comma separated";
+        input.onchange = () => onCommit(parseList(kind, input.value));
+      } else if (kind === "integer" || kind === "number") {
+        input.type = "number";
+        input.step = kind === "integer" ? "1" : "any";
+        if (item.minimum !== undefined) input.min = item.minimum;
+        if (item.maximum !== undefined) input.max = item.maximum;
+        input.value = value ?? "";
+        input.onchange = () => onCommit(parseScalar(kind, input.value));
+      } else {
+        input.type = "text";
+        if (kind === "math") input.classList.add("osm-mono");
+        input.value = value ?? "";
+        input.onchange = () => onCommit(parseScalar(kind, input.value));
+      }
+      return input;
+    }
+
+    function renderForm(container, sch, index) {
+      const title = document.createElement("div");
+      title.className = "osm-detail-title";
+      title.textContent =
+        index === null ? "Project parameters" : `${container.type}: ${container.name ?? ""}`;
+      detail.appendChild(title);
+
+      const grid = document.createElement("div");
+      grid.className = "osm-form";
+      detail.appendChild(grid);
+
+      for (const [key, propSchema] of Object.entries(sch.properties || {})) {
+        // "type" is the discriminator and "components" is the list itself.
+        if (key === "type" || key === "components") continue;
+
+        const kind = fieldKind(propSchema);
+        const item = itemSchema(propSchema);
+
+        const label = document.createElement("label");
+        label.className = "osm-label";
+        label.textContent = key;
+        grid.appendChild(label);
+
+        const cell = document.createElement("div");
+        cell.className = "osm-cell";
+        const input = makeInput(kind, propSchema, container[key], (next) => {
+          container[key] = next;
+          publish();
+          // A rename changes the left panel and every reference dropdown.
+          if (key === "name") renderTree();
+          const found = refreshErrors();
+          markField(cell, pathOf(index, key));
+          if (key === "name") render();
+          return found;
+        });
+        cell.appendChild(input);
+
+        if (item["x-unit"]) {
+          const unit = document.createElement("span");
+          unit.className = "osm-unit";
+          unit.textContent = item["x-unit"];
+          cell.appendChild(unit);
+        }
+        const note = document.createElement("div");
+        note.className = "osm-note";
+        cell.appendChild(note);
+        grid.appendChild(cell);
+        markField(cell, pathOf(index, key));
+      }
+    }
+
+    function markField(cell, path) {
+      const note = cell.querySelector(".osm-note");
+      if (!note) return;
+      // A list reports errors on /path/<i>; show the first one on the field.
+      let problem = errorsByPath.get(path);
+      if (!problem) {
+        for (const [key, value] of errorsByPath) {
+          if (key.startsWith(path + "/")) { problem = value; break; }
+        }
+      }
+      cell.classList.toggle("has-error", problem?.severity === "error");
+      cell.classList.toggle("has-warning", problem?.severity === "warning");
+      note.textContent = problem ? problem.message : "";
+    }
+
+    function renderDetail() {
+      detail.innerHTML = "";
+      if (selection.kind === "project") {
+        renderForm(doc, schema, null);
+        return;
+      }
+      const comp = components()[selection.index];
+      if (!comp) {
+        selection = { kind: "project" };
+        renderDetail();
+        return;
+      }
+      const def = defs()[comp.type];
+      if (!def) {
+        detail.textContent = `Unknown component type: ${comp.type}`;
+        return;
+      }
+      renderForm(comp, def, selection.index);
+    }
+
+    // ____________________ add / delete ____________________
+
+    function fillTypes() {
+      newType.innerHTML = "";
+      for (const type of Object.keys(defs()).sort()) {
+        const option = document.createElement("option");
+        option.value = option.textContent = type;
+        newType.appendChild(option);
+      }
+    }
+
+    root.querySelector(".osm-new").onclick = () => {
+      const type = newType.value;
+      const def = defs()[type];
+      if (!def) return;
+      const created = { type };
+      for (const [key, propSchema] of Object.entries(def.properties || {})) {
+        if (key === "type") continue;
+        if (propSchema.default !== undefined) created[key] = structuredClone(propSchema.default);
+      }
+      const taken = new Set(components().map((c) => c.name));
+      let n = 1;
+      while (taken.has(`${type}_${n}`)) n += 1;
+      created.name = `${type}_${n}`;
+
+      if (!Array.isArray(doc.components)) doc.components = [];
+      doc.components.push(created);
+      selection = { kind: "component", index: doc.components.length - 1 };
+      publish();
+      render();
     };
 
-    const editor = createJSONEditor({
-      target: container,
-      props: {
-        content: { json: model.get("value") },
-        mode: "tree",
-        mainMenuBar: true,
-        navigationBar: true,
-        // The editor calls this on every content change; it is what draws the
-        // inline error markers next to offending values.
-        validator: validate ? (json) => runValidator(json) : undefined,
-        onChange: (content, previousContent, { contentErrors }) => {
-          if (applyingFromModel) return;
-          // Do not publish while the text is not parseable JSON: the document
-          // would arrive at the kernel truncated mid-edit.
-          if (contentErrors && contentErrors.parseError) {
-            status.textContent = "Invalid JSON — not synced";
-            status.dataset.state = "error";
-            return;
-          }
-          const json = content.json !== undefined
-            ? content.json
-            : JSON.parse(content.text);
-          showStatus(runValidator(json));
-          clearTimeout(timer);
-          timer = setTimeout(() => publish(json), DEBOUNCE_MS);
-        },
-      },
-    });
+    root.querySelector(".osm-delete").onclick = () => {
+      if (selection.kind !== "component") return;
+      doc.components.splice(selection.index, 1);
+      selection = { kind: "project" };
+      publish();
+      render();
+    };
 
-    showStatus(runValidator(model.get("value")));
+    // ____________________ render ____________________
+
+    function render() {
+      refreshErrors();
+      renderTree();
+      renderDetail();
+    }
+
+    fillTypes();
+    render();
 
     const onValueChange = () => {
-      const json = model.get("value");
-      const current = editor.get();
-      const shown = current.json !== undefined ? current.json : undefined;
+      const incoming = model.get("value");
       // Skip the echo of the value we just published ourselves.
-      if (JSON.stringify(shown) === JSON.stringify(json)) return;
-      applyingFromModel = true;
-      editor.update({ json });
-      applyingFromModel = false;
-      showStatus(runValidator(json));
+      if (JSON.stringify(incoming) === JSON.stringify(doc)) return;
+      doc = structuredClone(incoming);
+      render();
     };
 
     const onSchemaChange = () => {
-      ({ validate, error: schemaError } = buildValidator(model.get("schema")));
-      editor.updateProps({
-        validator: validate ? (json) => runValidator(json) : undefined,
-      });
-      showStatus(runValidator(model.get("value")));
+      schema = model.get("schema");
+      ({ validate, schemaError } = buildValidator(schema));
+      fillTypes();
+      render();
     };
 
     model.on("change:value", onValueChange);
@@ -143,7 +477,6 @@ export default {
       clearTimeout(timer);
       model.off("change:value", onValueChange);
       model.off("change:schema", onSchemaChange);
-      editor.destroy();
     };
   },
 };

@@ -1,26 +1,185 @@
-.opensimula-editor {
-    height: 600px;
+.osm-editor {
     display: flex;
+    height: 520px;
+    border: 1px solid #d0d7de;
+    border-radius: 3px 3px 0 0;
+    font-size: 0.85rem;
+    color: #1f2328;
+    background: #fff;
 }
 
-.opensimula-editor .jse-main {
+/* ---------- left panel ---------- */
+
+.osm-list {
+    width: 230px;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #d0d7de;
+    background: #f6f8fa;
+}
+
+.osm-tree {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.25rem 0;
+}
+
+.osm-group {
+    padding: 0.25rem 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    color: #57606a;
+}
+
+.osm-item {
+    padding: 0.15rem 0.5rem 0.15rem 1.4rem;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.osm-item.osm-project {
+    padding-left: 0.5rem;
+    font-weight: 600;
+}
+
+.osm-item:hover {
+    background: #eaeef2;
+}
+
+.osm-item.selected {
+    background: #0969da;
+    color: #fff;
+}
+
+.osm-item.has-error::after {
+    content: " ●";
+    color: #cf222e;
+}
+
+.osm-item.selected.has-error::after {
+    color: #ffc1c1;
+}
+
+.osm-list-actions {
+    flex: none;
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.35rem;
+    border-top: 1px solid #d0d7de;
+}
+
+.osm-list-actions select {
     flex: 1;
     min-width: 0;
 }
 
-.opensimula-editor-status {
+/* ---------- right panel ---------- */
+
+.osm-detail {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    padding: 0.6rem 0.8rem;
+}
+
+.osm-detail-title {
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid #d0d7de;
+}
+
+.osm-form {
+    display: grid;
+    grid-template-columns: 12rem 1fr;
+    gap: 0.35rem 0.75rem;
+    align-items: start;
+}
+
+.osm-label {
+    padding-top: 0.25rem;
+    color: #57606a;
+    word-break: break-word;
+}
+
+.osm-cell {
+    display: grid;
+    grid-template-columns: minmax(0, 22rem) auto;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.osm-cell input[type="text"],
+.osm-cell input[type="number"],
+.osm-cell select {
+    width: 100%;
+    padding: 0.15rem 0.3rem;
+    border: 1px solid #d0d7de;
+    border-radius: 3px;
+    font: inherit;
+}
+
+.osm-cell input[type="checkbox"] {
+    justify-self: start;
+}
+
+.osm-cell.has-error input,
+.osm-cell.has-error select {
+    border-color: #cf222e;
+    background: #fff5f5;
+}
+
+.osm-cell.has-warning input,
+.osm-cell.has-warning select {
+    border-color: #bf8700;
+    background: #fffbef;
+}
+
+.osm-mono {
     font-family: menlo, consolas, monospace;
-    font-size: 0.8rem;
-    padding: 0.35rem 0.6rem;
+}
+
+.osm-unit {
+    color: #57606a;
+    white-space: nowrap;
+}
+
+.osm-note {
+    grid-column: 1 / -1;
+    font-size: 0.78rem;
+    color: #cf222e;
+}
+
+.osm-cell.has-warning .osm-note {
+    color: #9a6700;
+}
+
+/* ---------- status bar ---------- */
+
+.osm-status {
+    font-family: menlo, consolas, monospace;
+    font-size: 0.78rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid #d0d7de;
+    border-top: none;
     border-radius: 0 0 3px 3px;
 }
 
-.opensimula-editor-status[data-state="ok"] {
+.osm-status[data-state="ok"] {
     color: #1a7f37;
     background: #dafbe1;
 }
 
-.opensimula-editor-status[data-state="error"] {
-    color: #b35900;
-    background: #fff1e5;
+.osm-status[data-state="warn"] {
+    color: #9a6700;
+    background: #fff8c5;
+}
+
+.osm-status[data-state="error"] {
+    color: #cf222e;
+    background: #ffebe9;
 }

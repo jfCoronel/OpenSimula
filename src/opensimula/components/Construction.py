@@ -17,7 +17,7 @@ class Construction(Component):
         self.add_parameter(Parameter_float_list(
             "lw_epsilon", [0.9, 0.9], "frac", min=0, max=1))
         self.add_parameter(Parameter_component_list(
-            "materials", [], "Material"))
+            "materials", [], ["Material"]))
         self.add_parameter(Parameter_float_list("thicknesses", [], "m", min=0))
 
     def check(self):

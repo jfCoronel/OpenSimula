@@ -11,11 +11,11 @@ class Opening_type(Component):
             "description").value = "Window or doors with glazing, construction, frame and shading."
 
         self.add_parameter(Parameter_component(
-            "glazing", "not_defined", "Glazing"))
+            "glazing", "not_defined", ["Glazing"]))
         self.add_parameter(Parameter_component(
-            "frame", "not_defined", "Frame"))
+            "frame", "not_defined", ["Frame"]))
         self.add_parameter(Parameter_component(
-            "construction", "not_defined", "Construction"))
+            "construction", "not_defined", ["Construction"]))
         self.add_parameter(Parameter_float(
             "glazing_fraction", 0.9, "frac", min=0, max=1))
         self.add_parameter(Parameter_float(

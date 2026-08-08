@@ -66,6 +66,32 @@ def test_list_parameters_accept_the_scalar_shorthand(schema):
     )
 
 
+def test_allowed_types_are_always_lists():
+    """A component declaring allowed_types as a bare string turns
+    Parameter_component.check() into a substring test, and would reach the
+    schema as one entry per character."""
+    sim = osm.Simulation()
+    sim.console_print = False
+    project = sim.new_project("allowed_types")
+    for type_name in component_types():
+        comp = project.new_component(type_name, f"c_{type_name}")
+        for key, par in comp.parameter_dict().items():
+            allowed = getattr(par, "allowed_types", None)
+            if allowed is not None:
+                assert isinstance(allowed, list), f"{type_name}.{key} is {allowed!r}"
+
+
+def test_every_reference_names_known_component_types(schema):
+    known = set(schema["$defs"])
+    for name, definition in schema["$defs"].items():
+        for key, prop in definition["properties"].items():
+            item = prop["anyOf"][1] if prop.get("x-list") else prop
+            ref = item.get("x-ref") if isinstance(item, dict) else None
+            if ref:
+                unknown = set(ref["allowed_types"]) - known
+                assert not unknown, f"{name}.{key} allows unknown types {unknown}"
+
+
 def test_parameter_metadata_reaches_the_schema(schema):
     material = schema["$defs"]["Material"]["properties"]
     assert material["conductivity"]["type"] == "number"

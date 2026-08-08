@@ -80,10 +80,23 @@ def _options(par):
     return {"type": "string", "enum": list(par.options)}
 
 
+def _allowed_types(par):
+    """allowed_types as a list, whatever the component declared.
+
+    A bare string is accepted: list("Material") would otherwise split it into
+    characters, and Parameter_component.check() likewise turns into a substring
+    test instead of a membership test.
+    """
+    allowed = par.allowed_types
+    if isinstance(allowed, str):
+        return [allowed]
+    return list(allowed)
+
+
 def _component_ref(par):
     return {
         "type": "string",
-        "x-ref": {"kind": "component", "allowed_types": list(par.allowed_types)},
+        "x-ref": {"kind": "component", "allowed_types": _allowed_types(par)},
     }
 
 
