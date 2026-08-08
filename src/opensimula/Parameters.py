@@ -204,6 +204,14 @@ class Parameter_int(Parameter):
         return self._unit_
 
     @property
+    def min(self):
+        return self._min_
+
+    @property
+    def max(self):
+        return self._max_
+
+    @property
     def value(self):
         return self._value_
 
@@ -236,6 +244,14 @@ class Parameter_int_list(Parameter):
     @property
     def unit(self):
         return self._unit_
+
+    @property
+    def min(self):
+        return self._min_
+
+    @property
+    def max(self):
+        return self._max_
 
     @property
     def value(self):

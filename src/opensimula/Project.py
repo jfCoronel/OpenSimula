@@ -602,6 +602,22 @@ class Project(Parameter_container):
     def simulation_dataframe(self):
         return self._sim_df
 
+    def editor(self):
+        """Interactive editor for the whole project definition.
+
+        Returns an anywidget that works in Jupyter and, wrapped in
+        mo.ui.anywidget(), in Marimo. The document is read with write_dict();
+        the widget does not write back to this project.
+
+        Returns:
+            ProjectEditor: widget holding the project document in .value
+        """
+        # Imported here: opensimula.editor reaches Project through Simulation,
+        # so a module level import would close the cycle.
+        from opensimula.editor import ProjectEditor
+
+        return ProjectEditor(self)
+
     def component_editor(self, comp_type="all"):
         editor = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
         df = self.component_dataframe(comp_type=comp_type, string_format=True)

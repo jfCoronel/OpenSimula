@@ -1,0 +1,26 @@
+.opensimula-editor {
+    height: 600px;
+    display: flex;
+}
+
+.opensimula-editor .jse-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.opensimula-editor-status {
+    font-family: menlo, consolas, monospace;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 0 0 3px 3px;
+}
+
+.opensimula-editor-status[data-state="ok"] {
+    color: #1a7f37;
+    background: #dafbe1;
+}
+
+.opensimula-editor-status[data-state="error"] {
+    color: #b35900;
+    background: #fff1e5;
+}

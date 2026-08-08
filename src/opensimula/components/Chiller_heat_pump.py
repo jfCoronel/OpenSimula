@@ -5,7 +5,7 @@ from opensimula.Component import Component
 class Chiller_heat_pump(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
-        self.parameter("type").value = "Chiller"
+        self.parameter("type").value = "Chiller_heat_pump"
         self.parameter("description").value = "Chiller equipment manufacturer information"
         self.add_parameter(Parameter_options("chiller_type", "CHILLER", ["CHILLER", "HEAT_PUMP", "CHILLER_HEAT_PUMP"]))
         self.add_parameter(Parameter_options("condensation_type", "AIR_CONDENSED", ["AIR_CONDENSED", "WATER_CONDENSED"]))
