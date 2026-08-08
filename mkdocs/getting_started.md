@@ -20,9 +20,8 @@ opensimula uses in different parts of the code the following Python packages, wh
 - psychrolib
 - vedo
 - plotly
-- dash
-- dash_bootstrap_components
-- dash_ag_grid
+- anywidget
+- jsonschema
 - nbformat
 - tqdm
 

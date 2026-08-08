@@ -4,6 +4,7 @@ from opensimula.editor.schema import (
     parameter_schema,
     project_json_schema,
 )
+from opensimula.editor.validation import format_errors, validate_document
 from opensimula.editor.widget import ProjectEditor, default_schema
 
 __all__ = [
@@ -11,6 +12,8 @@ __all__ = [
     "ProjectEditor",
     "component_types",
     "default_schema",
+    "format_errors",
     "parameter_schema",
     "project_json_schema",
+    "validate_document",
 ]

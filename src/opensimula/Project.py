@@ -91,6 +91,18 @@ class Project(Parameter_container):
             "RHOCP_W": rhocp_water,
         }
 
+    def clear(self):
+        """Remove every component from the Project
+
+        The parameters of the project itself keep their values; only its
+        components are dropped. Needed before reloading a definition into a
+        project that already holds one, because read_dict() and read_json()
+        add components, they do not replace them.
+        """
+        self._components_ = []
+        self._components_dict_ = {}
+        self._ordered_component_list_ = []
+
     def del_component(self, component):
         """Delete component from Project
 

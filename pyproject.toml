@@ -9,6 +9,7 @@ description = "Component-based time simulation environment in Python"
 readme = "README.md"
 dependencies = [
     "anywidget>=0.11.0",
+    "jsonschema>=4.26.0",
     "nbformat>=5.10.4",
     "numpy>=2.3.3",
     "openpyxl>=3.1.5",
@@ -27,7 +28,6 @@ dev = [
     "mkdocs>=1.6.1",
     "pytest>=8.4.2",
     "marimo>=0.19.0",
-    "jsonschema>=4.26.0",
 ]
 
 [tool.setuptools.package-data]

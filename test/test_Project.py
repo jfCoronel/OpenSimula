@@ -150,3 +150,46 @@ def test_duplicate_component():
     # Test duplicating non-existent component
     result = p1.duplicate_component("non_existent", "new_name")
     assert result is None
+
+
+def test_clear_removes_every_component():
+    sim = osim.Simulation()
+    p1 = sim.new_project("p1")
+    p1.read_dict(p1_dic)
+    assert len(p1.component_list()) == 2
+
+    p1.clear()
+
+    assert p1.component_list() == []
+    # The name index has to go with them, or a new component reusing a name
+    # would resolve to the removed one.
+    assert p1.component("comp 1") is None
+    # Project parameters are not touched by clear()
+    assert p1.parameter("name").value == "project 1"
+
+
+def test_reloading_after_clear_is_not_additive():
+    """read_dict() adds components, it does not replace them: reloading a
+    definition into a loaded project doubled it before clear() existed."""
+    sim = osim.Simulation()
+    p1 = sim.new_project("p1")
+    p1.read_dict(p1_dic)
+
+    p1.read_dict(p1.write_dict())
+    assert len(p1.component_list()) == 4
+
+    p1.clear()
+    p1.read_dict(p1_dic)
+    assert len(p1.component_list()) == 2
+
+
+def test_write_dict_survives_clear_and_reload():
+    sim = osim.Simulation()
+    p1 = sim.new_project("p1")
+    p1.read_dict(p1_dic)
+    written = p1.write_dict()
+
+    p1.clear()
+    p1.read_dict(written)
+
+    assert p1.write_dict() == written

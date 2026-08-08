@@ -113,7 +113,22 @@ The following is a list of the most useful functions of the Project object:
 - **simulate()**: Perform the time simulation of the project, calculating all the varibles of the components. Once the simulation has started, an informative progress bar will be printed.
 - **simulation_dataframe()**: Returns pandas DataFrame with information from the latest simulation. For each time step it includes the number of iterations performed and the name of the last component that forced the iteration.
 - **dates()**: Returns numpy array with the date of each simulation instant, using winter time without daylight saving.
-- **editor()**: Returns an interactive editor for the whole project definition. Displayed directly in Jupyter, or wrapped in `mo.ui.anywidget(...)` in Marimo. The components appear grouped by type on the left, and the parameters of the selected one as a form on the right. The form is generated from the project JSON Schema, so every field carries its unit and its limits, options become dropdowns, and a parameter referring to another component becomes a dropdown of the components of the accepted types. Values that differ from the default of the component class are shown in bold, with a button to reset them. Errors are reported under the offending field, together with references pointing at a component name that does not exist. The edited document is available as `editor.value`; the widget does not write back to the project.
+- **clear()**: Removes every component from the project. The parameters of the project itself keep their values. Needed before reloading a definition into a project that already holds one, because `read_dict()` and `read_json()` add components, they do not replace them.
+
+- **editor()**: Returns an interactive editor for the whole project definition. Displayed directly in Jupyter, or wrapped in `mo.ui.anywidget(...)` in Marimo. The components appear grouped by type on the left, and the parameters of the selected one as a form on the right. The form is generated from the project JSON Schema, so every field carries its unit and its limits, options become dropdowns, and a parameter referring to another component becomes a dropdown of the components of the accepted types. Values that differ from the default of the component class are shown in bold, with a button to reset them. Errors are reported under the offending field, together with references pointing at a component name that does not exist.
+
+The edited definition is available as `editor.value`. The editor does not write it back on its own; `editor.apply()` does, rebuilding the project from the document:
+
+```python
+editor = pro.editor()
+editor                       # edit it in the notebook
+...
+errors = editor.apply()      # load the result back into pro
+```
+
+`apply()` validates the document first and leaves the project untouched if it does not satisfy the schema, so a half applied definition cannot happen; in that case it returns the schema errors. Otherwise it returns the messages from `check()`. The project is rebuilt rather than patched parameter by parameter, which is what keeps renames working: components refer to each other by name, and the references are resolved on load. Any simulation results held by the previous components are dropped, since the definition they came from is gone.
+
+`editor.validate()` gives the schema errors of the document, and `editor.is_valid()` whether there are any. Both are computed in Python, so they also work in a script, without a browser having rendered the widget.
 
 ![Project editor example](img/editor.png)
 

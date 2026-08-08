@@ -173,9 +173,7 @@ pro = sim.new_project("Project 1")
 <li><strong>project_list()</strong>: Returns the list of projects in simulation environment.</li>
 <li><strong>project_dataframe()</strong>: Returns pandas DataFrame with all the projects and its parameters as columns.</li>
 <li><strong>plot(dates,variables,names=[],axis=[],frequency=None,value="mean",interval=None)</strong>:  Draw variables graph (using plotly). dates is the array of dates to be used on the x-axis (can be obtained with the dates() function of the projects). Varibles is a list of variables to be plotted, each one in a serie. Names is the list of names for the series (if empty variables names will be used).frequency [<strong>None</strong>, "hourly", "daily", "monthly", "yearly"] is the frequency of the data, that of the simulation (None), hourly, daily, monthly or yearly and value [<strong>"mean"</strong>,"max","min","sum","sum_pos","sum_neg"], if we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each point (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min"), the sum ("sum"), the sum of positive values ("sum_pos") and the sum of negative values("sum_neg"). interval [<strong>None</strong>,[start_date, end_date]]: List with the start and end dates of the period to be plotted, if the value is None all values are included.</li>
-<li><strong>project_editor()</strong>: When used in Jupyter, it generates a form with a table that allows you to create new projects, delete existing ones and edit the parameters of each project, as shown in the following image.</li>
 </ul>
-<p><img alt="Project editor example" src="../img/project_editor.png" /></p>
 <h3 id="projects">Projects</h3>
 <p>Projects contain a set of components defining a case that can be temporarily simulated.</p>
 <h4 id="project-parameters">Project parameters</h4>
@@ -191,7 +189,7 @@ pro = sim.new_project("Project 1")
 <li><strong>daylight_saving_end_time</strong> [<em>string</em>, default = "28/10/2001 02:00:00"]: daylight saving start time, time with format "DD/MM/YYYY hh:mm:ss". It will only be used if the daylight_saving parameter is set to True.</li>
 <li><strong>n_max_iteration</strong> [<em>int</em>, default = 1000, min = 1]: Maximum number of iterations in each time step. If after this number of iterations the instant has not converged, it is passed to the next time instant. </li>
 <li><strong>albedo</strong> [<em>float</em>, unit = "frac", default = 0.3, min = 0, max = 1]: Solar reflectivity of the ground surrounding. Used to calculate the solar radiation reflected to the exterior surfaces of the buildings.</li>
-<li><strong>shadow_calculation</strong> [<em>option</em>, default = "INSTANT", options = ["NO","INSTANT","INTERPOLATION"]]: Procedure used for the exterior calculation of the shadows produced by the shading surfaces "Solar_surface" and the buildings itself. “NO": no shadows are calculated, "INSTANT": Shadows are calculated for each instant of simulated time. "INTERPOLATION": The shadows are calculated for 36 x 18 = 648 fixed solar positions and then the shadows for every time step are obtained by interpolating on these tables.</li>
+<li><strong>shadow_calculation</strong> [<em>option</em>, default = "INTERPOLATION", options = ["NO","INSTANT","INTERPOLATION"]]: Procedure used for the exterior calculation of the shadows produced by the shading surfaces "Solar_surface" and the buildings itself. “NO": no shadows are calculated, "INSTANT": Shadows are calculated for each instant of simulated time. "INTERPOLATION": The shadows are calculated for 36 x 18 = 648 fixed solar positions and then the shadows for every time step are obtained by interpolating on these tables.</li>
 <li><strong>simulation_order</strong> [<em>string-list</em>, default = [
                     "Space_type",
                     "Building_surface",
@@ -253,9 +251,22 @@ pro.set_parameters(param)
 <li><strong>simulate()</strong>: Perform the time simulation of the project, calculating all the varibles of the components. Once the simulation has started, an informative progress bar will be printed.</li>
 <li><strong>simulation_dataframe()</strong>: Returns pandas DataFrame with information from the latest simulation. For each time step it includes the number of iterations performed and the name of the last component that forced the iteration.</li>
 <li><strong>dates()</strong>: Returns numpy array with the date of each simulation instant, using winter time without daylight saving.</li>
-<li><strong>component_editor(type)</strong>: When used in Jupyter, it generates a form with a table that allows you to create new compenents, delete existing ones and edit the parameters of each component. If the type is specified, a table with only the components of that type will be displayed. If no type is included or type = “all” all components will be displayed but only with the common parameters. Following image shows an example of the component editor:</li>
+<li>
+<p><strong>clear()</strong>: Removes every component from the project. The parameters of the project itself keep their values. Needed before reloading a definition into a project that already holds one, because <code>read_dict()</code> and <code>read_json()</code> add components, they do not replace them.</p>
+</li>
+<li>
+<p><strong>editor()</strong>: Returns an interactive editor for the whole project definition. Displayed directly in Jupyter, or wrapped in <code>mo.ui.anywidget(...)</code> in Marimo. The components appear grouped by type on the left, and the parameters of the selected one as a form on the right. The form is generated from the project JSON Schema, so every field carries its unit and its limits, options become dropdowns, and a parameter referring to another component becomes a dropdown of the components of the accepted types. Values that differ from the default of the component class are shown in bold, with a button to reset them. Errors are reported under the offending field, together with references pointing at a component name that does not exist.</p>
+</li>
 </ul>
-<p><img alt="Component editor example" src="../img/component_editor.png" /></p>
+<p>The edited definition is available as <code>editor.value</code>. The editor does not write it back on its own; <code>editor.apply()</code> does, rebuilding the project from the document:</p>
+<pre><code class="language-python">editor = pro.editor()
+editor                       # edit it in the notebook
+...
+errors = editor.apply()      # load the result back into pro
+</code></pre>
+<p><code>apply()</code> validates the document first and leaves the project untouched if it does not satisfy the schema, so a half applied definition cannot happen; in that case it returns the schema errors. Otherwise it returns the messages from <code>check()</code>. The project is rebuilt rather than patched parameter by parameter, which is what keeps renames working: components refer to each other by name, and the references are resolved on load. Any simulation results held by the previous components are dropped, since the definition they came from is gone.</p>
+<p><code>editor.validate()</code> gives the schema errors of the document, and <code>editor.is_valid()</code> whether there are any. Both are computed in Python, so they also work in a script, without a browser having rendered the widget.</p>
+<p><img alt="Project editor example" src="../img/editor.png" /></p>
 <ul>
 <li>
 <p><strong>show_3D(jupyter=False)</strong>: Displays an interactive 3D visualization window of all the components with 3D representation, like Buildings (using vedo). Set <em>jupyter=True</em> to render an interactive Plotly figure directly inside a Jupyter notebook instead of opening an external window.</p>

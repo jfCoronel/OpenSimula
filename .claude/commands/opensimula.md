@@ -117,7 +117,10 @@ project_dict = {
 | `pro.show_3D(jupyter=False)` | 3D view of building geometry. `jupyter=True` renders inline in the notebook; `jupyter=False` (default) opens an external interactive window. |
 | `pro.show_3D_shadows(date, jupyter=False)` | 3D view with shadows for a specific `datetime`. Same `jupyter` argument. |
 | `pro.show_3D_shadows_animation(date, jupyter=False)` | Animated shadows for a full day. With `jupyter=True` renders as an HTML animation inline; with `jupyter=False` opens an interactive window with a slider. |
-| `pro.editor()` | Interactive editor for the whole project (anywidget: Jupyter, or `mo.ui.anywidget(...)` in Marimo). Component list plus a parameter form built from the JSON Schema. Edited document in `editor.value`; does not write back to the project |
+| `pro.clear()` | Removes every component. Project parameters are kept. Needed before reloading, since `read_dict`/`read_json` add components rather than replacing them |
+| `pro.editor()` | Interactive editor for the whole project (anywidget: Jupyter, or `mo.ui.anywidget(...)` in Marimo). Component list plus a parameter form built from the JSON Schema. Edited document in `editor.value` |
+| `editor.apply(project=None)` | Rebuilds the project from the edited document. Validates first and applies nothing if invalid, returning the schema errors; otherwise returns `check()` messages |
+| `editor.validate()` / `editor.is_valid()` | Schema errors of the document, computed in Python, so they work in a script with no browser |
 
 ### Component Functions
 

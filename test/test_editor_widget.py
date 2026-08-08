@@ -1,3 +1,4 @@
+import copy
 import json
 import pathlib
 
@@ -5,7 +6,7 @@ import pytest
 
 import opensimula as osm
 import opensimula.editor.widget as widget_module
-from opensimula.editor import ProjectEditor, default_schema
+from opensimula.editor import ProjectEditor, default_schema, format_errors
 
 ROOT = pathlib.Path(__file__).parent.parent
 
@@ -77,12 +78,89 @@ def test_document_is_json_serialisable(project):
 
 
 def test_error_report_formats_paths():
-    editor = ProjectEditor(value={})
-    editor.errors = [
-        {"path": ["components", "3", "conductivity"], "message": "must be >= 0"}
-    ]
-    assert editor.is_valid() is False
-    assert editor.error_report() == ["/components/3/conductivity: must be >= 0"]
+    assert format_errors(
+        [{"path": ["components", "3", "conductivity"], "message": "must be >= 0"}]
+    ) == ["/components/3/conductivity: must be >= 0"]
+    assert format_errors([]) == []
 
-    editor.errors = []
+
+def test_validate_runs_without_a_frontend(project):
+    """The errors traitlet is filled by the browser, so it stays empty in a
+    script and would report any document as valid."""
+    editor = project.editor()
+    assert editor.errors == []
+    assert editor.validate() == []
     assert editor.is_valid() is True
+
+    broken = copy.deepcopy(editor.value)
+    broken["components"][0]["int"] = -1  # Parameter_int defaults to min=0
+    editor.value = broken
+
+    assert editor.errors == []  # nothing has rendered it
+    errors = editor.validate()
+    assert len(errors) == 1
+    assert errors[0]["path"] == ["components", "0", "int"]
+    assert "minimum" in errors[0]["message"]
+    assert editor.is_valid() is False
+    assert editor.error_report() == ["/components/0/int: " + errors[0]["message"]]
+
+
+def test_validate_names_the_offending_component_type(project):
+    editor = project.editor()
+    broken = copy.deepcopy(editor.value)
+    broken["components"][0]["type"] = "Nonexistent"
+    editor.value = broken
+
+    errors = editor.validate()
+    assert len(errors) == 1
+    assert "Nonexistent" in errors[0]["message"]
+
+
+def test_apply_rebuilds_the_project(project):
+    editor = project.editor()
+    n_components = len(project.component_list())
+    name = project.component_list()[0].parameter("name").value
+
+    edited = copy.deepcopy(editor.value)
+    edited["components"][0]["description"] = "edited through the widget"
+    editor.value = edited
+
+    result = editor.apply()
+
+    assert all(not isinstance(item, dict) for item in result)  # check() messages
+    assert len(project.component_list()) == n_components  # rebuilt, not doubled
+    assert project.component(name).parameter("description").value == (
+        "edited through the widget"
+    )
+    assert project.write_dict() == editor.value
+
+
+def test_apply_leaves_the_project_untouched_when_invalid(project):
+    editor = project.editor()
+    before = project.write_dict()
+
+    broken = copy.deepcopy(editor.value)
+    broken["components"][0]["int"] = -1
+    editor.value = broken
+
+    result = editor.apply()
+
+    assert result == editor.validate()
+    assert project.write_dict() == before
+
+
+def test_apply_can_target_another_project(project):
+    sim = project._sim_
+    other = sim.new_project("other")
+    editor = project.editor()
+
+    editor.apply(other)
+
+    assert len(other.component_list()) == len(project.component_list())
+    assert other.parameter("name").value == project.parameter("name").value
+
+
+def test_apply_without_a_project_is_an_error():
+    editor = ProjectEditor(value={"name": "p", "components": []})
+    with pytest.raises(ValueError):
+        editor.apply()

@@ -10,12 +10,14 @@ The whole project document lives in a single ``value`` traitlet, which is what
 makes it reactive in Marimo and observable in Jupyter.
 """
 
+import copy
 import pathlib
 
 import anywidget
 import traitlets
 
 from opensimula.editor.schema import project_json_schema
+from opensimula.editor.validation import format_errors, validate_document
 
 _STATIC = pathlib.Path(__file__).parent / "static"
 
@@ -71,14 +73,56 @@ class ProjectEditor(anywidget.AnyWidget):
         """The project the document was read from, if any."""
         return self._project_
 
+    def validate(self):
+        """Schema errors of the current document, checked here in Python.
+
+        Not the "errors" traitlet: that one is filled by the browser, so it is
+        empty until the widget has been displayed, and reads as valid for any
+        document when it never was.
+
+        Returns:
+            list of dict: one entry per problem, empty if the document is valid.
+        """
+        return validate_document(self.value, self.schema)
+
     def is_valid(self):
-        """True if the document currently satisfies the schema."""
-        return len(self.errors) == 0
+        """True if the document satisfies the schema."""
+        return len(self.validate()) == 0
 
     def error_report(self):
         """Validation errors as readable lines."""
-        lines = []
-        for error in self.errors:
-            path = "/".join(str(part) for part in error.get("path", []))
-            lines.append(f"/{path}: {error.get('message', '')}")
-        return lines
+        return format_errors(self.validate())
+
+    def apply(self, project=None):
+        """Load the edited document into the project, replacing its contents.
+
+        The document is the source of truth: rather than working out which
+        parameters changed, the project is rebuilt from it. That is what keeps
+        renames working, since components refer to each other by name and the
+        references are resolved on load.
+
+        The project is left untouched if the document does not satisfy the
+        schema, so a half-applied definition cannot happen. Simulation results
+        held by the previous components are dropped either way: the definition
+        they came from is gone.
+
+        Args:
+            project (Project, optional): project to load into. Defaults to the
+                one the document was read from.
+
+        Returns:
+            list: schema errors, if any, in which case nothing was applied.
+                Otherwise the messages returned by Project.check().
+        """
+        target = project if project is not None else self._project_
+        if target is None:
+            raise ValueError("No project to apply to: build the editor from one")
+
+        errors = self.validate()
+        if errors:
+            return errors
+
+        target.clear()
+        # A copy, so the parameters cannot end up aliasing the widget document.
+        target.read_dict(copy.deepcopy(self.value))
+        return target.check()
