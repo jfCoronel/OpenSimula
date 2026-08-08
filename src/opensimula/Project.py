@@ -2,9 +2,6 @@ import json
 import datetime as dt
 import numpy as np
 import pandas as pd
-from dash import Dash, callback, Input, Output, html, State
-import dash_ag_grid as dag
-import dash_bootstrap_components as dbc
 import psychrolib as sicro
 from tqdm import trange
 from opensimula.Message import Message
@@ -617,91 +614,6 @@ class Project(Parameter_container):
         from opensimula.editor import ProjectEditor
 
         return ProjectEditor(self)
-
-    def component_editor(self, comp_type="all"):
-        editor = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-        df = self.component_dataframe(comp_type=comp_type, string_format=True)
-        self._n_clicks_new_comp_ = 0
-        self._n_clicks_del_comp_ = 0
-        disabled_new = False
-        if comp_type == "all":
-            disabled_new = True
-
-        column_definition = [
-            {
-                "field": "name",
-                "checkboxSelection": True,
-                "headerCheckboxSelection": True,
-            }
-        ]
-        for i in df.columns:
-            if i != "name":
-                column_definition.append({"field": i})
-
-        editor.layout = html.Div(
-            [
-                dbc.Label("Components editor:"),
-                html.Br(),
-                dbc.Button(
-                    "New component",
-                    id="btn-new-comp",
-                    disabled=disabled_new,
-                    n_clicks=0,
-                ),
-                dbc.Button(
-                    "Delete selected components",
-                    id="btn-del-comp",
-                    n_clicks=0,
-                    style={"margin-left": "15px"},
-                ),
-                html.Br(),
-                html.Br(),
-                dag.AgGrid(
-                    id="comp-table",
-                    rowData=df.to_dict("records"),
-                    columnDefs=column_definition,
-                    columnSize="sizeToFit",
-                    defaultColDef={"filter": True, "editable": True},
-                    style={"height": "500px"},
-                    dashGridOptions={
-                        "rowSelection": "multiple",
-                        "suppressRowClickSelection": True,
-                        "pagination": True,
-                    },
-                ),
-            ]
-        )
-
-        @callback(
-            Output("comp-table", "rowData"),
-            Input("comp-table", "cellValueChanged"),
-            Input("btn-new-comp", "n_clicks"),
-            Input("btn-del-comp", "n_clicks"),
-            State("comp-table", "selectedRows"),
-            prevent_initial_call=True,
-        )
-        def update_data(changed, n_clicks_new, n_clicks_del, selectedRows):
-            if self._n_clicks_new_comp_ < n_clicks_new:
-                self.new_component(comp_type, "new_comp_" + str(n_clicks_new))
-                self._n_clicks_new_comp_ = n_clicks_new
-            elif self._n_clicks_del_comp_ < n_clicks_del:
-                for row in selectedRows:
-                    self.del_component(self.component(row["name"]))
-                self._n_clicks_del_comp_ = n_clicks_del
-            else:
-                if changed is not None:
-                    if changed[0]["colId"] == "name":
-                        self.component(changed[0]["oldValue"]).parameter(
-                            "name"
-                        ).value = changed[0]["value"]
-                    else:
-                        self.component(changed[0]["data"]["name"]).parameter(
-                            changed[0]["colId"]
-                        ).value = changed[0]["value"]
-            df_end = self.component_dataframe(comp_type=comp_type, string_format=True)
-            return df_end.to_dict("records")
-
-        editor.run(jupyter_height=600)
 
     def create_3D_environment(self, env_3D):
         for component in self.component_list("all"):

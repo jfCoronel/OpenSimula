@@ -49,7 +49,6 @@ sim = Simulation()
 | `sim.project_list()` | Returns list of all projects |
 | `sim.project_dataframe()` | Returns pandas DataFrame of all projects and their parameters |
 | `sim.plot(dates, variables, names=[], axis=[], frequency=None, value="mean")` | Plots variables using Plotly |
-| `sim.project_editor()` | (Jupyter only) Interactive form to create/delete/edit projects |
 
 **`sim.plot()` arguments:**
 - `dates` — numpy array of datetime objects from `pro.dates()`
@@ -118,7 +117,7 @@ project_dict = {
 | `pro.show_3D(jupyter=False)` | 3D view of building geometry. `jupyter=True` renders inline in the notebook; `jupyter=False` (default) opens an external interactive window. |
 | `pro.show_3D_shadows(date, jupyter=False)` | 3D view with shadows for a specific `datetime`. Same `jupyter` argument. |
 | `pro.show_3D_shadows_animation(date, jupyter=False)` | Animated shadows for a full day. With `jupyter=True` renders as an HTML animation inline; with `jupyter=False` opens an interactive window with a slider. |
-| `pro.component_editor(type)` | (Jupyter) Interactive form to create/delete/edit components |
+| `pro.editor()` | Interactive editor for the whole project (anywidget: Jupyter, or `mo.ui.anywidget(...)` in Marimo). Component list plus a parameter form built from the JSON Schema. Edited document in `editor.value`; does not write back to the project |
 
 ### Component Functions
 

@@ -32,10 +32,6 @@ The following is a list of the most useful functions of the Simulation object:
 - **project_list()**: Returns the list of projects in simulation environment.
 - **project_dataframe()**: Returns pandas DataFrame with all the projects and its parameters as columns.
 - **plot(dates,variables,names=[],axis=[],frequency=None,value="mean",interval=None)**:  Draw variables graph (using plotly). dates is the array of dates to be used on the x-axis (can be obtained with the dates() function of the projects). Varibles is a list of variables to be plotted, each one in a serie. Names is the list of names for the series (if empty variables names will be used).frequency [__None__, "hourly", "daily", "monthly", "yearly"] is the frequency of the data, that of the simulation (None), hourly, daily, monthly or yearly and value [__"mean"__,"max","min","sum","sum_pos","sum_neg"], if we use a frequency other than the simulation frequency (e.g. monthly "M"), the value obtained for each point (month) will be the mean ("mean"), the maximum ("max"), the minimum ("min"), the sum ("sum"), the sum of positive values ("sum_pos") and the sum of negative values("sum_neg"). interval [__None__,[start_date, end_date]]: List with the start and end dates of the period to be plotted, if the value is None all values are included.
-- **project_editor()**: When used in Jupyter, it generates a form with a table that allows you to create new projects, delete existing ones and edit the parameters of each project, as shown in the following image.
-
-![Project editor example](img/project_editor.png)
-
 ### Projects
 
 Projects contain a set of components defining a case that can be temporarily simulated.
@@ -117,9 +113,9 @@ The following is a list of the most useful functions of the Project object:
 - **simulate()**: Perform the time simulation of the project, calculating all the varibles of the components. Once the simulation has started, an informative progress bar will be printed.
 - **simulation_dataframe()**: Returns pandas DataFrame with information from the latest simulation. For each time step it includes the number of iterations performed and the name of the last component that forced the iteration.
 - **dates()**: Returns numpy array with the date of each simulation instant, using winter time without daylight saving.
-- **component_editor(type)**: When used in Jupyter, it generates a form with a table that allows you to create new compenents, delete existing ones and edit the parameters of each component. If the type is specified, a table with only the components of that type will be displayed. If no type is included or type = “all” all components will be displayed but only with the common parameters. Following image shows an example of the component editor:
+- **editor()**: Returns an interactive editor for the whole project definition. Displayed directly in Jupyter, or wrapped in `mo.ui.anywidget(...)` in Marimo. The components appear grouped by type on the left, and the parameters of the selected one as a form on the right. The form is generated from the project JSON Schema, so every field carries its unit and its limits, options become dropdowns, and a parameter referring to another component becomes a dropdown of the components of the accepted types. Values that differ from the default of the component class are shown in bold, with a button to reset them. Errors are reported under the offending field, together with references pointing at a component name that does not exist. The edited document is available as `editor.value`; the widget does not write back to the project.
 
-![Component editor example](img/component_editor.png)
+![Project editor example](img/editor.png)
 
 - **show_3D(jupyter=False)**: Displays an interactive 3D visualization window of all the components with 3D representation, like Buildings (using vedo). Set _jupyter=True_ to render an interactive Plotly figure directly inside a Jupyter notebook instead of opening an external window.
 

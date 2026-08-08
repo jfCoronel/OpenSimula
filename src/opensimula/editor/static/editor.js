@@ -23,6 +23,27 @@ function fieldKind(sch) {
   return "string";
 }
 
+// A number needs room for a number, not for a sentence: keeping the numeric
+// fields short is what leaves the unit on the same line as the value.
+function widthClass(kind, sch) {
+  // A checkbox has to keep its own size: giving it a width centres the box
+  // inside it instead of putting it where the other fields start.
+  if (kind === "boolean" && !isList(sch)) return "osm-w-auto";
+  if (isList(sch)) return "osm-w-wide";
+  if (kind === "integer" || kind === "number") return "osm-w-num";
+  if (kind === "enum" || kind === "ref") return "osm-w-mid";
+  return "osm-w-wide";
+}
+
+const sameValue = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+// "Was this written in the file?" cannot be answered: write_dict() emits every
+// parameter, so the document always carries them all. What is well defined,
+// and what the form can show, is whether the value still equals the default
+// declared by the component class.
+const isDefault = (sch, value) =>
+  value === undefined || sameValue(value, sch.default);
+
 function buildValidator(schema) {
   if (!schema || Object.keys(schema).length === 0) return {};
   try {
@@ -343,30 +364,57 @@ export default {
 
         const cell = document.createElement("div");
         cell.className = "osm-cell";
-        const input = makeInput(kind, propSchema, container[key], (next) => {
+        const control = document.createElement("div");
+        control.className = "osm-control";
+        cell.appendChild(control);
+
+        const commit = (next) => {
           container[key] = next;
           publish();
-          // A rename changes the left panel and every reference dropdown.
-          if (key === "name") renderTree();
-          const found = refreshErrors();
+          refreshErrors();
           markField(cell, pathOf(index, key));
+          markModified(cell, propSchema, container[key]);
+          // A rename changes the left panel and every reference dropdown.
           if (key === "name") render();
-          return found;
-        });
-        cell.appendChild(input);
+        };
+
+        const input = makeInput(kind, propSchema, container[key], commit);
+        input.classList.add(widthClass(kind, propSchema));
+        control.appendChild(input);
 
         if (item["x-unit"]) {
           const unit = document.createElement("span");
           unit.className = "osm-unit";
           unit.textContent = item["x-unit"];
-          cell.appendChild(unit);
+          control.appendChild(unit);
         }
+
+        if (propSchema.default !== undefined) {
+          const revert = document.createElement("button");
+          revert.type = "button";
+          revert.className = "osm-revert";
+          revert.textContent = "↺";
+          revert.title = `Reset to default (${JSON.stringify(propSchema.default)})`;
+          revert.onclick = () => {
+            commit(structuredClone(propSchema.default));
+            renderDetail();
+          };
+          control.appendChild(revert);
+        }
+
         const note = document.createElement("div");
         note.className = "osm-note";
         cell.appendChild(note);
         grid.appendChild(cell);
         markField(cell, pathOf(index, key));
+        markModified(cell, propSchema, container[key]);
       }
+    }
+
+    function markModified(cell, sch, value) {
+      // Bold, and the reset button only where there is something to reset.
+      const modified = !isDefault(sch, value);
+      cell.classList.toggle("modified", modified);
     }
 
     function markField(cell, path) {
