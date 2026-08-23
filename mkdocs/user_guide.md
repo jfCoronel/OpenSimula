@@ -117,6 +117,16 @@ The following is a list of the most useful functions of the Project object:
 
 - **editor()**: Returns an interactive editor for the whole project definition. Displayed directly in Jupyter, or wrapped in `mo.ui.anywidget(...)` in Marimo. The components appear grouped by type on the left, and the parameters of the selected one as a form on the right. The form is generated from the project JSON Schema, so every field carries its unit and its limits, options become dropdowns, and a parameter referring to another component becomes a dropdown of the components of the accepted types. Values that differ from the default of the component class are shown in bold, with a button to reset them. Errors are reported under the offending field, together with references pointing at a component name that does not exist.
 
+The **Show 3D** button at the bottom opens a 3D view of the building under the form, and **Hide parameters** leaves the view on its own. The view is built with Plotly and its library is downloaded the first time it is opened, so it costs nothing until it is used.
+
+![Project editor with the 3D view](img/editor_3d.png)
+
+The *Space* dropdown shows one space at a time, which is the way to see interior partitions: from outside, the exterior walls hide every surface behind them. The rest of the building stays as a grey wireframe, so the space keeps its place and its size in a recognisable model, and only the surfaces of the chosen space answer the mouse. *Openings* hides the windows and doors.
+
+The selection is linked both ways: picking a component in the list paints it orange in the view, and clicking a surface in the view selects it in the list and shows its parameters.
+
+The view shows the **project**, not the document being edited. Geometry needs a built model, with references resolved and origins placed relative to the building, which the document alone does not give, so it follows `apply()` rather than every keystroke. `refresh_geometry()` reloads it after changing the project from code.
+
 The edited definition is available as `editor.value`. The editor does not write it back on its own; `editor.apply()` does, rebuilding the project from the document:
 
 ```python
@@ -132,7 +142,9 @@ errors = editor.apply()      # load the result back into pro
 
 ![Project editor example](img/editor.png)
 
-- **show_3D(jupyter=False)**: Displays an interactive 3D visualization window of all the components with 3D representation, like Buildings (using vedo). Set _jupyter=True_ to render an interactive Plotly figure directly inside a Jupyter notebook instead of opening an external window.
+- **geometry_dict()**: Returns the geometry of the project as plain data, `{"meshes": [...], "spaces": [...]}`, with one mesh per polygon: its triangles, its outline, its colour, and the component and the spaces it belongs to. It is what feeds the 3D view of the editor, and it is available on its own for any other viewer.
+
+- **show_3D(jupyter=False)**: Displays an interactive 3D visualization window of all the components with 3D representation, like Buildings (using vedo). Set _jupyter=True_ to render an interactive Plotly figure directly inside a Jupyter notebook instead of opening an external window, in which case the figure is also returned, so it can be composed or saved instead of only shown. Note that with _jupyter=False_ the window blocks the kernel until it is closed.
 
 - **show_3D_shadows(date, jupyter=False)**: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the date specified. _date_: Python datetime object specifying a specific date. Set _jupyter=True_ to render inside a Jupyter notebook.
 

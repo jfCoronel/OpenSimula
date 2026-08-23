@@ -92,6 +92,56 @@ class Environment_3D:
         rgb = vedo.colors.get_color(color_name)
         return f"rgb({int(rgb[0]*255)},{int(rgb[1]*255)},{int(rgb[2]*255)})"
 
+    def _polygons_of_type_(self, polygons_type):
+        if polygons_type == "initial":
+            return [p for p in self.pol_3D if p.visible]
+        if polygons_type == "Building_shadows":
+            return (
+                list(self.pol_sunny)
+                + list(self.pol_shadows)
+                + [p for p in self.pol_3D if p.visible and not p.calculate_shadows]
+            )
+        if polygons_type == "sunny":
+            return list(self.pol_sunny)
+        if polygons_type == "shadows":
+            return list(self.pol_shadows)
+        return list(self.pol_sunny) + list(self.pol_shadows)
+
+    def geometry_dict(self, polygons_type="initial", decimals=4):
+        """Geometry as plain data, ready to be sent to a viewer.
+
+        The same triangles that feed plotly, returned instead of drawn, with
+        the component metadata each polygon carries. Coordinates are rounded:
+        4 decimals is a tenth of a millimetre, and the full precision only
+        makes the payload bigger.
+
+        Returns:
+            dict: {"meshes": [...], "spaces": [...]}, one mesh per polygon with
+                its points, triangles, outline, colour and origin.
+        """
+        meshes = []
+        spaces = set()
+        for polygon in self._polygons_of_type_(polygons_type):
+            points, faces = polygon._triangulate_()
+            spaces.update(polygon.spaces)
+            meshes.append(
+                {
+                    "name": polygon.name,
+                    "component": polygon.component,
+                    "component_type": polygon.component_type,
+                    "surface_type": polygon.surface_type,
+                    "spaces": list(polygon.spaces),
+                    "color": self._rgb_str_(polygon.color),
+                    "opacity": polygon.opacity,
+                    "points": np.round(np.array(points), decimals).tolist(),
+                    "faces": np.array(faces, dtype=int).tolist(),
+                    "outline": np.round(
+                        np.array(polygon.polygon3D), decimals
+                    ).tolist(),
+                }
+            )
+        return {"meshes": meshes, "spaces": sorted(spaces)}
+
     def _polygon_to_plotly_(self, polygon_3D):
         """Returns (go.Mesh3d, go.Scatter3d outline) for a single Polygon_3D."""
         import plotly.graph_objects as go
@@ -237,26 +287,24 @@ class Environment_3D:
 
     # ── Public show methods ─────────────────────────────────────────────────
 
+    def plotly_figure(self, polygons_type="initial"):
+        """The plotly Figure of the scene, so it can be composed instead of
+        only shown: subplots, a saved html, another widget."""
+        import plotly.graph_objects as go
+
+        pols = self._polygons_of_type_(polygons_type)
+        traces = []
+        for pol in pols:
+            mesh, outline = self._polygon_to_plotly_(pol)
+            traces.extend([mesh, outline])
+        traces.extend(self._zero_plane_traces_(pols))
+        return go.Figure(data=traces, layout=self._plotly_scene_layout_())
+
     def show(self, polygons_type="initial", jupyter=False):
         if jupyter:
-            import plotly.graph_objects as go
-            if polygons_type == "initial":
-                pols = [p for p in self.pol_3D if p.visible]
-            elif polygons_type == "Building_shadows":
-                pols = (list(self.pol_sunny) + list(self.pol_shadows) +
-                        [p for p in self.pol_3D if p.visible and not p.calculate_shadows])
-            elif polygons_type == "sunny":
-                pols = list(self.pol_sunny)
-            elif polygons_type == "shadows":
-                pols = list(self.pol_shadows)
-            else:
-                pols = list(self.pol_sunny) + list(self.pol_shadows)
-            traces = []
-            for pol in pols:
-                mesh, outline = self._polygon_to_plotly_(pol)
-                traces.extend([mesh, outline])
-            traces.extend(self._zero_plane_traces_(pols))
-            go.Figure(data=traces, layout=self._plotly_scene_layout_()).show()
+            figure = self.plotly_figure(polygons_type)
+            figure.show()
+            return figure
         else:
             vedo.settings.default_backend = "vtk"
             meshes = self.get_vedo_meshes(polygons_type)

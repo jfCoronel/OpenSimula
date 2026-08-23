@@ -59,6 +59,7 @@ class ProjectEditor(anywidget.AnyWidget):
     value = traitlets.Dict({}).tag(sync=True)
     schema = traitlets.Dict({}).tag(sync=True)
     errors = traitlets.List([]).tag(sync=True)
+    geometry = traitlets.Dict({}).tag(sync=True)
 
     def __init__(self, project=None, value=None, schema=None, **kwargs):
         if value is None:
@@ -67,6 +68,17 @@ class ProjectEditor(anywidget.AnyWidget):
             schema = default_schema()
         super().__init__(value=value, schema=schema, **kwargs)
         self._project_ = project
+        self.refresh_geometry()
+
+    def refresh_geometry(self):
+        """Reload the 3D view from the project.
+
+        The 3D view shows the project, not the document being edited: geometry
+        needs a built model, with references resolved and origins placed
+        relative to the building, which the document alone does not give. So it
+        follows apply(), not every keystroke.
+        """
+        self.geometry = self._project_.geometry_dict() if self._project_ else {}
 
     @property
     def project(self):
@@ -125,4 +137,7 @@ class ProjectEditor(anywidget.AnyWidget):
         target.clear()
         # A copy, so the parameters cannot end up aliasing the widget document.
         target.read_dict(copy.deepcopy(self.value))
-        return target.check()
+        messages = target.check()
+        if target is self._project_:
+            self.refresh_geometry()
+        return messages

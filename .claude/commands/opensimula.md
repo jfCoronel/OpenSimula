@@ -121,6 +121,8 @@ project_dict = {
 | `pro.editor()` | Interactive editor for the whole project (anywidget: Jupyter, or `mo.ui.anywidget(...)` in Marimo). Component list plus a parameter form built from the JSON Schema. Edited document in `editor.value` |
 | `editor.apply(project=None)` | Rebuilds the project from the edited document. Validates first and applies nothing if invalid, returning the schema errors; otherwise returns `check()` messages |
 | `editor.validate()` / `editor.is_valid()` | Schema errors of the document, computed in Python, so they work in a script with no browser |
+| `editor.refresh_geometry()` | Reloads the editor's 3D view from the project. `apply()` already does it |
+| `pro.geometry_dict()` | Geometry as plain data: `{"meshes": [...], "spaces": [...]}`, one mesh per polygon with its triangles, outline, colour, component and spaces |
 
 ### Component Functions
 

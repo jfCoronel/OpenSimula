@@ -630,12 +630,50 @@ class Project(Parameter_container):
     def create_3D_environment(self, env_3D):
         for component in self.component_list("all"):
             if hasattr(component, "get_polygon_3D"):
-                env_3D.add_polygon_3D(component.get_polygon_3D())
+                polygon = component.get_polygon_3D()
+                self._set_polygon_origin_(polygon, component)
+                env_3D.add_polygon_3D(polygon)
+
+    def _set_polygon_origin_(self, polygon, component):
+        """Record which component a polygon came from, and which spaces it bounds.
+
+        Polygon_3D is geometry and knows nothing of the model, so the link is
+        made here, where the component is still at hand. It is what lets a
+        viewer show one space at a time; an interior partition belongs to the
+        two spaces on either side of it.
+        """
+        polygon.component = component.parameter("name").value
+        polygon.component_type = component.parameter("type").value
+
+        surface = component
+        if polygon.component_type == "Opening":
+            surface = component.get_surface()
+        if surface is None:
+            return
+
+        parameters = surface.parameter_dict()
+        if "surface_type" in parameters:
+            polygon.surface_type = parameters["surface_type"].value
+        if "spaces" in parameters:
+            polygon.spaces = [
+                name for name in parameters["spaces"].value if name != "not_defined"
+            ]
            
+    def geometry_dict(self):
+        """Geometry of the project as plain data, for a 3D viewer
+
+        Returns:
+            dict: {"meshes": [...], "spaces": [...]}, one mesh per polygon with
+                its triangles and the component and spaces it belongs to
+        """
+        env_3D = Environment_3D()
+        self.create_3D_environment(env_3D)
+        return env_3D.geometry_dict()
+
     def show_3D(self, jupyter=False):
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
-        env_3D.show(polygons_type="initial", jupyter=jupyter)
+        return env_3D.show(polygons_type="initial", jupyter=jupyter)
 
     def show_3D_shadows(self, date, jupyter=False):
         env_3D = Environment_3D()

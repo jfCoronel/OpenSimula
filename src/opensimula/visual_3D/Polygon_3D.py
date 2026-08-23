@@ -37,6 +37,14 @@ class Polygon_3D():
         self.visible = visible
         self.shading = shading
         self.calculate_shadows = calculate_shadows
+        # Where this polygon came from. A polygon is geometry, it does not know
+        # the model, so whoever builds it from a component fills these in; see
+        # Project.create_3D_environment(). Without them a viewer cannot offer
+        # to show one space at a time.
+        self.component = ""
+        self.component_type = ""
+        self.surface_type = ""
+        self.spaces = []
         self._prepare_shadow_data_()
 
     @staticmethod
