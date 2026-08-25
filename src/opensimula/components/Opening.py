@@ -93,7 +93,8 @@ class Opening(Component):
         return errors
 
     def get_building(self):
-        return self.get_surface().get_building()
+        surface = self.get_surface()
+        return None if surface is None else surface.get_building()
 
     def get_space(self, side=0):
         return self.get_surface().get_space(side)

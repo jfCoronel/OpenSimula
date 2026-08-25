@@ -82,36 +82,43 @@ class Component(Parameter_container):
 
     # ____________ Functions that must be overwriten for time simulation _________________
 
-    def get_all_referenced_components(self):
+    def get_all_referenced_components(self, _seen=None):
         """Get list of all referenced components, first itself. Look recursively at the referenced components
+
+        Args:
+            _seen (set, optional): components already walked, used internally.
+                References can form a cycle, if only because a wrong name gets
+                typed into a reference, and without remembering where it has
+                been the walk follows it until the stack runs out.
 
         Returns:
             component_list (component[])
         """
+        if _seen is None:
+            _seen = set()
+        if id(self) in _seen:
+            return []
+        _seen.add(id(self))
+
         comp_list = []
+
+        def walk(component):
+            if component is not None:
+                comp_list.extend(component.get_all_referenced_components(_seen))
+
         for key, value in self.parameter_dict().items():
             if value.type == "Parameter_component":
-                if value.component is not None:
-                    sublist = value.component.get_all_referenced_components()
-                    for subcomp in sublist:
-                        comp_list.append(subcomp)
+                walk(value.component)
             elif value.type == "Parameter_component_list":
                 for comp in value.component:
-                    if comp is not None:
-                        sublist = comp.get_all_referenced_components()
-                        for subcomp in sublist:
-                            comp_list.append(subcomp)
+                    walk(comp)
             if value.type == "Parameter_variable":
                 if value.variable is not None:
-                    sublist = value.variable.parent.get_all_referenced_components()
-                    for subcomp in sublist:
-                        comp_list.append(subcomp)
+                    walk(value.variable.parent)
             elif value.type == "Parameter_variable_list":
                 for var in value.variable:
                     if var is not None:
-                        sublist = var.parent.get_all_referenced_components()
-                        for subcomp in sublist:
-                            comp_list.append(subcomp)
+                        walk(var.parent)
         comp_list.append(self)
         return comp_list
 

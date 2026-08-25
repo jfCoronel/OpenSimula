@@ -342,6 +342,7 @@ export default {
     bar.className = "osm-bar";
     bar.innerHTML = `
       <div class="osm-status"></div>
+      <button class="osm-toggle osm-apply" type="button" disabled>Apply</button>
       <button class="osm-toggle osm-form-toggle" type="button">Hide parameters</button>
       <button class="osm-toggle osm-view-toggle" type="button">Show 3D</button>`;
     el.appendChild(bar);
@@ -350,6 +351,7 @@ export default {
     const view = root.querySelector(".osm-view");
     const viewToggle = bar.querySelector(".osm-view-toggle");
     const formToggle = bar.querySelector(".osm-form-toggle");
+    const applyButton = bar.querySelector(".osm-apply");
     const plot = view.querySelector(".osm-plot");
     const spaceFilter = view.querySelector(".osm-space-filter");
     const openingsToggle = view.querySelector(".osm-openings");
@@ -432,6 +434,22 @@ export default {
       return found;
     }
 
+    function pendingChanges() {
+      const pending = model.get("pending") || [];
+      return Array.isArray(pending) ? pending : [];
+    }
+
+    function refreshApply() {
+      const pending = pendingChanges();
+      // Nothing to apply, or a document apply() would refuse anyway.
+      const blocked = errorsByPath.size > 0
+        && [...errorsByPath.values()].some((e) => e.severity === "error");
+      applyButton.disabled = pending.length === 0 || blocked;
+      applyButton.title = pending.length === 0
+        ? "Every change is already in the project"
+        : pending.join("\n");
+    }
+
     function refreshErrors() {
       const found = collectErrors();
       errorsByPath = new Map();
@@ -439,11 +457,19 @@ export default {
         const key = "/" + e.path.join("/");
         if (!errorsByPath.has(key)) errorsByPath.set(key, e);
       }
+      refreshApply();
       const errors = found.filter((e) => e.severity === "error");
       const warnings = found.filter((e) => e.severity === "warning");
       if (schemaError) {
         status.textContent = `Schema could not be compiled: ${schemaError}`;
         status.dataset.state = "error";
+      } else if (pendingChanges().length > 0 && errors.length === 0) {
+        // Adding, removing or renaming needs the project rebuilt, and that
+        // waits for Apply. A plain change of value is already in.
+        const pending = pendingChanges();
+        const what = pending.length === 1 ? pending[0] : `${pending.length} changes`;
+        status.textContent = `${what} — not in the project until you Apply`;
+        status.dataset.state = "warn";
       } else if (errors.length === 0 && warnings.length === 0) {
         status.textContent = "No problems";
         status.dataset.state = "ok";
@@ -990,6 +1016,17 @@ export default {
       renderView();
     };
 
+    applyButton.onclick = () => {
+      // The frontend cannot call a method on the widget, only send to it.
+      model.send({ type: "apply" });
+    };
+
+    const onPendingChange = () => {
+      refreshErrors();
+      renderTree();
+    };
+
+    model.on("change:pending", onPendingChange);
     model.on("change:value", onValueChange);
     model.on("change:schema", onSchemaChange);
     model.on("change:geometry", onGeometryChange);
@@ -997,6 +1034,7 @@ export default {
     return () => {
       clearTimeout(timer);
       clearTimeout(wheelTimer);
+      model.off("change:pending", onPendingChange);
       model.off("change:value", onValueChange);
       model.off("change:schema", onSchemaChange);
       model.off("change:geometry", onGeometryChange);

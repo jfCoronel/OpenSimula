@@ -629,10 +629,17 @@ class Project(Parameter_container):
 
     def create_3D_environment(self, env_3D):
         for component in self.component_list("all"):
-            if hasattr(component, "get_polygon_3D"):
+            if not hasattr(component, "get_polygon_3D"):
+                continue
+            try:
                 polygon = component.get_polygon_3D()
-                self._set_polygon_origin_(polygon, component)
-                env_3D.add_polygon_3D(polygon)
+            except (AttributeError, IndexError, TypeError):
+                # A surface whose space, or an opening whose surface, does not
+                # resolve has no place to be. It is left out rather than
+                # bringing the whole view down; check() names the reference.
+                continue
+            self._set_polygon_origin_(polygon, component)
+            env_3D.add_polygon_3D(polygon)
 
     def _set_polygon_origin_(self, polygon, component):
         """Record which component a polygon came from, and which spaces it bounds.

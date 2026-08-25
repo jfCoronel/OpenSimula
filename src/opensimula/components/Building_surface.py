@@ -136,7 +136,14 @@ class Building_surface(Surface):
         return errors
 
     def get_building(self):
-        return self.parameter("spaces").component[0].get_building()
+        space = self.get_space()
+        # Only a Space knows its building directly. Following anything else
+        # chases its get_building() in turn, and a name that points back here,
+        # which "spaces" accepts because it is only checked later, would run
+        # the stack out before check() could report it.
+        if space is None or space.parameter("type").value != "Space":
+            return None
+        return space.get_building()
 
     def get_space(self, side=0):
         return self.parameter("spaces").component[side]

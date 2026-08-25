@@ -125,18 +125,26 @@ The *Space* dropdown shows one space at a time, which is the way to see interior
 
 The selection is linked both ways: picking a component in the list paints it orange in the view, and clicking a surface in the view selects it in the list and shows its parameters.
 
-The view shows the **project**, not the document being edited. Geometry needs a built model, with references resolved and origins placed relative to the building, which the document alone does not give, so it follows `apply()` rather than every keystroke. `refresh_geometry()` reloads it after changing the project from code.
+The view shows the **project**, not the document being edited: geometry needs a built model, with references resolved and origins placed relative to the building, which the document alone does not give. Moving a vertex is a plain change of value, so it reaches the project and the view straight away; adding or removing a surface waits for `apply()`. `refresh_geometry()` reloads the view after changing the project from code.
 
-The edited definition is available as `editor.value`. The editor does not write it back on its own; `editor.apply()` does, rebuilding the project from the document:
+The edited definition is available as `editor.value`, and not every edit reaches the project the same way.
+
+**Changing a value** — a number, a dropdown, a list of coordinates — is a local assignment, so it is put into the project as you edit, with nothing to press. The component stays the same object, so a variable holding it does not go stale and its results are not thrown away.
+
+**Renaming, adding or removing a component, or changing its type** needs the project rebuilt, because components refer to each other by name and those references are resolved when the definition is loaded. Those wait: the bar turns amber saying what is missing, the **Apply** button lights up, and `editor.pending` lists them. The button is also disabled while the document does not satisfy the schema, since applying would be refused anyway.
+
+`editor.apply()` does the same as the button, and can also be called from the notebook:
 
 ```python
 editor = pro.editor()
 editor                       # edit it in the notebook
 ...
-errors = editor.apply()      # load the result back into pro
+errors = editor.apply()      # rebuild pro from the edited definition
 ```
 
-`apply()` validates the document first and leaves the project untouched if it does not satisfy the schema, so a half applied definition cannot happen; in that case it returns the schema errors. Otherwise it returns the messages from `check()`. The project is rebuilt rather than patched parameter by parameter, which is what keeps renames working: components refer to each other by name, and the references are resolved on load. Any simulation results held by the previous components are dropped, since the definition they came from is gone.
+It validates the document first and leaves the project untouched if it does not satisfy the schema, so a half applied definition cannot happen; in that case it returns the schema errors. Otherwise it returns the messages from `check()`. The project is rebuilt rather than patched, so any variable holding a component from before has to be asked for again with `pro.component(name)`, and any simulation results are dropped along with the components they came from.
+
+A value that does not satisfy the schema never reaches the project either. It stays in the document, marked under its field, and goes in as soon as it is corrected.
 
 `editor.validate()` gives the schema errors of the document, and `editor.is_valid()` whether there are any. Both are computed in Python, so they also work in a script, without a browser having rendered the widget.
 

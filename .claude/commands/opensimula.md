@@ -119,7 +119,8 @@ project_dict = {
 | `pro.show_3D_shadows_animation(date, jupyter=False)` | Animated shadows for a full day. With `jupyter=True` renders as an HTML animation inline; with `jupyter=False` opens an interactive window with a slider. |
 | `pro.clear()` | Removes every component. Project parameters are kept. Needed before reloading, since `read_dict`/`read_json` add components rather than replacing them |
 | `pro.editor()` | Interactive editor for the whole project (anywidget: Jupyter, or `mo.ui.anywidget(...)` in Marimo). Component list plus a parameter form built from the JSON Schema. Edited document in `editor.value` |
-| `editor.apply(project=None)` | Rebuilds the project from the edited document. Validates first and applies nothing if invalid, returning the schema errors; otherwise returns `check()` messages |
+| `editor.apply(project=None)` | Rebuilds the project from the edited document. Only needed for renames, adds, removes and type changes: a plain change of value goes in as you edit. Validates first and applies nothing if invalid |
+| `editor.pending` | Structural changes waiting for `apply()`, one line each. Empty when the project is in step with the document |
 | `editor.validate()` / `editor.is_valid()` | Schema errors of the document, computed in Python, so they work in a script with no browser |
 | `editor.refresh_geometry()` | Reloads the editor's 3D view from the project. `apply()` already does it |
 | `pro.geometry_dict()` | Geometry as plain data: `{"meshes": [...], "spaces": [...]}`, one mesh per polygon with its triangles, outline, colour, component and spaces |

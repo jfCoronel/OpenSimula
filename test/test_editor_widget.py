@@ -6,7 +6,13 @@ import pytest
 
 import opensimula as osm
 import opensimula.editor.widget as widget_module
-from opensimula.editor import ProjectEditor, default_schema, format_errors
+from opensimula.editor import (
+    ProjectEditor,
+    component_types,
+    default_schema,
+    format_errors,
+)
+from opensimula.editor.widget import structural_changes, value_changes
 
 ROOT = pathlib.Path(__file__).parent.parent
 
@@ -48,7 +54,7 @@ def test_editor_accepts_a_document_without_a_project():
 
 def test_synced_traitlets(project):
     editor = project.editor()
-    for name in ("value", "schema", "errors", "geometry"):
+    for name in ("value", "schema", "errors", "geometry", "pending"):
         assert editor.trait_metadata(name, "sync") is True
 
 
@@ -95,6 +101,10 @@ def test_frontend_assets_are_present_and_loadable():
     assert "restoreCamera" in source
     assert "getCamera" in source
     assert 'addEventListener("mouseup"' in source
+    # A value edit reaches the project on its own; only a rebuild waits, and
+    # the bar has to say so and offer the button that asks for it.
+    assert 'model.send({ type: "apply" })' in source
+    assert "pendingChanges" in source
 
 
 def test_document_is_json_serialisable(project):
@@ -288,3 +298,216 @@ def test_plotly_figure_can_be_composed(building):
     assert len(figure.data) > 0
     # One mesh and one outline per polygon, plus the ground plane traces.
     assert len(figure.data) >= 2 * len(environment.pol_3D)
+
+
+# ____________________ keeping the project in step ____________________
+
+
+def edited(editor, name, key, value):
+    """The document with one parameter changed, reassigned as traitlets needs."""
+    document = copy.deepcopy(editor.value)
+    component = next(c for c in document["components"] if c.get("name") == name)
+    component[key] = value
+    editor.value = document
+    return component
+
+
+def test_structural_changes_are_named():
+    before = {"components": [{"type": "Material", "name": "a"}]}
+    assert structural_changes(before, before) == []
+    assert structural_changes(
+        before, {"components": [{"type": "Material", "name": "a"}, {"type": "Material", "name": "b"}]}
+    ) == ["added b"]
+    assert structural_changes(before, {"components": []}) == ["removed a"]
+    # A rename reads as one gone and one arrived; either way it needs a rebuild.
+    assert structural_changes(before, {"components": [{"type": "Material", "name": "z"}]}) == [
+        "added z",
+        "removed a",
+    ]
+    assert structural_changes(before, {"components": [{"type": "Glazing", "name": "a"}]}) == [
+        "a: type is now Glazing"
+    ]
+
+
+def test_value_changes_lists_what_moved():
+    before = {"name": "p", "components": [{"type": "Material", "name": "a", "density": 1}]}
+    after = {"name": "q", "components": [{"type": "Material", "name": "a", "density": 2}]}
+    # None first: it sorts as "None", before any component name
+    assert sorted(value_changes(before, after), key=lambda c: str(c[0])) == [
+        (None, "name", "q"),
+        ("a", "density", 2),
+    ]
+    assert value_changes(before, before) == []
+
+
+def test_a_value_reaches_the_project_without_apply(building):
+    """The point of the split: changing a number is a local assignment, so it
+    does not need the project rebuilding and nothing is asked of the user."""
+    editor = building.editor()
+    name = building.component_list("Material")[0].parameter("name").value
+
+    edited(editor, name, "density", 1234)
+
+    assert building.component(name).parameter("density").value == 1234
+    assert editor.pending == []
+
+
+def test_applying_a_value_keeps_the_component_alive(building):
+    """A rebuild replaces every component, so a name held in a variable goes
+    stale and any simulation results go with it."""
+    editor = building.editor()
+    name = building.component_list("Material")[0].parameter("name").value
+    component = building.component(name)
+
+    edited(editor, name, "density", 1234)
+    assert building.component(name) is component
+
+    editor.apply()
+    assert building.component(name) is not component
+
+
+def test_geometry_follows_a_value_change(building):
+    """Moving a vertex is a plain value change, and the 3D view has to see it."""
+    editor = building.editor()
+    surface = next(
+        c for c in building.component_list("Building_surface")
+        if c.parameter("shape").value == "POLYGON"
+    )
+    name = surface.parameter("name").value
+    before = next(m for m in editor.geometry["meshes"] if m["component"] == name)
+
+    edited(editor, name, "x_polygon", [x * 2 for x in surface.parameter("x_polygon").value])
+
+    after = next(m for m in editor.geometry["meshes"] if m["component"] == name)
+    assert after["points"] != before["points"]
+
+
+def test_a_structural_change_waits_and_says_so(building):
+    editor = building.editor()
+    before = len(building.component_list())
+
+    document = copy.deepcopy(editor.value)
+    document["components"].append({"type": "Material", "name": "brand_new"})
+    editor.value = document
+
+    assert editor.pending == ["added brand_new"]
+    assert len(building.component_list()) == before  # untouched
+
+    editor.apply()
+
+    assert editor.pending == []
+    assert len(building.component_list()) == before + 1
+    assert building.component("brand_new") is not None
+
+
+def test_an_invalid_value_never_reaches_the_project(building):
+    editor = building.editor()
+    name = building.component_list("Material")[0].parameter("name").value
+    before = building.component(name).parameter("conductivity").value
+
+    edited(editor, name, "conductivity", -5)
+
+    assert building.component(name).parameter("conductivity").value == before
+    assert editor.is_valid() is False
+    # And it goes in as soon as it is corrected
+    edited(editor, name, "conductivity", 0.9)
+    assert building.component(name).parameter("conductivity").value == 0.9
+
+
+def test_the_apply_button_message(building):
+    """The frontend cannot call a method, only send a message."""
+    editor = building.editor()
+    document = copy.deepcopy(editor.value)
+    document["components"].append({"type": "Material", "name": "from_the_button"})
+    editor.value = document
+    assert editor.pending
+
+    editor._handle_message_(editor, {"type": "apply"}, None)
+
+    assert editor.pending == []
+    assert building.component("from_the_button") is not None
+
+
+def test_an_editor_without_a_project_ignores_edits():
+    editor = ProjectEditor(value={"name": "p", "components": []})
+    editor.value = {"name": "p", "components": [{"type": "Material", "name": "a"}]}
+    assert editor.pending == []
+
+
+# ____________________ a broken document must not break the kernel ____________
+
+
+def add_with_defaults(editor, type_name, name):
+    """A component as the editor's Add button builds it: every schema default."""
+    properties = editor.schema["$defs"][type_name]["properties"]
+    component = {
+        key: copy.deepcopy(value["default"])
+        for key, value in properties.items()
+        if key != "type" and "default" in value
+    }
+    component.update(type=type_name, name=name)
+    document = copy.deepcopy(editor.value)
+    document["components"].append(component)
+    editor.value = document
+    return component
+
+
+@pytest.mark.parametrize("type_name", sorted(component_types()))
+def test_adding_any_component_and_applying(project, type_name):
+    """Add leaves every reference at "not_defined", and a component that cannot
+    resolve its space, or its surface, used to bring apply() down with it."""
+    editor = project.editor()
+    add_with_defaults(editor, type_name, f"new_{type_name}")
+
+    editor.apply()
+
+    assert project.component(f"new_{type_name}") is not None
+
+
+def test_a_reference_cycle_is_reported_not_chased(building):
+    """A reference can be made to point back at its own component, if only by
+    typing the wrong name, and walking it then never ends."""
+    editor = building.editor()
+    document = copy.deepcopy(editor.value)
+    surface = next(c for c in document["components"] if c.get("type") == "Building_surface")
+    name = surface["name"]
+    surface["spaces"] = [name]  # a surface as its own space
+    editor.value = document
+
+    editor.apply()  # used to raise RecursionError
+
+    reported = [m.text for m in building.check() if name in m.text]
+    assert any("allowed types" in text for text in reported), reported
+
+
+def test_referenced_components_survive_a_cycle(building):
+    surface = building.component_list("Building_surface")[0]
+    surface.parameter("spaces").value = [surface.parameter("name").value]
+
+    referenced = surface.get_all_referenced_components()
+
+    assert surface in referenced
+    assert len(referenced) == len(set(id(c) for c in referenced))
+
+
+def test_deleting_a_surface_that_has_openings(building):
+    """The openings are left pointing nowhere; the view drops them and check()
+    names the reference instead of the geometry raising."""
+    editor = building.editor()
+    surface = next(
+        c.parameter("name").value
+        for c in building.component_list("Building_surface")
+        if any(
+            o.parameter("surface").value == c.parameter("name").value
+            for o in building.component_list("Opening")
+        )
+    )
+    before = len(editor.geometry["meshes"])
+
+    document = copy.deepcopy(editor.value)
+    document["components"] = [c for c in document["components"] if c.get("name") != surface]
+    editor.value = document
+    editor.apply()
+
+    assert len(editor.geometry["meshes"]) < before
+    assert any(surface in m.text for m in building.check())
