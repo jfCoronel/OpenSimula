@@ -6,6 +6,7 @@ from opensimula.Iterative_process import Iterative_process
 import numpy as np
 import psychrolib as sicro
 import math
+from scipy.optimize import root
 
 
 class Space(Component):
@@ -129,60 +130,60 @@ class Space(Component):
         az_2 = surf2.orientation_angle("azimuth", side2)
         alt_1 = surf1.orientation_angle("altitude", side1)
         alt_2 = surf2.orientation_angle("altitude", side2)
-        if alt_1 == 90 and alt_2 == 90:  # Two Floors
-            return True
-        elif alt_1 == -90 and alt_2 == -90:  # Two Roofs
-            return True
-        else:
-            if alt_1 == alt_2 and az_1 == az_2:
-                return True
-            else:
-                return False
+        az_difference = (az_1 - az_2 + 180) % 360 - 180
+        return math.isclose(alt_1, alt_2, abs_tol=1.0e-10) and math.isclose(
+            az_difference, 0, abs_tol=1.0e-10
+        )
 
     def _create_ff_matrix(self):
         n = len(self.surfaces)
-        total_area = 0
-        for surf in self.surfaces:
-            total_area += surf.area
-        self.ff_matrix = np.zeros((n, n))
-        seven = np.zeros((n, n))
+        areas = np.array([surf.area for surf in self.surfaces], dtype=float)
+        if n == 0:
+            self.ff_matrix = np.zeros((0, 0))
+            return
+        if not np.all(np.isfinite(areas)) or np.any(areas <= 0):
+            raise ValueError(
+                f"{self.parameter('name').value}: all surfaces must have a positive finite area."
+            )
+
+        visibility = np.ones((n, n), dtype=float)
         for i in range(n):
             for j in range(n):
                 if self._coplanar(
                     self.surfaces[i], self.sides[i], self.surfaces[j], self.sides[j]
                 ):
-                    seven[i][j] = 0
-                else:
-                    seven[i][j] = 1
-                self.ff_matrix[i][j] = seven[i][j] * self.surfaces[j].area / total_area
-        # iteración
-        EPSILON = 1.0e-4
-        N_MAX_ITER = 500
-        n_iter = 0
-        residuos = np.ones(n)
-        while True:
-            n_iter += 1
-            residuo_tot = 0
-            corregir = False
-            for i in range(n):
-                residuos[i] = 1.0
-                for j in range(n):
-                    residuos[i] -= self.ff_matrix[i][j]
-                if residuos[i] == 0:
-                    residuos[i] = EPSILON / 100
-                if math.fabs(residuos[i]) > EPSILON:
-                    corregir = True
-                    residuo_tot += math.fabs(residuos[i])
-            if corregir:
-                for i in range(n):
-                    for j in range(n):
-                        self.ff_matrix[i][j] *= 1 + residuos[i] * residuos[j] * seven[
-                            i
-                        ][j] / (math.fabs(residuos[i]) + math.fabs(residuos[j]))
-            else:
-                break
-            if n_iter > N_MAX_ITER:
-                break
+                    visibility[i, j] = 0
+
+        base_matrix = visibility * (areas[None, :] / areas.sum())
+
+        def row_equations(log_scales):
+            scales = np.exp(log_scales)
+            return np.log(scales * (base_matrix @ scales))
+
+        solution = root(row_equations, np.zeros(n), method="hybr", options={"xtol": 1.0e-10})
+        if not solution.success:
+            raise ValueError(
+                f"{self.parameter('name').value}: unable to normalize the form-factor matrix: "
+                f"{solution.message}"
+            )
+
+        scales = np.exp(solution.x)
+        self.ff_matrix = scales[:, None] * base_matrix * scales[None, :]
+        row_sums = self.ff_matrix.sum(axis=1)
+        if not np.allclose(row_sums, 1.0, rtol=0, atol=1.0e-8):
+            raise ValueError(
+                f"{self.parameter('name').value}: form-factor rows do not sum to 1. "
+                f"Maximum error: {np.max(np.abs(row_sums - 1.0)):.3e}."
+            )
+        if not np.allclose(
+            areas[:, None] * self.ff_matrix,
+            areas[None, :] * self.ff_matrix.T,
+            rtol=1.0e-10,
+            atol=1.0e-12,
+        ):
+            raise ValueError(
+                f"{self.parameter('name').value}: form-factor matrix violates reciprocity."
+            )
 
     def _create_dist_vectors(self):  # W/m^2 for each surface
         n = len(self.surfaces)

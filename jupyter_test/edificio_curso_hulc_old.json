@@ -1,0 +1,2361 @@
+{
+  "name": "Edificio_curso_hulc",
+  "time_step": 3600,
+  "n_time_steps": 8760,
+  "initial_time": "01/01/2001 00:00:00",
+  "components": [
+    {
+      "type": "Material",
+      "name": "Tabicón de LH doble [60 mm < E < 90 mm]",
+      "conductivity": 0.432,
+      "density": 930.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Material_Base",
+      "conductivity": 1.0,
+      "density": 3000.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Teja cerámica-porcelana",
+      "conductivity": 1.3,
+      "density": 2300.0,
+      "specific_heat": 840.0
+    },
+    {
+      "type": "Material",
+      "name": "FU Entrevigado de EPS moldeado descolgado -Canto 250 mm",
+      "conductivity": 0.1760563,
+      "density": 710.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "FU Entrevigado de EPS moldeado descolgado -Canto 300 mm",
+      "conductivity": 0.2,
+      "density": 670.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "FU Entrevigado de EPS moldeado descolgado -Canto 350 mm",
+      "conductivity": 0.2229299,
+      "density": 640.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "FR Entrevigado de EPS moldeado descolgado -Canto 300 mm",
+      "conductivity": 0.3571429,
+      "density": 1330.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "FR Entrevigado de EPS moldeado descolgado -Canto 350 mm",
+      "conductivity": 0.4022988,
+      "density": 1310.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "FR Entrevigado de EPS moldeado descolgado -Canto 400 mm",
+      "conductivity": 0.4395604,
+      "density": 1290.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "FR Entrevigado de EPS moldeado descolgado -Canto 450 mm",
+      "conductivity": 0.4787234,
+      "density": 1280.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+      "conductivity": 0.991,
+      "density": 2170.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "1/2 pie LP métrico o catalán 40 mm< G < 60 mm",
+      "conductivity": 0.667,
+      "density": 1140.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Betún fieltro o lámina",
+      "conductivity": 0.23,
+      "density": 1100.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Conífera de peso medio 435 < d < 520",
+      "conductivity": 0.15,
+      "density": 480.0,
+      "specific_heat": 1600.0
+    },
+    {
+      "type": "Material",
+      "name": "Cámara de aire sin ventilar horizontal 10 cm",
+      "use_resistance": true,
+      "thermal_resistance": 0.18
+    },
+    {
+      "type": "Material",
+      "name": "Cámara de aire sin ventilar horizontal 5 cm",
+      "use_resistance": true,
+      "thermal_resistance": 0.16
+    },
+    {
+      "type": "Material",
+      "name": "Cámara de aire sin ventilar vertical 5 cm",
+      "use_resistance": true,
+      "thermal_resistance": 0.18
+    },
+    {
+      "type": "Material",
+      "name": "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+      "conductivity": 0.0375,
+      "density": 30.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Enlucido de yeso 1000 < d < 1300",
+      "conductivity": 0.57,
+      "density": 1150.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "FU Entrevigado de hormigón aligerado -Canto 250 mm",
+      "conductivity": 1.02,
+      "density": 1180.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "FU Entrevigado de hormigón aligerado -Canto 300 mm",
+      "conductivity": 1.128,
+      "density": 1090.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Hormigón armado 2300 < d < 2500",
+      "conductivity": 2.3,
+      "density": 2400.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Mortero de cemento o cal para albañilería y para revoco/enlucido 1250 < d < 1450",
+      "conductivity": 0.7,
+      "density": 1350.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Mortero de áridos ligeros [vermiculita perlita]",
+      "conductivity": 0.41,
+      "density": 900.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Mármol [2600 < d < 2800]",
+      "conductivity": 3.5,
+      "density": 2700.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Tabique de LH sencillo [40 mm < Espesor < 60 mm]",
+      "conductivity": 0.445,
+      "density": 1000.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "Teja de arcilla cocida",
+      "conductivity": 1.0,
+      "density": 2000.0,
+      "specific_heat": 800.0
+    },
+    {
+      "type": "Material",
+      "name": "Tierra apisonada adobe bloques de tierra comprimida [1770 < d < 2000]",
+      "conductivity": 1.1,
+      "density": 1885.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
+      "name": "MADERA_PUERTA_OPACA",
+      "conductivity": 0.18,
+      "density": 600,
+      "specific_heat": 1600
+    },
+    {
+      "type": "Glazing",
+      "name": "VER_DC_4-6-6",
+      "solar_tau": 0.7676,
+      "g": [
+        0.7676,
+        0.7676
+      ],
+      "U": 3.3,
+      "solar_rho": [
+        0.1,
+        0.1
+      ],
+      "lw_epsilon": [
+        0.84,
+        0.84
+      ]
+    },
+    {
+      "type": "Glazing",
+      "name": "HOR_DC_4-6-6",
+      "solar_tau": 0.7676,
+      "g": [
+        0.7676,
+        0.7676
+      ],
+      "U": 3.6,
+      "solar_rho": [
+        0.1,
+        0.1
+      ],
+      "lw_epsilon": [
+        0.84,
+        0.84
+      ]
+    },
+    {
+      "type": "Frame",
+      "name": "Met - Gris claro",
+      "thermal_resistance": 0.1754,
+      "solar_alpha": [
+        0.4,
+        0.4
+      ]
+    },
+    {
+      "type": "Frame",
+      "name": "Mrpt - Gris claro",
+      "thermal_resistance": 0.3125,
+      "solar_alpha": [
+        0.4,
+        0.4
+      ]
+    },
+    {
+      "type": "Frame",
+      "name": "Mpvc o mad - Gris claro",
+      "thermal_resistance": 0.4545,
+      "solar_alpha": [
+        0.4,
+        0.4
+      ]
+    },
+    {
+      "type": "Frame",
+      "name": "VER_Madera de densidad media alta",
+      "thermal_resistance": 0.4545,
+      "solar_alpha": [
+        0.7,
+        0.7
+      ]
+    },
+    {
+      "type": "Frame",
+      "name": "VER_Madera de densidad media baja",
+      "thermal_resistance": 0.5,
+      "solar_alpha": [
+        0.7,
+        0.7
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "CERRAMIENTO EXTERIOR",
+      "materials": [
+        "1/2 pie LP métrico o catalán 40 mm< G < 60 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Betún fieltro o lámina",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Tabique de LH sencillo [40 mm < Espesor < 60 mm]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.003,
+        0.03,
+        0.04,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "CUBIERTA INCLINADA",
+      "materials": [
+        "Teja de arcilla cocida",
+        "Betún fieltro o lámina",
+        "Mortero de cemento o cal para albañilería y para revoco/enlucido 1250 < d < 1450",
+        "Tabique de LH sencillo [40 mm < Espesor < 60 mm]",
+        "Cámara de aire sin ventilar horizontal 10 cm",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "FU Entrevigado de hormigón aligerado -Canto 300 mm",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.01,
+        0.003,
+        0.01,
+        0.04,
+        0.05,
+        0.05,
+        0.3,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "FORJADO AL AIRE",
+      "materials": [
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "FU Entrevigado de hormigón aligerado -Canto 250 mm",
+        "Cámara de aire sin ventilar horizontal 5 cm",
+        "Conífera de peso medio 435 < d < 520"
+      ],
+      "thicknesses": [
+        0.03,
+        0.25,
+        0.05,
+        0.02
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "FORJADO TECHO",
+      "materials": [
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "FU Entrevigado de hormigón aligerado -Canto 250 mm",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.08,
+        0.25,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "FORJADO SUELO",
+      "materials": [
+        "Mármol [2600 < d < 2800]",
+        "Mortero de cemento o cal para albañilería y para revoco/enlucido 1250 < d < 1450",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "FU Entrevigado de hormigón aligerado -Canto 250 mm"
+      ],
+      "thicknesses": [
+        0.02,
+        0.02,
+        0.08,
+        0.25
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "SOLERA",
+      "materials": [
+        "Mortero de cemento o cal para albañilería y para revoco/enlucido 1250 < d < 1450",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de cemento o cal para albañilería y para revoco/enlucido 1250 < d < 1450",
+        "Hormigón armado 2300 < d < 2500",
+        "Tierra apisonada adobe bloques de tierra comprimida [1770 < d < 2000]"
+      ],
+      "thicknesses": [
+        0.02,
+        0.04,
+        0.02,
+        0.04,
+        0.15
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "MURO TERRENO",
+      "materials": [
+        "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.06,
+        0.01,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "TABIQUE",
+      "materials": [
+        "Enlucido de yeso 1000 < d < 1300",
+        "Tabique de LH sencillo [40 mm < Espesor < 60 mm]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.01,
+        0.04,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "TABICON",
+      "materials": [
+        "Enlucido de yeso 1000 < d < 1300",
+        "Tabicón de LH doble [60 mm < E < 90 mm]",
+        "Cámara de aire sin ventilar vertical 5 cm",
+        "Tabique de LH sencillo [40 mm < Espesor < 60 mm]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.02,
+        0.09,
+        0.05,
+        0.04,
+        0.02
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "CONSTRUCCION_HUECO_OPACO",
+      "materials": [
+        "MADERA_PUERTA_OPACA"
+      ],
+      "thicknesses": [
+        0.04
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Opening_type",
+      "name": "PUERTA",
+      "glazing": "VER_DC_4-6-6",
+      "frame": "VER_Madera de densidad media alta",
+      "glazing_fraction": 0.0,
+      "frame_fraction": 1.0,
+      "construction": "CONSTRUCCION_HUECO_OPACO"
+    },
+    {
+      "type": "Opening_type",
+      "name": "VENTANA",
+      "glazing": "HOR_DC_4-6-6",
+      "frame": "VER_Madera de densidad media baja",
+      "glazing_fraction": 0.9,
+      "frame_fraction": 0.1,
+      "construction": "CONSTRUCCION_HUECO_OPACO"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_cargas",
+      "time_steps": [
+        25200,
+        28800,
+        28800
+      ],
+      "values": [
+        1.0,
+        0.5,
+        1.0,
+        0.5
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "semana_cargas",
+      "days_schedules": [
+        "dia_cargas"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_cargas",
+      "periods": [],
+      "weeks_schedules": [
+        "semana_cargas"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_calef",
+      "time_steps": [
+        25200,
+        57600
+      ],
+      "values": [
+        17,
+        20,
+        17
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "semana_calef",
+      "days_schedules": [
+        "dia_calef"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_calef",
+      "periods": [],
+      "weeks_schedules": [
+        "semana_calef"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_refrig",
+      "time_steps": [
+        25200,
+        57600
+      ],
+      "values": [
+        27,
+        25,
+        27
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "semana_refrig",
+      "days_schedules": [
+        "dia_refrig"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_refrig",
+      "periods": [],
+      "weeks_schedules": [
+        "semana_refrig"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_ventila",
+      "time_steps": [
+        25200,
+        57600
+      ],
+      "values": [
+        0.5,
+        1.0,
+        0.5
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "semana_ventila",
+      "days_schedules": [
+        "dia_ventila"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_ventila",
+      "periods": [],
+      "weeks_schedules": [
+        "semana_ventila"
+      ]
+    },
+    {
+      "type": "Building",
+      "name": "Edificio",
+      "azimuth": 0,
+      "ref_point": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "Space_type",
+      "name": "Tipo_residencial_generico",
+      "input_variables": [
+        "f = anual_cargas.values",
+        "v = anual_ventila.values"
+      ],
+      "people_density": "0.03*f",
+      "light_density": "2.2*f",
+      "other_gains_density": "2.2*f",
+      "infiltration": "0.33 + 0.0*v"
+    },
+    {
+      "type": "Material",
+      "name": "Terreno_generico",
+      "conductivity": 2.0,
+      "density": 2050.0,
+      "specific_heat": 1840.0
+    },
+    {
+      "type": "Space",
+      "name": "P01_E01",
+      "building": "Edificio",
+      "spaces_type": "Tipo_residencial_generico",
+      "floor_area": 110.2725,
+      "volume": 44.109
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P01_E01",
+      "construction": "MURO TERRENO",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        0.0,
+        -0.0,
+        -0.4
+      ],
+      "width": 14.5,
+      "height": 0.4,
+      "azimuth": 0.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT002",
+      "surface_type": "EXTERIOR",
+      "spaces": "P01_E01",
+      "construction": "MURO TERRENO",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        14.5,
+        -0.0,
+        -0.4
+      ],
+      "width": 7.965,
+      "height": 0.4,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT003",
+      "surface_type": "EXTERIOR",
+      "spaces": "P01_E01",
+      "construction": "MURO TERRENO",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        14.5,
+        7.965,
+        -0.4
+      ],
+      "width": 6.5,
+      "height": 0.4,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT004",
+      "surface_type": "EXTERIOR",
+      "spaces": "P01_E01",
+      "construction": "MURO TERRENO",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        8.0,
+        7.965,
+        -0.4
+      ],
+      "width": 1.465,
+      "height": 0.4,
+      "azimuth": -90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT005",
+      "surface_type": "EXTERIOR",
+      "spaces": "P01_E01",
+      "construction": "MURO TERRENO",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        8.0,
+        6.5,
+        -0.4
+      ],
+      "width": 1.5,
+      "height": 0.4,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT006",
+      "surface_type": "EXTERIOR",
+      "spaces": "P01_E01",
+      "construction": "MURO TERRENO",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        6.5,
+        6.5,
+        -0.4
+      ],
+      "width": 1.0,
+      "height": 0.4,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT007",
+      "surface_type": "EXTERIOR",
+      "spaces": "P01_E01",
+      "construction": "MURO TERRENO",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        6.5,
+        7.5,
+        -0.4
+      ],
+      "width": 6.5,
+      "height": 0.4,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT008",
+      "surface_type": "EXTERIOR",
+      "spaces": "P01_E01",
+      "construction": "MURO TERRENO",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        0.0,
+        7.5,
+        -0.4
+      ],
+      "width": 7.5,
+      "height": 0.4,
+      "azimuth": -90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_FTER009",
+      "surface_type": "EXTERIOR",
+      "spaces": "P01_E01",
+      "construction": "FORJADO SUELO",
+      "shape": "RECTANGLE",
+      "azimuth": 0.0,
+      "altitude": 90.0,
+      "ref_point": [
+        0.0,
+        -0.0,
+        -0.4
+      ],
+      "width": 14.5,
+      "height": 7.965
+    },
+    {
+      "type": "Space",
+      "name": "P02_E01",
+      "building": "Edificio",
+      "spaces_type": "Tipo_residencial_generico",
+      "floor_area": 16.2037,
+      "volume": 48.6112
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E01_PE001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E01",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "width": 2.965,
+      "height": 3.0,
+      "azimuth": 0.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E01_PE002",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E01",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        0.0,
+        5.465,
+        0.0
+      ],
+      "width": 5.465,
+      "height": 3.0,
+      "azimuth": -90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E01_Med002",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E01",
+        "P02_E02"
+      ],
+      "construction": "TABIQUE",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        2.965,
+        -0.0,
+        0.0
+      ],
+      "width": 3.5,
+      "height": 3.0,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E01_Med003",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E01",
+        "P02_E05"
+      ],
+      "construction": "TABIQUE",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        2.965,
+        3.5,
+        0.0
+      ],
+      "width": 1.965,
+      "height": 3.0,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E01_Med004",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E01",
+        "P02_E05"
+      ],
+      "construction": "TABIQUE",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        2.965,
+        5.465,
+        0.0
+      ],
+      "width": 2.965,
+      "height": 3.0,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E01_FI001",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E01",
+        "P01_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "POLYGON",
+      "ref_point": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "azimuth": 90.0,
+      "altitude": -90.0,
+      "x_polygon": [
+        0.0,
+        5.464,
+        5.464,
+        -0.0
+      ],
+      "y_polygon": [
+        0.0,
+        0.0,
+        2.964,
+        2.964
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E01_PI001",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E01",
+        "P03_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "POLYGON",
+      "ref_point": [
+        0.0,
+        0.0,
+        3.0
+      ],
+      "azimuth": 0.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        2.964,
+        2.964,
+        0.0
+      ],
+      "y_polygon": [
+        0.0,
+        -0.0,
+        5.465,
+        5.465
+      ]
+    },
+    {
+      "type": "Space",
+      "name": "P02_E02",
+      "building": "Edificio",
+      "spaces_type": "Tipo_residencial_generico",
+      "floor_area": 7.1726,
+      "volume": 21.5177
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E02_PE001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E02",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        2.965,
+        -0.0,
+        0.0
+      ],
+      "width": 2.07,
+      "height": 3.0,
+      "azimuth": -0.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E02_Med002",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E02",
+        "P02_E03"
+      ],
+      "construction": "TABIQUE",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        5.035,
+        -0.0,
+        0.0
+      ],
+      "width": 3.465,
+      "height": 3.0,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E02_Med003",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E02",
+        "P02_E05"
+      ],
+      "construction": "TABIQUE",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        5.035,
+        3.465,
+        0.0
+      ],
+      "width": 2.07,
+      "height": 3.0,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E02_FI002",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E02",
+        "P01_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "POLYGON",
+      "ref_point": [
+        2.964,
+        0.0,
+        0.0
+      ],
+      "azimuth": 90.0,
+      "altitude": -90.0,
+      "x_polygon": [
+        0.0,
+        3.464,
+        3.464,
+        -0.0
+      ],
+      "y_polygon": [
+        0.0,
+        0.0,
+        2.07,
+        2.07
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E02_PI001",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E02",
+        "P03_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "POLYGON",
+      "ref_point": [
+        2.964,
+        0.0,
+        3.0
+      ],
+      "azimuth": 0.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        2.07,
+        2.07,
+        -0.0
+      ],
+      "y_polygon": [
+        0.0,
+        0.0,
+        3.464,
+        3.464
+      ]
+    },
+    {
+      "type": "Space",
+      "name": "P02_E03",
+      "building": "Edificio",
+      "spaces_type": "Tipo_residencial_generico",
+      "floor_area": 10.1525,
+      "volume": 30.4574
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E03_PE001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E03",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        5.035,
+        -0.0,
+        0.0
+      ],
+      "width": 2.93,
+      "height": 3.0,
+      "azimuth": 0.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E03_Med002",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E03",
+        "P02_E04"
+      ],
+      "construction": "TABIQUE",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        7.965,
+        -0.0,
+        0.0
+      ],
+      "width": 3.465,
+      "height": 3.0,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E03_Med003",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E03",
+        "P02_E05"
+      ],
+      "construction": "TABIQUE",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        7.965,
+        3.465,
+        0.0
+      ],
+      "width": 2.93,
+      "height": 3.0,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E03_FI003",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E03",
+        "P01_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "RECTANGLE",
+      "azimuth": 0.0,
+      "altitude": 90.0,
+      "ref_point": [
+        5.035,
+        -0.0,
+        0.0
+      ],
+      "width": 2.93,
+      "height": 3.465
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E03_PI001",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E03",
+        "P03_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "POLYGON",
+      "ref_point": [
+        5.034,
+        0.0,
+        3.0
+      ],
+      "azimuth": 0.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        2.931,
+        2.931,
+        -0.0
+      ],
+      "y_polygon": [
+        0.0,
+        0.0,
+        3.464,
+        3.464
+      ]
+    },
+    {
+      "type": "Space",
+      "name": "P02_E04",
+      "building": "Edificio",
+      "spaces_type": "Tipo_residencial_generico",
+      "floor_area": 32.4463,
+      "volume": 97.3388
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E04_PE001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E04",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        7.965,
+        -0.0,
+        0.0
+      ],
+      "width": 6.535,
+      "height": 3.0,
+      "azimuth": 0.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E04_PE002",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E04",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        14.5,
+        -0.0,
+        0.0
+      ],
+      "width": 4.965,
+      "height": 3.0,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E04_Med003",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E04",
+        "P02_E05"
+      ],
+      "construction": "TABIQUE",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        14.5,
+        4.965,
+        0.0
+      ],
+      "width": 6.535,
+      "height": 3.0,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E04_Med004",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E04",
+        "P02_E05"
+      ],
+      "construction": "TABIQUE",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        7.965,
+        4.965,
+        0.0
+      ],
+      "width": 1.5,
+      "height": 3.0,
+      "azimuth": -90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E04_FI004",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E04",
+        "P01_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "POLYGON",
+      "ref_point": [
+        7.965,
+        0.0,
+        0.0
+      ],
+      "azimuth": 90.0,
+      "altitude": -90.0,
+      "x_polygon": [
+        0.0,
+        4.964,
+        4.964,
+        -0.0
+      ],
+      "y_polygon": [
+        0.0,
+        0.0,
+        6.535,
+        6.535
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E04_PI001",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E04",
+        "P03_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "POLYGON",
+      "ref_point": [
+        7.965,
+        0.0,
+        3.0
+      ],
+      "azimuth": 0.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        6.535,
+        6.535,
+        -0.0
+      ],
+      "y_polygon": [
+        0.0,
+        -0.0,
+        4.965,
+        4.965
+      ]
+    },
+    {
+      "type": "Space",
+      "name": "P02_E05",
+      "building": "Edificio",
+      "spaces_type": "Tipo_residencial_generico",
+      "floor_area": 44.2975,
+      "volume": 132.8925
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_PE001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E05",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        14.5,
+        4.965,
+        0.0
+      ],
+      "width": 3.0,
+      "height": 3.0,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_PE002",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E05",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        8.0,
+        7.965,
+        0.0
+      ],
+      "width": 0.465,
+      "height": 3.0,
+      "azimuth": -90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_PE003",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E05",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        8.0,
+        7.5,
+        0.0
+      ],
+      "width": 1.0,
+      "height": 3.0,
+      "azimuth": -90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_PE004",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E05",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        8.0,
+        6.5,
+        0.0
+      ],
+      "width": 1.5,
+      "height": 3.0,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_PE005",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E05",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        6.5,
+        6.5,
+        0.0
+      ],
+      "width": 1.0,
+      "height": 3.0,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_PE006",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E05",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        6.5,
+        7.5,
+        0.0
+      ],
+      "width": 6.5,
+      "height": 3.0,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_PE007",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E05",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        0.0,
+        7.5,
+        0.0
+      ],
+      "width": 2.035,
+      "height": 3.0,
+      "azimuth": -90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_Med008",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E05",
+        "P02_E06"
+      ],
+      "construction": "TABICON",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        14.5,
+        7.965,
+        0.0
+      ],
+      "width": 6.5,
+      "height": 3.0,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_FI005",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E05",
+        "P01_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "RECTANGLE",
+      "azimuth": 0.0,
+      "altitude": 90.0,
+      "ref_point": [
+        0.0,
+        3.465,
+        0.0
+      ],
+      "width": 14.5,
+      "height": 4.5
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E05_PI001",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E05",
+        "P03_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "POLYGON",
+      "ref_point": [
+        14.5,
+        4.965,
+        3.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        0.0,
+        6.5,
+        6.5,
+        8.0,
+        8.0,
+        14.5,
+        14.5,
+        11.536,
+        11.536,
+        6.535,
+        6.535
+      ],
+      "y_polygon": [
+        0.0,
+        -3.0,
+        -3.0,
+        -1.534,
+        -1.534,
+        -2.534,
+        -2.534,
+        -0.5,
+        -0.5,
+        1.501,
+        1.501,
+        -0.0
+      ]
+    },
+    {
+      "type": "Space",
+      "name": "P02_E06",
+      "building": "Edificio",
+      "spaces_type": "Tipo_residencial_generico",
+      "floor_area": 19.7275,
+      "volume": 59.1825
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E06_PE001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E06",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        14.5,
+        7.965,
+        0.0
+      ],
+      "width": 3.035,
+      "height": 3.0,
+      "azimuth": 90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E06_PE002",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E06",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        14.5,
+        11.0,
+        0.0
+      ],
+      "width": 6.5,
+      "height": 3.0,
+      "azimuth": 180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E06_PE003",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E06",
+      "construction": "CERRAMIENTO EXTERIOR",
+      "shape": "RECTANGLE",
+      "ref_point": [
+        8.0,
+        11.0,
+        0.0
+      ],
+      "width": 3.035,
+      "height": 3.0,
+      "azimuth": -90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E06_PI001",
+      "surface_type": "INTERIOR",
+      "spaces": [
+        "P02_E06",
+        "P03_E01"
+      ],
+      "construction": "FORJADO TECHO",
+      "shape": "POLYGON",
+      "ref_point": [
+        14.5,
+        7.965,
+        3.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        0.0,
+        6.5,
+        6.5
+      ],
+      "y_polygon": [
+        0.0,
+        -3.035,
+        -3.035,
+        -0.0
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P02_E06_TER001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P02_E06",
+      "construction": "FORJADO SUELO",
+      "shape": "POLYGON",
+      "ref_point": [
+        8.0,
+        11.0,
+        0.0
+      ],
+      "azimuth": 0.0,
+      "altitude": -90.0,
+      "x_polygon": [
+        0.0,
+        6.5,
+        6.5,
+        -0.0
+      ],
+      "y_polygon": [
+        0.0,
+        0.0,
+        3.036,
+        3.036
+      ]
+    },
+    {
+      "type": "Space",
+      "name": "P03_E01",
+      "building": "Edificio",
+      "spaces_type": "Tipo_residencial_generico",
+      "floor_area": 130.0,
+      "volume": 130.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01F001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "FORJADO AL AIRE",
+      "shape": "POLYGON",
+      "ref_point": [
+        8.0,
+        7.5,
+        3.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        1.5,
+        1.5,
+        -0.0
+      ],
+      "y_polygon": [
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C001",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        1.2,
+        1.2,
+        4.0
+      ],
+      "azimuth": 0.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        -1.2,
+        13.3
+      ],
+      "y_polygon": [
+        0.0,
+        -1.562,
+        -1.562
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C002",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        1.2,
+        1.2,
+        4.0
+      ],
+      "azimuth": 0.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        13.3,
+        12.1
+      ],
+      "y_polygon": [
+        0.0,
+        -1.562,
+        0.0
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C003",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        1.2,
+        6.3,
+        4.0
+      ],
+      "azimuth": -90.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        -1.2,
+        6.3
+      ],
+      "y_polygon": [
+        0.0,
+        -1.562,
+        -1.5621
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C004",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        1.2,
+        6.3,
+        4.0
+      ],
+      "azimuth": -90.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        6.3,
+        5.1
+      ],
+      "y_polygon": [
+        0.0,
+        -1.5621,
+        -0.0
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C005",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        13.3,
+        1.2,
+        4.0
+      ],
+      "azimuth": 90.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        -1.2,
+        9.8
+      ],
+      "y_polygon": [
+        0.0,
+        -1.562,
+        -1.5621
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C006",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        13.3,
+        1.2,
+        4.0
+      ],
+      "azimuth": 90.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        9.8,
+        8.5
+      ],
+      "y_polygon": [
+        0.0,
+        -1.5621,
+        -0.0
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C007",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        13.3,
+        9.7,
+        4.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 52.4314,
+      "x_polygon": [
+        0.0,
+        -1.2,
+        5.3
+      ],
+      "y_polygon": [
+        0.0,
+        -1.6401,
+        -1.6401
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C008",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        13.3,
+        9.7,
+        4.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 52.4314,
+      "x_polygon": [
+        0.0,
+        5.3,
+        4.1
+      ],
+      "y_polygon": [
+        0.0,
+        -1.6401,
+        0.0
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C011",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        9.2,
+        6.3,
+        4.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        1.2,
+        9.2
+      ],
+      "y_polygon": [
+        0.0,
+        -1.562,
+        -1.562
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C012",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        9.2,
+        6.3,
+        4.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        9.2,
+        8.0
+      ],
+      "y_polygon": [
+        0.0,
+        -1.562,
+        0.0
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C009",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        9.2,
+        9.7,
+        4.0
+      ],
+      "azimuth": -90.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        -1.3,
+        2.2
+      ],
+      "y_polygon": [
+        0.0,
+        -1.562,
+        -1.5621
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C010",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        9.2,
+        9.7,
+        4.0
+      ],
+      "azimuth": -90.0,
+      "altitude": 50.1944,
+      "x_polygon": [
+        0.0,
+        2.2,
+        3.4
+      ],
+      "y_polygon": [
+        0.0,
+        -1.562,
+        -0.0
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C013",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        1.2,
+        6.3,
+        4.0
+      ],
+      "azimuth": -0.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        0.0,
+        12.1
+      ],
+      "y_polygon": [
+        0.0,
+        -5.1,
+        -5.1
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C014",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        13.3,
+        1.2,
+        4.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        0.0,
+        4.1
+      ],
+      "y_polygon": [
+        0.0,
+        -8.5,
+        -8.5
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C015",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        13.3,
+        1.2,
+        4.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        4.1,
+        4.1
+      ],
+      "y_polygon": [
+        0.0,
+        -8.5,
+        -5.1
+      ]
+    },
+    {
+      "type": "Building_surface",
+      "name": "P03_E01C016",
+      "surface_type": "EXTERIOR",
+      "spaces": "P03_E01",
+      "construction": "CUBIERTA INCLINADA",
+      "shape": "POLYGON",
+      "ref_point": [
+        13.3,
+        1.2,
+        4.0
+      ],
+      "azimuth": 180.0,
+      "altitude": 90.0,
+      "x_polygon": [
+        0.0,
+        4.1,
+        12.1
+      ],
+      "y_polygon": [
+        0.0,
+        -5.1,
+        -5.1
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E01_PE002_V",
+      "surface": "P02_E01_PE002",
+      "opening_type": "VENTANA",
+      "shape": "RECTANGLE",
+      "width": 3.0,
+      "height": 1.2,
+      "ref_point": [
+        1.81,
+        1.0
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E02_PE001_V1",
+      "surface": "P02_E02_PE001",
+      "opening_type": "VENTANA",
+      "shape": "RECTANGLE",
+      "width": 1.2,
+      "height": 1.1,
+      "ref_point": [
+        0.19,
+        1.0
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E04_PE001_V",
+      "surface": "P02_E04_PE001",
+      "opening_type": "VENTANA",
+      "shape": "RECTANGLE",
+      "width": 1.23,
+      "height": 1.2,
+      "ref_point": [
+        0.67,
+        1.0
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E04_PE001_V_1",
+      "surface": "P02_E04_PE001",
+      "opening_type": "VENTANA",
+      "shape": "RECTANGLE",
+      "width": 3.03,
+      "height": 1.2,
+      "ref_point": [
+        2.92,
+        1.0
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E04_PE002_V",
+      "surface": "P02_E04_PE002",
+      "opening_type": "VENTANA",
+      "shape": "RECTANGLE",
+      "width": 1.0,
+      "height": 1.2,
+      "ref_point": [
+        3.14,
+        1.0
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E05_PE001_V",
+      "surface": "P02_E05_PE001",
+      "opening_type": "VENTANA",
+      "shape": "RECTANGLE",
+      "width": 2.0,
+      "height": 1.2,
+      "ref_point": [
+        0.25,
+        1.0
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E05_PE004_V1",
+      "surface": "P02_E05_PE004",
+      "opening_type": "PUERTA",
+      "shape": "RECTANGLE",
+      "width": 0.96,
+      "height": 2.0,
+      "ref_point": [
+        0.27,
+        0.0
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E05_PE006_V",
+      "surface": "P02_E05_PE006",
+      "opening_type": "VENTANA",
+      "shape": "RECTANGLE",
+      "width": 1.0,
+      "height": 1.2,
+      "ref_point": [
+        0.89,
+        1.0
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E05_PE006_V_1",
+      "surface": "P02_E05_PE006",
+      "opening_type": "VENTANA",
+      "shape": "RECTANGLE",
+      "width": 1.0,
+      "height": 1.2,
+      "ref_point": [
+        4.06,
+        1.0
+      ]
+    },
+    {
+      "type": "Opening",
+      "name": "P02_E06_PE003_V",
+      "surface": "P02_E06_PE003",
+      "opening_type": "PUERTA",
+      "shape": "RECTANGLE",
+      "width": 2.5,
+      "height": 2.0,
+      "ref_point": [
+        0.29,
+        0.0
+      ]
+    },
+    {
+      "type": "HVAC_perfect_system",
+      "name": "HVAC_P02_E01",
+      "spaces": "P02_E01",
+      "input_variables": [
+        "tc = anual_calef.values",
+        "tr = anual_refrig.values"
+      ],
+      "outdoor_air_flow": "0",
+      "heating_setpoint": "tc",
+      "cooling_setpoint": "tr",
+      "system_on_off": "1"
+    },
+    {
+      "type": "HVAC_perfect_system",
+      "name": "HVAC_P02_E02",
+      "spaces": "P02_E02",
+      "input_variables": [
+        "tc = anual_calef.values",
+        "tr = anual_refrig.values"
+      ],
+      "outdoor_air_flow": "0",
+      "heating_setpoint": "tc",
+      "cooling_setpoint": "tr",
+      "system_on_off": "1"
+    },
+    {
+      "type": "HVAC_perfect_system",
+      "name": "HVAC_P02_E03",
+      "spaces": "P02_E03",
+      "input_variables": [
+        "tc = anual_calef.values",
+        "tr = anual_refrig.values"
+      ],
+      "outdoor_air_flow": "0",
+      "heating_setpoint": "tc",
+      "cooling_setpoint": "tr",
+      "system_on_off": "1"
+    },
+    {
+      "type": "HVAC_perfect_system",
+      "name": "HVAC_P02_E04",
+      "spaces": "P02_E04",
+      "input_variables": [
+        "tc = anual_calef.values",
+        "tr = anual_refrig.values"
+      ],
+      "outdoor_air_flow": "0",
+      "heating_setpoint": "tc",
+      "cooling_setpoint": "tr",
+      "system_on_off": "1"
+    },
+    {
+      "type": "File_met",
+      "name": "Sevilla",
+      "file_type": "MET",
+      "file_name": "../mets/Sevilla.met"
+    }
+  ],
+  "simulation_file_met": "Sevilla",
+  "shadow_calculation": "INSTANT"
+}

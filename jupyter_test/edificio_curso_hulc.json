@@ -1,16 +1,9 @@
 {
-  "name": "Edificio_curso_hulc",
+  "name": "Nombre del Proyecto",
   "time_step": 3600,
   "n_time_steps": 8760,
   "initial_time": "01/01/2001 00:00:00",
   "components": [
-    {
-      "type": "Material",
-      "name": "Tabicón de LH doble [60 mm < E < 90 mm]",
-      "conductivity": 0.432,
-      "density": 930.0,
-      "specific_heat": 1000.0
-    },
     {
       "type": "Material",
       "name": "Material_Base",
@@ -178,6 +171,13 @@
     },
     {
       "type": "Material",
+      "name": "Tabicón de LH doble [60 mm < E < 90 mm]",
+      "conductivity": 0.432,
+      "density": 930.0,
+      "specific_heat": 1000.0
+    },
+    {
+      "type": "Material",
       "name": "Tabique de LH sencillo [40 mm < Espesor < 60 mm]",
       "conductivity": 0.445,
       "density": 1000.0,
@@ -207,15 +207,15 @@
     {
       "type": "Glazing",
       "name": "VER_DC_4-6-6",
-      "solar_tau": 0.7676,
+      "solar_tau": 0.6959,
       "g": [
-        0.7676,
-        0.7676
+        0.7588,
+        0.7588
       ],
       "U": 3.3,
       "solar_rho": [
-        0.1,
-        0.1
+        0.0703,
+        0.0703
       ],
       "lw_epsilon": [
         0.84,
@@ -225,15 +225,15 @@
     {
       "type": "Glazing",
       "name": "HOR_DC_4-6-6",
-      "solar_tau": 0.7676,
+      "solar_tau": 0.6938,
       "g": [
-        0.7676,
-        0.7676
+        0.7588,
+        0.7588
       ],
       "U": 3.6,
       "solar_rho": [
-        0.1,
-        0.1
+        0.0665,
+        0.0665
       ],
       "lw_epsilon": [
         0.84,
@@ -243,7 +243,7 @@
     {
       "type": "Frame",
       "name": "Met - Gris claro",
-      "thermal_resistance": 0.1754,
+      "thermal_resistance": 0.01,
       "solar_alpha": [
         0.4,
         0.4
@@ -252,7 +252,7 @@
     {
       "type": "Frame",
       "name": "Mrpt - Gris claro",
-      "thermal_resistance": 0.3125,
+      "thermal_resistance": 0.1425,
       "solar_alpha": [
         0.4,
         0.4
@@ -261,7 +261,7 @@
     {
       "type": "Frame",
       "name": "Mpvc o mad - Gris claro",
-      "thermal_resistance": 0.4545,
+      "thermal_resistance": 0.2845,
       "solar_alpha": [
         0.4,
         0.4
@@ -270,7 +270,7 @@
     {
       "type": "Frame",
       "name": "VER_Madera de densidad media alta",
-      "thermal_resistance": 0.4545,
+      "thermal_resistance": 0.2845,
       "solar_alpha": [
         0.7,
         0.7
@@ -279,7 +279,16 @@
     {
       "type": "Frame",
       "name": "VER_Madera de densidad media baja",
-      "thermal_resistance": 0.5,
+      "thermal_resistance": 0.33,
+      "solar_alpha": [
+        0.7,
+        0.7
+      ]
+    },
+    {
+      "type": "Frame",
+      "name": "VENTANA__MARCO_HULC",
+      "thermal_resistance": 0.1084,
       "solar_alpha": [
         0.7,
         0.7
@@ -546,10 +555,266 @@
       "type": "Opening_type",
       "name": "VENTANA",
       "glazing": "HOR_DC_4-6-6",
-      "frame": "VER_Madera de densidad media baja",
+      "frame": "VENTANA__MARCO_HULC",
       "glazing_fraction": 0.9,
       "frame_fraction": 0.1,
       "construction": "CONSTRUCCION_HUECO_OPACO"
+    },
+    {
+      "type": "Construction",
+      "name": "MURO TERRENO__P01_E01_PCT001",
+      "materials": [
+        "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.06,
+        0.01,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "MURO TERRENO__P01_E01_PCT002",
+      "materials": [
+        "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.06,
+        0.01,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "MURO TERRENO__P01_E01_PCT003",
+      "materials": [
+        "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.06,
+        0.01,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "MURO TERRENO__P01_E01_PCT004",
+      "materials": [
+        "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.06,
+        0.01,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "MURO TERRENO__P01_E01_PCT005",
+      "materials": [
+        "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.06,
+        0.01,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "MURO TERRENO__P01_E01_PCT006",
+      "materials": [
+        "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.06,
+        0.01,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "MURO TERRENO__P01_E01_PCT007",
+      "materials": [
+        "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.06,
+        0.01,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "MURO TERRENO__P01_E01_PCT008",
+      "materials": [
+        "1/2 pie LM métrico o catalán 40 mm< G < 50 mm",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "Mortero de áridos ligeros [vermiculita perlita]",
+        "Enlucido de yeso 1000 < d < 1300"
+      ],
+      "thicknesses": [
+        0.115,
+        0.01,
+        0.06,
+        0.01,
+        0.01
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "FORJADO SUELO__P01_E01_FTER009",
+      "materials": [
+        "Mármol [2600 < d < 2800]",
+        "Mortero de cemento o cal para albañilería y para revoco/enlucido 1250 < d < 1450",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "FU Entrevigado de hormigón aligerado -Canto 250 mm"
+      ],
+      "thicknesses": [
+        0.02,
+        0.02,
+        0.08,
+        0.25
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "type": "Construction",
+      "name": "FORJADO SUELO__P02_E06_TER001",
+      "materials": [
+        "Mármol [2600 < d < 2800]",
+        "Mortero de cemento o cal para albañilería y para revoco/enlucido 1250 < d < 1450",
+        "EPS Poliestireno Expandido [ 0.037 W/[mK]]",
+        "FU Entrevigado de hormigón aligerado -Canto 250 mm"
+      ],
+      "thicknesses": [
+        0.02,
+        0.02,
+        0.08,
+        0.25
+      ],
+      "solar_alpha": [
+        0.6,
+        0.6
+      ],
+      "lw_epsilon": [
+        0.9,
+        0.9
+      ]
     },
     {
       "type": "Day_schedule",
@@ -680,16 +945,1553 @@
       ]
     },
     {
-      "type": "Space_type",
-      "name": "Tipo_residencial_generico",
-      "input_variables": [
-        "f = anual_cargas.values",
-        "v = anual_ventila.values"
+      "type": "Day_schedule",
+      "name": "dia_HA22_SS_D_No_Habitable",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
       ],
-      "people_density": "0.03*f",
-      "light_density": "2.2*f",
-      "other_gains_density": "2.2*f",
-      "infiltration": "0.33 + 0.0*v"
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA22_HS0_SS",
+      "days_schedules": [
+        "dia_HA22_SS_D_No_Habitable",
+        "dia_HA22_SS_D_No_Habitable",
+        "dia_HA22_SS_D_No_Habitable",
+        "dia_HA22_SS_D_No_Habitable",
+        "dia_HA22_SS_D_No_Habitable",
+        "dia_HA22_SS_D_No_Habitable",
+        "dia_HA22_SS_D_No_Habitable"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_Anual_No_Habitable",
+      "periods": [],
+      "weeks_schedules": [
+        "sem_HA22_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA23_SS_D_No_habitable_Func",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA23_HS0_SS",
+      "days_schedules": [
+        "dia_HA23_SS_D_No_habitable_Func",
+        "dia_HA23_SS_D_No_habitable_Func",
+        "dia_HA23_SS_D_No_habitable_Func",
+        "dia_HA23_SS_D_No_habitable_Func",
+        "dia_HA23_SS_D_No_habitable_Func",
+        "dia_HA23_SS_D_No_habitable_Func",
+        "dia_HA23_SS_D_No_habitable_Func"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_Anual_No_habitable_Func",
+      "periods": [],
+      "weeks_schedules": [
+        "sem_HA23_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA24_SS_D_No_habitable_Inf",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA24_HS0_SS",
+      "days_schedules": [
+        "dia_HA24_SS_D_No_habitable_Inf",
+        "dia_HA24_SS_D_No_habitable_Inf",
+        "dia_HA24_SS_D_No_habitable_Inf",
+        "dia_HA24_SS_D_No_habitable_Inf",
+        "dia_HA24_SS_D_No_habitable_Inf",
+        "dia_HA24_SS_D_No_habitable_Inf",
+        "dia_HA24_SS_D_No_habitable_Inf"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_Anual_No_habitable_Inf",
+      "periods": [],
+      "weeks_schedules": [
+        "sem_HA24_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA26_SS_LABORAL",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA26_SS_NO_LABORAL",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA26_HS0_SS",
+      "days_schedules": [
+        "dia_HA26_SS_LABORAL",
+        "dia_HA26_SS_LABORAL",
+        "dia_HA26_SS_LABORAL",
+        "dia_HA26_SS_LABORAL",
+        "dia_HA26_SS_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL"
+      ]
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA26_HS1_SS",
+      "days_schedules": [
+        "dia_HA26_SS_LABORAL",
+        "dia_HA26_SS_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL"
+      ]
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA26_HS2_SS",
+      "days_schedules": [
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL",
+        "dia_HA26_SS_NO_LABORAL"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_FUN_GESTORIA",
+      "periods": [
+        "29/07",
+        "05/08",
+        "02/09"
+      ],
+      "weeks_schedules": [
+        "sem_HA26_HS0_SS",
+        "sem_HA26_HS1_SS",
+        "sem_HA26_HS2_SS",
+        "sem_HA26_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA1_SS_D_Calef_Temp_Lab",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        17.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA1_SS_D_Calef_Temp_Sab",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        17.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA1_SS_D_Calef_Temp_Fest",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        17.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        17.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA1_HS0_SS",
+      "days_schedules": [
+        "dia_HA1_SS_D_Calef_Temp_Lab",
+        "dia_HA1_SS_D_Calef_Temp_Lab",
+        "dia_HA1_SS_D_Calef_Temp_Lab",
+        "dia_HA1_SS_D_Calef_Temp_Lab",
+        "dia_HA1_SS_D_Calef_Temp_Lab",
+        "dia_HA1_SS_D_Calef_Temp_Sab",
+        "dia_HA1_SS_D_Calef_Temp_Fest"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_Horario_Calefaccion",
+      "periods": [],
+      "weeks_schedules": [
+        "sem_HA1_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA3_SS_D_Calef_Temp_Lab_t",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA3_SS_D_Calef_Temp_Sab_t",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA3_SS_D_Calef_Temp_Fest_t",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA3_HS0_SS",
+      "days_schedules": [
+        "dia_HA3_SS_D_Calef_Temp_Lab_t",
+        "dia_HA3_SS_D_Calef_Temp_Lab_t",
+        "dia_HA3_SS_D_Calef_Temp_Lab_t",
+        "dia_HA3_SS_D_Calef_Temp_Lab_t",
+        "dia_HA3_SS_D_Calef_Temp_Lab_t",
+        "dia_HA3_SS_D_Calef_Temp_Sab_t",
+        "dia_HA3_SS_D_Calef_Temp_Fest_t"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_Horario_Calefaccion_t",
+      "periods": [],
+      "weeks_schedules": [
+        "sem_HA3_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA0_SS_D_Refrig_Temp_Lab",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        27.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA0_SS_D_Refrig_Temp_Sab",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        27.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA0_SS_D_Refrig_Temp_Fest",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        27.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        99.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        27.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA0_HS0_SS",
+      "days_schedules": [
+        "dia_HA0_SS_D_Refrig_Temp_Lab",
+        "dia_HA0_SS_D_Refrig_Temp_Lab",
+        "dia_HA0_SS_D_Refrig_Temp_Lab",
+        "dia_HA0_SS_D_Refrig_Temp_Lab",
+        "dia_HA0_SS_D_Refrig_Temp_Lab",
+        "dia_HA0_SS_D_Refrig_Temp_Sab",
+        "dia_HA0_SS_D_Refrig_Temp_Fest"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_Horario_Refrigeracion",
+      "periods": [],
+      "weeks_schedules": [
+        "sem_HA0_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA2_SS_D_Refrig_Temp_Lab_t",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA2_SS_D_Refrig_Temp_Sab_t",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA2_SS_D_Refrig_Temp_Fest_t",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0,
+        25.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA2_HS0_SS",
+      "days_schedules": [
+        "dia_HA2_SS_D_Refrig_Temp_Lab_t",
+        "dia_HA2_SS_D_Refrig_Temp_Lab_t",
+        "dia_HA2_SS_D_Refrig_Temp_Lab_t",
+        "dia_HA2_SS_D_Refrig_Temp_Lab_t",
+        "dia_HA2_SS_D_Refrig_Temp_Lab_t",
+        "dia_HA2_SS_D_Refrig_Temp_Sab_t",
+        "dia_HA2_SS_D_Refrig_Temp_Fest_t"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_Horario_Refrigeracion_t",
+      "periods": [],
+      "weeks_schedules": [
+        "sem_HA2_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA27_SS_TODOS",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA27_HS0_SS",
+      "days_schedules": [
+        "dia_HA27_SS_TODOS",
+        "dia_HA27_SS_TODOS",
+        "dia_HA27_SS_TODOS",
+        "dia_HA27_SS_TODOS",
+        "dia_HA27_SS_TODOS",
+        "dia_HA27_SS_TODOS",
+        "dia_HA27_SS_TODOS"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_INF_GESTORIA",
+      "periods": [],
+      "weeks_schedules": [
+        "sem_HA27_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA25_SS_LABORAL",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5,
+        0.5,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.25,
+        0.25,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_HA25_SS_NO_LABORAL",
+      "time_steps": [
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600,
+        3600
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA25_HS0_SS",
+      "days_schedules": [
+        "dia_HA25_SS_LABORAL",
+        "dia_HA25_SS_LABORAL",
+        "dia_HA25_SS_LABORAL",
+        "dia_HA25_SS_LABORAL",
+        "dia_HA25_SS_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL"
+      ]
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA25_HS1_SS",
+      "days_schedules": [
+        "dia_HA25_SS_LABORAL",
+        "dia_HA25_SS_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL"
+      ]
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_HA25_HS2_SS",
+      "days_schedules": [
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL",
+        "dia_HA25_SS_NO_LABORAL"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_OCU_GESTORIA",
+      "periods": [
+        "29/07",
+        "05/08",
+        "02/09"
+      ],
+      "weeks_schedules": [
+        "sem_HA25_HS0_SS",
+        "sem_HA25_HS1_SS",
+        "sem_HA25_HS2_SS",
+        "sem_HA25_HS0_SS"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_SSHDI",
+      "time_steps": [],
+      "values": [
+        1.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_SSHSI",
+      "days_schedules": [
+        "dia_SSHDI"
+      ]
+    },
+    {
+      "type": "Day_schedule",
+      "name": "dia_SSHDV",
+      "time_steps": [],
+      "values": [
+        0.0
+      ],
+      "interpolation": "STEP"
+    },
+    {
+      "type": "Week_schedule",
+      "name": "sem_SSHSV",
+      "days_schedules": [
+        "dia_SSHDV"
+      ]
+    },
+    {
+      "type": "Year_schedule",
+      "name": "anual_SSHA",
+      "periods": [
+        "31/05",
+        "30/09"
+      ],
+      "weeks_schedules": [
+        "sem_SSHSI",
+        "sem_SSHSV",
+        "sem_SSHSI"
+      ]
+    },
+    {
+      "type": "Space_type",
+      "name": "Uso_NIVEL_ESTANQUEIDAD_1",
+      "people_sensible": 0.0,
+      "people_latent": 0.0,
+      "people_radiant_fraction": 1.0,
+      "other_gains_radiant_fraction": 1.0,
+      "light_radiant_fraction": 0.5,
+      "other_gains_latent_fraction": 0.1,
+      "input_variables": [
+        "o = anual_Anual_No_Habitable.values",
+        "i = anual_Anual_No_habitable_Inf.values"
+      ],
+      "people_density": "0.0*o",
+      "light_density": "0.0*o",
+      "other_gains_density": "0.0*o",
+      "infiltration": "0.0*i"
+    },
+    {
+      "type": "Space_type",
+      "name": "Uso_GESTORIA_1",
+      "people_sensible": 74.2,
+      "people_latent": 45.42,
+      "people_radiant_fraction": 0.4178,
+      "other_gains_radiant_fraction": 0.7,
+      "light_radiant_fraction": 0.5,
+      "other_gains_latent_fraction": 0.1,
+      "input_variables": [
+        "o = anual_OCU_GESTORIA.values",
+        "i = anual_INF_GESTORIA.values"
+      ],
+      "people_density": "0.1*o",
+      "light_density": "7.4*o",
+      "other_gains_density": "4.5*o",
+      "infiltration": "1.0*i"
+    },
+    {
+      "type": "Space_type",
+      "name": "Uso_GESTORIA_2",
+      "people_sensible": 62.0,
+      "people_latent": 45.42,
+      "people_radiant_fraction": 0.5,
+      "other_gains_radiant_fraction": 0.7,
+      "light_radiant_fraction": 0.5,
+      "other_gains_latent_fraction": 0.1,
+      "input_variables": [
+        "o = anual_OCU_GESTORIA.values",
+        "i = anual_INF_GESTORIA.values"
+      ],
+      "people_density": "0.1*o",
+      "light_density": "8.3*o",
+      "other_gains_density": "4.5*o",
+      "infiltration": "1.0*i"
+    },
+    {
+      "type": "Space_type",
+      "name": "Uso_GESTORIA_3",
+      "people_sensible": 74.2,
+      "people_latent": 45.42,
+      "people_radiant_fraction": 0.4178,
+      "other_gains_radiant_fraction": 0.7,
+      "light_radiant_fraction": 0.5,
+      "other_gains_latent_fraction": 0.1,
+      "input_variables": [
+        "o = anual_OCU_GESTORIA.values",
+        "i = anual_INF_GESTORIA.values"
+      ],
+      "people_density": "0.1*o",
+      "light_density": "5.9*o",
+      "other_gains_density": "4.5*o",
+      "infiltration": "1.0*i"
+    },
+    {
+      "type": "Space_type",
+      "name": "Uso_GESTORIA_4",
+      "people_sensible": 74.2,
+      "people_latent": 45.42,
+      "people_radiant_fraction": 0.4178,
+      "other_gains_radiant_fraction": 0.7,
+      "light_radiant_fraction": 0.5,
+      "other_gains_latent_fraction": 0.1,
+      "input_variables": [
+        "o = anual_OCU_GESTORIA.values",
+        "i = anual_INF_GESTORIA.values"
+      ],
+      "people_density": "0.1*o",
+      "light_density": "5.6*o",
+      "other_gains_density": "4.5*o",
+      "infiltration": "1.0*i"
+    },
+    {
+      "type": "Space_type",
+      "name": "Uso_GESTORIA_5",
+      "people_sensible": 74.2,
+      "people_latent": 45.42,
+      "people_radiant_fraction": 0.4178,
+      "other_gains_radiant_fraction": 0.7,
+      "light_radiant_fraction": 0.5,
+      "other_gains_latent_fraction": 0.1,
+      "input_variables": [
+        "o = anual_OCU_GESTORIA.values",
+        "i = anual_INF_GESTORIA.values"
+      ],
+      "people_density": "0.1*o",
+      "light_density": "5.4*o",
+      "other_gains_density": "4.5*o",
+      "infiltration": "1.0*i"
     },
     {
       "type": "Material",
@@ -702,203 +2504,280 @@
       "type": "Space",
       "name": "P01_E01",
       "building": "Edificio",
-      "spaces_type": "Tipo_residencial_generico",
+      "spaces_type": "Uso_NIVEL_ESTANQUEIDAD_1",
       "floor_area": 110.2725,
       "volume": 44.109
     },
     {
       "type": "Building_surface",
       "name": "P01_E01_PCT001",
-      "surface_type": "EXTERIOR",
-      "spaces": "P01_E01",
-      "construction": "MURO TERRENO",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P01_E01"
+      ],
+      "construction": "MURO TERRENO__P01_E01_PCT001",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
       "shape": "RECTANGLE",
       "ref_point": [
         0.0,
-        -0.0,
+        0.0,
         -0.4
       ],
       "width": 14.5,
       "height": 0.4,
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P01_E01_PCT002",
-      "surface_type": "EXTERIOR",
-      "spaces": "P01_E01",
-      "construction": "MURO TERRENO",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P01_E01"
+      ],
+      "construction": "MURO TERRENO__P01_E01_PCT002",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
       "shape": "RECTANGLE",
       "ref_point": [
+        0.0,
         14.5,
-        -0.0,
         -0.4
       ],
       "width": 7.965,
       "height": 0.4,
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P01_E01_PCT003",
-      "surface_type": "EXTERIOR",
-      "spaces": "P01_E01",
-      "construction": "MURO TERRENO",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P01_E01"
+      ],
+      "construction": "MURO TERRENO__P01_E01_PCT003",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
       "shape": "RECTANGLE",
       "ref_point": [
+        -7.965,
         14.5,
-        7.965,
         -0.4
       ],
       "width": 6.5,
       "height": 0.4,
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P01_E01_PCT004",
-      "surface_type": "EXTERIOR",
-      "spaces": "P01_E01",
-      "construction": "MURO TERRENO",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P01_E01"
+      ],
+      "construction": "MURO TERRENO__P01_E01_PCT004",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
       "shape": "RECTANGLE",
       "ref_point": [
+        -7.965,
         8.0,
-        7.965,
         -0.4
       ],
       "width": 1.465,
       "height": 0.4,
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P01_E01_PCT005",
-      "surface_type": "EXTERIOR",
-      "spaces": "P01_E01",
-      "construction": "MURO TERRENO",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P01_E01"
+      ],
+      "construction": "MURO TERRENO__P01_E01_PCT005",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
       "shape": "RECTANGLE",
       "ref_point": [
+        -6.5,
         8.0,
-        6.5,
         -0.4
       ],
       "width": 1.5,
-      "height": 0.4,
-      "azimuth": 180.0,
-      "altitude": 0.0
-    },
-    {
-      "type": "Building_surface",
-      "name": "P01_E01_PCT006",
-      "surface_type": "EXTERIOR",
-      "spaces": "P01_E01",
-      "construction": "MURO TERRENO",
-      "shape": "RECTANGLE",
-      "ref_point": [
-        6.5,
-        6.5,
-        -0.4
-      ],
-      "width": 1.0,
-      "height": 0.4,
-      "azimuth": 90.0,
-      "altitude": 0.0
-    },
-    {
-      "type": "Building_surface",
-      "name": "P01_E01_PCT007",
-      "surface_type": "EXTERIOR",
-      "spaces": "P01_E01",
-      "construction": "MURO TERRENO",
-      "shape": "RECTANGLE",
-      "ref_point": [
-        6.5,
-        7.5,
-        -0.4
-      ],
-      "width": 6.5,
-      "height": 0.4,
-      "azimuth": 180.0,
-      "altitude": 0.0
-    },
-    {
-      "type": "Building_surface",
-      "name": "P01_E01_PCT008",
-      "surface_type": "EXTERIOR",
-      "spaces": "P01_E01",
-      "construction": "MURO TERRENO",
-      "shape": "RECTANGLE",
-      "ref_point": [
-        0.0,
-        7.5,
-        -0.4
-      ],
-      "width": 7.5,
       "height": 0.4,
       "azimuth": -90.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
-      "name": "P01_E01_FTER009",
-      "surface_type": "EXTERIOR",
-      "spaces": "P01_E01",
-      "construction": "FORJADO SUELO",
+      "name": "P01_E01_PCT006",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P01_E01"
+      ],
+      "construction": "MURO TERRENO__P01_E01_PCT006",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
       "shape": "RECTANGLE",
-      "azimuth": 0.0,
-      "altitude": 90.0,
       "ref_point": [
-        0.0,
-        -0.0,
+        -6.5,
+        6.5,
         -0.4
       ],
-      "width": 14.5,
-      "height": 7.965
+      "width": 1.0,
+      "height": 0.4,
+      "azimuth": -180.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT007",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P01_E01"
+      ],
+      "construction": "MURO TERRENO__P01_E01_PCT007",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
+      "shape": "RECTANGLE",
+      "ref_point": [
+        -7.5,
+        6.5,
+        -0.4
+      ],
+      "width": 6.5,
+      "height": 0.4,
+      "azimuth": -90.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_PCT008",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P01_E01"
+      ],
+      "construction": "MURO TERRENO__P01_E01_PCT008",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
+      "shape": "RECTANGLE",
+      "ref_point": [
+        -7.5,
+        0.0,
+        -0.4
+      ],
+      "width": 7.5,
+      "height": 0.4,
+      "azimuth": 0.0,
+      "altitude": 0.0
+    },
+    {
+      "type": "Building_surface",
+      "name": "P01_E01_FTER009",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P01_E01"
+      ],
+      "construction": "FORJADO SUELO__P01_E01_FTER009",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
+      "azimuth": 90.0,
+      "altitude": -90.0,
+      "ref_point": [
+        -7.965,
+        0.0,
+        -0.4
+      ],
+      "shape": "POLYGON",
+      "x_polygon": [
+        0.0,
+        6.5,
+        6.5,
+        8.0,
+        8.0,
+        14.5,
+        14.5,
+        0.0
+      ],
+      "y_polygon": [
+        0.465,
+        0.465,
+        1.465,
+        1.465,
+        0.0,
+        0.0,
+        7.965,
+        7.965
+      ]
     },
     {
       "type": "Space",
       "name": "P02_E01",
       "building": "Edificio",
-      "spaces_type": "Tipo_residencial_generico",
+      "spaces_type": "Uso_GESTORIA_1",
       "floor_area": 16.2037,
-      "volume": 48.6112
+      "volume": 48.6112,
+      "furniture_weight": 15.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E01_PE001",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E01",
+      "spaces": [
+        "P02_E01"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
         0.0,
-        -0.0,
+        0.0,
         0.0
       ],
       "width": 2.965,
       "height": 3.0,
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E01_PE002",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E01",
+      "spaces": [
+        "P02_E01"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -5.465,
         0.0,
-        5.465,
         0.0
       ],
       "width": 5.465,
       "height": 3.0,
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 0.0
     },
     {
@@ -912,13 +2791,13 @@
       "construction": "TABIQUE",
       "shape": "RECTANGLE",
       "ref_point": [
+        0.0,
         2.965,
-        -0.0,
         0.0
       ],
       "width": 3.5,
       "height": 3.0,
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 0.0
     },
     {
@@ -932,13 +2811,13 @@
       "construction": "TABIQUE",
       "shape": "RECTANGLE",
       "ref_point": [
+        -3.5,
         2.965,
-        3.5,
         0.0
       ],
       "width": 1.965,
       "height": 3.0,
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 0.0
     },
     {
@@ -952,13 +2831,13 @@
       "construction": "TABIQUE",
       "shape": "RECTANGLE",
       "ref_point": [
+        -5.465,
         2.965,
-        5.465,
         0.0
       ],
       "width": 2.965,
       "height": 3.0,
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 0.0
     },
     {
@@ -966,8 +2845,8 @@
       "name": "P02_E01_FI001",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E01",
-        "P01_E01"
+        "P01_E01",
+        "P02_E01"
       ],
       "construction": "FORJADO TECHO",
       "shape": "POLYGON",
@@ -976,7 +2855,7 @@
         0.0,
         0.0
       ],
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": -90.0,
       "x_polygon": [
         0.0,
@@ -996,8 +2875,8 @@
       "name": "P02_E01_PI001",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E01",
-        "P03_E01"
+        "P03_E01",
+        "P02_E01"
       ],
       "construction": "FORJADO TECHO",
       "shape": "POLYGON",
@@ -1006,7 +2885,7 @@
         0.0,
         3.0
       ],
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -1025,25 +2904,28 @@
       "type": "Space",
       "name": "P02_E02",
       "building": "Edificio",
-      "spaces_type": "Tipo_residencial_generico",
+      "spaces_type": "Uso_GESTORIA_2",
       "floor_area": 7.1726,
-      "volume": 21.5177
+      "volume": 21.5177,
+      "furniture_weight": 15.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E02_PE001",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E02",
+      "spaces": [
+        "P02_E02"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        0.0,
         2.965,
-        -0.0,
         0.0
       ],
       "width": 2.07,
       "height": 3.0,
-      "azimuth": -0.0,
+      "azimuth": 90.0,
       "altitude": 0.0
     },
     {
@@ -1057,13 +2939,13 @@
       "construction": "TABIQUE",
       "shape": "RECTANGLE",
       "ref_point": [
+        0.0,
         5.035,
-        -0.0,
         0.0
       ],
       "width": 3.465,
       "height": 3.0,
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 0.0
     },
     {
@@ -1077,13 +2959,13 @@
       "construction": "TABIQUE",
       "shape": "RECTANGLE",
       "ref_point": [
+        -3.465,
         5.035,
-        3.465,
         0.0
       ],
       "width": 2.07,
       "height": 3.0,
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 0.0
     },
     {
@@ -1091,17 +2973,17 @@
       "name": "P02_E02_FI002",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E02",
-        "P01_E01"
+        "P01_E01",
+        "P02_E02"
       ],
       "construction": "FORJADO TECHO",
       "shape": "POLYGON",
       "ref_point": [
-        2.964,
         0.0,
+        2.964,
         0.0
       ],
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": -90.0,
       "x_polygon": [
         0.0,
@@ -1121,17 +3003,17 @@
       "name": "P02_E02_PI001",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E02",
-        "P03_E01"
+        "P03_E01",
+        "P02_E02"
       ],
       "construction": "FORJADO TECHO",
       "shape": "POLYGON",
       "ref_point": [
-        2.964,
         0.0,
+        2.964,
         3.0
       ],
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -1150,25 +3032,28 @@
       "type": "Space",
       "name": "P02_E03",
       "building": "Edificio",
-      "spaces_type": "Tipo_residencial_generico",
+      "spaces_type": "Uso_GESTORIA_3",
       "floor_area": 10.1525,
-      "volume": 30.4574
+      "volume": 30.4574,
+      "furniture_weight": 15.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E03_PE001",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E03",
+      "spaces": [
+        "P02_E03"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        0.0,
         5.035,
-        -0.0,
         0.0
       ],
       "width": 2.93,
       "height": 3.0,
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 0.0
     },
     {
@@ -1182,13 +3067,13 @@
       "construction": "TABIQUE",
       "shape": "RECTANGLE",
       "ref_point": [
+        0.0,
         7.965,
-        -0.0,
         0.0
       ],
       "width": 3.465,
       "height": 3.0,
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 0.0
     },
     {
@@ -1202,13 +3087,13 @@
       "construction": "TABIQUE",
       "shape": "RECTANGLE",
       "ref_point": [
+        -3.465,
         7.965,
-        3.465,
         0.0
       ],
       "width": 2.93,
       "height": 3.0,
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 0.0
     },
     {
@@ -1216,18 +3101,18 @@
       "name": "P02_E03_FI003",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E03",
-        "P01_E01"
+        "P01_E01",
+        "P02_E03"
       ],
       "construction": "FORJADO TECHO",
-      "shape": "RECTANGLE",
-      "azimuth": 0.0,
-      "altitude": 90.0,
+      "azimuth": 90.0,
+      "altitude": -90.0,
       "ref_point": [
+        -3.465,
         5.035,
-        -0.0,
         0.0
       ],
+      "shape": "RECTANGLE",
       "width": 2.93,
       "height": 3.465
     },
@@ -1236,17 +3121,17 @@
       "name": "P02_E03_PI001",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E03",
-        "P03_E01"
+        "P03_E01",
+        "P02_E03"
       ],
       "construction": "FORJADO TECHO",
       "shape": "POLYGON",
       "ref_point": [
-        5.034,
         0.0,
+        5.034,
         3.0
       ],
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -1265,42 +3150,47 @@
       "type": "Space",
       "name": "P02_E04",
       "building": "Edificio",
-      "spaces_type": "Tipo_residencial_generico",
+      "spaces_type": "Uso_GESTORIA_4",
       "floor_area": 32.4463,
-      "volume": 97.3388
+      "volume": 97.3388,
+      "furniture_weight": 15.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E04_PE001",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E04",
+      "spaces": [
+        "P02_E04"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        0.0,
         7.965,
-        -0.0,
         0.0
       ],
       "width": 6.535,
       "height": 3.0,
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E04_PE002",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E04",
+      "spaces": [
+        "P02_E04"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        0.0,
         14.5,
-        -0.0,
         0.0
       ],
       "width": 4.965,
       "height": 3.0,
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 0.0
     },
     {
@@ -1314,13 +3204,13 @@
       "construction": "TABIQUE",
       "shape": "RECTANGLE",
       "ref_point": [
+        -4.965,
         14.5,
-        4.965,
         0.0
       ],
       "width": 6.535,
       "height": 3.0,
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 0.0
     },
     {
@@ -1334,13 +3224,13 @@
       "construction": "TABIQUE",
       "shape": "RECTANGLE",
       "ref_point": [
+        -4.965,
         7.965,
-        4.965,
         0.0
       ],
       "width": 1.5,
       "height": 3.0,
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 0.0
     },
     {
@@ -1348,17 +3238,17 @@
       "name": "P02_E04_FI004",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E04",
-        "P01_E01"
+        "P01_E01",
+        "P02_E04"
       ],
       "construction": "FORJADO TECHO",
       "shape": "POLYGON",
       "ref_point": [
-        7.965,
         0.0,
+        7.965,
         0.0
       ],
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": -90.0,
       "x_polygon": [
         0.0,
@@ -1378,17 +3268,17 @@
       "name": "P02_E04_PI001",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E04",
-        "P03_E01"
+        "P03_E01",
+        "P02_E04"
       ],
       "construction": "FORJADO TECHO",
       "shape": "POLYGON",
       "ref_point": [
-        7.965,
         0.0,
+        7.965,
         3.0
       ],
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -1407,127 +3297,142 @@
       "type": "Space",
       "name": "P02_E05",
       "building": "Edificio",
-      "spaces_type": "Tipo_residencial_generico",
+      "spaces_type": "Uso_GESTORIA_5",
       "floor_area": 44.2975,
-      "volume": 132.8925
+      "volume": 132.8925,
+      "furniture_weight": 15.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E05_PE001",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E05",
+      "spaces": [
+        "P02_E05"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -4.965,
         14.5,
-        4.965,
         0.0
       ],
       "width": 3.0,
       "height": 3.0,
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E05_PE002",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E05",
+      "spaces": [
+        "P02_E05"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -7.965,
         8.0,
-        7.965,
         0.0
       ],
       "width": 0.465,
       "height": 3.0,
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E05_PE003",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E05",
+      "spaces": [
+        "P02_E05"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -7.5,
         8.0,
-        7.5,
         0.0
       ],
       "width": 1.0,
       "height": 3.0,
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E05_PE004",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E05",
+      "spaces": [
+        "P02_E05"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -6.5,
         8.0,
-        6.5,
         0.0
       ],
       "width": 1.5,
       "height": 3.0,
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E05_PE005",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E05",
+      "spaces": [
+        "P02_E05"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
-        6.5,
+        -6.5,
         6.5,
         0.0
       ],
       "width": 1.0,
       "height": 3.0,
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E05_PE006",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E05",
+      "spaces": [
+        "P02_E05"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -7.5,
         6.5,
-        7.5,
         0.0
       ],
       "width": 6.5,
       "height": 3.0,
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E05_PE007",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E05",
+      "spaces": [
+        "P02_E05"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -7.5,
         0.0,
-        7.5,
         0.0
       ],
       "width": 2.035,
       "height": 3.0,
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 0.0
     },
     {
@@ -1541,13 +3446,13 @@
       "construction": "TABICON",
       "shape": "RECTANGLE",
       "ref_point": [
+        -7.965,
         14.5,
-        7.965,
         0.0
       ],
       "width": 6.5,
       "height": 3.0,
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 0.0
     },
     {
@@ -1555,37 +3460,63 @@
       "name": "P02_E05_FI005",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E05",
-        "P01_E01"
+        "P01_E01",
+        "P02_E05"
       ],
       "construction": "FORJADO TECHO",
-      "shape": "RECTANGLE",
-      "azimuth": 0.0,
-      "altitude": 90.0,
+      "azimuth": 90.0,
+      "altitude": -90.0,
       "ref_point": [
+        -7.965,
         0.0,
-        3.465,
         0.0
       ],
-      "width": 14.5,
-      "height": 4.5
+      "shape": "POLYGON",
+      "x_polygon": [
+        0.0,
+        6.5,
+        6.5,
+        8.0,
+        8.0,
+        14.5,
+        14.5,
+        7.965,
+        7.965,
+        2.965,
+        2.965,
+        0.0
+      ],
+      "y_polygon": [
+        0.465,
+        0.465,
+        1.465,
+        1.465,
+        0.0,
+        0.0,
+        3.0,
+        3.0,
+        4.5,
+        4.5,
+        2.5,
+        2.5
+      ]
     },
     {
       "type": "Building_surface",
       "name": "P02_E05_PI001",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E05",
-        "P03_E01"
+        "P03_E01",
+        "P02_E05"
       ],
       "construction": "FORJADO TECHO",
       "shape": "POLYGON",
       "ref_point": [
+        -4.965,
         14.5,
-        4.965,
         3.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -1620,7 +3551,7 @@
       "type": "Space",
       "name": "P02_E06",
       "building": "Edificio",
-      "spaces_type": "Tipo_residencial_generico",
+      "spaces_type": "Uso_NIVEL_ESTANQUEIDAD_1",
       "floor_area": 19.7275,
       "volume": 59.1825
     },
@@ -1628,51 +3559,57 @@
       "type": "Building_surface",
       "name": "P02_E06_PE001",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E06",
+      "spaces": [
+        "P02_E06"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -7.965,
         14.5,
-        7.965,
         0.0
       ],
       "width": 3.035,
       "height": 3.0,
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E06_PE002",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E06",
+      "spaces": [
+        "P02_E06"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -11.0,
         14.5,
-        11.0,
         0.0
       ],
       "width": 6.5,
       "height": 3.0,
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 0.0
     },
     {
       "type": "Building_surface",
       "name": "P02_E06_PE003",
       "surface_type": "EXTERIOR",
-      "spaces": "P02_E06",
+      "spaces": [
+        "P02_E06"
+      ],
       "construction": "CERRAMIENTO EXTERIOR",
       "shape": "RECTANGLE",
       "ref_point": [
+        -11.0,
         8.0,
-        11.0,
         0.0
       ],
       "width": 3.035,
       "height": 3.0,
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 0.0
     },
     {
@@ -1680,17 +3617,17 @@
       "name": "P02_E06_PI001",
       "surface_type": "INTERIOR",
       "spaces": [
-        "P02_E06",
-        "P03_E01"
+        "P03_E01",
+        "P02_E06"
       ],
       "construction": "FORJADO TECHO",
       "shape": "POLYGON",
       "ref_point": [
+        -7.965,
         14.5,
-        7.965,
         3.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -1708,16 +3645,22 @@
     {
       "type": "Building_surface",
       "name": "P02_E06_TER001",
-      "surface_type": "EXTERIOR",
-      "spaces": "P02_E06",
-      "construction": "FORJADO SUELO",
+      "surface_type": "UNDERGROUND",
+      "spaces": [
+        "P02_E06"
+      ],
+      "construction": "FORJADO SUELO__P02_E06_TER001",
+      "ground_material": "Terreno_generico",
+      "exterior_perimeter_fraction": 1.0,
+      "exterior_perimeter_wall_thickness": 0.3,
+      "groundwater_depth": 0.0,
       "shape": "POLYGON",
       "ref_point": [
+        -11.0,
         8.0,
-        11.0,
         0.0
       ],
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": -90.0,
       "x_polygon": [
         0.0,
@@ -1736,7 +3679,7 @@
       "type": "Space",
       "name": "P03_E01",
       "building": "Edificio",
-      "spaces_type": "Tipo_residencial_generico",
+      "spaces_type": "Uso_NIVEL_ESTANQUEIDAD_1",
       "floor_area": 130.0,
       "volume": 130.0
     },
@@ -1744,15 +3687,17 @@
       "type": "Building_surface",
       "name": "P03_E01F001",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "FORJADO AL AIRE",
       "shape": "POLYGON",
       "ref_point": [
+        -7.5,
         8.0,
-        7.5,
         3.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -1771,15 +3716,17 @@
       "type": "Building_surface",
       "name": "P03_E01C001",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
-        1.2,
+        -1.2,
         1.2,
         4.0
       ],
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -1796,15 +3743,17 @@
       "type": "Building_surface",
       "name": "P03_E01C002",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
-        1.2,
+        -1.2,
         1.2,
         4.0
       ],
-      "azimuth": 0.0,
+      "azimuth": 90.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -1821,15 +3770,17 @@
       "type": "Building_surface",
       "name": "P03_E01C003",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -6.3,
         1.2,
-        6.3,
         4.0
       ],
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -1846,15 +3797,17 @@
       "type": "Building_surface",
       "name": "P03_E01C004",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -6.3,
         1.2,
-        6.3,
         4.0
       ],
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -1871,15 +3824,17 @@
       "type": "Building_surface",
       "name": "P03_E01C005",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -1.2,
         13.3,
-        1.2,
         4.0
       ],
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -1896,15 +3851,17 @@
       "type": "Building_surface",
       "name": "P03_E01C006",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -1.2,
         13.3,
-        1.2,
         4.0
       ],
-      "azimuth": 90.0,
+      "azimuth": -180.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -1921,15 +3878,17 @@
       "type": "Building_surface",
       "name": "P03_E01C007",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -9.7,
         13.3,
-        9.7,
         4.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 52.4314,
       "x_polygon": [
         0.0,
@@ -1946,15 +3905,17 @@
       "type": "Building_surface",
       "name": "P03_E01C008",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -9.7,
         13.3,
-        9.7,
         4.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 52.4314,
       "x_polygon": [
         0.0,
@@ -1971,15 +3932,17 @@
       "type": "Building_surface",
       "name": "P03_E01C011",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -6.3,
         9.2,
-        6.3,
         4.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -1996,15 +3959,17 @@
       "type": "Building_surface",
       "name": "P03_E01C012",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -6.3,
         9.2,
-        6.3,
         4.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -2021,15 +3986,17 @@
       "type": "Building_surface",
       "name": "P03_E01C009",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -9.7,
         9.2,
-        9.7,
         4.0
       ],
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -2046,15 +4013,17 @@
       "type": "Building_surface",
       "name": "P03_E01C010",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -9.7,
         9.2,
-        9.7,
         4.0
       ],
-      "azimuth": -90.0,
+      "azimuth": 0.0,
       "altitude": 50.1944,
       "x_polygon": [
         0.0,
@@ -2071,15 +4040,17 @@
       "type": "Building_surface",
       "name": "P03_E01C013",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -6.3,
         1.2,
-        6.3,
         4.0
       ],
-      "azimuth": -0.0,
+      "azimuth": 90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -2096,15 +4067,17 @@
       "type": "Building_surface",
       "name": "P03_E01C014",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -1.2,
         13.3,
-        1.2,
         4.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -2121,15 +4094,17 @@
       "type": "Building_surface",
       "name": "P03_E01C015",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -1.2,
         13.3,
-        1.2,
         4.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -2146,15 +4121,17 @@
       "type": "Building_surface",
       "name": "P03_E01C016",
       "surface_type": "EXTERIOR",
-      "spaces": "P03_E01",
+      "spaces": [
+        "P03_E01"
+      ],
       "construction": "CUBIERTA INCLINADA",
       "shape": "POLYGON",
       "ref_point": [
+        -1.2,
         13.3,
-        1.2,
         4.0
       ],
-      "azimuth": 180.0,
+      "azimuth": -90.0,
       "altitude": 90.0,
       "x_polygon": [
         0.0,
@@ -2178,7 +4155,8 @@
       "ref_point": [
         1.81,
         1.0
-      ]
+      ],
+      "setback": 0.2
     },
     {
       "type": "Opening",
@@ -2191,7 +4169,8 @@
       "ref_point": [
         0.19,
         1.0
-      ]
+      ],
+      "setback": 0.2
     },
     {
       "type": "Opening",
@@ -2204,7 +4183,8 @@
       "ref_point": [
         0.67,
         1.0
-      ]
+      ],
+      "setback": 0.2
     },
     {
       "type": "Opening",
@@ -2217,7 +4197,8 @@
       "ref_point": [
         2.92,
         1.0
-      ]
+      ],
+      "setback": 0.2
     },
     {
       "type": "Opening",
@@ -2230,7 +4211,8 @@
       "ref_point": [
         3.14,
         1.0
-      ]
+      ],
+      "setback": 0.2
     },
     {
       "type": "Opening",
@@ -2243,7 +4225,8 @@
       "ref_point": [
         0.25,
         1.0
-      ]
+      ],
+      "setback": 0.2
     },
     {
       "type": "Opening",
@@ -2256,7 +4239,8 @@
       "ref_point": [
         0.27,
         0.0
-      ]
+      ],
+      "setback": 0.0
     },
     {
       "type": "Opening",
@@ -2269,7 +4253,8 @@
       "ref_point": [
         0.89,
         1.0
-      ]
+      ],
+      "setback": 0.2
     },
     {
       "type": "Opening",
@@ -2282,7 +4267,8 @@
       "ref_point": [
         4.06,
         1.0
-      ]
+      ],
+      "setback": 0.2
     },
     {
       "type": "Opening",
@@ -2295,67 +4281,75 @@
       "ref_point": [
         0.29,
         0.0
-      ]
+      ],
+      "setback": 0.2
     },
     {
       "type": "HVAC_perfect_system",
       "name": "HVAC_P02_E01",
       "spaces": "P02_E01",
       "input_variables": [
-        "tc = anual_calef.values",
-        "tr = anual_refrig.values"
+        "fun = anual_FUN_GESTORIA.values",
+        "tc = anual_Horario_Calefaccion_t.values",
+        "tr = anual_Horario_Refrigeracion_t.values",
+        "sea = anual_SSHA.values"
       ],
-      "outdoor_air_flow": "0",
-      "heating_setpoint": "tc",
-      "cooling_setpoint": "tr",
-      "system_on_off": "1"
+      "outdoor_air_flow": "0.0",
+      "heating_setpoint": "sea*(tc) + (1-sea)*(-100)",
+      "cooling_setpoint": "sea*100 + (1-sea)*(tr)",
+      "system_on_off": "fun"
     },
     {
       "type": "HVAC_perfect_system",
       "name": "HVAC_P02_E02",
       "spaces": "P02_E02",
       "input_variables": [
-        "tc = anual_calef.values",
-        "tr = anual_refrig.values"
+        "fun = anual_FUN_GESTORIA.values",
+        "tc = anual_Horario_Calefaccion_t.values",
+        "tr = anual_Horario_Refrigeracion_t.values",
+        "sea = anual_SSHA.values"
       ],
-      "outdoor_air_flow": "0",
-      "heating_setpoint": "tc",
-      "cooling_setpoint": "tr",
-      "system_on_off": "1"
+      "outdoor_air_flow": "0.0",
+      "heating_setpoint": "sea*(tc) + (1-sea)*(-100)",
+      "cooling_setpoint": "sea*100 + (1-sea)*(tr)",
+      "system_on_off": "fun"
     },
     {
       "type": "HVAC_perfect_system",
       "name": "HVAC_P02_E03",
       "spaces": "P02_E03",
       "input_variables": [
-        "tc = anual_calef.values",
-        "tr = anual_refrig.values"
+        "fun = anual_FUN_GESTORIA.values",
+        "tc = anual_Horario_Calefaccion_t.values",
+        "tr = anual_Horario_Refrigeracion_t.values",
+        "sea = anual_SSHA.values"
       ],
-      "outdoor_air_flow": "0",
-      "heating_setpoint": "tc",
-      "cooling_setpoint": "tr",
-      "system_on_off": "1"
+      "outdoor_air_flow": "0.0",
+      "heating_setpoint": "sea*(tc) + (1-sea)*(-100)",
+      "cooling_setpoint": "sea*100 + (1-sea)*(tr)",
+      "system_on_off": "fun"
     },
     {
       "type": "HVAC_perfect_system",
       "name": "HVAC_P02_E04",
       "spaces": "P02_E04",
       "input_variables": [
-        "tc = anual_calef.values",
-        "tr = anual_refrig.values"
+        "fun = anual_FUN_GESTORIA.values",
+        "tc = anual_Horario_Calefaccion_t.values",
+        "tr = anual_Horario_Refrigeracion_t.values",
+        "sea = anual_SSHA.values"
       ],
-      "outdoor_air_flow": "0",
-      "heating_setpoint": "tc",
-      "cooling_setpoint": "tr",
-      "system_on_off": "1"
+      "outdoor_air_flow": "0.0",
+      "heating_setpoint": "sea*(tc) + (1-sea)*(-100)",
+      "cooling_setpoint": "sea*100 + (1-sea)*(tr)",
+      "system_on_off": "fun"
     },
-    {
+     {
       "type": "File_met",
       "name": "Sevilla",
       "file_type": "MET",
       "file_name": "../mets/Sevilla.met"
     }
   ],
-  "simulation_file_met": "Sevilla",
-  "shadow_calculation": "INSTANT"
+  "simulation_file_met": "Sevilla"
 }
