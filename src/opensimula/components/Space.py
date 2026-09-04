@@ -6,7 +6,14 @@ from opensimula.Iterative_process import Iterative_process
 import numpy as np
 import psychrolib as sicro
 import math
-from scipy.optimize import root
+
+
+ANGLE_TOL = 1.0e-6  # degrees
+FF_TOLERANCE = 1.0e-12
+FF_ERROR_MAX = 1.0e-8
+FF_N_MAX_ITER = 200
+FF_N_SINKHORN = 10
+FF_N_MAX_BACKTRACK = 30
 
 
 class Space(Component):
@@ -126,64 +133,128 @@ class Space(Component):
                     self.sides.append(1)
 
     def _coplanar(self, surf1, side1, surf2, side2):
-        az_1 = surf1.orientation_angle("azimuth", side1)
-        az_2 = surf2.orientation_angle("azimuth", side2)
         alt_1 = surf1.orientation_angle("altitude", side1)
         alt_2 = surf2.orientation_angle("altitude", side2)
+        if not math.isclose(alt_1, alt_2, abs_tol=ANGLE_TOL):
+            return False
+        if math.isclose(abs(alt_1), 90, abs_tol=ANGLE_TOL):
+            # Horizontal surfaces, its azimuth does not define the plane
+            return True
+        az_1 = surf1.orientation_angle("azimuth", side1)
+        az_2 = surf2.orientation_angle("azimuth", side2)
         az_difference = (az_1 - az_2 + 180) % 360 - 180
-        return math.isclose(alt_1, alt_2, abs_tol=1.0e-10) and math.isclose(
-            az_difference, 0, abs_tol=1.0e-10
-        )
+        return math.isclose(az_difference, 0, abs_tol=ANGLE_TOL)
 
     def _create_ff_matrix(self):
-        n = len(self.surfaces)
-        areas = np.array([surf.area for surf in self.surfaces], dtype=float)
-        if n == 0:
-            self.ff_matrix = np.zeros((0, 0))
-            return
-        if not np.all(np.isfinite(areas)) or np.any(areas <= 0):
-            raise ValueError(
-                f"{self.parameter('name').value}: all surfaces must have a positive finite area."
-            )
+        """View factors between the surfaces of the space.
 
-        visibility = np.ones((n, n), dtype=float)
+        Starts from an area weighted base matrix, F_ij = A_j/A_total, zero
+        between coplanar surfaces, and closes it with a symmetric scaling
+        F_ij = x_i * base_ij * x_j. That scaling imposes at the same time
+        closure, each row adds up to 1, and reciprocity, A_i*F_ij = A_j*F_ji.
+        """
+        n = len(self.surfaces)
+        self.ff_matrix = np.zeros((n, n))
+        if n == 0:
+            return
+        name = self.parameter("name").value
+        areas = np.array([surf.area for surf in self.surfaces], dtype=float)
+        if not np.all(np.isfinite(areas)) or np.any(areas <= 0):
+            msg = f"{name}, all its surfaces must have a positive area to calculate the view factors."
+            self._sim_.message(Message(msg, "ERROR"))
+            return
+
+        visibility = np.ones((n, n))
         for i in range(n):
-            for j in range(n):
+            visibility[i][i] = 0
+            for j in range(i + 1, n):
                 if self._coplanar(
                     self.surfaces[i], self.sides[i], self.surfaces[j], self.sides[j]
                 ):
-                    visibility[i, j] = 0
+                    visibility[i][j] = 0
+                    visibility[j][i] = 0
+        base_matrix = visibility * (areas / areas.sum())
 
-        base_matrix = visibility * (areas[None, :] / areas.sum())
+        if not self._ff_matrix_is_solvable(base_matrix, areas, visibility, name):
+            self.ff_matrix = self._normalize_ff_rows(base_matrix)
+            return
+        self.ff_matrix, error = self._scale_ff_matrix(base_matrix)
+        if error > FF_ERROR_MAX:
+            msg = f"{name}, the view factors could not be closed, maximum error: {error:.3e}. Reciprocity is dropped."
+            self._sim_.message(Message(msg, "WARNING"))
+            self.ff_matrix = self._normalize_ff_rows(base_matrix)
 
-        def row_equations(log_scales):
-            scales = np.exp(log_scales)
-            return np.log(scales * (base_matrix @ scales))
+    def _ff_matrix_is_solvable(self, base_matrix, areas, visibility, name):
+        """Closure and reciprocity can only be met together if every surface
+        sees some other one and no coplanar group holds more than half of the
+        area of the space."""
+        blind = np.flatnonzero(base_matrix.sum(axis=1) == 0)
+        if len(blind) > 0:
+            surf_name = self.surfaces[blind[0]].parameter("name").value
+            msg = f"{name}, {surf_name} does not see any other surface of the space."
+            self._sim_.message(Message(msg, "WARNING"))
+            return False
+        n = len(areas)
+        group = np.full(n, -1)
+        n_group = 0
+        for i in range(n):
+            if group[i] < 0:
+                group[(visibility[i] == 0) & (group < 0)] = n_group
+                n_group += 1
+        for k in range(n_group):
+            area_group = areas[group == k].sum()
+            if area_group > areas.sum() - area_group:
+                msg = f"{name}, the surfaces of one of its planes hold more than half of the area of the space, its view factors cannot meet closure and reciprocity at the same time. Reciprocity is dropped."
+                self._sim_.message(Message(msg, "WARNING"))
+                return False
+        return True
 
-        solution = root(row_equations, np.zeros(n), method="hybr", options={"xtol": 1.0e-10})
-        if not solution.success:
-            raise ValueError(
-                f"{self.parameter('name').value}: unable to normalize the form-factor matrix: "
-                f"{solution.message}"
-            )
+    def _scale_ff_matrix(self, base_matrix):
+        """Symmetric scaling x_i*(base*x)_i = 1, biproportional (Sinkhorn)
+        steps to globalize and then Newton over log(x)."""
+        n = base_matrix.shape[0]
 
-        scales = np.exp(solution.x)
-        self.ff_matrix = scales[:, None] * base_matrix * scales[None, :]
-        row_sums = self.ff_matrix.sum(axis=1)
-        if not np.allclose(row_sums, 1.0, rtol=0, atol=1.0e-8):
-            raise ValueError(
-                f"{self.parameter('name').value}: form-factor rows do not sum to 1. "
-                f"Maximum error: {np.max(np.abs(row_sums - 1.0)):.3e}."
-            )
-        if not np.allclose(
-            areas[:, None] * self.ff_matrix,
-            areas[None, :] * self.ff_matrix.T,
-            rtol=1.0e-10,
-            atol=1.0e-12,
-        ):
-            raise ValueError(
-                f"{self.parameter('name').value}: form-factor matrix violates reciprocity."
-            )
+        def error(x):
+            residue = x * (base_matrix @ x) - 1
+            return np.abs(residue).max() if np.all(np.isfinite(residue)) else math.inf
+
+        x = np.ones(n)
+        err = error(x)
+        for n_iter in range(FF_N_MAX_ITER):
+            if err < FF_TOLERANCE or not math.isfinite(err):
+                break
+            base_x = base_matrix @ x
+            biproportional = np.sqrt(x / base_x)
+            if n_iter < FF_N_SINKHORN:
+                x, err = biproportional, error(biproportional)
+                continue
+            # Newton over log(x), jacobian = I + diag(1/base_x)*base*diag(x)
+            jacobian = np.eye(n) + base_matrix * x / base_x[:, None]
+            try:
+                step = np.linalg.solve(jacobian, -np.log(x * base_x))
+            except np.linalg.LinAlgError:
+                x, err = biproportional, error(biproportional)
+                continue
+            for _ in range(FF_N_MAX_BACKTRACK):  # line search
+                x_new = x * np.exp(step)
+                err_new = error(x_new)
+                if err_new < err:
+                    x, err = x_new, err_new
+                    break
+                step = step / 2
+            else:
+                x, err = biproportional, error(biproportional)
+        return x[:, None] * base_matrix * x, err
+
+    def _normalize_ff_rows(self, base_matrix):
+        """Closure only, used when reciprocity cannot be met."""
+        row_sums = base_matrix.sum(axis=1)[:, None]
+        return np.divide(
+            base_matrix,
+            row_sums,
+            out=np.zeros_like(base_matrix),
+            where=row_sums > 0,
+        )
 
     def _create_dist_vectors(self):  # W/m^2 for each surface
         n = len(self.surfaces)

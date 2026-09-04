@@ -376,12 +376,12 @@ def test_HVAC_FAN_COIL_water_system():
     peak_heating = Q_sens.max() / 1000
     peak_cooling = -Q_sens.min() / 1000
 
-    assert annual_heating == pytest.approx(0.07217335, rel=1e-5)
-    assert annual_cooling == pytest.approx(4.87572954, rel=1e-5)
-    assert annual_humidification == pytest.approx(0.58287052, rel=1e-5)
+    assert annual_heating == pytest.approx(0.0723509834896354, rel=1e-5)
+    assert annual_cooling == pytest.approx(4.8761768134697965, rel=1e-5)
+    assert annual_humidification == pytest.approx(0.5830451955419828, rel=1e-5)
     assert annual_dehumidification == pytest.approx(0.0)
-    assert peak_heating == pytest.approx(2.67416662, rel=1e-5)
-    assert peak_cooling == pytest.approx(5.53454300, rel=1e-5)
+    assert peak_heating == pytest.approx(2.6769614390992165, rel=1e-5)
+    assert peak_cooling == pytest.approx(5.530450229446886, rel=1e-5)
 
     yearly_df = water.variable_dataframe(
         frequency="yearly", value="sum", pos_neg_columns=["Q_gen"]
@@ -389,13 +389,13 @@ def test_HVAC_FAN_COIL_water_system():
     heating_generation = yearly_df["Q_gen_pos"].values[0] / 1e6
     cooling_generation = yearly_df["Q_gen_neg"].values[0] / 1e6
 
-    assert heating_generation == pytest.approx(0.07333941, rel=1e-5)
-    assert cooling_generation == pytest.approx(-4.96880300, rel=1e-5)
+    assert heating_generation == pytest.approx(0.07351703946829136, rel=1e-5)
+    assert cooling_generation == pytest.approx(-4.969237804755222, rel=1e-5)
 
     T_WGO = water.variable("T_WGO").values
     T_WGI = water.variable("T_WGI").values
 
-    assert T_WGO.max() == pytest.approx(51.39813574, rel=1e-5)
+    assert T_WGO.max() == pytest.approx(51.407879045644584, rel=1e-5)
     assert T_WGO.min() == pytest.approx(7.0)
-    assert T_WGI.max() == pytest.approx(51.41234536, rel=1e-5)
-    assert T_WGI.min() == pytest.approx(7.04048957, rel=1e-5)
+    assert T_WGI.max() == pytest.approx(51.42244343580782, rel=1e-5)
+    assert T_WGI.min() == pytest.approx(7.042183201358537, rel=1e-5)
