@@ -1,5 +1,4 @@
 import math
-from shapely.geometry import Polygon
 from shapely.validation import explain_validity
 from opensimula.Message import Message
 from opensimula.components.Surface import Surface
@@ -112,25 +111,32 @@ class Building_surface(Surface):
         return errors
 
     def _check_polygon_validity_(self):
-        """Warn when the surface outline plus its openings is not a valid polygon.
+        """Warn when the surface outline with its openings has no valid single-piece shape.
 
-        An opening touching the surface boundary (a door reaching the floor, a
-        window flush with a wall edge) produces a shell pinched by its hole.
-        Shapely flags it as invalid, and the boolean operations of the shadow
-        calculation give unspecified results on invalid input.
+        get_polygon_3D() already recovers an opening flush with the surface
+        edge (a door reaching the floor, a window flush with a wall edge, usual
+        in imported geometry), see Polygon_3D._build_shapely_polygon_, so that
+        alone is not worth a warning. What it cannot recover from is an opening
+        that splits the surface into disconnected pieces, or geometry that
+        stays invalid after that recovery.
         """
         errors = []
         if len(self.openings) == 0:
             return errors
-        polygon = Polygon(
+        polygon = Polygon_3D._build_shapely_polygon_(
             self.get_polygon_2D(), [op.get_polygon_2D() for op in self.openings]
         )
         if not polygon.is_valid:
             msg = (
                 f"{self.parameter('name').value}, the surface outline with its openings "
-                f"is not a valid polygon ({explain_validity(polygon)}). Its openings "
-                "probably touch the surface boundary. Shadow results for this surface "
-                "may be unreliable."
+                f"is not a valid polygon ({explain_validity(polygon)}). Shadow results "
+                "for this surface may be unreliable."
+            )
+            errors.append(Message(msg, "WARNING"))
+        elif polygon.geom_type != "Polygon":
+            msg = (
+                f"{self.parameter('name').value}, its openings split the surface outline "
+                "into disconnected pieces. Shadow results for this surface may be unreliable."
             )
             errors.append(Message(msg, "WARNING"))
         return errors
