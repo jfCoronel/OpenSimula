@@ -1,6 +1,6 @@
 [project]
 name = "opensimula"
-version = "0.8.5"
+version = "0.8.6"
 requires-python = ">=3.12"
 authors = [
   { name="Juan F. Coronel", email="jfc@us.es" },
@@ -29,6 +29,12 @@ dev = [
     "pytest>=8.4.2",
     "marimo>=0.19.0",
 ]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.setuptools.package-data]
 # The widget loads these at runtime; without this they are left out of the wheel.
