@@ -1,6 +1,7 @@
 import copy
 import json
 import pathlib
+import re
 
 import pytest
 
@@ -67,9 +68,15 @@ def test_frontend_assets_are_present_and_loadable():
         assert asset.stat().st_size > 0
 
     source = (static / "editor.js").read_text()
-    # The widget contract with anywidget, and the one module it loads from a CDN.
-    assert "export default" in source
-    assert "ajv@" in source
+    # The widget contract with anywidget.
+    assert "as default" in source
+    # anywidget loads this from a blob URL, where relative/bare imports can't
+    # resolve, and VS Code's notebook webview additionally blocks fetching
+    # third-party scripts — so Ajv is bundled in rather than imported from a
+    # CDN. build with `npm run build` in editor/vendor/ after editing
+    # editor.src.js or bumping the ajv version there.
+    assert not re.search(r"^\s*import\s", source, re.MULTILINE)
+    assert "MissingRefError" in source  # a distinctive symbol from ajv itself
     # Ajv defaults to draft-07 and would refuse the 2020-12 schema, and without
     # discriminator the oneOf reports one error per component type.
     assert "discriminator: true" in source

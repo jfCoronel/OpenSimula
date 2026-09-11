@@ -8,6 +8,9 @@
 # Mac/OSX
 .DS_Store
 
+# JS build tooling (src/opensimula/editor/vendor/)
+node_modules/
+
 # Windows
 Thumbs.db
 
