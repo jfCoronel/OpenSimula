@@ -152,11 +152,13 @@ A value that does not satisfy the schema never reaches the project either. It st
 
 - **geometry_dict()**: Returns the geometry of the project as plain data, `{"meshes": [...], "spaces": [...]}`, with one mesh per polygon: its triangles, its outline, its colour, and the component and the spaces it belongs to. It is what feeds the 3D view of the editor, and it is available on its own for any other viewer.
 
-- **show_3D(jupyter=False)**: Displays an interactive 3D visualization window of all the components with 3D representation, like Buildings (using vedo). Set _jupyter=True_ to render an interactive Plotly figure directly inside a Jupyter notebook instead of opening an external window, in which case the figure is also returned, so it can be composed or saved instead of only shown. Note that with _jupyter=False_ the window blocks the kernel until it is closed.
+- **show_3D()**: Displays an interactive 3D Plotly visualization of all the components with 3D representation, like Buildings: rendered inline when called from a Jupyter notebook, or opened in a browser tab otherwise.
 
-- **show_3D_shadows(date, jupyter=False)**: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the date specified. _date_: Python datetime object specifying a specific date. Set _jupyter=True_ to render inside a Jupyter notebook.
+- **plotly_figure_3D()**: Same view as `show_3D()`, returned instead of shown, so it can be composed, saved, or otherwise reused.
 
-- **show_3D_shadows_animation(date, jupyter=False)**: Calculates and displays an interactive 3D visualization of the buildings with the shadows occurring for the day date specified, with the slider bar at the bottom, you can change the time of day and see an animation of the shadows. _date_: Python datetime object specifying a specific date. Set _jupyter=True_ to render an animated Plotly figure directly inside a Jupyter notebook. See next figure as example:
+- **show_3D_shadows(date)**: Calculates and displays an interactive 3D Plotly visualization of the buildings with the shadows occurring for the date specified. _date_: Python datetime object specifying a specific date.
+
+- **show_3D_shadows_animation(date)**: Calculates and displays an interactive 3D Plotly visualization of the buildings with the shadows occurring for the day date specified, with the slider bar at the bottom, you can change the time of day and see an animation of the shadows. _date_: Python datetime object specifying a specific date. See next figure as example:
 
 ![Building shadows example](img/shadows_example.png)
 

@@ -677,23 +677,30 @@ class Project(Parameter_container):
         self.create_3D_environment(env_3D)
         return env_3D.geometry_dict()
 
-    def show_3D(self, jupyter=False):
+    def show_3D(self):
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
-        return env_3D.show(polygons_type="initial", jupyter=jupyter)
+        env_3D.show(polygons_type="initial")
 
-    def show_3D_shadows(self, date, jupyter=False):
+    def plotly_figure_3D(self):
+        """The Plotly figure of show_3D(), returned instead of shown, so it
+        can be composed, saved, or otherwise reused."""
+        env_3D = Environment_3D()
+        self.create_3D_environment(env_3D)
+        return env_3D.plotly_figure(polygons_type="initial")
+
+    def show_3D_shadows(self, date):
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
         file_met = self.parameter("simulation_file_met").component
         cos = file_met.sun_cosines(date)
         if len(cos) == 3:
             env_3D.calculate_shadows(cos)
-            env_3D.show(polygons_type="Building_shadows", jupyter=jupyter)
+            env_3D.show(polygons_type="Building_shadows")
         else:
             self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
 
-    def show_3D_shadows_animation(self, date, jupyter=False):
+    def show_3D_shadows_animation(self, date):
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
         file_met = self.parameter("simulation_file_met").component
@@ -705,6 +712,6 @@ class Project(Parameter_container):
             if len(cos) == 3:  # Day time
                 texts.append(new_date.strftime("%H:%M,  %d/%m/%Y"))
                 cosines.append(cos)
-        env_3D.show_animation(texts, cosines, polygons_type="Building_shadows", jupyter=jupyter)
+        env_3D.show_animation(texts, cosines, polygons_type="Building_shadows")
 
             

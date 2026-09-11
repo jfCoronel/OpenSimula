@@ -18,8 +18,8 @@ opensimula uses in different parts of the code the following Python packages, wh
 - sciPy
 - shapely
 - psychrolib
-- vedo
 - plotly
+- matplotlib
 - anywidget
 - jsonschema
 - nbformat

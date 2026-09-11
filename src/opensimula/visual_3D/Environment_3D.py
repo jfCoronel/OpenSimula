@@ -3,7 +3,6 @@ import numpy as np
 import math
 from scipy.interpolate import RegularGridInterpolator
 import matplotlib.pyplot as plt
-import vedo as vedo
 from opensimula.visual_3D.Polygon_3D import Polygon_3D
 
 class Environment_3D:
@@ -34,62 +33,21 @@ class Environment_3D:
             )
         self._coplanar_calculated_ = True
 
-    def get_vedo_meshes(self, polygons_type="initial"):
-        meshes = []
-        if polygons_type == "initial":
-            for polygon_3D in self.pol_3D:
-                if polygon_3D.visible:
-                    mesh = polygon_3D.get_vedo_mesh()
-                    mesh.polygon_name = polygon_3D.name
-                    meshes.append(mesh)
-                    meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
-        elif polygons_type == "sunny":
-            for polygon_3D in self.pol_sunny:
-                mesh = polygon_3D.get_vedo_mesh()
-                mesh.polygon_name = polygon_3D.name
-                meshes.append(mesh)
-                meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
-        elif polygons_type == "shadows":
-            for polygon_3D in self.pol_shadows:
-                mesh = polygon_3D.get_vedo_mesh()
-                mesh.polygon_name = polygon_3D.name
-                meshes.append(mesh)
-                meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
-        elif polygons_type == "sunny+shadows":
-            for polygon_3D in self.pol_sunny:
-                mesh = polygon_3D.get_vedo_mesh()
-                mesh.polygon_name = polygon_3D.name
-                meshes.append(mesh)
-                meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
-            for polygon_3D in self.pol_shadows:
-                mesh = polygon_3D.get_vedo_mesh()
-                mesh.polygon_name = polygon_3D.name
-                meshes.append(mesh)
-                meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
-        elif polygons_type == "Building_shadows":
-            for polygon_3D in self.pol_sunny:
-                mesh = polygon_3D.get_vedo_mesh()
-                mesh.polygon_name = polygon_3D.name
-                meshes.append(mesh)
-                meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
-            for polygon_3D in self.pol_shadows:
-                mesh = polygon_3D.get_vedo_mesh()
-                mesh.polygon_name = polygon_3D.name
-                meshes.append(mesh)
-                meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
-            for polygon_3D in self.pol_3D:
-                if polygon_3D.visible and polygon_3D.calculate_shadows == False:
-                    mesh = polygon_3D.get_vedo_mesh()
-                    mesh.polygon_name = polygon_3D.name
-                    meshes.append(mesh)
-                    meshes.append(mesh.silhouette("2d").c("black").linewidth(5))
+    # ── Plotly helpers ──────────────────────────────────────────────────────
 
-        return meshes
-
-    # ── Plotly helpers (jupyter mode) ──────────────────────────────────────
+    # Fixed RGB values for the small, closed set of color names used across
+    # the codebase (see Building_surface, Opening, Solar_surface, Polygon_3D).
+    _COLOR_RGB_ = {
+        "white": (1.0, 1.0, 1.0),
+        "green": (0.01568627450980392, 0.4980392156862745, 0.06274509803921569),
+        "brown": (0.6470588235294118, 0.16470588235294117, 0.16470588235294117),
+        "blue": (0.058823529411764705, 0.0, 0.984313725490196),
+        "cyan": (0.0, 1.0, 1.0),
+        "gray3": (0.28627450980392155, 0.3137254901960784, 0.3411764705882353),
+    }
 
     def _rgb_str_(self, color_name):
-        rgb = vedo.colors.get_color(color_name)
+        rgb = self._COLOR_RGB_[color_name]
         return f"rgb({int(rgb[0]*255)},{int(rgb[1]*255)},{int(rgb[2]*255)})"
 
     def _polygons_of_type_(self, polygons_type):
@@ -300,122 +258,77 @@ class Environment_3D:
         traces.extend(self._zero_plane_traces_(pols))
         return go.Figure(data=traces, layout=self._plotly_scene_layout_())
 
-    def show(self, polygons_type="initial", jupyter=False):
-        if jupyter:
-            figure = self.plotly_figure(polygons_type)
-            figure.show()
-            return figure
-        else:
-            vedo.settings.default_backend = "vtk"
-            meshes = self.get_vedo_meshes(polygons_type)
-            text_obj = [None]
+    def show(self, polygons_type="initial"):
+        figure = self.plotly_figure(polygons_type)
+        figure.show()
+        return figure
 
-            def on_left_click(evt):
-                if text_obj[0] is not None:
-                    vp.remove(text_obj[0])
-                msh = evt.object
-                if not msh:
-                    text_obj[0] = vedo.Text2D(" ", pos='top-left')
-                else:
-                    text_obj[0] = vedo.Text2D(f"{msh.polygon_name}", pos='top-left')
-                vp.add(text_obj[0])
-                vp.render()
+    def show_animation(self, texts, cosines, polygons_type="initial"):
+        import plotly.graph_objects as go
 
-            vp = vedo.Plotter(title="opensimula")
-            vp.add_callback('mouse click', on_left_click)
-            vp.show(*meshes, axes=1, viewup="z").close()
+        # Static traces: surfaces that don't participate in shadow calculation
+        static_pols = [p for p in self.pol_3D if p.visible and not p.calculate_shadows]
+        static_traces = []
+        for pol in static_pols:
+            mesh, outline = self._polygon_to_plotly_(pol)
+            static_traces.extend([mesh, outline])
+        all_pols = list(self.pol_3D) + list(self.pol_sunny) + list(self.pol_shadows)
+        static_traces.extend(self._zero_plane_traces_([p for p in all_pols if len(p.polygon3D) > 0]))
+        n_static = len(static_traces)
 
-    def show_animation(self, texts, cosines, polygons_type="initial", jupyter=False):
-        if jupyter:
-            import plotly.graph_objects as go
+        # Build frames (sunny + shadow merged meshes update per frame)
+        self.calculate_shadows(cosines[0], create_polygons=True)
+        init_sunny = self._merge_to_plotly_(self.pol_sunny, "sunny")
+        init_sunny_outline = self._merge_outlines_to_plotly_(self.pol_sunny)
+        init_shadow = self._merge_to_plotly_(self.pol_shadows, "shadow")
+        init_shadow_outline = self._merge_outlines_to_plotly_(self.pol_shadows)
 
-            # Static traces: surfaces that don't participate in shadow calculation
-            static_pols = [p for p in self.pol_3D if p.visible and not p.calculate_shadows]
-            static_traces = []
-            for pol in static_pols:
-                mesh, outline = self._polygon_to_plotly_(pol)
-                static_traces.extend([mesh, outline])
-            all_pols = list(self.pol_3D) + list(self.pol_sunny) + list(self.pol_shadows)
-            static_traces.extend(self._zero_plane_traces_([p for p in all_pols if len(p.polygon3D) > 0]))
-            n_static = len(static_traces)
+        frames = []
+        for i, (cos, text) in enumerate(zip(cosines, texts)):
+            self.calculate_shadows(cos, create_polygons=True)
+            frames.append(go.Frame(
+                data=[self._merge_to_plotly_(self.pol_sunny, "sunny"),
+                      self._merge_outlines_to_plotly_(self.pol_sunny),
+                      self._merge_to_plotly_(self.pol_shadows, "shadow"),
+                      self._merge_outlines_to_plotly_(self.pol_shadows)],
+                traces=[n_static, n_static + 1, n_static + 2, n_static + 3],
+                name=str(i),
+                layout=go.Layout(title_text=text),
+            ))
 
-            # Build frames (sunny + shadow merged meshes update per frame)
-            self.calculate_shadows(cosines[0], create_polygons=True)
-            init_sunny = self._merge_to_plotly_(self.pol_sunny, "sunny")
-            init_sunny_outline = self._merge_outlines_to_plotly_(self.pol_sunny)
-            init_shadow = self._merge_to_plotly_(self.pol_shadows, "shadow")
-            init_shadow_outline = self._merge_outlines_to_plotly_(self.pol_shadows)
+        layout = self._plotly_scene_layout_()
+        layout.update(
+            title_text=texts[0],
+            margin=dict(l=0, r=0, t=30, b=80),
+            updatemenus=[dict(
+                type="buttons", direction="left",
+                pad={"r": 10, "t": 20}, x=0.1, y=0,
+                buttons=[
+                    dict(label="▶ Play", method="animate",
+                         args=[None, {"frame": {"duration": 800, "redraw": True},
+                                      "fromcurrent": True}]),
+                    dict(label="⏸ Pause", method="animate",
+                         args=[[None], {"frame": {"duration": 0}, "mode": "immediate"}]),
+                ],
+            )],
+            sliders=[dict(
+                active=0,
+                steps=[dict(
+                    method="animate",
+                    args=[[str(i)], {"frame": {"duration": 0, "redraw": True},
+                                     "mode": "immediate"}],
+                    label=texts[i],
+                ) for i in range(len(texts))],
+                x=0, y=0, len=1.0, pad={"b": 10, "t": 30},
+            )],
+        )
+        go.Figure(
+            data=static_traces + [init_sunny, init_sunny_outline, init_shadow, init_shadow_outline],
+            layout=layout,
+            frames=frames,
+        ).show()
 
-            frames = []
-            for i, (cos, text) in enumerate(zip(cosines, texts)):
-                self.calculate_shadows(cos, create_polygons=True)
-                frames.append(go.Frame(
-                    data=[self._merge_to_plotly_(self.pol_sunny, "sunny"),
-                          self._merge_outlines_to_plotly_(self.pol_sunny),
-                          self._merge_to_plotly_(self.pol_shadows, "shadow"),
-                          self._merge_outlines_to_plotly_(self.pol_shadows)],
-                    traces=[n_static, n_static + 1, n_static + 2, n_static + 3],
-                    name=str(i),
-                    layout=go.Layout(title_text=text),
-                ))
 
-            layout = self._plotly_scene_layout_()
-            layout.update(
-                title_text=texts[0],
-                margin=dict(l=0, r=0, t=30, b=80),
-                updatemenus=[dict(
-                    type="buttons", direction="left",
-                    pad={"r": 10, "t": 20}, x=0.1, y=0,
-                    buttons=[
-                        dict(label="▶ Play", method="animate",
-                             args=[None, {"frame": {"duration": 800, "redraw": True},
-                                          "fromcurrent": True}]),
-                        dict(label="⏸ Pause", method="animate",
-                             args=[[None], {"frame": {"duration": 0}, "mode": "immediate"}]),
-                    ],
-                )],
-                sliders=[dict(
-                    active=0,
-                    steps=[dict(
-                        method="animate",
-                        args=[[str(i)], {"frame": {"duration": 0, "redraw": True},
-                                         "mode": "immediate"}],
-                        label=texts[i],
-                    ) for i in range(len(texts))],
-                    x=0, y=0, len=1.0, pad={"b": 10, "t": 30},
-                )],
-            )
-            go.Figure(
-                data=static_traces + [init_sunny, init_sunny_outline, init_shadow, init_shadow_outline],
-                layout=layout,
-                frames=frames,
-            ).show()
-        else:
-            vedo.settings.default_backend = "vtk"
-            meshes = []
-
-            def slider_func(widget, event):
-                idx = int(widget.value)
-                widget.title = texts[idx]
-                vp.remove(meshes.pop(0))
-                cos = cosines[idx]
-                self.calculate_shadows(cos, create_polygons=True)
-                meshes.append(self.get_vedo_meshes(polygons_type))
-                vp.add(meshes[0])
-
-            self.calculate_shadows(cosines[0], create_polygons=True)
-            meshes.append(self.get_vedo_meshes(polygons_type))
-            vp = vedo.Plotter(title="opensimula", axes=1)
-            vp.add(meshes[0])
-            vp.add_slider(
-                slider_func,
-                0, len(cosines) - 1,
-                value=0,
-                pos="bottom-right",
-                title=texts[0],
-            )
-            vp.show(viewup="z").close()
-        
     def delete_shadows(self):
         self.pol_sunny = []
         self.pol_shadows = []

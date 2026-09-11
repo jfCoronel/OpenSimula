@@ -293,9 +293,9 @@ def test_geometry_follows_apply(building):
 
 
 def test_plotly_figure_can_be_composed(building):
-    """show_3D(jupyter=True) used to only draw the figure and drop it, so it
-    could not be reused. Not calling show_3D() here: the vedo path opens a
-    window and blocks."""
+    """show_3D() used to only draw the figure and drop it, so it could not be
+    reused. Not calling show_3D()/environment.show() here: figure.show()
+    opens a browser tab as a side effect, unwanted in an automated test."""
     from opensimula.visual_3D.Environment_3D import Environment_3D
 
     environment = Environment_3D()
@@ -305,6 +305,19 @@ def test_plotly_figure_can_be_composed(building):
     assert len(figure.data) > 0
     # One mesh and one outline per polygon, plus the ground plane traces.
     assert len(figure.data) >= 2 * len(environment.pol_3D)
+
+
+def test_show_3D_returns_nothing(building, monkeypatch):
+    """show_3D() only shows and returns nothing: a Project.show_3D() call used
+    as a notebook cell's last statement must not double-render (the returned
+    Figure would auto-display on top of the explicit figure.show()).
+    plotly_figure_3D() is the way to get that same figure back instead."""
+    import plotly.graph_objects as go
+
+    monkeypatch.setattr(go.Figure, "show", lambda self, *a, **k: None)
+
+    assert building.show_3D() is None
+    assert len(building.plotly_figure_3D().data) > 0
 
 
 # ____________________ keeping the project in step ____________________

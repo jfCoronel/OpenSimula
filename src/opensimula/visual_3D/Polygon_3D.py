@@ -2,7 +2,6 @@ import math
 import numpy as np
 from shapely.geometry import Polygon, MultiPoint
 from shapely.ops import triangulate as shapely_triangulate, unary_union
-import vedo
 
 class Polygon_3D():
     def __init__(self, name, origin, azimuth, altitude, polygon2D, holes2D=[], color="white", opacity=1.0, visible=True,shading=True,calculate_shadows=True):
@@ -138,13 +137,6 @@ class Polygon_3D():
             pol_3D.append(v_loc)
         return pol_3D
         
-
-    # Functions for vedo
-    def get_vedo_mesh(self):
-        (points, faces) = self._triangulate_()
-        mesh = vedo.Mesh([points, faces])
-        mesh.c(self.color).alpha(self.opacity)
-        return mesh
 
     def _triangulate_(self):
         all_verts = list(self.polygon2D)
