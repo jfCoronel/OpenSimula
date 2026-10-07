@@ -106,6 +106,10 @@ Edit only the files in `mkdocs/`; `docs/` is regenerated.
    uv publish   # username: __token__, password: a PyPI API token
    ```
 
+7. Create a GitHub release for the version (tag `vX.Y.Z`, target `main`), with the release
+   notes. Zenodo archives it automatically and mints a DOI for the version; add that DOI to
+   `CITATION.cff` as the "Version X.Y.Z" identifier, replacing the previous version's one.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the

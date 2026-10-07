@@ -57,7 +57,8 @@ from several groups. Work is done step by step; tick items off as they ship.
   Plan: add a deploy job, switch *Settings → Pages* source to "GitHub Actions", check the
   site, and only then remove `docs/` from the repo. Reversible by switching the source back.
   Do it before opening the repo to collaborators (generated HTML causes PR conflicts).
-- [ ] Zenodo integration for a DOI on every GitHub release.
+- [x] Zenodo integration: every GitHub release gets a DOI. Concept DOI
+  10.5281/zenodo.23210985 (README badge, `CITATION.cff`); first release v0.8.7.
 - [ ] Protect `main` (pull requests + green CI required) once collaborators join.
 
 ### 2. Multi-institution collaboration
