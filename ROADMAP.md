@@ -5,6 +5,34 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
 
 ## Where things stand (2026-10-07, v0.8.7)
 
+- **Session of 2026-10-07: project infrastructure (block 1 of the growth plan below).**
+  Merged PRs #3–#6: CI on every push/PR (tests on Python 3.12 and 3.13 + docs build,
+  ~2–3 min), `CONTRIBUTING.md`, `CITATION.cff`, issue/PR templates, first GitHub release
+  v0.8.7 archived by Zenodo (concept DOI 10.5281/zenodo.23210985), and the docs site now
+  built and published by GitHub Actions (`docs/` is no longer committed; Pages source is
+  "GitHub Actions", custom domain kept). Working method agreed: one branch + PR per task,
+  CI green before merging, the maintainer merges from the GitHub web page.
+- Gotcha: `astral-sh/setup-uv` no longer publishes major version tags (`@v10` fails to
+  resolve); pin the full version (`@v10.2.0`) when bumping it.
+
+## Next session: automated ASHRAE 140 validation
+
+Agreed as the next step (block 3 below). What is known so far, to start from:
+
+- ~160 notebooks in `ASHRAE_140/` (LOAD_TEST, HEATING_TEST, COOLING_TEST,
+  AIR_SIDE_HVAC_TEST, GROUND_TEST, WEATHER_TEST), one per case, plus the standard's result
+  spreadsheets (`Std140_*_Results.xlsx`, `Std140_*_Output.xlsx`) in each folder.
+- Most notebooks do not read the reference spreadsheets: only GROUND_TEST and WEATHER_TEST
+  do. The comparison with the reference programs is not automated today — work out first how
+  results currently get from the notebooks into the `Std140_*` spreadsheets.
+- Speed is not a problem: an annual run of case 600FF takes ~4 s.
+- Goal: a script (not notebooks) that runs the cases, extracts the standard's outputs
+  (annual heating/cooling, peaks, free-float temperatures, ...), compares them with the
+  reference programs' min/max range and generates a "Validation" page in `mkdocs/` with
+  tables and plots. Then decide whether it runs in CI (all cases on release, a subset on
+  every PR) and whether the case definitions move from notebooks to JSON files shared by the
+  notebooks and the script.
+
 - The `pro.editor()` Jupyter widget's `_esm` module is now fully bundled (Ajv included), so
   it loads in VS Code notebooks as well as JupyterLab (was issue #1, fixed on
   `fix/editor-vscode-ajv-import`, merged in PR #2).
