@@ -52,11 +52,9 @@ from several groups. Work is done step by step; tick items off as they ship.
   `build_information.txt`), issue and pull request templates.
 - [x] Release notes in `mkdocs/index.md` brought up to 0.8.7.
 - [x] Removed stray files: `debug.py`, empty root `package-lock.json`.
-- [ ] Publish the docs from GitHub Actions instead of the committed `docs/` folder. Today
-  Pages serves `main:/docs` at opensimula.jfcoronel.org (custom domain from `mkdocs/CNAME`).
-  Plan: add a deploy job, switch *Settings → Pages* source to "GitHub Actions", check the
-  site, and only then remove `docs/` from the repo. Reversible by switching the source back.
-  Do it before opening the repo to collaborators (generated HTML causes PR conflicts).
+- [x] Docs published by GitHub Actions (`.github/workflows/docs.yml`) on every change to
+  `mkdocs/` on `main`; Pages source is "GitHub Actions", custom domain
+  opensimula.jfcoronel.org kept. The generated `docs/` folder is no longer committed.
 - [x] Zenodo integration: every GitHub release gets a DOI. Concept DOI
   10.5281/zenodo.23210985 (README badge, `CITATION.cff`); first release v0.8.7.
 - [ ] Protect `main` (pull requests + green CI required) once collaborators join.
