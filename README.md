@@ -5,6 +5,7 @@
 [![Tests](https://github.com/jfCoronel/OpenSimula/actions/workflows/tests.yml/badge.svg)](https://github.com/jfCoronel/OpenSimula/actions/workflows/tests.yml)
 [![PyPI version](https://img.shields.io/pypi/v/opensimula)](https://pypi.org/project/opensimula/)
 [![Python versions](https://img.shields.io/pypi/pyversions/opensimula)](https://pypi.org/project/opensimula/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23210985.svg)](https://doi.org/10.5281/zenodo.23210985)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **OpenSimula** is a component-based time simulation environment in Python, focused on the
@@ -149,7 +150,10 @@ tests and submit a pull request.
 
 ## Citing OpenSimula
 
-If you use OpenSimula in your research, please cite it using the metadata in
+If you use OpenSimula in your research, please cite it with its DOI,
+[10.5281/zenodo.23210985](https://doi.org/10.5281/zenodo.23210985), which always resolves to
+the latest version (each version also has its own DOI, listed on
+[Zenodo](https://doi.org/10.5281/zenodo.23210985)). The full metadata is in
 [CITATION.cff](https://github.com/jfCoronel/OpenSimula/blob/main/CITATION.cff) (GitHub's "Cite this repository" button generates APA and BibTeX
 entries from it).
 

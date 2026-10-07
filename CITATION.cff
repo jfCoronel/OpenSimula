@@ -1,5 +1,6 @@
 cff-version: 1.2.0
 message: "If you use OpenSimula in your research, please cite it as below."
+doi: 10.5281/zenodo.23210985
 title: "OpenSimula: a component-based time simulation environment in Python"
 type: software
 authors:
@@ -7,6 +8,13 @@ authors:
     given-names: Juan F.
     email: jfc@us.es
     affiliation: Universidad de Sevilla
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23210985
+    description: "Concept DOI: all versions, resolves to the latest one"
+  - type: doi
+    value: 10.5281/zenodo.23210986
+    description: "Version 0.8.7"
 repository-code: "https://github.com/jfCoronel/OpenSimula"
 url: "https://jfcoronel.github.io/OpenSimula/"
 license: MIT
