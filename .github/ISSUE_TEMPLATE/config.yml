@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://jfcoronel.github.io/OpenSimula/
+    about: Getting started, user guide and component list.

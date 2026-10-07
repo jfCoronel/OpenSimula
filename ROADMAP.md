@@ -3,7 +3,7 @@
 Working notes for resuming development on OpenSimula from any machine. This file is for
 the maintainer, not end users — it is not part of the published docs (`mkdocs/`).
 
-## Where things stand (2026-09-11, v0.8.7)
+## Where things stand (2026-10-07, v0.8.7)
 
 - The `pro.editor()` Jupyter widget's `_esm` module is now fully bundled (Ajv included), so
   it loads in VS Code notebooks as well as JupyterLab (was issue #1, fixed on
@@ -30,10 +30,6 @@ Concrete, verified items — not ideas, things already identified as needing att
   reproduced or confirmed either way — needs checking in an actual VS Code notebook. If it
   does fail, the fix is the same shape as PR #2: vendor `plotly.js-gl3d-dist-min` into the
   esbuild bundle instead of fetching it at runtime (trade-off: bundle size).
-- **`mkdocs/index.md` release notes are stale.** The "Release notes" section's `Current
-  Version` line and changelog entries stop at 0.8.5. Versions 0.8.6 (wheel packaging fix),
-  the VS Code editor fix, the vedo removal, and 0.8.7 have no entries. Update this file
-  whenever a version is actually released (not necessarily on every commit).
 - **`Opening.py:79`** — `# TODO: Test surface_type EXTERIOR or INTERIOR` in `check()`: the
   validation that an Opening's `surface_type` is one of the expected values is not
   implemented yet.
@@ -41,10 +37,70 @@ Concrete, verified items — not ideas, things already identified as needing att
   also accept `Air_distribution` and `Energy_load` component types, neither of which exists
   yet in the codebase.
 
-## Backlog / ideas
+## Growth plan (agreed 2026-10-07)
 
-_Not yet populated — add priorities here as they come up, so the next session (on any
-machine) can pick up from a written list instead of from memory._
+Strategy: grow first in the **academic** world (research and teaching), then move to
+**professional** users (engineering firms, CTE/HULC). There are colleagues at other
+universities willing to collaborate, so the project has to be ready to take contributions
+from several groups. Work is done step by step; tick items off as they ship.
+
+### 1. Project infrastructure (in progress)
+
+- [x] CI: GitHub Actions runs the tests on Python 3.12 and 3.13 and builds the docs
+  (`.github/workflows/tests.yml`), tests badge in the README.
+- [x] `CITATION.cff`, `CONTRIBUTING.md` (includes the release steps that were in
+  `build_information.txt`), issue and pull request templates.
+- [x] Release notes in `mkdocs/index.md` brought up to 0.8.7.
+- [x] Removed stray files: `debug.py`, empty root `package-lock.json`.
+- [ ] Publish the docs from GitHub Actions instead of the committed `docs/` folder. Today
+  Pages serves `main:/docs` at opensimula.jfcoronel.org (custom domain from `mkdocs/CNAME`).
+  Plan: add a deploy job, switch *Settings → Pages* source to "GitHub Actions", check the
+  site, and only then remove `docs/` from the repo. Reversible by switching the source back.
+  Do it before opening the repo to collaborators (generated HTML causes PR conflicts).
+- [ ] Zenodo integration for a DOI on every GitHub release.
+- [ ] Protect `main` (pull requests + green CI required) once collaborators join.
+
+### 2. Multi-institution collaboration
+
+- [ ] GitHub organization (`opensimula/`) and transfer of the repository (GitHub redirects
+  the old URL).
+- [ ] Light `GOVERNANCE.md`: lead maintainer, maintainers per area (building envelope, HVAC,
+  validation, teaching), decision rule, authorship criteria for joint papers.
+- [ ] Plugin registry for components (Python entry points) so other groups can publish
+  `opensimula-<something>` packages without touching the core; today a new component must be
+  imported in `components/__init__.py`. Template component + template test.
+- [ ] `future/` → `contrib/` area for experimental modules (DXF import, etc.).
+- [ ] Kick-off meeting with collaborators to split research lines.
+
+### 3. Scientific credibility and publications
+
+- [ ] Automated ASHRAE 140 validation: a script that runs every case and generates a
+  "Validation" docs page comparing OpenSimula with the reference programs' range.
+- [ ] API reference generated from docstrings (mkdocstrings).
+- [ ] JOSS paper (multi-author), after items above.
+- [ ] Full validation paper (JBPS / Energy and Buildings) and conference talks (IBPSA BS,
+  BSO, CYTEF).
+
+### 4. Teaching
+
+- [ ] Open course in marimo notebooks exported to WASM (runs in the browser, no install),
+  reusing the CYTEF and HULC course material.
+- [ ] Progressive examples gallery (wall → free-floating zone → ideal system → DX → water).
+- [ ] Spanish and English documentation.
+
+### 5. Research-oriented features
+
+- [ ] Parametric / sensitivity / uncertainty API (project copies, parallel runs, SALib).
+- [ ] Calibration against measured data.
+- [ ] Step-by-step API and Gymnasium environment for MPC / reinforcement learning.
+- [ ] Control components (PID, setpoints, sequences); `Air_distribution`, `Energy_load`.
+
+### 6. Later: professional users
+
+- [ ] HULC import as an official module (now in `jupyter_test/`).
+- [ ] gbXML / IFC import.
+- [ ] CTE indicators (primary energy, CO₂), comfort indicators, reports.
+- [ ] Stable API and versioned project JSON schema from 1.0 on.
 
 ## How to resume work here
 

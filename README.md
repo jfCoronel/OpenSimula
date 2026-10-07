@@ -2,6 +2,7 @@
 
 # OpenSimula
 
+[![Tests](https://github.com/jfCoronel/OpenSimula/actions/workflows/tests.yml/badge.svg)](https://github.com/jfCoronel/OpenSimula/actions/workflows/tests.yml)
 [![PyPI version](https://img.shields.io/pypi/v/opensimula)](https://pypi.org/project/opensimula/)
 [![Python versions](https://img.shields.io/pypi/pyversions/opensimula)](https://pypi.org/project/opensimula/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -139,6 +140,18 @@ Full documentation, including the getting started guide, user guide and componen
 reference, is at [jfcoronel.github.io/OpenSimula](https://jfcoronel.github.io/OpenSimula/).
 Bugs and feature requests are tracked on
 [GitHub Issues](https://github.com/jfCoronel/OpenSimula/issues).
+
+## Contributing
+
+Contributions are welcome: bug reports, fixes, new components, validation cases and examples.
+See [CONTRIBUTING.md](https://github.com/jfCoronel/OpenSimula/blob/main/CONTRIBUTING.md) for how to set up a development environment, run the
+tests and submit a pull request.
+
+## Citing OpenSimula
+
+If you use OpenSimula in your research, please cite it using the metadata in
+[CITATION.cff](https://github.com/jfCoronel/OpenSimula/blob/main/CITATION.cff) (GitHub's "Cite this repository" button generates APA and BibTeX
+entries from it).
 
 ## Main Developers
 

@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use OpenSimula in your research, please cite it as below."
+title: "OpenSimula: a component-based time simulation environment in Python"
+type: software
+authors:
+  - family-names: Coronel
+    given-names: Juan F.
+    email: jfc@us.es
+    affiliation: Universidad de Sevilla
+repository-code: "https://github.com/jfCoronel/OpenSimula"
+url: "https://jfcoronel.github.io/OpenSimula/"
+license: MIT
+version: 0.8.7
+date-released: "2026-09-11"
+keywords:
+  - building energy simulation
+  - HVAC
+  - ASHRAE 140
+  - thermal simulation
+  - python
