@@ -40,8 +40,9 @@ uv run mkdocs build --clean
 # Build MkDocs documentation
 uv run mkdocs build --clean
 
-# Documentation is output to docs/ directory
-# Source files are in mkdocs/ directory
+# Source files are in mkdocs/ directory; local builds go to site/ (not committed)
+# GitHub Actions (.github/workflows/docs.yml) publishes the site to GitHub Pages
+# (opensimula.jfcoronel.org) whenever mkdocs/ changes on main
 ```
 
 ## Architecture Overview

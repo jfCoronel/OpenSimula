@@ -73,15 +73,14 @@ simulation loop) that is a good starting point.
 
 ## Documentation
 
-The documentation source is in `mkdocs/` and the generated site in `docs/`, which GitHub
-Pages publishes at <https://opensimula.jfcoronel.org>.
+The documentation source is in `mkdocs/`. When a change to it reaches `main`, GitHub Actions
+builds the site and publishes it at <https://opensimula.jfcoronel.org>; there is nothing to
+regenerate or commit by hand.
 
 ```bash
 uv run mkdocs serve          # live preview at http://127.0.0.1:8000
-uv run mkdocs build --clean  # regenerate docs/
+uv run mkdocs build --clean  # local build in site/ (not committed)
 ```
-
-Edit only the files in `mkdocs/`; `docs/` is regenerated.
 
 ## The project editor widget
 
@@ -96,9 +95,9 @@ Edit only the files in `mkdocs/`; `docs/` is regenerated.
 2. Add an entry to the release notes in `mkdocs/index.md` and update its
    "Current Version" line.
 3. Run all the tests: `uv run pytest test`.
-4. Regenerate the documentation: `uv run mkdocs build --clean`.
-5. Commit with the version as message (e.g. `Version 0.8.8: ...`) and push.
-6. Publish to PyPI:
+4. Commit with the version as message (e.g. `Version 0.8.8: ...`) and push. The
+   documentation site is updated automatically.
+5. Publish to PyPI:
 
    ```bash
    rm -rf dist
@@ -106,7 +105,7 @@ Edit only the files in `mkdocs/`; `docs/` is regenerated.
    uv publish   # username: __token__, password: a PyPI API token
    ```
 
-7. Create a GitHub release for the version (tag `vX.Y.Z`, target `main`), with the release
+6. Create a GitHub release for the version (tag `vX.Y.Z`, target `main`), with the release
    notes. Zenodo archives it automatically and mints a DOI for the version; add that DOI to
    `CITATION.cff` as the "Version X.Y.Z" identifier, replacing the previous version's one.
 
