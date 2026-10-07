@@ -1,0 +1,24 @@
+name: Feature request
+description: A new component, parameter, model or capability
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What you need and why
+      description: The problem you want to solve or the case you want to simulate.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: How you imagine it (parameters, variables, equations, references to the model in the literature).
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Would you be willing to implement it?
+      options:
+        - "Yes"
+        - "Yes, with some guidance"
+        - "No"
