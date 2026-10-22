@@ -8,14 +8,14 @@ The range shows how much well-established programs differ from each other; it is
 
 ## Building thermal envelope and fabric load tests (Section 7)
 
-Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example results from `Std140_TF_Results.xlsx`). **1357 of 1616 values inside the reference range.**
+Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example results from `Std140_TF_Results.xlsx`). **1369 of 1616 values inside the reference range.**
 
 ### Annual loads
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Annual heating load (MWh) | 46 | 20 | 26 |
-| Annual cooling load (MWh) | 46 | 34 | 12 |
+| Annual heating load (MWh) | 46 | 27 | 19 |
+| Annual cooling load (MWh) | 46 | 39 | 7 |
 
 ![Annual loads](img/validation/load_test_1.png)
 
@@ -23,109 +23,109 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| 600 | 4.596 | 3.993 | 4.504 | 6 | ✗ +2.1 % above max |
-| 610 | 4.720 | 4.066 | 4.592 | 6 | ✗ +2.8 % above max |
-| 620 | 4.777 | 4.094 | 4.719 | 6 | ✗ +1.2 % above max |
-| 630 | 5.181 | 4.356 | 5.139 | 6 | ✗ +0.8 % above max |
-| 640 | 2.807 | 2.403 | 2.682 | 6 | ✗ +4.7 % above max |
+| 600 | 4.490 | 3.993 | 4.504 | 6 | ✓ inside |
+| 610 | 4.624 | 4.066 | 4.592 | 6 | ✗ +0.7 % above max |
+| 620 | 4.723 | 4.094 | 4.719 | 6 | ✓ inside |
+| 630 | 5.146 | 4.356 | 5.139 | 6 | ✗ +0.2 % above max |
+| 640 | 2.644 | 2.403 | 2.682 | 6 | ✓ inside |
 | 650 | 0.000 | 0.000 | 0.000 | 6 | ✓ inside |
-| 660 | 4.005 | 3.574 | 3.821 | 6 | ✗ +4.8 % above max |
-| 670 | 6.240 | 5.300 | 6.140 | 6 | ✗ +1.6 % above max |
-| 680 | 2.313 | 1.732 | 2.286 | 6 | ✗ +1.2 % above max |
-| 685 | 5.160 | 4.532 | 5.042 | 6 | ✗ +2.3 % above max |
-| 695 | 2.957 | 2.385 | 2.892 | 6 | ✗ +2.3 % above max |
-| 900 | 1.772 | 1.379 | 1.814 | 6 | ✓ inside |
-| 910 | 2.202 | 1.648 | 2.163 | 6 | ✗ +1.8 % above max |
-| 920 | 3.530 | 2.956 | 3.607 | 6 | ✓ inside |
-| 930 | 4.348 | 3.524 | 4.384 | 6 | ✓ inside |
-| 940 | 1.147 | 0.863 | 1.389 | 6 | ✓ inside |
+| 660 | 3.932 | 3.574 | 3.821 | 6 | ✗ +2.9 % above max |
+| 670 | 6.113 | 5.300 | 6.140 | 6 | ✓ inside |
+| 680 | 2.245 | 1.732 | 2.286 | 6 | ✓ inside |
+| 685 | 5.077 | 4.532 | 5.042 | 6 | ✗ +0.7 % above max |
+| 695 | 2.899 | 2.385 | 2.892 | 6 | ✗ +0.2 % above max |
+| 900 | 1.779 | 1.379 | 1.814 | 6 | ✓ inside |
+| 910 | 2.210 | 1.648 | 2.163 | 6 | ✗ +2.2 % above max |
+| 920 | 3.542 | 2.956 | 3.607 | 6 | ✓ inside |
+| 930 | 4.358 | 3.524 | 4.384 | 6 | ✓ inside |
+| 940 | 1.132 | 0.863 | 1.389 | 6 | ✓ inside |
 | 950 | 0.000 | 0.000 | 0.000 | 6 | ✓ inside |
-| 960 | 2.778 | 2.522 | 2.860 | 5 | ✓ inside |
-| 980 | 0.422 | 0.246 | 0.720 | 6 | ✓ inside |
-| 985 | 2.538 | 2.120 | 2.801 | 6 | ✓ inside |
-| 995 | 1.022 | 0.755 | 1.330 | 6 | ✓ inside |
-| 195 | 4.243 | 3.951 | 4.217 | 6 | ✗ +0.6 % above max |
-| 200 | 5.257 | 4.813 | 5.226 | 6 | ✗ +0.6 % above max |
-| 210 | 6.359 | 5.627 | 6.531 | 6 | ✓ inside |
-| 215 | 5.725 | 5.181 | 5.697 | 6 | ✗ +0.5 % above max |
-| 220 | 7.024 | 6.377 | 7.178 | 6 | ✓ inside |
-| 230 | 10.221 | 9.812 | 10.417 | 6 | ✓ inside |
-| 240 | 5.817 | 5.116 | 5.944 | 6 | ✓ inside |
-| 250 | 5.422 | 4.733 | 5.373 | 6 | ✗ +0.9 % above max |
-| 270 | 4.797 | 4.273 | 4.631 | 5 | ✗ +3.6 % above max |
-| 280 | 5.072 | 4.525 | 4.870 | 5 | ✗ +4.1 % above max |
-| 290 | 4.927 | 4.381 | 4.745 | 5 | ✗ +3.8 % above max |
-| 300 | 4.878 | 4.318 | 4.726 | 5 | ✗ +3.2 % above max |
-| 310 | 5.275 | 4.580 | 5.240 | 5 | ✗ +0.7 % above max |
-| 320 | 4.164 | 3.599 | 4.031 | 5 | ✗ +3.3 % above max |
-| 395 | 4.980 | 4.565 | 5.145 | 6 | ✓ inside |
-| 400 | 6.890 | 5.906 | 7.047 | 6 | ✓ inside |
-| 410 | 8.486 | 7.630 | 8.661 | 6 | ✓ inside |
-| 420 | 7.286 | 6.399 | 7.433 | 6 | ✓ inside |
-| 430 | 5.973 | 5.171 | 5.954 | 6 | ✗ +0.3 % above max |
-| 440 | 4.829 | 4.156 | 4.721 | 5 | ✗ +2.3 % above max |
-| 450 | 3.849 | 3.375 | 3.990 | 6 | ✓ inside |
-| 460 | 4.327 | 3.828 | 4.290 | 6 | ✗ +0.9 % above max |
-| 470 | 4.239 | 3.540 | 4.094 | 6 | ✗ +3.5 % above max |
-| 800 | 5.423 | 4.906 | 5.403 | 6 | ✗ +0.4 % above max |
-| 810 | 2.555 | 2.038 | 2.610 | 5 | ✓ inside |
+| 960 | 2.786 | 2.522 | 2.860 | 5 | ✓ inside |
+| 980 | 0.425 | 0.246 | 0.720 | 6 | ✓ inside |
+| 985 | 2.542 | 2.120 | 2.801 | 6 | ✓ inside |
+| 995 | 1.027 | 0.755 | 1.330 | 6 | ✓ inside |
+| 195 | 4.234 | 3.951 | 4.217 | 6 | ✗ +0.4 % above max |
+| 200 | 5.251 | 4.813 | 5.226 | 6 | ✗ +0.5 % above max |
+| 210 | 6.353 | 5.627 | 6.531 | 6 | ✓ inside |
+| 215 | 5.717 | 5.181 | 5.697 | 6 | ✗ +0.4 % above max |
+| 220 | 7.017 | 6.377 | 7.178 | 6 | ✓ inside |
+| 230 | 10.218 | 9.812 | 10.417 | 6 | ✓ inside |
+| 240 | 5.811 | 5.116 | 5.944 | 6 | ✓ inside |
+| 250 | 5.380 | 4.733 | 5.373 | 6 | ✗ +0.1 % above max |
+| 270 | 4.714 | 4.273 | 4.631 | 5 | ✗ +1.8 % above max |
+| 280 | 5.008 | 4.525 | 4.870 | 5 | ✗ +2.8 % above max |
+| 290 | 4.852 | 4.381 | 4.745 | 5 | ✗ +2.3 % above max |
+| 300 | 4.840 | 4.318 | 4.726 | 5 | ✗ +2.4 % above max |
+| 310 | 5.252 | 4.580 | 5.240 | 5 | ✗ +0.2 % above max |
+| 320 | 4.060 | 3.599 | 4.031 | 5 | ✗ +0.7 % above max |
+| 395 | 4.975 | 4.565 | 5.145 | 6 | ✓ inside |
+| 400 | 6.882 | 5.906 | 7.047 | 6 | ✓ inside |
+| 410 | 8.478 | 7.630 | 8.661 | 6 | ✓ inside |
+| 420 | 7.279 | 6.399 | 7.433 | 6 | ✓ inside |
+| 430 | 5.949 | 5.171 | 5.954 | 6 | ✓ inside |
+| 440 | 4.742 | 4.156 | 4.721 | 5 | ✗ +0.4 % above max |
+| 450 | 3.769 | 3.375 | 3.990 | 6 | ✓ inside |
+| 460 | 4.236 | 3.828 | 4.290 | 6 | ✓ inside |
+| 470 | 4.144 | 3.540 | 4.094 | 6 | ✗ +1.2 % above max |
+| 800 | 5.426 | 4.906 | 5.403 | 6 | ✗ +0.4 % above max |
+| 810 | 2.564 | 2.038 | 2.610 | 5 | ✓ inside |
 
 #### Annual cooling load (MWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| 600 | 6.127 | 5.432 | 6.162 | 6 | ✓ inside |
-| 610 | 4.290 | 4.117 | 4.382 | 6 | ✓ inside |
-| 620 | 4.341 | 3.841 | 4.404 | 6 | ✓ inside |
-| 630 | 2.906 | 2.573 | 3.074 | 6 | ✓ inside |
-| 640 | 5.857 | 5.237 | 5.893 | 6 | ✓ inside |
-| 650 | 5.084 | 4.186 | 4.945 | 6 | ✗ +2.8 % above max |
-| 660 | 3.360 | 2.966 | 3.340 | 6 | ✗ +0.6 % above max |
-| 670 | 6.267 | 5.954 | 6.623 | 6 | ✓ inside |
-| 680 | 6.634 | 5.932 | 6.529 | 6 | ✗ +1.6 % above max |
-| 685 | 9.062 | 8.238 | 9.130 | 6 | ✓ inside |
-| 695 | 9.254 | 8.386 | 9.172 | 6 | ✗ +0.9 % above max |
-| 900 | 2.610 | 2.267 | 2.714 | 6 | ✓ inside |
-| 910 | 1.383 | 1.191 | 1.490 | 6 | ✓ inside |
-| 920 | 2.936 | 2.549 | 3.128 | 6 | ✓ inside |
-| 930 | 1.947 | 1.654 | 2.161 | 6 | ✓ inside |
-| 940 | 2.536 | 2.203 | 2.613 | 6 | ✓ inside |
-| 950 | 0.839 | 0.586 | 0.707 | 6 | ✗ +18.7 % above max |
-| 960 | 0.824 | 0.789 | 0.950 | 5 | ✓ inside |
-| 980 | 3.923 | 3.501 | 3.995 | 6 | ✓ inside |
-| 985 | 6.459 | 5.880 | 7.273 | 6 | ✓ inside |
-| 995 | 7.319 | 6.771 | 7.482 | 6 | ✓ inside |
-| 195 | 0.666 | 0.592 | 0.712 | 6 | ✓ inside |
-| 200 | 0.866 | 0.788 | 0.839 | 6 | ✗ +3.3 % above max |
-| 210 | 0.586 | 0.459 | 0.688 | 6 | ✓ inside |
-| 215 | 0.948 | 0.850 | 0.952 | 6 | ✓ inside |
-| 220 | 0.643 | 0.498 | 0.803 | 6 | ✓ inside |
-| 230 | 1.026 | 0.897 | 1.184 | 6 | ✓ inside |
-| 240 | 0.990 | 0.834 | 1.287 | 6 | ✓ inside |
-| 250 | 3.269 | 2.904 | 3.612 | 6 | ✓ inside |
-| 270 | 7.560 | 6.698 | 7.522 | 5 | ✗ +0.5 % above max |
-| 280 | 5.207 | 4.215 | 5.206 | 5 | ✓ inside |
-| 290 | 5.630 | 5.310 | 5.743 | 5 | ✓ inside |
-| 300 | 5.427 | 4.805 | 5.152 | 5 | ✗ +5.3 % above max |
-| 310 | 3.725 | 3.128 | 3.752 | 5 | ✓ inside |
-| 320 | 5.146 | 4.420 | 4.986 | 5 | ✗ +3.2 % above max |
-| 395 | 0.011 | 0.004 | 0.021 | 6 | ✓ inside |
-| 400 | 0.033 | 0.013 | 0.063 | 6 | ✓ inside |
-| 410 | 0.064 | 0.035 | 0.096 | 6 | ✓ inside |
-| 420 | 0.158 | 0.109 | 0.228 | 6 | ✓ inside |
-| 430 | 0.898 | 0.739 | 1.084 | 6 | ✓ inside |
-| 440 | 4.174 | 3.458 | 4.414 | 5 | ✓ inside |
-| 450 | 7.207 | 5.689 | 6.613 | 6 | ✗ +9.0 % above max |
-| 460 | 6.952 | 5.929 | 6.729 | 6 | ✗ +3.3 % above max |
-| 470 | 6.421 | 5.644 | 6.056 | 6 | ✗ +6.0 % above max |
-| 800 | 0.342 | 0.282 | 0.473 | 6 | ✓ inside |
-| 810 | 1.574 | 1.295 | 1.606 | 5 | ✓ inside |
+| 600 | 5.969 | 5.432 | 6.162 | 6 | ✓ inside |
+| 610 | 4.155 | 4.117 | 4.382 | 6 | ✓ inside |
+| 620 | 4.259 | 3.841 | 4.404 | 6 | ✓ inside |
+| 630 | 2.849 | 2.573 | 3.074 | 6 | ✓ inside |
+| 640 | 5.655 | 5.237 | 5.893 | 6 | ✓ inside |
+| 650 | 4.883 | 4.186 | 4.945 | 6 | ✓ inside |
+| 660 | 3.257 | 2.966 | 3.340 | 6 | ✓ inside |
+| 670 | 6.085 | 5.954 | 6.623 | 6 | ✓ inside |
+| 680 | 6.517 | 5.932 | 6.529 | 6 | ✓ inside |
+| 685 | 8.960 | 8.238 | 9.130 | 6 | ✓ inside |
+| 695 | 9.176 | 8.386 | 9.172 | 6 | ✓ inside |
+| 900 | 2.599 | 2.267 | 2.714 | 6 | ✓ inside |
+| 910 | 1.377 | 1.191 | 1.490 | 6 | ✓ inside |
+| 920 | 2.931 | 2.549 | 3.128 | 6 | ✓ inside |
+| 930 | 1.942 | 1.654 | 2.161 | 6 | ✓ inside |
+| 940 | 2.524 | 2.203 | 2.613 | 6 | ✓ inside |
+| 950 | 0.834 | 0.586 | 0.707 | 6 | ✗ +18.0 % above max |
+| 960 | 0.823 | 0.789 | 0.950 | 5 | ✓ inside |
+| 980 | 3.906 | 3.501 | 3.995 | 6 | ✓ inside |
+| 985 | 6.444 | 5.880 | 7.273 | 6 | ✓ inside |
+| 995 | 7.303 | 6.771 | 7.482 | 6 | ✓ inside |
+| 195 | 0.657 | 0.592 | 0.712 | 6 | ✓ inside |
+| 200 | 0.860 | 0.788 | 0.839 | 6 | ✗ +2.5 % above max |
+| 210 | 0.580 | 0.459 | 0.688 | 6 | ✓ inside |
+| 215 | 0.940 | 0.850 | 0.952 | 6 | ✓ inside |
+| 220 | 0.636 | 0.498 | 0.803 | 6 | ✓ inside |
+| 230 | 1.022 | 0.897 | 1.184 | 6 | ✓ inside |
+| 240 | 0.983 | 0.834 | 1.287 | 6 | ✓ inside |
+| 250 | 3.223 | 2.904 | 3.612 | 6 | ✓ inside |
+| 270 | 7.457 | 6.698 | 7.522 | 5 | ✓ inside |
+| 280 | 5.130 | 4.215 | 5.206 | 5 | ✓ inside |
+| 290 | 5.541 | 5.310 | 5.743 | 5 | ✓ inside |
+| 300 | 5.373 | 4.805 | 5.152 | 5 | ✗ +4.3 % above max |
+| 310 | 3.689 | 3.128 | 3.752 | 5 | ✓ inside |
+| 320 | 4.997 | 4.420 | 4.986 | 5 | ✗ +0.2 % above max |
+| 395 | 0.010 | 0.004 | 0.021 | 6 | ✓ inside |
+| 400 | 0.030 | 0.013 | 0.063 | 6 | ✓ inside |
+| 410 | 0.060 | 0.035 | 0.096 | 6 | ✓ inside |
+| 420 | 0.152 | 0.109 | 0.228 | 6 | ✓ inside |
+| 430 | 0.872 | 0.739 | 1.084 | 6 | ✓ inside |
+| 440 | 4.050 | 3.458 | 4.414 | 5 | ✓ inside |
+| 450 | 7.074 | 5.689 | 6.613 | 6 | ✗ +7.0 % above max |
+| 460 | 6.808 | 5.929 | 6.729 | 6 | ✗ +1.2 % above max |
+| 470 | 6.273 | 5.644 | 6.056 | 6 | ✗ +3.6 % above max |
+| 800 | 0.343 | 0.282 | 0.473 | 6 | ✓ inside |
+| 810 | 1.569 | 1.295 | 1.606 | 5 | ✓ inside |
 
 ### Peak loads
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Annual hourly integrated peak heating load (kW) | 46 | 41 | 5 |
+| Annual hourly integrated peak heating load (kW) | 46 | 40 | 6 |
 | Annual hourly integrated peak sensible cooling load (kW) | 46 | 41 | 5 |
 
 ![Peak loads](img/validation/load_test_2.png)
@@ -134,103 +134,103 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600 | 3.260 | Dec 31 24 | 3.020 | 3.359 | 6 | ✓ inside |
-| 610 | 3.263 | Dec 31 24 | 3.021 | 3.360 | 6 | ✓ inside |
-| 620 | 3.288 | Dec 31 24 | 3.038 | 3.385 | 6 | ✓ inside |
-| 630 | 3.291 | Dec 31 24 | 3.039 | 3.388 | 6 | ✓ inside |
-| 640 | 3.947 | Nov 26 8 | 4.039 | 4.658 | 6 | ✗ -2.3 % below min |
+| 600 | 3.253 | Dec 31 24 | 3.020 | 3.359 | 6 | ✓ inside |
+| 610 | 3.258 | Dec 31 24 | 3.021 | 3.360 | 6 | ✓ inside |
+| 620 | 3.294 | Dec 31 24 | 3.038 | 3.385 | 6 | ✓ inside |
+| 630 | 3.299 | Dec 31 24 | 3.039 | 3.388 | 6 | ✓ inside |
+| 640 | 3.878 | Feb 8 9 | 4.039 | 4.658 | 6 | ✗ -4.0 % below min |
 | 650 | 0.000 | Jan 1 1 | 0.000 | 0.000 | 6 | ✓ inside |
 | 660 | 2.824 | Dec 31 24 | 2.620 | 2.955 | 6 | ✓ inside |
-| 670 | 4.091 | Dec 31 24 | 3.655 | 4.221 | 6 | ✓ inside |
-| 680 | 2.083 | Dec 31 24 | 1.778 | 2.126 | 6 | ✓ inside |
-| 685 | 3.278 | Dec 31 24 | 3.032 | 3.374 | 6 | ✓ inside |
-| 695 | 2.146 | Dec 31 24 | 1.795 | 2.138 | 6 | ✗ +0.4 % above max |
-| 900 | 2.676 | Feb 9 6 | 2.443 | 2.778 | 6 | ✓ inside |
-| 910 | 2.706 | Feb 9 6 | 2.469 | 2.799 | 6 | ✓ inside |
-| 920 | 2.742 | Feb 9 6 | 2.512 | 2.895 | 6 | ✓ inside |
-| 930 | 2.780 | Feb 9 6 | 2.537 | 2.968 | 6 | ✓ inside |
-| 940 | 3.147 | Dec 31 9 | 3.052 | 3.882 | 6 | ✓ inside |
+| 670 | 4.089 | Dec 31 24 | 3.655 | 4.221 | 6 | ✓ inside |
+| 680 | 2.068 | Dec 31 24 | 1.778 | 2.126 | 6 | ✓ inside |
+| 685 | 3.276 | Dec 31 24 | 3.032 | 3.374 | 6 | ✓ inside |
+| 695 | 2.141 | Dec 31 24 | 1.795 | 2.138 | 6 | ✗ +0.2 % above max |
+| 900 | 2.688 | Feb 9 6 | 2.443 | 2.778 | 6 | ✓ inside |
+| 910 | 2.718 | Feb 9 6 | 2.469 | 2.799 | 6 | ✓ inside |
+| 920 | 2.756 | Feb 9 6 | 2.512 | 2.895 | 6 | ✓ inside |
+| 930 | 2.792 | Feb 9 6 | 2.537 | 2.968 | 6 | ✓ inside |
+| 940 | 3.273 | Dec 31 9 | 3.052 | 3.882 | 6 | ✓ inside |
 | 950 | 0.000 | Jan 1 1 | 0.000 | 0.000 | 6 | ✓ inside |
-| 960 | 1.991 | Feb 9 6 | 2.085 | 2.300 | 5 | ✗ -4.5 % below min |
-| 980 | 1.657 | Feb 9 6 | 1.254 | 1.693 | 6 | ✓ inside |
-| 985 | 2.681 | Feb 9 6 | 2.452 | 2.785 | 6 | ✓ inside |
-| 995 | 1.705 | Feb 9 6 | 1.370 | 1.711 | 6 | ✓ inside |
-| 195 | 1.818 | Dec 31 24 | 1.791 | 1.802 | 6 | ✗ +0.9 % above max |
-| 200 | 2.313 | Dec 31 24 | 2.226 | 2.353 | 6 | ✓ inside |
-| 210 | 2.551 | Dec 31 24 | 2.374 | 2.750 | 6 | ✓ inside |
-| 215 | 2.516 | Dec 31 24 | 2.390 | 2.521 | 6 | ✓ inside |
-| 220 | 2.809 | Dec 31 24 | 2.631 | 2.879 | 6 | ✓ inside |
-| 230 | 4.185 | Dec 31 24 | 4.133 | 4.316 | 6 | ✓ inside |
-| 240 | 2.632 | Dec 31 24 | 2.431 | 2.693 | 6 | ✓ inside |
-| 250 | 2.803 | Dec 31 24 | 2.631 | 2.874 | 6 | ✓ inside |
-| 270 | 2.767 | Dec 31 24 | 2.560 | 2.843 | 5 | ✓ inside |
-| 280 | 2.777 | Dec 31 24 | 2.568 | 2.849 | 5 | ✓ inside |
-| 290 | 2.769 | Dec 31 24 | 2.561 | 2.843 | 5 | ✓ inside |
-| 300 | 2.779 | Dec 31 24 | 2.589 | 2.854 | 5 | ✓ inside |
-| 310 | 2.782 | Dec 31 24 | 2.580 | 2.856 | 5 | ✓ inside |
-| 320 | 2.744 | Dec 31 24 | 2.546 | 2.834 | 5 | ✓ inside |
-| 395 | 2.007 | Dec 31 24 | 1.948 | 2.161 | 6 | ✓ inside |
-| 400 | 2.809 | Dec 31 24 | 2.559 | 2.879 | 6 | ✓ inside |
-| 410 | 3.497 | Dec 31 24 | 3.338 | 3.597 | 6 | ✓ inside |
-| 420 | 3.320 | Dec 31 24 | 3.138 | 3.411 | 6 | ✓ inside |
-| 430 | 3.316 | Dec 31 24 | 3.254 | 3.409 | 6 | ✓ inside |
+| 960 | 2.000 | Feb 9 6 | 2.085 | 2.300 | 5 | ✗ -4.1 % below min |
+| 980 | 1.669 | Feb 9 6 | 1.254 | 1.693 | 6 | ✓ inside |
+| 985 | 2.694 | Feb 9 6 | 2.452 | 2.785 | 6 | ✓ inside |
+| 995 | 1.718 | Feb 9 6 | 1.370 | 1.711 | 6 | ✗ +0.4 % above max |
+| 195 | 1.820 | Dec 31 24 | 1.791 | 1.802 | 6 | ✗ +1.0 % above max |
+| 200 | 2.320 | Dec 31 24 | 2.226 | 2.353 | 6 | ✓ inside |
+| 210 | 2.557 | Dec 31 24 | 2.374 | 2.750 | 6 | ✓ inside |
+| 215 | 2.522 | Dec 31 24 | 2.390 | 2.521 | 6 | ✓ inside |
+| 220 | 2.814 | Dec 31 24 | 2.631 | 2.879 | 6 | ✓ inside |
+| 230 | 4.201 | Dec 31 24 | 4.133 | 4.316 | 6 | ✓ inside |
+| 240 | 2.637 | Dec 31 24 | 2.431 | 2.693 | 6 | ✓ inside |
+| 250 | 2.805 | Dec 31 24 | 2.631 | 2.874 | 6 | ✓ inside |
+| 270 | 2.760 | Dec 31 24 | 2.560 | 2.843 | 5 | ✓ inside |
+| 280 | 2.775 | Dec 31 24 | 2.568 | 2.849 | 5 | ✓ inside |
+| 290 | 2.762 | Dec 31 24 | 2.561 | 2.843 | 5 | ✓ inside |
+| 300 | 2.780 | Dec 31 24 | 2.589 | 2.854 | 5 | ✓ inside |
+| 310 | 2.786 | Dec 31 24 | 2.580 | 2.856 | 5 | ✓ inside |
+| 320 | 2.730 | Dec 31 24 | 2.546 | 2.834 | 5 | ✓ inside |
+| 395 | 2.008 | Dec 31 24 | 1.948 | 2.161 | 6 | ✓ inside |
+| 400 | 2.814 | Dec 31 24 | 2.559 | 2.879 | 6 | ✓ inside |
+| 410 | 3.508 | Dec 31 24 | 3.338 | 3.597 | 6 | ✓ inside |
+| 420 | 3.331 | Dec 31 24 | 3.138 | 3.411 | 6 | ✓ inside |
+| 430 | 3.325 | Dec 31 24 | 3.254 | 3.409 | 6 | ✓ inside |
 | 440 | 3.277 | Dec 31 24 | 3.027 | 3.374 | 5 | ✓ inside |
-| 450 | 3.014 | Dec 31 24 | 2.753 | 3.100 | 6 | ✓ inside |
-| 460 | 3.182 | Dec 31 24 | 2.971 | 3.160 | 6 | ✗ +0.7 % above max |
-| 470 | 3.175 | Dec 31 24 | 2.807 | 3.231 | 6 | ✓ inside |
-| 800 | 2.862 | Feb 9 6 | 2.778 | 2.967 | 6 | ✓ inside |
-| 810 | 2.732 | Feb 9 6 | 2.500 | 2.845 | 5 | ✓ inside |
+| 450 | 3.011 | Dec 31 24 | 2.753 | 3.100 | 6 | ✓ inside |
+| 460 | 3.179 | Dec 31 24 | 2.971 | 3.160 | 6 | ✗ +0.6 % above max |
+| 470 | 3.170 | Dec 31 24 | 2.807 | 3.231 | 6 | ✓ inside |
+| 800 | 2.872 | Feb 9 6 | 2.778 | 2.967 | 6 | ✓ inside |
+| 810 | 2.744 | Feb 9 6 | 2.500 | 2.845 | 5 | ✓ inside |
 
 #### Annual hourly integrated peak sensible cooling load (kW)
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600 | 5.954 | Jan 22 14 | 5.422 | 6.481 | 6 | ✓ inside |
-| 610 | 5.544 | Dec 1 14 | 5.331 | 6.432 | 6 | ✓ inside |
-| 620 | 4.442 | Jun 26 17 | 3.955 | 4.797 | 6 | ✓ inside |
-| 630 | 3.852 | Jun 26 18 | 3.526 | 4.212 | 6 | ✓ inside |
-| 640 | 5.869 | Jan 22 14 | 5.365 | 6.429 | 6 | ✓ inside |
-| 650 | 5.649 | Oct 18 14 | 5.045 | 6.290 | 6 | ✓ inside |
-| 660 | 3.518 | Oct 18 14 | 3.343 | 3.933 | 6 | ✓ inside |
-| 670 | 6.064 | Oct 18 14 | 5.839 | 6.925 | 6 | ✓ inside |
-| 680 | 6.376 | Jan 22 14 | 5.761 | 7.051 | 6 | ✓ inside |
-| 685 | 6.659 | Jan 22 14 | 6.071 | 7.159 | 6 | ✓ inside |
-| 695 | 6.930 | Jan 22 14 | 6.232 | 7.541 | 6 | ✓ inside |
-| 900 | 2.853 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
-| 910 | 2.042 | Oct 1 15 | 2.081 | 2.722 | 6 | ✗ -1.9 % below min |
-| 920 | 3.009 | Jun 26 18 | 2.710 | 3.481 | 6 | ✓ inside |
-| 930 | 2.525 | Jun 26 18 | 2.335 | 3.052 | 6 | ✓ inside |
-| 940 | 2.853 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
-| 950 | 2.317 | Sep 11 15 | 2.054 | 2.388 | 6 | ✓ inside |
-| 960 | 1.000 | Jun 26 17 | 1.338 | 1.480 | 5 | ✗ -25.3 % below min |
-| 980 | 3.168 | Oct 18 15 | 2.930 | 3.668 | 6 | ✓ inside |
-| 985 | 3.556 | Oct 1 14 | 3.208 | 4.225 | 6 | ✓ inside |
-| 995 | 3.627 | Jan 22 15 | 3.315 | 4.224 | 6 | ✓ inside |
-| 195 | 1.031 | Jun 26 17 | 0.944 | 1.118 | 6 | ✓ inside |
-| 200 | 1.276 | Jun 26 16 | 1.198 | 1.307 | 6 | ✓ inside |
-| 210 | 1.083 | Jun 26 17 | 0.877 | 1.193 | 6 | ✓ inside |
-| 215 | 1.392 | Jun 26 17 | 1.352 | 1.400 | 6 | ✓ inside |
-| 220 | 1.193 | Jun 26 17 | 0.968 | 1.336 | 6 | ✓ inside |
-| 230 | 1.885 | Jun 26 16 | 1.694 | 1.994 | 6 | ✓ inside |
-| 240 | 1.371 | Jun 26 17 | 1.150 | 1.534 | 6 | ✓ inside |
-| 250 | 2.642 | Sep 3 14 | 2.688 | 3.034 | 6 | ✗ -1.7 % below min |
-| 270 | 6.397 | Jan 22 14 | 5.832 | 7.011 | 5 | ✓ inside |
-| 280 | 4.406 | Jan 22 14 | 3.768 | 4.765 | 5 | ✓ inside |
-| 290 | 5.974 | Jan 22 14 | 5.739 | 6.872 | 5 | ✓ inside |
-| 300 | 4.144 | Jun 26 18 | 3.695 | 4.475 | 5 | ✓ inside |
-| 310 | 3.635 | Jun 26 18 | 3.252 | 3.970 | 5 | ✓ inside |
-| 320 | 5.815 | Jan 22 14 | 5.304 | 6.473 | 5 | ✓ inside |
-| 395 | 0.418 | Jun 26 18 | 0.265 | 0.547 | 6 | ✓ inside |
-| 400 | 0.643 | Jun 26 17 | 0.372 | 0.798 | 6 | ✓ inside |
-| 410 | 0.885 | Jun 26 17 | 0.604 | 1.011 | 6 | ✓ inside |
-| 420 | 1.079 | Jun 26 17 | 0.814 | 1.208 | 6 | ✓ inside |
-| 430 | 1.869 | Jun 26 15 | 1.704 | 2.167 | 6 | ✓ inside |
-| 440 | 4.301 | Oct 18 14 | 3.766 | 4.686 | 5 | ✓ inside |
-| 450 | 6.904 | Jan 22 14 | 5.812 | 6.501 | 6 | ✗ +6.2 % above max |
-| 460 | 6.781 | Jan 22 14 | 5.804 | 6.374 | 6 | ✗ +6.4 % above max |
-| 470 | 6.137 | Jan 22 14 | 5.570 | 6.444 | 6 | ✓ inside |
-| 800 | 1.081 | Jun 14 15 | 0.936 | 1.286 | 6 | ✓ inside |
-| 810 | 2.229 | Sep 11 14 | 1.940 | 2.410 | 5 | ✓ inside |
+| 600 | 5.774 | Jan 22 14 | 5.422 | 6.481 | 6 | ✓ inside |
+| 610 | 5.392 | Dec 1 14 | 5.331 | 6.432 | 6 | ✓ inside |
+| 620 | 4.422 | Jun 26 17 | 3.955 | 4.797 | 6 | ✓ inside |
+| 630 | 3.802 | Jun 26 18 | 3.526 | 4.212 | 6 | ✓ inside |
+| 640 | 5.665 | Jan 22 14 | 5.365 | 6.429 | 6 | ✓ inside |
+| 650 | 5.475 | Oct 18 14 | 5.045 | 6.290 | 6 | ✓ inside |
+| 660 | 3.415 | Oct 18 14 | 3.343 | 3.933 | 6 | ✓ inside |
+| 670 | 5.907 | Oct 18 14 | 5.839 | 6.925 | 6 | ✓ inside |
+| 680 | 6.195 | Jan 22 14 | 5.761 | 7.051 | 6 | ✓ inside |
+| 685 | 6.494 | Jan 22 14 | 6.071 | 7.159 | 6 | ✓ inside |
+| 695 | 6.766 | Jan 22 14 | 6.232 | 7.541 | 6 | ✓ inside |
+| 900 | 2.840 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
+| 910 | 2.031 | Oct 1 15 | 2.081 | 2.722 | 6 | ✗ -2.4 % below min |
+| 920 | 3.008 | Jun 26 17 | 2.710 | 3.481 | 6 | ✓ inside |
+| 930 | 2.524 | Jun 26 18 | 2.335 | 3.052 | 6 | ✓ inside |
+| 940 | 2.840 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
+| 950 | 2.300 | Sep 11 15 | 2.054 | 2.388 | 6 | ✓ inside |
+| 960 | 1.001 | Jun 26 17 | 1.338 | 1.480 | 5 | ✗ -25.2 % below min |
+| 980 | 3.145 | Oct 18 15 | 2.930 | 3.668 | 6 | ✓ inside |
+| 985 | 3.542 | Oct 1 14 | 3.208 | 4.225 | 6 | ✓ inside |
+| 995 | 3.591 | Oct 18 15 | 3.315 | 4.224 | 6 | ✓ inside |
+| 195 | 1.021 | Jun 26 17 | 0.944 | 1.118 | 6 | ✓ inside |
+| 200 | 1.275 | Jun 26 16 | 1.198 | 1.307 | 6 | ✓ inside |
+| 210 | 1.083 | Jun 26 16 | 0.877 | 1.193 | 6 | ✓ inside |
+| 215 | 1.386 | Jun 26 16 | 1.352 | 1.400 | 6 | ✓ inside |
+| 220 | 1.185 | Jun 26 16 | 0.968 | 1.336 | 6 | ✓ inside |
+| 230 | 1.889 | Jun 26 16 | 1.694 | 1.994 | 6 | ✓ inside |
+| 240 | 1.362 | Jun 26 16 | 1.150 | 1.534 | 6 | ✓ inside |
+| 250 | 2.637 | Sep 3 14 | 2.688 | 3.034 | 6 | ✗ -1.9 % below min |
+| 270 | 6.231 | Jan 22 14 | 5.832 | 7.011 | 5 | ✓ inside |
+| 280 | 4.288 | Jan 22 14 | 3.768 | 4.765 | 5 | ✓ inside |
+| 290 | 5.828 | Jan 22 14 | 5.739 | 6.872 | 5 | ✓ inside |
+| 300 | 4.127 | Jun 26 17 | 3.695 | 4.475 | 5 | ✓ inside |
+| 310 | 3.590 | Jun 26 18 | 3.252 | 3.970 | 5 | ✓ inside |
+| 320 | 5.634 | Jan 22 14 | 5.304 | 6.473 | 5 | ✓ inside |
+| 395 | 0.401 | Jun 26 18 | 0.265 | 0.547 | 6 | ✓ inside |
+| 400 | 0.621 | Jun 26 17 | 0.372 | 0.798 | 6 | ✓ inside |
+| 410 | 0.866 | Jun 26 17 | 0.604 | 1.011 | 6 | ✓ inside |
+| 420 | 1.063 | Jun 26 17 | 0.814 | 1.208 | 6 | ✓ inside |
+| 430 | 1.837 | Jun 26 15 | 1.704 | 2.167 | 6 | ✓ inside |
+| 440 | 4.180 | Oct 18 14 | 3.766 | 4.686 | 5 | ✓ inside |
+| 450 | 6.725 | Jan 22 14 | 5.812 | 6.501 | 6 | ✗ +3.4 % above max |
+| 460 | 6.602 | Jan 22 14 | 5.804 | 6.374 | 6 | ✗ +3.6 % above max |
+| 470 | 5.958 | Jan 22 14 | 5.570 | 6.444 | 6 | ✓ inside |
+| 800 | 1.078 | Jun 14 15 | 0.936 | 1.286 | 6 | ✓ inside |
+| 810 | 2.224 | Sep 11 14 | 1.940 | 2.410 | 5 | ✓ inside |
 
 ### Free-float zone temperatures
 
@@ -246,37 +246,37 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600FF | -13.516 | Feb 9 7 | -13.844 | -9.900 | 6 | ✓ inside |
-| 900FF | 0.621 | Feb 9 7 | 0.600 | 2.165 | 6 | ✓ inside |
-| 650FF | -17.273 | Dec 31 24 | -17.762 | -16.700 | 6 | ✓ inside |
-| 950FF | -12.956 | Dec 31 24 | -13.360 | -12.500 | 6 | ✓ inside |
-| 680FF | -8.382 | Feb 9 7 | -8.074 | -5.700 | 6 | ✗ -0.31 °C below min |
-| 980FF | 10.042 | Nov 4 7 | 7.300 | 12.536 | 6 | ✓ inside |
-| 960 | 4.487 | Feb 9 7 | 4.238 | 8.017 | 5 | ✓ inside |
+| 600FF | -13.376 | Feb 9 7 | -13.844 | -9.900 | 6 | ✓ inside |
+| 900FF | 0.598 | Feb 9 7 | 0.600 | 2.165 | 6 | ✓ inside |
+| 650FF | -17.369 | Dec 31 24 | -17.762 | -16.700 | 6 | ✓ inside |
+| 950FF | -13.170 | Dec 31 24 | -13.360 | -12.500 | 6 | ✓ inside |
+| 680FF | -8.388 | Feb 9 7 | -8.074 | -5.700 | 6 | ✗ -0.31 °C below min |
+| 980FF | 10.143 | Nov 4 7 | 7.300 | 12.536 | 6 | ✓ inside |
+| 960 | 4.454 | Feb 9 7 | 4.238 | 8.017 | 5 | ✓ inside |
 
 #### Annual hourly average zone temperature (°C)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| 600FF | 25.201 | 24.258 | 26.100 | 6 | ✓ inside |
-| 900FF | 25.264 | 24.462 | 25.692 | 6 | ✓ inside |
-| 650FF | 18.858 | 17.600 | 18.930 | 6 | ✓ inside |
+| 600FF | 25.176 | 24.258 | 26.100 | 6 | ✓ inside |
+| 900FF | 25.239 | 24.462 | 25.692 | 6 | ✓ inside |
+| 650FF | 18.876 | 17.600 | 18.930 | 6 | ✓ inside |
 | 950FF | 14.887 | 14.350 | 15.000 | 6 | ✓ inside |
-| 680FF | 32.085 | 30.187 | 33.300 | 6 | ✓ inside |
-| 980FF | 32.087 | 30.492 | 33.300 | 6 | ✓ inside |
-| 960 | 27.957 | 26.798 | 29.450 | 5 | ✓ inside |
+| 680FF | 32.046 | 30.187 | 33.300 | 6 | ✓ inside |
+| 980FF | 32.048 | 30.492 | 33.300 | 6 | ✓ inside |
+| 960 | 27.929 | 26.798 | 29.450 | 5 | ✓ inside |
 
 #### Annual hourly maximum zone temperature (°C)
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600FF | 66.348 | Oct 1 15 | 62.369 | 68.361 | 6 | ✓ inside |
-| 900FF | 44.885 | Sep 12 15 | 43.252 | 46.000 | 6 | ✓ inside |
-| 650FF | 64.997 | Oct 18 16 | 61.133 | 66.846 | 6 | ✓ inside |
-| 950FF | 37.369 | Sep 11 16 | 36.127 | 37.100 | 6 | ✗ +0.27 °C above max |
-| 680FF | 74.721 | Jan 22 16 | 69.774 | 78.514 | 6 | ✓ inside |
-| 980FF | 51.542 | Sep 12 15 | 48.541 | 52.810 | 6 | ✓ inside |
-| 960 | 49.865 | Oct 21 15 | 48.097 | 53.180 | 5 | ✓ inside |
+| 600FF | 65.718 | Oct 1 15 | 62.369 | 68.361 | 6 | ✓ inside |
+| 900FF | 44.853 | Sep 11 15 | 43.252 | 46.000 | 6 | ✓ inside |
+| 650FF | 64.108 | Oct 1 15 | 61.133 | 66.846 | 6 | ✓ inside |
+| 950FF | 37.296 | Sep 11 16 | 36.127 | 37.100 | 6 | ✗ +0.20 °C above max |
+| 680FF | 73.818 | Oct 18 16 | 69.774 | 78.514 | 6 | ✓ inside |
+| 980FF | 51.494 | Sep 12 15 | 48.541 | 52.810 | 6 | ✓ inside |
+| 960 | 49.777 | Oct 12 15 | 48.097 | 53.180 | 5 | ✓ inside |
 
 ### Solar radiation
 
@@ -292,33 +292,33 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| 600 horizontal | 1670.140 | 1662.528 | 1670.000 | 6 | ✓ inside |
-| 600 north | 483.179 | 399.047 | 477.310 | 6 | ✗ +1.2 % above max |
-| 600 east | 1077.884 | 1016.676 | 1067.940 | 6 | ✗ +0.9 % above max |
-| 600 south | 1365.522 | 1290.593 | 1387.000 | 6 | ✓ inside |
-| 600 west | 979.683 | 903.066 | 997.000 | 6 | ✓ inside |
+| 600 horizontal | 1670.171 | 1662.528 | 1670.000 | 6 | ✓ inside |
+| 600 north | 483.034 | 399.047 | 477.310 | 6 | ✗ +1.2 % above max |
+| 600 east | 1077.023 | 1016.676 | 1067.940 | 6 | ✗ +0.9 % above max |
+| 600 south | 1363.560 | 1290.593 | 1387.000 | 6 | ✓ inside |
+| 600 west | 981.773 | 903.066 | 997.000 | 6 | ✓ inside |
 
 #### Annual transmitted solar radiation, unshaded (kWh/m²)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| 600 south | 812.337 | 804.021 | 825.519 | 6 | ✓ inside |
-| 660 south | 443.008 | 435.995 | 506.461 | 6 | ✓ inside |
-| 670 south | 1024.397 | 987.818 | 1039.230 | 6 | ✓ inside |
-| 620 west | 596.375 | 569.394 | 623.797 | 5 | ✓ inside |
+| 600 south | 810.651 | 804.021 | 825.519 | 6 | ✓ inside |
+| 660 south | 442.090 | 435.995 | 506.461 | 6 | ✓ inside |
+| 670 south | 1022.282 | 987.818 | 1039.230 | 6 | ✓ inside |
+| 620 west | 596.035 | 569.394 | 623.797 | 5 | ✓ inside |
 
 #### Annual transmitted solar radiation, shaded (kWh/m²)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| 610 south | 638.933 | 631.330 | 665.261 | 6 | ✓ inside |
-| 630 west | 420.730 | 389.670 | 445.549 | 5 | ✓ inside |
+| 610 south | 637.579 | 631.330 | 665.261 | 6 | ✓ inside |
+| 630 west | 420.548 | 389.670 | 445.549 | 5 | ✓ inside |
 
 ### Sky temperature
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Annual hourly minimum sky temperature (°C) | 1 | 0 | 1 |
+| Annual hourly minimum sky temperature (°C) | 1 | 1 | 0 |
 | Annual hourly average sky temperature (°C) | 1 | 0 | 1 |
 | Annual hourly maximum sky temperature (°C) | 1 | 1 | 0 |
 
@@ -328,7 +328,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600 | -37.593 | Dec 31 24 | -46.900 | -37.980 | 5 | ✗ +0.39 °C above max |
+| 600 | -37.958 | Dec 31 24 | -46.900 | -37.980 | 5 | ✓ inside |
 
 #### Annual hourly average sky temperature (°C)
 
@@ -340,7 +340,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600 | 25.148 | Aug 4 15 | 24.620 | 30.081 | 5 | ✓ inside |
+| 600 | 26.050 | Aug 4 15 | 24.620 | 30.081 | 5 | ✓ inside |
 
 ### Monthly loads, cases 600 and 900
 
@@ -348,14 +348,14 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| 600 | Monthly heating load (kWh) | 12 | 1 | 13.1 kWh |
-| 600 | Monthly cooling load (kWh) | 12 | 10 | 1.12 kWh |
-| 600 | Monthly peak heating load (kW) | 12 | 10 | 0.027 kW |
-| 600 | Monthly peak cooling load (kW) | 12 | 11 | 0.142 kW |
-| 900 | Monthly heating load (kWh) | 12 | 11 | 1.25 kWh |
-| 900 | Monthly cooling load (kWh) | 12 | 10 | 5.48 kWh |
-| 900 | Monthly peak heating load (kW) | 12 | 10 | 0.0503 kW |
-| 900 | Monthly peak cooling load (kW) | 12 | 9 | 0.0969 kW |
+| 600 | Monthly heating load (kWh) | 12 | 9 | 3.86 kWh |
+| 600 | Monthly cooling load (kWh) | 12 | 12 | – |
+| 600 | Monthly peak heating load (kW) | 12 | 10 | 0.0269 kW |
+| 600 | Monthly peak cooling load (kW) | 12 | 11 | 0.0562 kW |
+| 900 | Monthly heating load (kWh) | 12 | 11 | 0.998 kWh |
+| 900 | Monthly cooling load (kWh) | 12 | 11 | 5.5 kWh |
+| 900 | Monthly peak heating load (kW) | 12 | 10 | 0.0536 kW |
+| 900 | Monthly peak cooling load (kW) | 12 | 9 | 0.0956 kW |
 
 ### Hourly incident solar radiation and sky temperature, case 600
 
@@ -368,10 +368,10 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 600 | Incident solar, west, May 4 (Wh/m²) | 24 | 24 | – |
 | 600 | Incident solar, horizontal, Jul 14 (Wh/m²) | 24 | 24 | – |
 | 600 | Incident solar, south, Jul 14 (Wh/m²) | 24 | 24 | – |
-| 600 | Incident solar, west, Jul 14 (Wh/m²) | 24 | 24 | 0.394 Wh/m² |
-| 600 | Sky temperature, Feb 1 (°C) | 24 | 13 | 0.757 °C |
-| 600 | Sky temperature, May 4 (°C) | 24 | 9 | 0.64 °C |
-| 600 | Sky temperature, Jul 14 (°C) | 24 | 13 | 1.16 °C |
+| 600 | Incident solar, west, Jul 14 (Wh/m²) | 24 | 22 | 2.47 Wh/m² |
+| 600 | Sky temperature, Feb 1 (°C) | 24 | 15 | 0.895 °C |
+| 600 | Sky temperature, May 4 (°C) | 24 | 9 | 0.733 °C |
+| 600 | Sky temperature, Jul 14 (°C) | 24 | 13 | 1.29 °C |
 
 ### Hourly transmitted solar radiation
 
@@ -380,12 +380,12 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
 | 600 | Transmitted solar, south window, Feb 1 (Wh/m²) | 24 | 24 | – |
-| 660 | Transmitted solar, south window, Feb 1 (Wh/m²) | 24 | 23 | 7.37 Wh/m² |
-| 670 | Transmitted solar, south window, Feb 1 (Wh/m²) | 24 | 24 | – |
+| 660 | Transmitted solar, south window, Feb 1 (Wh/m²) | 24 | 24 | – |
+| 670 | Transmitted solar, south window, Feb 1 (Wh/m²) | 24 | 23 | 3.62 Wh/m² |
 | 600 | Transmitted solar, south window, May 4 (Wh/m²) | 24 | 24 | – |
 | 660 | Transmitted solar, south window, May 4 (Wh/m²) | 24 | 24 | – |
 | 670 | Transmitted solar, south window, May 4 (Wh/m²) | 24 | 24 | – |
-| 600 | Transmitted solar, south window, Jul 14 (Wh/m²) | 24 | 22 | 1.5 Wh/m² |
+| 600 | Transmitted solar, south window, Jul 14 (Wh/m²) | 24 | 22 | 1.25 Wh/m² |
 | 660 | Transmitted solar, south window, Jul 14 (Wh/m²) | 24 | 24 | – |
 | 670 | Transmitted solar, south window, Jul 14 (Wh/m²) | 24 | 24 | – |
 
@@ -395,28 +395,28 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| 600 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 22 | 0.0332 kWh |
-| 640 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 17 | 0.169 kWh |
-| 660 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 12 | 0.235 kWh |
-| 670 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0205 kWh |
-| 680 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 18 | 0.0992 kWh |
-| 685 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 22 | 0.0159 kWh |
-| 695 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 18 | 0.053 kWh |
-| 900 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 16 | 0.0646 kWh |
-| 940 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 24 | – |
-| 980 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0201 kWh |
-| 985 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 16 | 0.0744 kWh |
-| 995 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0206 kWh |
-| 600 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 18 | 0.123 kWh |
-| 660 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.115 kWh |
-| 670 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.0451 kWh |
-| 680 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 17 | 0.092 kWh |
-| 685 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 16 | 0.072 kWh |
-| 695 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 14 | 0.0756 kWh |
-| 900 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 22 | 0.0939 kWh |
-| 980 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 19 | 0.107 kWh |
+| 600 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.144 kWh |
+| 640 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 16 | 0.252 kWh |
+| 660 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 13 | 0.287 kWh |
+| 670 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.162 kWh |
+| 680 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 19 | 0.137 kWh |
+| 685 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.0469 kWh |
+| 695 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.14 kWh |
+| 900 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 17 | 0.0711 kWh |
+| 940 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0292 kWh |
+| 980 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 24 | – |
+| 985 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 17 | 0.0783 kWh |
+| 995 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0539 kWh |
+| 600 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 21 | 0.241 kWh |
+| 660 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.174 kWh |
+| 670 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.149 kWh |
+| 680 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 21 | 0.208 kWh |
+| 685 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 16 | 0.112 kWh |
+| 695 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 15 | 0.129 kWh |
+| 900 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 21 | 0.123 kWh |
+| 980 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 19 | 0.131 kWh |
 | 985 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 24 | – |
-| 995 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 22 | 0.0412 kWh |
+| 995 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.0494 kWh |
 
 ### Hourly zone temperatures
 
@@ -424,13 +424,13 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| 640 | Zone temperature, Feb 1 (°C) | 24 | 23 | 0.0462 °C |
-| 940 | Zone temperature, Feb 1 (°C) | 24 | 22 | 0.169 °C |
-| 600FF | Zone temperature, Feb 1 (°C) | 24 | 14 | 0.376 °C |
+| 640 | Zone temperature, Feb 1 (°C) | 24 | 22 | 0.783 °C |
+| 940 | Zone temperature, Feb 1 (°C) | 24 | 20 | 0.29 °C |
+| 600FF | Zone temperature, Feb 1 (°C) | 24 | 11 | 1.06 °C |
 | 900FF | Zone temperature, Feb 1 (°C) | 24 | 24 | – |
-| 650FF | Zone temperature, Jul 14 (°C) | 24 | 8 | 1.6 °C |
-| 950FF | Zone temperature, Jul 14 (°C) | 24 | 23 | 0.0347 °C |
-| 680FF | Zone temperature, Feb 1 (°C) | 24 | 18 | 1.08 °C |
+| 650FF | Zone temperature, Jul 14 (°C) | 24 | 5 | 1.83 °C |
+| 950FF | Zone temperature, Jul 14 (°C) | 24 | 20 | 0.088 °C |
+| 680FF | Zone temperature, Feb 1 (°C) | 24 | 15 | 1.3 °C |
 | 980FF | Zone temperature, Feb 1 (°C) | 24 | 24 | – |
 
 ### Zone temperature bins, case 900FF
@@ -439,4 +439,4 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| 900FF | Annual hours per 1 °C zone temperature bin (h) | 149 | 146 | 5 h |
+| 900FF | Annual hours per 1 °C zone temperature bin (h) | 149 | 147 | 7 h |
