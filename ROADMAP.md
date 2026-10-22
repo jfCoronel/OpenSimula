@@ -138,6 +138,12 @@ Next steps, one PR each:
     (references 36–96 %). OpenSimula has no warm-up/preconditioning period; possible
     feature: a Project parameter for warm-up days (the Standard's minima for CE500–CE545 are
     taken from April 1 precisely to avoid initialization effects; the maxima are not).
+    **Decision: no warm-up; the CE500–CE545 case files use their end-of-year zone humidity
+    as `initial_humidity`** (the Standard does not specify it). Effect: the 4 cases at
+    100 % RH move inside the range, but the references evidently started moister (their
+    maximum humidity ratio and CE540 annual latent load include removing initial moisture),
+    so CE530/540/545 maximum w, CE540 coil latent and CE530 mean RH move below (632/783,
+    was 633). Known limitation: the dry-coil criterion of `DX_unit` (decision, not to change).
   - *CE500–CE545, consumption, fan energy and coil loads above range* → **internal gains
     schedule, to check against the Standard.** The energy balance closes (coil latent =
     latent gains = 18.596 MWh). Daily values on Jun 25 and Apr 30 match TRNSYS/CODYRUN

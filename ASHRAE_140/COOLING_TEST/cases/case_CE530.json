@@ -371,7 +371,8 @@
         {
             "type": "Building",
             "name": "Building",
-            "azimuth": 0
+            "azimuth": 0,
+            "initial_humidity": 5.161
         },
         {
             "type": "Space",
