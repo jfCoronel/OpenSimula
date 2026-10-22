@@ -161,11 +161,13 @@ Next steps, one PR each:
     here vs "Oct 11" in CE500 — and 21/04, 13/10 for the infiltration/ventilation/
     thermostat schedules of CE320–CE350; those of CE330–CE350 assumed to follow the same
     dates, their tables not checked). Effect < 0.25 %; series b 658 → 660/783.
-  - *LOAD_TEST night ventilation (to confirm with the Standard):* cases 650 and 950 have the
-    fan off 8:00–19:00, but 650FF and 950FF have it off 7:00–18:00 (650FF with an odd 7.083 h
-    first step, equivalent at hourly steps). If the Standard says ON 18:00–07:00, 650 and
-    950 are one hour late: with 7:00–18:00, 950 annual cooling 0.834 → 0.786 MWh (range
-    0.586–0.707) and 650 4.883 → 4.786 (inside either way).
+  - *LOAD_TEST night ventilation, fixed:* the Standard (Section 7.2.2.1.5.1) has the vent fan
+    ON 18:00–07:00 (hours 19–7) and OFF 07:00–18:00; cases 650 and 950 had it off
+    08:00–19:00, one hour late (650FF/950FF were right; 650FF's odd 7.083 h first step set
+    to 7 h). 650 annual cooling 4.883 → 4.786 MWh (inside), 950 0.834 → 0.786 (range
+    0.586–0.707, still above: with 950FF maximum temperature also slightly above, the
+    heavy-mass night-ventilated zone is worth a look). The 640/940 thermostat (linear
+    10 → 20 °C from 07:00 to 08:00, step down at 23:00, Figures 7-7/7-8) is right.
   - *CE500–CE545, minimum IDB 7.48 °C vs 7.94–8.94* (Dec 20): quasi-adiabatic envelope
     (1 m of k = 0.003) and air-only capacity, ~5-day time constant, so the zone follows the
     outdoor/sky conditions; the references themselves spread 1 K. Not investigated further.

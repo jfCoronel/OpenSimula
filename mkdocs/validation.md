@@ -79,7 +79,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 620 | 4.259 | 3.841 | 4.404 | 6 | ✓ inside |
 | 630 | 2.849 | 2.573 | 3.074 | 6 | ✓ inside |
 | 640 | 5.655 | 5.237 | 5.893 | 6 | ✓ inside |
-| 650 | 4.883 | 4.186 | 4.945 | 6 | ✓ inside |
+| 650 | 4.786 | 4.186 | 4.945 | 6 | ✓ inside |
 | 660 | 3.257 | 2.966 | 3.340 | 6 | ✓ inside |
 | 670 | 6.085 | 5.954 | 6.623 | 6 | ✓ inside |
 | 680 | 6.517 | 5.932 | 6.529 | 6 | ✓ inside |
@@ -90,7 +90,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 920 | 2.932 | 2.549 | 3.128 | 6 | ✓ inside |
 | 930 | 1.942 | 1.654 | 2.161 | 6 | ✓ inside |
 | 940 | 2.524 | 2.203 | 2.613 | 6 | ✓ inside |
-| 950 | 0.834 | 0.586 | 0.707 | 6 | ✗ +18.0 % above max |
+| 950 | 0.786 | 0.586 | 0.707 | 6 | ✗ +11.2 % above max |
 | 960 | 0.824 | 0.789 | 0.950 | 5 | ✓ inside |
 | 980 | 3.907 | 3.501 | 3.995 | 6 | ✓ inside |
 | 985 | 6.445 | 5.880 | 7.273 | 6 | ✓ inside |
@@ -190,7 +190,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 620 | 4.422 | Jun 26 17 | 3.955 | 4.797 | 6 | ✓ inside |
 | 630 | 3.802 | Jun 26 18 | 3.526 | 4.212 | 6 | ✓ inside |
 | 640 | 5.665 | Jan 22 14 | 5.365 | 6.429 | 6 | ✓ inside |
-| 650 | 5.475 | Oct 18 14 | 5.045 | 6.290 | 6 | ✓ inside |
+| 650 | 5.478 | Oct 18 14 | 5.045 | 6.290 | 6 | ✓ inside |
 | 660 | 3.415 | Oct 18 14 | 3.343 | 3.933 | 6 | ✓ inside |
 | 670 | 5.907 | Oct 18 14 | 5.839 | 6.925 | 6 | ✓ inside |
 | 680 | 6.195 | Jan 22 14 | 5.761 | 7.051 | 6 | ✓ inside |
@@ -201,7 +201,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 920 | 3.008 | Jun 26 17 | 2.710 | 3.481 | 6 | ✓ inside |
 | 930 | 2.524 | Jun 26 18 | 2.335 | 3.052 | 6 | ✓ inside |
 | 940 | 2.840 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
-| 950 | 2.300 | Sep 11 15 | 2.054 | 2.388 | 6 | ✓ inside |
+| 950 | 2.316 | Sep 11 15 | 2.054 | 2.388 | 6 | ✓ inside |
 | 960 | 1.001 | Jun 26 17 | 1.338 | 1.480 | 5 | ✗ -25.2 % below min |
 | 980 | 3.146 | Oct 18 15 | 2.930 | 3.668 | 6 | ✓ inside |
 | 985 | 3.542 | Oct 1 14 | 3.208 | 4.225 | 6 | ✓ inside |

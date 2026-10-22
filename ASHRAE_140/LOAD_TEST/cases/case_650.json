@@ -139,7 +139,7 @@
             "type": "Day_schedule",
             "name": "fan_schedule_day",
             "time_steps": [
-                28800,
+                25200,
                 39600
             ],
             "values": [

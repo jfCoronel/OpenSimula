@@ -20,9 +20,9 @@ case,output,point,value,date
 640,peak_heating,,3.878055,Feb 8 9
 640,peak_cooling,,5.665489,Jan 22 14
 650,annual_heating,,0.000000,
-650,annual_cooling,,4.882734,
+650,annual_cooling,,4.786198,
 650,peak_heating,,0.000000,Jan 1 1
-650,peak_cooling,,5.474980,Oct 18 14
+650,peak_cooling,,5.478134,Oct 18 14
 660,annual_heating,,3.931548,
 660,annual_cooling,,3.256575,
 660,peak_heating,,2.823964,Dec 31 24
@@ -64,9 +64,9 @@ case,output,point,value,date
 940,peak_heating,,3.272609,Dec 31 9
 940,peak_cooling,,2.840080,Oct 1 14
 950,annual_heating,,0.000000,
-950,annual_cooling,,0.834448,
+950,annual_cooling,,0.786271,
 950,peak_heating,,0.000000,Jan 1 1
-950,peak_cooling,,2.300448,Sep 11 15
+950,peak_cooling,,2.315861,Sep 11 15
 960,annual_heating,,2.785457,
 960,annual_cooling,,0.823549,
 960,peak_heating,,1.999545,Feb 9 6
