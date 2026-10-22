@@ -74,10 +74,23 @@ Next steps, one PR each:
      +2.6 °C in the evening, much closer to the references. Heavy cases (950FF) are fine.
      But 15 min steps *increase* annual loads of lightweight cases (heating +1.5 %, cooling
      +2.5 %), so the heating excess is not a time-step artefact.
-- **Open: annual heating slightly above range in lightweight cases**, already in case 195
-  (opaque envelope only, ε = 0.1, no gains/infiltration): 4.234 vs 3.951–4.217 MWh
-  (EnergyPlus 4.070). Next place to look: exterior/interior convective coefficients
-  (`h_cv` constants in the case files vs the Standard's specification) and the floor.
+- **Done in PR #8 after the investigation:** (1) INTERPOLATION shadow fix (linear,
+  sun-behind cells filled, azimuth closed at 360, regression test in `test_Case_610.py`);
+  (2) LOAD_TEST cases at 15 min; (3) `File_met`: sub-hourly TMY radiation keeps the hour
+  total (linear interpolation between hour centres spread 25 % of each hour over its
+  neighbours: hourly value = 0.75·v(h) + 0.125·(v(h−1) + v(h+1))). Result at 15 min:
+  1357/1616 inside; hourly solar and temperatures better, annual loads worse (54/92),
+  because the hourly step was partly hiding the heating excess.
+- **Case 195 studied (heating 4.243 vs 3.951–4.217 MWh, EnergyPlus 4.070):** implied
+  UA 46.5 W/K vs 43.3–46.2 for the references. Only the cases with interior ε = 0.1 are
+  out (195, 200, 215); 210 and 220 (interior ε = 0.9) are inside. Sensitivity of 195
+  heating: interior h_cv ×1.5 +6.1 %, ×0.9 −1.9 %, ×0.8 −4.1 % (= EnergyPlus exactly);
+  exterior α = 0 +5.3 %; exterior ε = 0 −3.0 %; adiabatic floor −3.6 %; interior ε = 0
+  −0.8 %. **Conclusion: the excess comes from the level of the constant interior
+  convective coefficients of the case files (walls 2.2, roof 1.8 W/m²K)**; programs with
+  ΔT-dependent natural convection (e.g. EnergyPlus TARP) get lower values in winter.
+  Pending: check those values against the Standard's specification (the spec is not in
+  the repo), and decide whether to add a ΔT-dependent interior convection option.
 - North and east annual incident solar slightly above range also with `INSTANT`
   (483 vs ≤ 477 kWh/m²): diffuse model (Perez) or ground reflection, not interpolation.
 - [ ] HEATING_TEST, COOLING_TEST, AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own
