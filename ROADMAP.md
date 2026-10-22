@@ -206,8 +206,29 @@ Next steps, one PR each:
     temperature and hours at the minimum outdoor temperature (71/82 values inside).
   - GC40b hourly floor conduction ~5 % below a narrow band (3 programs) all year; the shape
     and amplitude match.
-- [ ] AIR_SIDE_HVAC_TEST (two workbooks → one suite module each; same JSON migration of the
-  notebooks, then archive them).
+- [x] AIR_SIDE_HVAC_TEST (branch `feat/ashrae140-validation-airside`): `airside_test.py`, 24
+  steady-state cases (fan coil AE100, single zone AE200, CV terminal reheat AE300, VAV
+  AE400), last hour: zone/coil loads, coil outlet RH, reheat, and the psychrometric state
+  (T, w, v, h, m) at every location. Both workbooks share the layout: AE100/200 read from
+  FCSZ, AE300/400 from CVVV (8 programs incl. LCEM for 100/200). The programs report loads
+  with different signs (EnergyPlus/LCEM/DOE-2.2 negative heating in places), so loads are
+  compared as magnitudes. **1122/1371 values inside.**
+  - Found and fixed: `HVAC_SZW_system` never computed the coil capacity with
+    `water_source` "UNKNOWN" (UnboundLocalError as soon as it heated or cooled); `Space`
+    reported stale uncontrolled-system loads after a VAV system switched to a controlled
+    flow (AE403 zone 1: 5.1 kW instead of 1.45 kW). AE400 summary values 59 → 79/91.
+  - `test_editor_schema` now validates the 135 case JSON files against the editor schema.
+  - **Open: multizone humidity convergence.** In AE301/303/305 the zone latent load does
+    not match the latent gains in steady state (AE303 zone 1 removes 738 W vs 586 W of
+    gains; supply and zone humidity ratios above the references). With the Space
+    `convergence_Dw` at 0.001 g/kg (default 0.1) AE303 gives 595 W and humidity ratios
+    inside the range, but needs 62 iterations per step instead of 8; with 0.01 still 670 W.
+    The iteration stops on the step size, not on the moisture balance residual, and the
+    multizone humidity loop converges slowly. Needs a look at the convergence criterion
+    (residual-based) or the relaxation of the humidity iteration.
+  - Other differences to look at: AE101/AE201/AE301/AE401 zone heating load ~3 % above the
+    range (3.02 vs 2.93 kW, all references within 0.001); AE101/AE201 heating coil load
+    0.3 % below; AE301 coil outlet RH and reheat loads.
 - [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
 - [ ] Optionally fill `Std140_TF_Output.xlsx` (the plain output form) from the CSV, to paste
   into the Standard's workbook. Do not write into `Std140_*_Results.xlsx` with openpyxl: it

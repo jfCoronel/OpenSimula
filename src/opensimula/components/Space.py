@@ -504,6 +504,9 @@ class Space(Component):
         self._calculate_heat_fluxes(time_index)
 
     def _calculate_heat_fluxes(self, time_i):
+        # The uncontrolled systems may have changed since the last thermal solution (e.g. a VAV
+        # system replaces its maximum air flow by a controlled flow): report the current ones
+        self._acumulate_u_systems()
         V_inf = self.variable("infiltration_flow").values[time_i]
         T_ext = self._file_met.variable("temperature").values[time_i]
         w_ext = self._file_met.variable("abs_humidity").values[time_i]
