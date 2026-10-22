@@ -177,7 +177,12 @@ All six folders are automated:
   uv run python ASHRAE_140/validation/validate.py                      # all suites
   uv run python ASHRAE_140/validation/validate.py --suite LOAD_TEST --cases 600 900
   uv run python ASHRAE_140/validation/validate.py --report-only        # page from stored CSVs
+  uv run python ASHRAE_140/validation/validate.py --check --quick      # compare, as the CI does
   ```
+- CI (`.github/workflows/validation.yml`): quick check on pull requests touching code, cases
+  or weather files; full check on merges into `main`, releases and manual runs. It fails if
+  a result differs from the stored CSV by more than 0.1 % (`CHECK_RTOL`/`CHECK_ATOL`); after
+  an intended change, rerun `validate.py` and commit the CSVs and page.
 - Do not write into `Std140_*_Results.xlsx` with openpyxl: it drops the workbooks' charts.
 
 
