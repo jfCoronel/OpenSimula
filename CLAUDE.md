@@ -164,7 +164,23 @@ The `ASHRAE_140/` directory contains comprehensive validation test cases:
 - **AIR_SIDE_HVAC_TEST/**: Air-side HVAC equipment tests (AE series)
 - **WEATHER_TEST/**: Weather data validation
 
-These are implemented as Jupyter notebooks and provide examples of system usage.
+LOAD_TEST, HEATING_TEST and COOLING_TEST are automated:
+- Case definitions are project JSON files in `<TEST>/cases/case_XXX.json` (weather paths are
+  relative to the test folder). The former per-case notebooks are archived in
+  `<TEST>/old_notebooks/`; they change to the test folder and `read_json` the case file.
+- `ASHRAE_140/validation/validate.py` simulates the cases in parallel, extracts the
+  Standard's outputs, compares them with the reference programs' range read from the
+  `Std140_*_Results.xlsx` workbooks and writes `mkdocs/validation.md` (+ figures).
+  One module per results workbook (`load_test.py`, `heating_test.py`, `cooling_a_test.py`,
+  `cooling_b_test.py`) defines the cases, the map of output-form cells and the extraction.
+  ```bash
+  uv run python ASHRAE_140/validation/validate.py                      # all suites
+  uv run python ASHRAE_140/validation/validate.py --suite LOAD_TEST --cases 600 900
+  uv run python ASHRAE_140/validation/validate.py --report-only        # page from stored CSVs
+  ```
+- Do not write into `Std140_*_Results.xlsx` with openpyxl: it drops the workbooks' charts.
+
+The other folders are still Jupyter notebooks (one per case).
 
 ## Working with Variables and Data
 

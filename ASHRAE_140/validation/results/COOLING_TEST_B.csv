@@ -1,0 +1,784 @@
+case,output,point,value,date
+CE300,total_consumption,,34918.524913,
+CE300,compressor,,21718.337552,
+CE300,condenser_fan,,2320.267361,
+CE300,indoor_fan,,10879.920000,
+CE300,coil_total,,77694.611637,
+CE300,coil_sensible,,55435.876520,
+CE300,coil_latent,,22258.735117,
+CE300,cop2,,3.232077,
+CE300,idb_mean,,24.096139,
+CE300,w_mean,,0.009147,
+CE300,rh_mean,,47.705540,
+CE310,total_consumption,,39320.921798,
+CE310,compressor,,25754.389488,
+CE310,condenser_fan,,2686.612311,
+CE310,indoor_fan,,10879.920000,
+CE310,coil_total,,96603.090261,
+CE310,coil_sensible,,55444.240340,
+CE310,coil_latent,,41158.849921,
+CE310,cop2,,3.396613,
+CE310,idb_mean,,24.103842,
+CE310,w_mean,,0.011272,
+CE310,rh_mean,,58.341143,
+CE320,total_consumption,,39339.172525,
+CE320,compressor,,25791.100119,
+CE320,condenser_fan,,2668.152405,
+CE320,indoor_fan,,10879.920000,
+CE320,coil_total,,97043.914848,
+CE320,coil_sensible,,62447.099267,
+CE320,coil_latent,,34596.815582,
+CE320,cop2,,3.409925,
+CE320,idb_mean,,24.354688,
+CE320,w_mean,,0.010056,
+CE320,rh_mean,,51.162408,
+CE330,total_consumption,,40133.696256,
+CE330,compressor,,26556.275099,
+CE330,condenser_fan,,2697.501157,
+CE330,indoor_fan,,10879.920000,
+CE330,coil_total,,101847.774312,
+CE330,coil_sensible,,63388.275190,
+CE330,coil_latent,,38459.499122,
+CE330,cop2,,3.481526,
+CE330,idb_mean,,24.258089,
+CE330,w_mean,,0.009820,
+CE330,rh_mean,,50.359856,
+CE340,total_consumption,,39868.939141,
+CE340,compressor,,26291.062336,
+CE340,condenser_fan,,2697.956805,
+CE340,indoor_fan,,10879.920000,
+CE340,coil_total,,99851.577520,
+CE340,coil_sensible,,63102.933606,
+CE340,coil_latent,,36748.643914,
+CE340,cop2,,3.444462,
+CE340,idb_mean,,24.290650,
+CE340,w_mean,,0.009870,
+CE340,rh_mean,,50.454203,
+CE350,total_consumption,,31397.368078,
+CE350,compressor,,18569.591261,
+CE350,condenser_fan,,1947.856817,
+CE350,indoor_fan,,10879.920000,
+CE350,coil_total,,66415.070678,
+CE350,coil_sensible,,48697.579690,
+CE350,coil_latent,,17717.490988,
+CE350,cop2,,3.237004,
+CE350,idb_mean,,26.494088,
+CE350,w_mean,,0.009763,
+CE350,rh_mean,,43.707008,
+CE360,total_consumption,,55173.058925,
+CE360,compressor,,40002.837273,
+CE360,condenser_fan,,4290.301653,
+CE360,indoor_fan,,10879.920000,
+CE360,coil_total,,162884.159183,
+CE360,coil_sensible,,135284.868614,
+CE360,coil_latent,,27599.290570,
+CE360,cop2,,3.677413,
+CE360,idb_mean,,25.441749,
+CE360,w_mean,,0.008399,
+CE360,rh_mean,,40.325999,
+CE400,total_consumption,,31146.152106,
+CE400,compressor,,18377.094293,
+CE400,condenser_fan,,1889.137812,
+CE400,indoor_fan,,10879.920000,
+CE400,coil_total,,65799.206190,
+CE400,coil_sensible,,40682.897781,
+CE400,coil_latent,,25116.308408,
+CE400,cop2,,3.246741,
+CE400,idb_mean,,24.073709,
+CE400,w_mean,,0.010002,
+CE400,rh_mean,,51.975370,
+CE410,total_consumption,,31726.348114,
+CE410,compressor,,18875.096720,
+CE410,condenser_fan,,1971.331394,
+CE410,indoor_fan,,10879.920000,
+CE410,coil_total,,66768.251644,
+CE410,coil_sensible,,46992.811339,
+CE410,coil_latent,,19775.440306,
+CE410,cop2,,3.202863,
+CE410,idb_mean,,24.063759,
+CE410,w_mean,,0.009452,
+CE410,rh_mean,,49.300544,
+CE420,total_consumption,,32926.558901,
+CE420,compressor,,19949.584525,
+CE420,condenser_fan,,2097.054376,
+CE420,indoor_fan,,10879.920000,
+CE420,coil_total,,70763.738200,
+CE420,coil_sensible,,49897.564747,
+CE420,coil_latent,,20866.173453,
+CE420,cop2,,3.209729,
+CE420,idb_mean,,24.063548,
+CE420,w_mean,,0.009321,
+CE420,rh_mean,,48.653616,
+CE430,total_consumption,,31767.063508,
+CE430,compressor,,18910.859865,
+CE430,condenser_fan,,1976.283643,
+CE430,indoor_fan,,10879.920000,
+CE430,coil_total,,66892.796531,
+CE430,coil_sensible,,46658.202214,
+CE430,coil_latent,,20234.594317,
+CE430,cop2,,3.202582,
+CE430,idb_mean,,24.061143,
+CE430,w_mean,,0.009402,
+CE430,rh_mean,,49.060064,
+CE440,total_consumption,,33062.668044,
+CE440,compressor,,20069.576514,
+CE440,condenser_fan,,2113.171530,
+CE440,indoor_fan,,10879.920000,
+CE440,coil_total,,71304.924219,
+CE440,coil_sensible,,50037.015884,
+CE440,coil_latent,,21267.908335,
+CE440,cop2,,3.214432,
+CE440,idb_mean,,24.065679,
+CE440,w_mean,,0.009233,
+CE440,rh_mean,,48.205705,
+CE500,total_consumption,,23426.356384,
+CE500,compressor,,18735.422800,
+CE500,condenser_fan,,2008.548910,
+CE500,indoor_fan,,2682.384674,
+CE500,coil_total,,66693.318478,
+CE500,coil_sensible,,48098.282131,
+CE500,coil_latent,,18595.036348,
+CE500,cop2,,3.215070,
+CE500,idb_mean,,20.835823,
+CE500,w_mean,,0.009885,
+CE500,rh_mean,,64.664401,
+CE500,total_consumption,May-Sep,17987.057469,
+CE500,compressor,May-Sep,14434.133956,
+CE500,condenser_fan,May-Sep,1521.279404,
+CE500,indoor_fan,May-Sep,2031.644108,
+CE500,coil_total,May-Sep,50218.690796,
+CE500,coil_sensible,May-Sep,36224.700243,
+CE500,coil_latent,May-Sep,13993.990553,
+CE500,cop2,May-Sep,3.147439,
+CE500,idb_mean,May-Sep,25.014241,
+CE500,w_mean,May-Sep,0.011168,
+CE500,rh_mean,May-Sep,56.327712,
+CE510,total_consumption,May-Sep,35844.754215,
+CE510,compressor,May-Sep,28708.650174,
+CE510,condenser_fan,May-Sep,3055.514161,
+CE510,indoor_fan,May-Sep,4080.589880,
+CE510,coil_total,May-Sep,113080.883552,
+CE510,coil_sensible,May-Sep,81513.287677,
+CE510,coil_latent,May-Sep,31567.595874,
+CE510,cop2,May-Sep,3.560014,
+CE510,idb_mean,May-Sep,25.085455,
+CE510,w_mean,May-Sep,0.011218,
+CE510,rh_mean,May-Sep,56.337811,
+CE520,total_consumption,,26574.505574,
+CE520,compressor,,20771.368443,
+CE520,condenser_fan,,2484.768661,
+CE520,indoor_fan,,3318.368470,
+CE520,coil_total,,67433.676766,
+CE520,coil_sensible,,48838.811419,
+CE520,coil_latent,,18594.865347,
+CE520,cop2,,2.899608,
+CE520,idb_mean,,13.992224,
+CE520,w_mean,,0.006584,
+CE520,rh_mean,,66.537425,
+CE522,total_consumption,,24978.681379,
+CE522,compressor,,19742.949817,
+CE522,condenser_fan,,2241.818763,
+CE522,indoor_fan,,2993.912799,
+CE522,coil_total,,67070.646384,
+CE522,coil_sensible,,48457.743456,
+CE522,coil_latent,,18612.902928,
+CE522,cop2,,3.050778,
+CE522,idb_mean,,17.517685,
+CE522,w_mean,,0.008017,
+CE522,rh_mean,,65.015363,
+CE525,total_consumption,,21345.608968,
+CE525,compressor,,17378.807641,
+CE525,condenser_fan,,1698.492281,
+CE525,indoor_fan,,2268.309046,
+CE525,coil_total,,66186.664914,
+CE525,coil_sensible,,47593.032990,
+CE525,coil_latent,,18593.631924,
+CE525,cop2,,3.469394,
+CE525,idb_mean,,27.463420,
+CE525,w_mean,,0.012938,
+CE525,rh_mean,,57.020046,
+CE530,total_consumption,,17836.248712,
+CE530,compressor,,14141.627348,
+CE530,condenser_fan,,1581.951137,
+CE530,indoor_fan,,2112.670228,
+CE530,coil_total,,47541.942034,
+CE530,coil_sensible,,47541.581734,
+CE530,coil_latent,,0.360300,
+CE530,cop2,,3.023608,
+CE530,idb_mean,,20.828293,
+CE530,w_mean,,0.005395,
+CE530,rh_mean,,39.581131,
+CE540,total_consumption,,20809.788619,
+CE540,compressor,,16127.789954,
+CE540,condenser_fan,,2004.723186,
+CE540,indoor_fan,,2677.275480,
+CE540,coil_total,,48186.249957,
+CE540,coil_sensible,,48184.222670,
+CE540,coil_latent,,2.027287,
+CE540,cop2,,2.657450,
+CE540,idb_mean,,13.960204,
+CE540,w_mean,,0.003166,
+CE540,rh_mean,,33.759265,
+CE545,total_consumption,,16341.832818,
+CE545,compressor,,13182.638599,
+CE545,condenser_fan,,1352.693658,
+CE545,indoor_fan,,1806.500562,
+CE545,coil_total,,47161.316467,
+CE545,coil_sensible,,47161.118099,
+CE545,coil_latent,,0.198368,
+CE545,cop2,,3.244598,
+CE545,idb_mean,,27.460198,
+CE545,w_mean,,0.005751,
+CE545,rh_mean,,33.259251,
+CE300,outdoor_temperature,,19.914452,
+CE300,outdoor_humidity_ratio,,0.011605,
+CE300,max_power,,11744.551368,20-Jul 15
+CE300,max_coil_sensible,,23309.224954,20-Jul 15
+CE300,max_coil_latent,,9717.408394,03-Sep 15
+CE300,max_coil_total,,31851.752991,20-Jul 15
+CE300,max_cop2,,3.973855,20-Apr 5
+CE300,min_cop2,,2.798922,13-Jun 17
+CE300,max_idb,,25.090127,18-Aug 15
+CE300,min_idb,,7.472475,06-Jan 5
+CE300,max_w,,0.013790,16-Nov 16
+CE300,min_w,,0.001862,11-Jan 2
+CE300,max_rh,,69.327287,16-Nov 16
+CE300,min_rh,,13.107651,06-Nov 5
+CE310,max_power,,12632.947083,20-Jul 15
+CE310,max_coil_sensible,,23098.692324,11-Jul 15
+CE310,max_coil_latent,,15534.128690,03-Sep 15
+CE310,max_coil_total,,37039.990065,03-Sep 15
+CE310,max_cop2,,4.321359,20-Apr 5
+CE310,min_cop2,,2.885607,01-Dec 15
+CE310,max_idb,,26.281683,20-Jul 15
+CE310,min_idb,,7.472489,06-Jan 5
+CE310,max_w,,0.015821,01-Oct 8
+CE310,min_w,,0.001865,11-Jan 2
+CE310,max_rh,,79.294548,01-Oct 8
+CE310,min_rh,,13.108284,06-Nov 5
+CE320,max_power,,13095.615472,20-Jul 15
+CE320,max_coil_sensible,,31427.410003,24-Apr 16
+CE320,max_coil_latent,,21938.230383,02-Oct 9
+CE320,max_coil_total,,40083.313919,03-Sep 15
+CE320,max_cop2,,4.051784,20-Apr 5
+CE320,min_cop2,,2.828352,31-Mar 15
+CE320,max_idb,,32.278033,20-Jul 15
+CE320,min_idb,,8.187249,06-Jan 5
+CE320,max_w,,0.018205,02-Oct 9
+CE320,min_w,,0.001863,11-Jan 2
+CE320,max_rh,,83.300877,22-Apr 18
+CE320,min_rh,,13.108001,06-Nov 5
+CE330,max_power,,13428.331445,20-Jul 15
+CE330,max_coil_sensible,,33303.474835,24-Apr 16
+CE330,max_coil_latent,,27593.837739,18-Sep 15
+CE330,max_coil_total,,43643.481134,02-Oct 9
+CE330,max_cop2,,4.109421,17-Jun 16
+CE330,min_cop2,,2.837646,31-Mar 15
+CE330,max_idb,,32.119595,20-Jul 15
+CE330,min_idb,,7.472475,06-Jan 5
+CE330,max_w,,0.017687,10-Jul 12
+CE330,min_w,,0.001862,11-Jan 2
+CE330,max_rh,,77.768635,30-Aug 12
+CE330,min_rh,,13.107651,06-Nov 5
+CE340,max_power,,13250.090397,20-Jul 15
+CE340,max_coil_sensible,,33592.285387,24-Apr 16
+CE340,max_coil_latent,,23603.033058,02-Oct 9
+CE340,max_coil_total,,41601.486087,02-Oct 9
+CE340,max_cop2,,3.992775,16-Sep 16
+CE340,min_cop2,,2.837646,31-Mar 15
+CE340,max_idb,,32.133750,20-Jul 15
+CE340,min_idb,,7.472475,06-Jan 5
+CE340,max_w,,0.017987,10-Jul 12
+CE340,min_w,,0.001862,11-Jan 2
+CE340,max_rh,,80.747589,22-Apr 18
+CE340,min_rh,,13.107651,06-Nov 5
+CE350,max_power,,11744.552823,20-Jul 15
+CE350,max_coil_sensible,,23309.225291,20-Jul 15
+CE350,max_coil_latent,,10614.449832,02-Oct 9
+CE350,max_coil_total,,31851.759288,20-Jul 15
+CE350,max_cop2,,4.171671,20-Apr 5
+CE350,min_cop2,,2.798922,13-Jun 17
+CE350,max_idb,,35.010646,20-Apr 5
+CE350,min_idb,,7.472475,06-Jan 5
+CE350,max_w,,0.016762,01-Oct 8
+CE350,min_w,,0.001862,11-Jan 2
+CE350,max_rh,,69.327287,16-Nov 16
+CE350,min_rh,,13.107651,06-Nov 5
+CE360,max_power,,12891.980915,20-Jul 15
+CE360,max_coil_sensible,,32090.553149,24-Apr 16
+CE360,max_coil_latent,,8791.772316,02-Oct 9
+CE360,max_coil_total,,38549.741777,02-Oct 9
+CE360,max_cop2,,4.658162,20-Apr 5
+CE360,min_cop2,,2.837648,31-Mar 15
+CE360,max_idb,,33.617259,20-Jul 15
+CE360,min_idb,,7.472616,06-Jan 5
+CE360,max_w,,0.013790,16-Nov 16
+CE360,min_w,,0.001862,11-Jan 2
+CE360,max_rh,,69.327153,16-Nov 16
+CE360,min_rh,,13.107651,06-Nov 5
+CE400,max_power,,12109.718468,17-Sep 15
+CE400,max_coil_sensible,,23310.436995,20-Jul 15
+CE400,max_coil_latent,,27593.837739,18-Sep 15
+CE400,max_coil_total,,42045.692883,18-Sep 15
+CE400,max_cop2,,4.116103,24-Oct 16
+CE400,min_cop2,,2.798398,03-Dec 14
+CE400,max_idb,,28.873159,05-Aug 16
+CE400,min_idb,,7.472475,06-Jan 5
+CE400,max_w,,0.016790,05-Apr 22
+CE400,min_w,,0.001862,11-Jan 2
+CE400,max_rh,,84.014142,05-Apr 22
+CE400,min_rh,,13.315738,06-Nov 5
+CE410,max_power,,11744.928083,20-Jul 15
+CE410,max_coil_sensible,,23309.884026,20-Jul 15
+CE410,max_coil_latent,,9717.201007,03-Sep 15
+CE410,max_coil_total,,31853.937022,20-Jul 15
+CE410,max_cop2,,3.897654,30-Apr 15
+CE410,min_cop2,,2.798974,13-Jun 17
+CE410,max_idb,,25.089902,08-Jul 15
+CE410,min_idb,,7.472475,06-Jan 5
+CE410,max_w,,0.016774,02-Apr 5
+CE410,min_w,,0.001862,11-Jan 2
+CE410,max_rh,,83.935274,02-Apr 5
+CE410,min_rh,,13.315738,06-Nov 5
+CE420,max_power,,11747.714675,20-Jul 15
+CE420,max_coil_sensible,,23310.436994,20-Jul 15
+CE420,max_coil_latent,,9717.537211,03-Sep 15
+CE420,max_coil_total,,31854.499901,20-Jul 15
+CE420,max_cop2,,3.781902,21-May 15
+CE420,min_cop2,,2.798898,13-Jun 17
+CE420,max_idb,,25.075908,03-Sep 15
+CE420,min_idb,,7.472475,06-Jan 5
+CE420,max_w,,0.014015,17-Apr 3
+CE420,min_w,,0.001862,11-Jan 2
+CE420,max_rh,,70.560115,17-Apr 3
+CE420,min_rh,,13.315759,06-Nov 5
+CE430,max_power,,11744.928083,20-Jul 15
+CE430,max_coil_sensible,,23309.884026,20-Jul 15
+CE430,max_coil_latent,,9717.201007,03-Sep 15
+CE430,max_coil_total,,31853.937022,20-Jul 15
+CE430,max_cop2,,3.784087,21-May 15
+CE430,min_cop2,,2.798398,03-Dec 14
+CE430,max_idb,,25.089902,08-Jul 15
+CE430,min_idb,,7.472475,06-Jan 5
+CE430,max_w,,0.016774,02-Apr 5
+CE430,min_w,,0.001862,11-Jan 2
+CE430,max_rh,,83.935274,02-Apr 5
+CE430,min_rh,,13.315738,06-Nov 5
+CE440,max_power,,11744.551368,20-Jul 15
+CE440,max_coil_sensible,,23309.224954,20-Jul 15
+CE440,max_coil_latent,,9717.408394,03-Sep 15
+CE440,max_coil_total,,31851.752991,20-Jul 15
+CE440,max_cop2,,3.759902,27-Sep 15
+CE440,min_cop2,,2.798398,03-Dec 14
+CE440,max_idb,,25.090127,18-Aug 15
+CE440,min_idb,,7.472475,06-Jan 5
+CE440,max_w,,0.013790,16-Nov 16
+CE440,min_w,,0.001862,11-Jan 2
+CE440,max_rh,,69.327287,16-Nov 16
+CE440,min_rh,,13.315738,06-Nov 5
+CE500,max_power,,10502.091038,20-Jul 15
+CE500,max_coil_sensible,,19824.845976,20-Jul 15
+CE500,max_coil_latent,,7732.530599,29-Jun 16
+CE500,max_coil_total,,27482.568553,20-Jul 16
+CE500,max_cop2,,4.480371,11-Apr 19
+CE500,min_cop2,,2.679852,29-Jul 12
+CE500,max_idb,,25.089921,11-Jun 13
+CE500,min_idb,,7.482822,20-Dec 12
+CE500,max_w,,0.011544,20-Jul 15
+CE500,min_w,,0.006425,20-Dec 12
+CE500,max_rh,,100.000000,19-Dec 4
+CE500,min_rh,,53.734852,20-Apr 5
+CE510,max_power,,11527.601432,20-Jul 15
+CE510,max_coil_sensible,,22298.128847,20-Jul 15
+CE510,max_coil_latent,,8729.756219,17-Jun 14
+CE510,max_coil_total,,30904.890178,20-Jul 16
+CE510,max_cop2,,5.079186,20-Apr 5
+CE510,min_cop2,,2.891519,31-Mar 15
+CE510,max_idb,,25.089993,29-May 13
+CE510,min_idb,,7.482822,20-Dec 12
+CE510,max_w,,0.011544,20-Jul 15
+CE510,min_w,,0.006425,20-Dec 12
+CE510,max_rh,,100.000000,19-Dec 4
+CE510,min_rh,,53.654311,20-Apr 5
+CE520,max_power,,11180.084897,20-Jul 15
+CE520,max_coil_sensible,,20267.094685,29-Jun 16
+CE520,max_coil_latent,,7780.303268,29-Jun 16
+CE520,max_coil_total,,28047.397954,29-Jun 16
+CE520,max_cop2,,4.163646,01-Jan 1
+CE520,min_cop2,,2.425630,29-Jul 12
+CE520,max_idb,,17.283166,04-Jun 16
+CE520,min_idb,,7.461375,20-Dec 12
+CE520,max_w,,0.007594,04-Jun 16
+CE520,min_w,,0.005834,27-Nov 23
+CE520,max_rh,,100.000000,06-Jan 9
+CE520,min_rh,,55.195808,27-Nov 23
+CE522,max_power,,11042.956969,20-Jul 15
+CE522,max_coil_sensible,,19976.274833,20-Jul 15
+CE522,max_coil_latent,,7689.944541,29-Jun 16
+CE522,max_coil_total,,27610.605479,20-Jul 15
+CE522,max_cop2,,4.206563,11-Apr 19
+CE522,min_cop2,,2.547476,29-Jul 12
+CE522,max_idb,,20.089991,29-Aug 15
+CE522,min_idb,,7.482475,20-Dec 12
+CE522,max_w,,0.008772,20-Jul 15
+CE522,min_w,,0.006425,20-Dec 12
+CE522,max_rh,,100.000000,06-Jan 8
+CE522,min_rh,,56.624168,20-Apr 5
+CE525,max_power,,9727.042212,20-Jul 15
+CE525,max_coil_sensible,,19616.714697,04-Jun 16
+CE525,max_coil_latent,,7770.515110,29-Jun 16
+CE525,max_coil_total,,27333.177606,29-Jun 16
+CE525,max_cop2,,4.898862,11-Apr 19
+CE525,min_cop2,,2.888721,29-Jul 12
+CE525,max_idb,,35.089996,10-May 15
+CE525,min_idb,,7.483503,20-Dec 12
+CE525,max_w,,0.016287,20-Jul 15
+CE525,min_w,,0.006425,20-Dec 12
+CE525,max_rh,,100.000000,18-Dec 11
+CE525,min_rh,,41.651828,20-Apr 6
+CE530,max_power,,7991.219681,20-Jul 15
+CE530,max_coil_sensible,,19552.072170,20-Jul 15
+CE530,max_coil_latent,,143.100681,10-Mar 10
+CE530,max_coil_total,,19552.072170,20-Jul 15
+CE530,max_cop2,,4.080390,11-Apr 19
+CE530,min_cop2,,2.573716,29-Jul 12
+CE530,max_idb,,25.000000,10-Mar 10
+CE530,min_idb,,7.482822,20-Dec 12
+CE530,max_w,,0.007300,01-Jan 1
+CE530,min_w,,0.005161,20-Apr 5
+CE530,max_rh,,100.000000,06-Jan 8
+CE530,min_rh,,26.303027,20-Apr 5
+CE540,max_power,,9151.650021,20-Jul 15
+CE540,max_coil_sensible,,19824.465622,20-Jul 15
+CE540,max_coil_latent,,671.046403,10-Mar 10
+CE540,max_coil_total,,19824.465622,20-Jul 15
+CE540,max_cop2,,4.163646,01-Jan 1
+CE540,min_cop2,,2.256283,29-Jul 12
+CE540,max_idb,,15.043978,10-Apr 4
+CE540,min_idb,,7.461375,20-Dec 12
+CE540,max_w,,0.006555,01-Jan 1
+CE540,min_w,,0.002542,20-Apr 5
+CE540,max_rh,,100.000000,06-Jan 9
+CE540,min_rh,,24.121261,21-Oct 6
+CE545,max_power,,7426.476739,20-Jul 15
+CE545,max_coil_sensible,,19410.724955,20-Jul 15
+CE545,max_coil_latent,,49.034631,10-Mar 11
+CE545,max_coil_total,,19410.724955,20-Jul 15
+CE545,max_cop2,,4.422441,11-Apr 19
+CE545,min_cop2,,2.758424,29-Jul 12
+CE545,max_idb,,35.000000,10-Mar 10
+CE545,min_idb,,7.483503,20-Dec 12
+CE545,max_w,,0.007300,01-Jan 1
+CE545,min_w,,0.005590,20-Apr 5
+CE545,max_rh,,100.000000,06-Jan 8
+CE545,min_rh,,16.032971,20-Apr 5
+CE300,max_odb,,35.000000,20-Jul 15
+CE300,max_outdoor_w,,0.022269,02-Oct 9
+CE300,jun28_compressor,1,1908.805791,
+CE300,jun28_compressor,2,1993.532424,
+CE300,jun28_compressor,3,1907.780425,
+CE300,jun28_compressor,4,1904.820653,
+CE300,jun28_compressor,5,1775.695791,
+CE300,jun28_compressor,6,2103.128562,
+CE300,jun28_compressor,7,3086.164382,
+CE300,jun28_compressor,8,3305.969499,
+CE300,jun28_compressor,9,4519.497586,
+CE300,jun28_compressor,10,4625.786340,
+CE300,jun28_compressor,11,5277.851116,
+CE300,jun28_compressor,12,5045.317936,
+CE300,jun28_compressor,13,6350.248992,
+CE300,jun28_compressor,14,6465.207982,
+CE300,jun28_compressor,15,7948.491748,
+CE300,jun28_compressor,16,8162.267424,
+CE300,jun28_compressor,17,5361.584733,
+CE300,jun28_compressor,18,5411.185110,
+CE300,jun28_compressor,19,4771.220210,
+CE300,jun28_compressor,20,4804.463080,
+CE300,jun28_compressor,21,3905.603306,
+CE300,jun28_compressor,22,3809.760455,
+CE300,jun28_compressor,23,3709.674334,
+CE300,jun28_compressor,24,3753.880274,
+CE300,jun28_condenser_fan,1,239.060973,
+CE300,jun28_condenser_fan,2,247.007927,
+CE300,jun28_condenser_fan,3,238.950823,
+CE300,jun28_condenser_fan,4,238.632961,
+CE300,jun28_condenser_fan,5,225.898118,
+CE300,jun28_condenser_fan,6,256.031441,
+CE300,jun28_condenser_fan,7,337.346649,
+CE300,jun28_condenser_fan,8,350.819063,
+CE300,jun28_condenser_fan,9,463.919184,
+CE300,jun28_condenser_fan,10,472.981990,
+CE300,jun28_condenser_fan,11,517.240647,
+CE300,jun28_condenser_fan,12,500.487655,
+CE300,jun28_condenser_fan,13,631.685923,
+CE300,jun28_condenser_fan,14,637.302381,
+CE300,jun28_condenser_fan,15,777.915823,
+CE300,jun28_condenser_fan,16,794.853112,
+CE300,jun28_condenser_fan,17,521.175402,
+CE300,jun28_condenser_fan,18,528.139246,
+CE300,jun28_condenser_fan,19,488.191035,
+CE300,jun28_condenser_fan,20,496.538808,
+CE300,jun28_condenser_fan,21,403.717504,
+CE300,jun28_condenser_fan,22,397.118405,
+CE300,jun28_condenser_fan,23,390.407057,
+CE300,jun28_condenser_fan,24,394.378154,
+CE300,jun28_coil_total,1,7583.808673,
+CE300,jun28_coil_total,2,7853.116894,
+CE300,jun28_coil_total,3,7578.725246,
+CE300,jun28_coil_total,4,7564.046625,
+CE300,jun28_coil_total,5,7094.021047,
+CE300,jun28_coil_total,6,8053.512593,
+CE300,jun28_coil_total,7,10698.714225,
+CE300,jun28_coil_total,8,10858.062419,
+CE300,jun28_coil_total,9,14833.441512,
+CE300,jun28_coil_total,10,15282.981739,
+CE300,jun28_coil_total,11,16949.587675,
+CE300,jun28_coil_total,12,16234.307298,
+CE300,jun28_coil_total,13,20761.002208,
+CE300,jun28_coil_total,14,20893.636489,
+CE300,jun28_coil_total,15,26485.962963,
+CE300,jun28_coil_total,16,27474.736741,
+CE300,jun28_coil_total,17,16993.206764,
+CE300,jun28_coil_total,18,17502.403390,
+CE300,jun28_coil_total,19,16193.902729,
+CE300,jun28_coil_total,20,16892.542550,
+CE300,jun28_coil_total,21,13381.085247,
+CE300,jun28_coil_total,22,13176.758977,
+CE300,jun28_coil_total,23,12989.402264,
+CE300,jun28_coil_total,24,13181.742543,
+CE300,jun28_coil_sensible,1,5861.733987,
+CE300,jun28_coil_sensible,2,6030.379802,
+CE300,jun28_coil_sensible,3,5861.696353,
+CE300,jun28_coil_sensible,4,5861.607229,
+CE300,jun28_coil_sensible,5,5657.776949,
+CE300,jun28_coil_sensible,6,6398.975582,
+CE300,jun28_coil_sensible,7,8275.153138,
+CE300,jun28_coil_sensible,8,9009.318419,
+CE300,jun28_coil_sensible,9,11919.184917,
+CE300,jun28_coil_sensible,10,11918.752909,
+CE300,jun28_coil_sensible,11,12645.710116,
+CE300,jun28_coil_sensible,12,12481.982660,
+CE300,jun28_coil_sensible,13,17340.441080,
+CE300,jun28_coil_sensible,14,17539.665136,
+CE300,jun28_coil_sensible,15,22394.827992,
+CE300,jun28_coil_sensible,16,22393.619075,
+CE300,jun28_coil_sensible,17,12844.437875,
+CE300,jun28_coil_sensible,18,12642.602063,
+CE300,jun28_coil_sensible,19,11715.651750,
+CE300,jun28_coil_sensible,20,11349.512931,
+CE300,jun28_coil_sensible,21,9004.770391,
+CE300,jun28_coil_sensible,22,8839.023310,
+CE300,jun28_coil_sensible,23,8639.849669,
+CE300,jun28_coil_sensible,24,8639.746776,
+CE300,jun28_coil_latent,1,1722.074686,
+CE300,jun28_coil_latent,2,1822.737092,
+CE300,jun28_coil_latent,3,1717.028892,
+CE300,jun28_coil_latent,4,1702.439396,
+CE300,jun28_coil_latent,5,1436.244098,
+CE300,jun28_coil_latent,6,1654.537011,
+CE300,jun28_coil_latent,7,2423.561087,
+CE300,jun28_coil_latent,8,1848.744000,
+CE300,jun28_coil_latent,9,2914.256595,
+CE300,jun28_coil_latent,10,3364.228831,
+CE300,jun28_coil_latent,11,4303.877559,
+CE300,jun28_coil_latent,12,3752.324638,
+CE300,jun28_coil_latent,13,3420.561128,
+CE300,jun28_coil_latent,14,3353.971353,
+CE300,jun28_coil_latent,15,4091.134971,
+CE300,jun28_coil_latent,16,5081.117666,
+CE300,jun28_coil_latent,17,4148.768889,
+CE300,jun28_coil_latent,18,4859.801327,
+CE300,jun28_coil_latent,19,4478.250979,
+CE300,jun28_coil_latent,20,5543.029620,
+CE300,jun28_coil_latent,21,4376.314855,
+CE300,jun28_coil_latent,22,4337.735667,
+CE300,jun28_coil_latent,23,4349.552595,
+CE300,jun28_coil_latent,24,4541.995766,
+CE300,jun28_w,1,0.009071,
+CE300,jun28_w,2,0.009176,
+CE300,jun28_w,3,0.009062,
+CE300,jun28_w,4,0.009030,
+CE300,jun28_w,5,0.008644,
+CE300,jun28_w,6,0.008841,
+CE300,jun28_w,7,0.009661,
+CE300,jun28_w,8,0.009112,
+CE300,jun28_w,9,0.009766,
+CE300,jun28_w,10,0.010145,
+CE300,jun28_w,11,0.010848,
+CE300,jun28_w,12,0.010549,
+CE300,jun28_w,13,0.009505,
+CE300,jun28_w,14,0.009427,
+CE300,jun28_w,15,0.009256,
+CE300,jun28_w,16,0.009603,
+CE300,jun28_w,17,0.010736,
+CE300,jun28_w,18,0.011207,
+CE300,jun28_w,19,0.010961,
+CE300,jun28_w,20,0.011506,
+CE300,jun28_w,21,0.011483,
+CE300,jun28_w,22,0.011465,
+CE300,jun28_w,23,0.011488,
+CE300,jun28_w,24,0.011621,
+CE300,jun28_cop2,1,3.530856,
+CE300,jun28_cop2,2,3.505010,
+CE300,jun28_cop2,3,3.530356,
+CE300,jun28_cop2,4,3.528906,
+CE300,jun28_cop2,5,3.544186,
+CE300,jun28_cop2,6,3.413720,
+CE300,jun28_cop2,7,3.125071,
+CE300,jun28_cop2,8,2.969289,
+CE300,jun28_cop2,9,2.976560,
+CE300,jun28_cop2,10,2.997387,
+CE300,jun28_cop2,11,2.924818,
+CE300,jun28_cop2,12,2.927313,
+CE300,jun28_cop2,13,2.973531,
+CE300,jun28_cop2,14,2.941726,
+CE300,jun28_cop2,15,3.035151,
+CE300,jun28_cop2,16,3.067363,
+CE300,jun28_cop2,17,2.888645,
+CE300,jun28_cop2,18,2.946868,
+CE300,jun28_cop2,19,3.079033,
+CE300,jun28_cop2,20,3.186670,
+CE300,jun28_cop2,21,3.105149,
+CE300,jun28_cop2,22,3.132194,
+CE300,jun28_cop2,23,3.168084,
+CE300,jun28_cop2,24,3.177657,
+CE300,jun28_odb,1,17.800000,
+CE300,jun28_odb,2,18.300000,
+CE300,jun28_odb,3,17.800000,
+CE300,jun28_odb,4,17.800000,
+CE300,jun28_odb,5,17.200000,
+CE300,jun28_odb,6,19.400000,
+CE300,jun28_odb,7,25.000000,
+CE300,jun28_odb,8,27.200000,
+CE300,jun28_odb,9,28.900000,
+CE300,jun28_odb,10,28.900000,
+CE300,jun28_odb,11,31.100000,
+CE300,jun28_odb,12,30.600000,
+CE300,jun28_odb,13,31.100000,
+CE300,jun28_odb,14,31.700000,
+CE300,jun28_odb,15,32.200000,
+CE300,jun28_odb,16,32.200000,
+CE300,jun28_odb,17,31.700000,
+CE300,jun28_odb,18,31.100000,
+CE300,jun28_odb,19,28.300000,
+CE300,jun28_odb,20,27.200000,
+CE300,jun28_odb,21,27.200000,
+CE300,jun28_odb,22,26.700000,
+CE300,jun28_odb,23,26.100000,
+CE300,jun28_odb,24,26.100000,
+CE300,jun28_edb,1,23.921141,
+CE300,jun28_edb,2,23.996022,
+CE300,jun28_edb,3,23.921140,
+CE300,jun28_edb,4,23.921130,
+CE300,jun28_edb,5,23.831272,
+CE300,jun28_edb,6,24.160772,
+CE300,jun28_edb,7,25.000000,
+CE300,jun28_edb,8,25.329765,
+CE300,jun28_edb,9,25.584481,
+CE300,jun28_edb,10,25.584473,
+CE300,jun28_edb,11,25.914319,
+CE300,jun28_edb,12,25.839202,
+CE300,jun28_edb,13,25.915634,
+CE300,jun28_edb,14,26.005542,
+CE300,jun28_edb,15,26.087000,
+CE300,jun28_edb,16,26.083940,
+CE300,jun28_edb,17,26.004323,
+CE300,jun28_edb,18,25.914172,
+CE300,jun28_edb,19,25.494567,
+CE300,jun28_edb,20,25.329599,
+CE300,jun28_edb,21,25.329999,
+CE300,jun28_edb,22,25.254993,
+CE300,jun28_edb,23,25.164992,
+CE300,jun28_edb,24,25.164996,
+CE300,jun28_ewb,1,17.097302,
+CE300,jun28_ewb,2,17.243007,
+CE300,jun28_ewb,3,17.089658,
+CE300,jun28_ewb,4,17.067469,
+CE300,jun28_ewb,5,16.641915,
+CE300,jun28_ewb,6,17.001371,
+CE300,jun28_ewb,7,18.121261,
+CE300,jun28_ewb,8,17.602570,
+CE300,jun28_ewb,9,18.248375,
+CE300,jun28_ewb,10,18.596277,
+CE300,jun28_ewb,11,19.404337,
+CE300,jun28_ewb,12,19.005590,
+CE300,jun28_ewb,13,18.102450,
+CE300,jun28_ewb,14,18.128829,
+CE300,jun28_ewb,15,18.117237,
+CE300,jun28_ewb,16,18.573008,
+CE300,jun28_ewb,17,19.353803,
+CE300,jun28_ewb,18,19.738083,
+CE300,jun28_ewb,19,19.316438,
+CE300,jun28_ewb,20,19.877378,
+CE300,jun28_ewb,21,19.862763,
+CE300,jun28_ewb,22,19.821245,
+CE300,jun28_ewb,23,19.814151,
+CE300,jun28_ewb,24,19.947782,
+CE300,jun28_outdoor_w,1,0.011071,
+CE300,jun28_outdoor_w,2,0.011431,
+CE300,jun28_outdoor_w,3,0.011060,
+CE300,jun28_outdoor_w,4,0.011060,
+CE300,jun28_outdoor_w,5,0.010145,
+CE300,jun28_outdoor_w,6,0.010948,
+CE300,jun28_outdoor_w,7,0.013073,
+CE300,jun28_outdoor_w,8,0.011018,
+CE300,jun28_outdoor_w,9,0.011922,
+CE300,jun28_outdoor_w,10,0.012696,
+CE300,jun28_outdoor_w,11,0.014734,
+CE300,jun28_outdoor_w,12,0.013186,
+CE300,jun28_outdoor_w,13,0.011272,
+CE300,jun28_outdoor_w,14,0.011682,
+CE300,jun28_outdoor_w,15,0.012330,
+CE300,jun28_outdoor_w,16,0.014190,
+CE300,jun28_outdoor_w,17,0.014686,
+CE300,jun28_outdoor_w,18,0.015637,
+CE300,jun28_outdoor_w,19,0.014494,
+CE300,jun28_outdoor_w,20,0.016809,
+CE300,jun28_outdoor_w,21,0.016809,
+CE300,jun28_outdoor_w,22,0.016745,
+CE300,jun28_outdoor_w,23,0.016803,
+CE300,jun28_outdoor_w,24,0.017240,
+CE500,daily_total_consumption,Apr 30,4010.495597,
+CE500,daily_compressor,Apr 30,3104.460057,
+CE500,daily_condenser_fan,Apr 30,387.943394,
+CE500,daily_indoor_fan,Apr 30,518.092145,
+CE500,daily_coil_total,Apr 30,13622.100849,
+CE500,daily_coil_sensible,Apr 30,9814.493887,
+CE500,daily_coil_latent,Apr 30,3807.606962,
+CE500,daily_w,Apr 30,0.010856,
+CE500,daily_cop2,Apr 30,3.900495,
+CE500,daily_odb,Apr 30,16.883333,
+CE500,daily_edb,Apr 30,25.013457,
+CE500,daily_total_consumption,Jun 25,5231.224999,
+CE500,daily_compressor,Jun 25,4239.765161,
+CE500,daily_condenser_fan,Jun 25,424.520096,
+CE500,daily_indoor_fan,Jun 25,566.939742,
+CE500,daily_coil_total,Jun 25,13695.691242,
+CE500,daily_coil_sensible,Jun 25,9884.561916,
+CE500,daily_coil_latent,Jun 25,3811.129326,
+CE500,daily_w,Jun 25,0.011290,
+CE500,daily_cop2,Jun 25,2.936289,
+CE500,daily_odb,Jun 25,29.516667,
+CE500,daily_edb,Jun 25,25.014586,
+CE530,daily_total_consumption,Apr 30,3112.510339,
+CE530,daily_compressor,Apr 30,2389.075880,
+CE530,daily_condenser_fan,Apr 30,309.757849,
+CE530,daily_indoor_fan,Apr 30,413.676611,
+CE530,daily_coil_total,Apr 30,9713.446628,
+CE530,daily_coil_sensible,Apr 30,9713.446628,
+CE530,daily_coil_latent,Apr 30,0.000000,
+CE530,daily_w,Apr 30,0.005161,
+CE530,daily_cop2,Apr 30,3.599127,
+CE530,daily_odb,Apr 30,16.883333,
+CE530,daily_edb,Apr 30,25.000000,
+CE530,daily_total_consumption,Jun 25,3946.530364,
+CE530,daily_compressor,Jun 25,3171.354324,
+CE530,daily_condenser_fan,Jun 25,331.912393,
+CE530,daily_indoor_fan,Jun 25,443.263647,
+CE530,daily_coil_total,Jun 25,9762.730299,
+CE530,daily_coil_sensible,Jun 25,9762.730299,
+CE530,daily_coil_latent,Jun 25,0.000000,
+CE530,daily_w,Jun 25,0.005161,
+CE530,daily_cop2,Jun 25,2.786751,
+CE530,daily_odb,Jun 25,29.516667,
+CE530,daily_edb,Jun 25,25.000000,

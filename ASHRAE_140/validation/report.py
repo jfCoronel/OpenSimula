@@ -91,9 +91,13 @@ def _annual_figure(suite, comparison, outputs, path):
     labels = [[_label(c, p) for c, p in zip(df["case"], df["point"])] for df in panels]
     shared = all(lab == labels[0] for lab in labels)
     n_rows = max(len(lab) for lab in labels)
-    height = 1.6 + 0.2 * n_rows
-    fig, axes = plt.subplots(1, len(outputs), figsize=(3.6 * len(outputs), height), squeeze=False)
-    for i, (ax, output, df, lab) in enumerate(zip(axes[0], outputs, panels, labels)):
+    ncols = len(outputs) if len(outputs) <= 4 else 3  # wrap groups with many outputs
+    nrows = math.ceil(len(outputs) / ncols)
+    height = nrows * (1.1 + 0.2 * n_rows) + 0.5
+    fig, axes = plt.subplots(nrows, ncols, figsize=(3.6 * ncols, height), squeeze=False)
+    for ax in axes.flat[len(outputs):]:
+        ax.set_visible(False)
+    for i, (ax, output, df, lab) in enumerate(zip(axes.flat, outputs, panels, labels)):
         name, unit = suite.OUTPUTS[output]
         y = range(len(df))
         ax.hlines(y, df["min"], df["max"], color=RANGE_COLOR, linewidth=6, capstyle="round", zorder=1)
@@ -104,7 +108,7 @@ def _annual_figure(suite, comparison, outputs, path):
                    edgecolor="white", linewidth=0.8, zorder=3)
         ax.set_title(_title(f"{name} ({unit})"), fontsize=9, color=TEXT_COLOR, loc="left")
         ax.grid(axis="x", color=GRID_COLOR, linewidth=0.8)
-        ax.set_yticks(list(y), lab if (i == 0 or not shared) else [""] * len(lab))
+        ax.set_yticks(list(y), lab if (i % ncols == 0 or not shared) else [""] * len(lab))
         ax.set_ylim(n_rows - 0.5, -0.5)  # first case on top, as in the tables
         _style(ax)
     range_patch = Line2D([], [], color=RANGE_COLOR, linewidth=6, solid_capstyle="round",

@@ -110,8 +110,28 @@ Next steps, one PR each:
     (HE130 roof 7.149 vs U 7.140; high-conductance panel 6.59 vs 5.05 W/m²K). Fixed (n_coef
     terms); test in `test_Construction.py`. LOAD_TEST does not change: its high-conductance
     wall is an Opening, whose conduction uses U, not CTF.
-- [ ] COOLING_TEST, AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own layout → one
-  suite module each; same JSON migration of the notebooks).
+- [x] COOLING_TEST (branch `feat/ashrae140-validation-cooling`): two suites, one per
+  workbook. `cooling_a_test.py` (CE100–CE200, steady state, February totals/means/max/min,
+  10 reference sources incl. 3 analytical solutions) and `cooling_b_test.py` (CE300–CE545:
+  annual sums/means, May–Sep sums of CE500/CE510, annual hourly maxima with dates,
+  COP2/zone maxima and minima, CE300 weather checks, CE300 June 28 hourly profile, CE500/
+  CE530 daily averages; 6 programs). Shared `dx_system.py`: condenser fan = 108 W (a) or
+  930 W (b) × run fraction, compressor = power − both fans, COP2 = coil load / (compressor
+  + condenser fan) for hours with load. Where the old notebooks disagreed with each other
+  the form's definitions were followed (e.g. CE500–CE545 minima of IDB/w/RH over Apr 1 –
+  Dec 31, as the form's note says; the hand-copied values used the whole year).
+  **Result: a 217/266, b 633/783 inside.** Patterns to investigate later:
+  - Series a: zone humidity ratio systematically below the range (CE110, CE140, CE180–190)
+    and COP slightly below (CE100, CE120, CE180).
+  - Series b, CE500–CE545 (realistic weather, no winter control): minimum IDB 7.5 °C vs
+    ≥ 7.9 °C, zone RH reaches 100 % (CE520/530/540/545) and low minimum RH/w; indoor fan and
+    condenser fan energy ~3–5 % above range (run time / cycling of the indoor fan?).
+  - CE430: annual coil loads ~3 % below the hand-copied values (model changes since v0.5).
+- **Case notebooks archived** in `<TEST>/old_notebooks/` for every automated folder (LOAD,
+  HEATING, COOLING): their first cell changes to the test folder so they still run. Do the
+  same when automating the next folders.
+- [ ] AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own layout → one suite module
+  each; same JSON migration of the notebooks, then archive them).
 - [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
 - [ ] Optionally fill `Std140_TF_Output.xlsx` (the plain output form) from the CSV, to paste
   into the Standard's workbook. Do not write into `Std140_*_Results.xlsx` with openpyxl: it
