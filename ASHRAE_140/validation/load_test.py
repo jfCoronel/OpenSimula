@@ -80,6 +80,8 @@ def extract(case, project):
     rows = []
     if case in LOAD_CASES:
         load = project.component(LOAD_SPACE.get(case, DEFAULT_SPACE)).variable("system_sensible_heat").values
+        # Round-off loads (~1e-12 W) are zero, so a case with no heating reports its peak on Jan 1 1
+        load = np.where(np.abs(load) < 1e-6, 0, load)
         heating = np.where(load > 0, load, 0)
         cooling = np.where(load < 0, -load, 0)
         rows.append(("annual_heating", heating.sum() * hours / 1e6, ""))

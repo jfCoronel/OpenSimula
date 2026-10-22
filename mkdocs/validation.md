@@ -146,7 +146,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 620 | 3.294 | Dec 31 24 | 3.038 | 3.385 | 6 | ✓ inside |
 | 630 | 3.299 | Dec 31 24 | 3.039 | 3.388 | 6 | ✓ inside |
 | 640 | 3.878 | Feb 8 9 | 4.039 | 4.658 | 6 | ✗ -4.0 % below min |
-| 650 | 0.000 | Jan 25 12 | 0.000 | 0.000 | 6 | ✓ inside |
+| 650 | 0.000 | Jan 1 1 | 0.000 | 0.000 | 6 | ✓ inside |
 | 660 | 2.824 | Dec 31 24 | 2.620 | 2.955 | 6 | ✓ inside |
 | 670 | 4.089 | Dec 31 24 | 3.655 | 4.221 | 6 | ✓ inside |
 | 680 | 2.068 | Dec 31 24 | 1.778 | 2.126 | 6 | ✓ inside |
@@ -157,7 +157,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 920 | 2.756 | Feb 9 6 | 2.512 | 2.895 | 6 | ✓ inside |
 | 930 | 2.792 | Feb 9 6 | 2.537 | 2.968 | 6 | ✓ inside |
 | 940 | 3.273 | Dec 31 9 | 3.052 | 3.882 | 6 | ✓ inside |
-| 950 | 0.000 | Jan 5 14 | 0.000 | 0.000 | 6 | ✓ inside |
+| 950 | 0.000 | Jan 1 1 | 0.000 | 0.000 | 6 | ✓ inside |
 | 960 | 2.000 | Feb 9 6 | 2.085 | 2.300 | 5 | ✗ -4.1 % below min |
 | 980 | 1.669 | Feb 9 6 | 1.254 | 1.693 | 6 | ✓ inside |
 | 985 | 2.694 | Feb 9 6 | 2.452 | 2.785 | 6 | ✓ inside |

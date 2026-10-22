@@ -87,14 +87,14 @@ def main():
         print(f"{name}: {len(cases)} cases in {time.time() - start:.0f} s")
         new = pd.DataFrame(rows, columns=["case", "output", "value", "date"])
         if args.cases and csv.exists():  # keep the stored results of the other cases
-            old = pd.read_csv(csv, dtype={"case": str}, keep_default_na=False)
+            old = pd.read_csv(csv, dtype={"case": str}, keep_default_na=False, float_precision="round_trip")
             new = pd.concat([old[~old["case"].isin(cases)], new])
         order = {c: i for i, c in enumerate(suite.cases())}
         new = new.sort_values(["case", "output"], key=lambda s: s.map(order) if s.name == "case" else s)
-        new.to_csv(csv, index=False)
+        new.to_csv(csv, index=False, float_format="%.6f")
 
     results = {
-        name: pd.read_csv(RESULTS_DIR / f"{name}.csv", dtype={"case": str}, keep_default_na=False)
+        name: pd.read_csv(RESULTS_DIR / f"{name}.csv", dtype={"case": str}, keep_default_na=False, float_precision="round_trip")
         for name in SUITES
         if (RESULTS_DIR / f"{name}.csv").exists()
     }

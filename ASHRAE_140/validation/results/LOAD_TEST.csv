@@ -1,206 +1,206 @@
 case,output,value,date
-600,annual_cooling,5.968003709694408,
-600,annual_heating,4.489898326489967,
-600,peak_cooling,5.774199713267354,Jan 22 14
-600,peak_heating,3.253073332813806,Dec 31 24
-610,annual_cooling,4.1811359391462135,
-610,annual_heating,4.620721195654406,
-610,peak_cooling,5.435752865670741,Dec 1 14
-610,peak_heating,3.257819438950238,Dec 31 24
-620,annual_cooling,4.257897761167983,
-620,annual_heating,4.723242641384912,
-620,peak_cooling,4.416301376062795,Jun 26 17
-620,peak_heating,3.2937719463669217,Dec 31 24
-630,annual_cooling,2.8606535348762514,
-630,annual_heating,5.143148134728993,
-630,peak_cooling,3.8167168568054057,Jun 26 18
-630,peak_heating,3.298746157934909,Dec 31 24
-640,annual_cooling,5.654102794444351,
-640,annual_heating,2.644250714832087,
-640,peak_cooling,5.665648920930917,Jan 22 14
-640,peak_heating,3.8780537443261545,Feb 8 9
-650,annual_cooling,4.882297208486189,
-650,annual_heating,3.764810685424891e-17,
-650,peak_cooling,5.474367247888898,Oct 18 14
-650,peak_heating,9.094947017729283e-16,Jan 25 12
-660,annual_cooling,3.25599363684713,
-660,annual_heating,3.9316394090424005,
-660,peak_cooling,3.414331068064101,Oct 18 14
-660,peak_heating,2.8239794942113887,Dec 31 24
-670,annual_cooling,6.084359076453968,
-670,annual_heating,6.113413187268773,
-670,peak_cooling,5.906025980656645,Oct 18 14
-670,peak_heating,4.088624928180793,Dec 31 24
-680,annual_cooling,6.517063467960903,
-680,annual_heating,2.2452412185234047,
-680,peak_cooling,6.194442644664643,Jan 22 14
-680,peak_heating,2.068107695254127,Dec 31 24
-685,annual_cooling,8.959017965395024,
-685,annual_heating,5.076687034013791,
-685,peak_cooling,6.494145197334447,Jan 22 14
-685,peak_heating,3.2761171313004405,Dec 31 24
-695,annual_cooling,9.175054143999779,
-695,annual_heating,2.8988623899437487,
-695,peak_cooling,6.76517492981766,Jan 22 14
-695,peak_heating,2.141237983871038,Dec 31 24
-900,annual_cooling,2.598580449879572,
-900,annual_heating,1.7792499697669768,
-900,peak_cooling,2.8417358306544247,Oct 1 14
-900,peak_heating,2.6882573169428117,Feb 9 6
-910,annual_cooling,1.3848594802680614,
-910,annual_heating,2.1949346321036685,
-910,peak_cooling,2.0463303801683868,Oct 1 15
-910,peak_heating,2.7174085894107267,Feb 9 6
-920,annual_cooling,2.930320898163789,
-920,annual_heating,3.5422963156972678,
-920,peak_cooling,3.007551338055464,Jun 26 17
-920,peak_heating,2.7555217328700365,Feb 9 6
-930,annual_cooling,1.9504242530313187,
-930,annual_heating,4.352062494263652,
-930,peak_cooling,2.532466606834103,Jun 26 18
-930,peak_heating,2.791711718489224,Feb 9 6
-940,annual_cooling,2.5228475065636426,
-940,annual_heating,1.1318954304144424,
-940,peak_cooling,2.8412660389289557,Oct 1 14
-940,peak_heating,3.2727208833016874,Dec 31 9
-950,annual_cooling,0.8341596809561728,
-950,annual_heating,1.4209433629730482e-16,
-950,peak_cooling,2.3048435921855908,Sep 11 15
-950,peak_heating,9.094947017729283e-16,Jan 5 14
-960,annual_cooling,0.8229231305255948,
-960,annual_heating,2.7856758578631697,
-960,average_temperature,27.92816271684731,
-960,maximum_temperature,49.765604155075806,Oct 12 15
-960,minimum_temperature,4.453011743658047,Feb 9 7
-960,peak_cooling,1.0008939558941439,Jun 26 17
-960,peak_heating,1.9996455712576127,Feb 9 6
-980,annual_cooling,3.905936546071571,
-980,annual_heating,0.4246657158771338,
-980,peak_cooling,3.1430281939396574,Oct 18 15
-980,peak_heating,1.6689275767091385,Feb 9 6
-985,annual_cooling,6.44358149396965,
-985,annual_heating,2.5426134021441893,
-985,peak_cooling,3.5433338194444386,Oct 1 14
-985,peak_heating,2.693543824945623,Feb 9 6
-995,annual_cooling,7.302879531704733,
-995,annual_heating,1.0270753028915582,
-995,peak_cooling,3.5886752141456855,Oct 18 15
-995,peak_heating,1.7184164263697084,Feb 9 6
-195,annual_cooling,0.6571947656295609,
-195,annual_heating,4.234432395777726,
-195,peak_cooling,1.0198244072144615,Jun 26 17
-195,peak_heating,1.819596976865396,Dec 31 24
-200,annual_cooling,0.8595221421437965,
-200,annual_heating,5.251344857864933,
-200,peak_cooling,1.2698644058819473,Jun 26 16
-200,peak_heating,2.319560981968677,Dec 31 24
-210,annual_cooling,0.5802696203072681,
-210,annual_heating,6.353522624381633,
-210,peak_cooling,1.0792508597072101,Jun 26 16
-210,peak_heating,2.5571060974346045,Dec 31 24
-215,annual_cooling,0.9394933588407487,
-215,annual_heating,5.7171291570270935,
-215,peak_cooling,1.3811454666158989,Jun 26 16
-215,peak_heating,2.5216098419763155,Dec 31 24
-220,annual_cooling,0.6354708564532484,
-220,annual_heating,7.017387276144601,
-220,peak_cooling,1.1824463475515776,Jun 26 17
-220,peak_heating,2.8144080804212868,Dec 31 24
-230,annual_cooling,1.0217623619709901,
-230,annual_heating,10.21771101770756,
-230,peak_cooling,1.885854465498148,Jun 26 16
-230,peak_heating,4.2014979830908254,Dec 31 24
-240,annual_cooling,0.9830827643678925,
-240,annual_heating,5.810860651164579,
-240,peak_cooling,1.3598736083373524,Jun 26 17
-240,peak_heating,2.6369808196355122,Dec 31 24
-250,annual_cooling,3.218761604175294,
-250,annual_heating,5.38030886530585,
-250,peak_cooling,2.6370957158646933,Sep 3 14
-250,peak_heating,2.8051553607471056,Dec 31 24
-270,annual_cooling,7.457162164310163,
-270,annual_heating,4.714594600055563,
-270,peak_cooling,6.229969425304927,Jan 22 14
-270,peak_heating,2.7600882441127976,Dec 31 24
-280,annual_cooling,5.129293396769242,
-280,annual_heating,5.008193933499684,
-280,peak_cooling,4.287474305892578,Jan 22 14
-280,peak_heating,2.7746075219719097,Dec 31 24
-290,annual_cooling,5.570494884383265,
-290,annual_heating,4.849522565543779,
-290,peak_cooling,5.8928218126293315,Jan 22 14
-290,peak_heating,2.762299337369371,Dec 31 24
-300,annual_cooling,5.373091962174804,
-300,annual_heating,4.839887340999583,
-300,peak_cooling,4.126327047701013,Jun 26 17
-300,peak_heating,2.7803470746785894,Dec 31 24
-310,annual_cooling,3.703979207679959,
-310,annual_heating,5.2489747693397,
-310,peak_cooling,3.607710114951556,Jun 26 18
-310,peak_heating,2.7855279462711557,Dec 31 24
-320,annual_cooling,4.997199862995414,
-320,annual_heating,4.060539206290734,
-320,peak_cooling,5.633521654050979,Jan 22 14
-320,peak_heating,2.7300942352842634,Dec 31 24
-395,annual_cooling,0.010236857523576127,
-395,annual_heating,4.974811714830933,
-395,peak_cooling,0.40002566723264316,Jun 26 18
-395,peak_heating,2.008450266434351,Dec 31 24
-400,annual_cooling,0.030062338889207695,
-400,annual_heating,6.882660358276088,
-400,peak_cooling,0.6196473884983825,Jun 26 17
-400,peak_heating,2.8144080804212868,Dec 31 24
-410,annual_cooling,0.05977121889456181,
-410,annual_heating,8.477860459440413,
-410,peak_cooling,0.8650134748356513,Jun 26 17
-410,peak_heating,3.507953031756056,Dec 31 24
-420,annual_cooling,0.1514207266077058,
-420,annual_heating,7.278691697492703,
-420,peak_cooling,1.062101619678603,Jun 26 17
-420,peak_heating,3.330525912770035,Dec 31 24
-430,annual_cooling,0.8702696528888528,
-430,annual_heating,5.948897969253798,
-430,peak_cooling,1.845916049738419,Jun 26 15
-430,peak_heating,3.3247429629736716,Dec 31 24
-440,annual_cooling,4.049193843798421,
-440,annual_heating,4.741720851085762,
-440,peak_cooling,4.179150479373464,Oct 18 14
-440,peak_heating,3.277394020582964,Dec 31 24
-450,annual_cooling,7.0732544509621285,
-450,annual_heating,3.7691080883975276,
-450,peak_cooling,6.72497406026681,Jan 22 14
-450,peak_heating,3.0114823858887356,Dec 31 24
-460,annual_cooling,6.807411282879157,
-460,annual_heating,4.235905001569176,
-460,peak_cooling,6.602271471096118,Jan 22 14
-460,peak_heating,3.17909473073214,Dec 31 24
-470,annual_cooling,6.272242949855929,
-470,annual_heating,4.144457317338665,
-470,peak_cooling,5.957843890269149,Jan 22 14
-470,peak_heating,3.1701330840917255,Dec 31 24
-800,annual_cooling,0.3411217557003468,
-800,annual_heating,5.426608817356222,
-800,peak_cooling,1.0831559467635217,Jun 14 15
-800,peak_heating,2.8717068205659997,Feb 9 6
-810,annual_cooling,1.5687264830149985,
-810,annual_heating,2.563528288694289,
-810,peak_cooling,2.224967822725561,Sep 11 14
-810,peak_heating,2.743560128751022,Feb 9 6
-600FF,average_temperature,25.174363339801666,
-600FF,maximum_temperature,65.7321014572752,Oct 1 15
-600FF,minimum_temperature,-13.376382071409083,Feb 9 7
-900FF,average_temperature,25.237445864633496,
-900FF,maximum_temperature,44.87058769749927,Sep 11 15
-900FF,minimum_temperature,0.5968974969755674,Feb 9 7
-650FF,average_temperature,18.875483337779073,
-650FF,maximum_temperature,64.11975247711696,Oct 1 15
-650FF,minimum_temperature,-17.36926964124022,Dec 31 24
-950FF,average_temperature,14.886582273467786,
-950FF,maximum_temperature,37.304073823908574,Sep 11 15
-950FF,minimum_temperature,-13.170444590441969,Dec 31 24
-680FF,average_temperature,32.0446604392678,
-680FF,maximum_temperature,73.79465304562946,Oct 18 16
-680FF,minimum_temperature,-8.38812099725555,Feb 9 7
-980FF,average_temperature,32.04676412222553,
-980FF,maximum_temperature,51.51346793795792,Sep 12 15
-980FF,minimum_temperature,10.138222446254352,Nov 4 7
+600,annual_cooling,5.968004,
+600,annual_heating,4.489898,
+600,peak_cooling,5.774200,Jan 22 14
+600,peak_heating,3.253073,Dec 31 24
+610,annual_cooling,4.181136,
+610,annual_heating,4.620721,
+610,peak_cooling,5.435753,Dec 1 14
+610,peak_heating,3.257819,Dec 31 24
+620,annual_cooling,4.257898,
+620,annual_heating,4.723243,
+620,peak_cooling,4.416301,Jun 26 17
+620,peak_heating,3.293772,Dec 31 24
+630,annual_cooling,2.860654,
+630,annual_heating,5.143148,
+630,peak_cooling,3.816717,Jun 26 18
+630,peak_heating,3.298746,Dec 31 24
+640,annual_cooling,5.654103,
+640,annual_heating,2.644251,
+640,peak_cooling,5.665649,Jan 22 14
+640,peak_heating,3.878054,Feb 8 9
+650,annual_cooling,4.882297,
+650,annual_heating,0.000000,
+650,peak_cooling,5.474367,Oct 18 14
+650,peak_heating,0.000000,Jan 1 1
+660,annual_cooling,3.255994,
+660,annual_heating,3.931639,
+660,peak_cooling,3.414331,Oct 18 14
+660,peak_heating,2.823979,Dec 31 24
+670,annual_cooling,6.084359,
+670,annual_heating,6.113413,
+670,peak_cooling,5.906026,Oct 18 14
+670,peak_heating,4.088625,Dec 31 24
+680,annual_cooling,6.517063,
+680,annual_heating,2.245241,
+680,peak_cooling,6.194443,Jan 22 14
+680,peak_heating,2.068108,Dec 31 24
+685,annual_cooling,8.959018,
+685,annual_heating,5.076687,
+685,peak_cooling,6.494145,Jan 22 14
+685,peak_heating,3.276117,Dec 31 24
+695,annual_cooling,9.175054,
+695,annual_heating,2.898862,
+695,peak_cooling,6.765175,Jan 22 14
+695,peak_heating,2.141238,Dec 31 24
+900,annual_cooling,2.598580,
+900,annual_heating,1.779250,
+900,peak_cooling,2.841736,Oct 1 14
+900,peak_heating,2.688257,Feb 9 6
+910,annual_cooling,1.384859,
+910,annual_heating,2.194935,
+910,peak_cooling,2.046330,Oct 1 15
+910,peak_heating,2.717409,Feb 9 6
+920,annual_cooling,2.930321,
+920,annual_heating,3.542296,
+920,peak_cooling,3.007551,Jun 26 17
+920,peak_heating,2.755522,Feb 9 6
+930,annual_cooling,1.950424,
+930,annual_heating,4.352062,
+930,peak_cooling,2.532467,Jun 26 18
+930,peak_heating,2.791712,Feb 9 6
+940,annual_cooling,2.522848,
+940,annual_heating,1.131895,
+940,peak_cooling,2.841266,Oct 1 14
+940,peak_heating,3.272721,Dec 31 9
+950,annual_cooling,0.834160,
+950,annual_heating,0.000000,
+950,peak_cooling,2.304844,Sep 11 15
+950,peak_heating,0.000000,Jan 1 1
+960,annual_cooling,0.822923,
+960,annual_heating,2.785676,
+960,average_temperature,27.928163,
+960,maximum_temperature,49.765604,Oct 12 15
+960,minimum_temperature,4.453012,Feb 9 7
+960,peak_cooling,1.000894,Jun 26 17
+960,peak_heating,1.999646,Feb 9 6
+980,annual_cooling,3.905937,
+980,annual_heating,0.424666,
+980,peak_cooling,3.143028,Oct 18 15
+980,peak_heating,1.668928,Feb 9 6
+985,annual_cooling,6.443581,
+985,annual_heating,2.542613,
+985,peak_cooling,3.543334,Oct 1 14
+985,peak_heating,2.693544,Feb 9 6
+995,annual_cooling,7.302880,
+995,annual_heating,1.027075,
+995,peak_cooling,3.588675,Oct 18 15
+995,peak_heating,1.718416,Feb 9 6
+195,annual_cooling,0.657195,
+195,annual_heating,4.234432,
+195,peak_cooling,1.019824,Jun 26 17
+195,peak_heating,1.819597,Dec 31 24
+200,annual_cooling,0.859522,
+200,annual_heating,5.251345,
+200,peak_cooling,1.269864,Jun 26 16
+200,peak_heating,2.319561,Dec 31 24
+210,annual_cooling,0.580270,
+210,annual_heating,6.353523,
+210,peak_cooling,1.079251,Jun 26 16
+210,peak_heating,2.557106,Dec 31 24
+215,annual_cooling,0.939493,
+215,annual_heating,5.717129,
+215,peak_cooling,1.381145,Jun 26 16
+215,peak_heating,2.521610,Dec 31 24
+220,annual_cooling,0.635471,
+220,annual_heating,7.017387,
+220,peak_cooling,1.182446,Jun 26 17
+220,peak_heating,2.814408,Dec 31 24
+230,annual_cooling,1.021762,
+230,annual_heating,10.217711,
+230,peak_cooling,1.885854,Jun 26 16
+230,peak_heating,4.201498,Dec 31 24
+240,annual_cooling,0.983083,
+240,annual_heating,5.810861,
+240,peak_cooling,1.359874,Jun 26 17
+240,peak_heating,2.636981,Dec 31 24
+250,annual_cooling,3.218762,
+250,annual_heating,5.380309,
+250,peak_cooling,2.637096,Sep 3 14
+250,peak_heating,2.805155,Dec 31 24
+270,annual_cooling,7.457162,
+270,annual_heating,4.714595,
+270,peak_cooling,6.229969,Jan 22 14
+270,peak_heating,2.760088,Dec 31 24
+280,annual_cooling,5.129293,
+280,annual_heating,5.008194,
+280,peak_cooling,4.287474,Jan 22 14
+280,peak_heating,2.774608,Dec 31 24
+290,annual_cooling,5.570495,
+290,annual_heating,4.849523,
+290,peak_cooling,5.892822,Jan 22 14
+290,peak_heating,2.762299,Dec 31 24
+300,annual_cooling,5.373092,
+300,annual_heating,4.839887,
+300,peak_cooling,4.126327,Jun 26 17
+300,peak_heating,2.780347,Dec 31 24
+310,annual_cooling,3.703979,
+310,annual_heating,5.248975,
+310,peak_cooling,3.607710,Jun 26 18
+310,peak_heating,2.785528,Dec 31 24
+320,annual_cooling,4.997200,
+320,annual_heating,4.060539,
+320,peak_cooling,5.633522,Jan 22 14
+320,peak_heating,2.730094,Dec 31 24
+395,annual_cooling,0.010237,
+395,annual_heating,4.974812,
+395,peak_cooling,0.400026,Jun 26 18
+395,peak_heating,2.008450,Dec 31 24
+400,annual_cooling,0.030062,
+400,annual_heating,6.882660,
+400,peak_cooling,0.619647,Jun 26 17
+400,peak_heating,2.814408,Dec 31 24
+410,annual_cooling,0.059771,
+410,annual_heating,8.477860,
+410,peak_cooling,0.865013,Jun 26 17
+410,peak_heating,3.507953,Dec 31 24
+420,annual_cooling,0.151421,
+420,annual_heating,7.278692,
+420,peak_cooling,1.062102,Jun 26 17
+420,peak_heating,3.330526,Dec 31 24
+430,annual_cooling,0.870270,
+430,annual_heating,5.948898,
+430,peak_cooling,1.845916,Jun 26 15
+430,peak_heating,3.324743,Dec 31 24
+440,annual_cooling,4.049194,
+440,annual_heating,4.741721,
+440,peak_cooling,4.179150,Oct 18 14
+440,peak_heating,3.277394,Dec 31 24
+450,annual_cooling,7.073254,
+450,annual_heating,3.769108,
+450,peak_cooling,6.724974,Jan 22 14
+450,peak_heating,3.011482,Dec 31 24
+460,annual_cooling,6.807411,
+460,annual_heating,4.235905,
+460,peak_cooling,6.602271,Jan 22 14
+460,peak_heating,3.179095,Dec 31 24
+470,annual_cooling,6.272243,
+470,annual_heating,4.144457,
+470,peak_cooling,5.957844,Jan 22 14
+470,peak_heating,3.170133,Dec 31 24
+800,annual_cooling,0.341122,
+800,annual_heating,5.426609,
+800,peak_cooling,1.083156,Jun 14 15
+800,peak_heating,2.871707,Feb 9 6
+810,annual_cooling,1.568726,
+810,annual_heating,2.563528,
+810,peak_cooling,2.224968,Sep 11 14
+810,peak_heating,2.743560,Feb 9 6
+600FF,average_temperature,25.174363,
+600FF,maximum_temperature,65.732101,Oct 1 15
+600FF,minimum_temperature,-13.376382,Feb 9 7
+900FF,average_temperature,25.237446,
+900FF,maximum_temperature,44.870588,Sep 11 15
+900FF,minimum_temperature,0.596897,Feb 9 7
+650FF,average_temperature,18.875483,
+650FF,maximum_temperature,64.119752,Oct 1 15
+650FF,minimum_temperature,-17.369270,Dec 31 24
+950FF,average_temperature,14.886582,
+950FF,maximum_temperature,37.304074,Sep 11 15
+950FF,minimum_temperature,-13.170445,Dec 31 24
+680FF,average_temperature,32.044660,
+680FF,maximum_temperature,73.794653,Oct 18 16
+680FF,minimum_temperature,-8.388121,Feb 9 7
+980FF,average_temperature,32.046764,
+980FF,maximum_temperature,51.513468,Sep 12 15
+980FF,minimum_temperature,10.138222,Nov 4 7
