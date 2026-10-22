@@ -1,72 +1,86 @@
 case,output,point,value,date
 GC30b,qfloor,,2415.949449,
 GC30b,qzone,,2416.496648,
+GC30b,tzone,,30.000000,
 GC30c,qfloor,,2094.947017,
 GC30c,qzone,,2095.494210,
+GC30c,tzone,,30.000000,
 GC60b,qfloor,,2071.989336,
 GC60b,qzone,,2072.536529,
+GC60b,tzone,,30.000000,
 GC65b,qfloor,,1923.639721,
 GC65b,qzone,,1924.186909,
+GC65b,tzone,,30.000000,
 GC40b,Qfloor,,21163.040707,
 GC40b,Qzone,,21167.834016,
 GC40b,tzone_mean,,30.000000,
 GC40b,qfloor_max,,2822.007250,02-Feb 9
 GC40b,qzone_max,,2822.762106,02-Feb 5
 GC40b,todb_min,,2.000000,08-Jan 4
+GC40b,todb_min_hours,,15.000000,
 GC45b,Qfloor,,30555.053358,
 GC45b,Qzone,,30561.360344,
 GC45b,tzone_mean,,30.000000,
 GC45b,qfloor_max,,3982.547007,02-Feb 5
 GC45b,qzone_max,,3983.542363,02-Feb 4
 GC45b,todb_min,,2.000000,08-Jan 4
+GC45b,todb_min_hours,,15.000000,
 GC50b,Qfloor,,302864.785323,
 GC50b,Qzone,,302992.046281,
 GC50b,tzone_mean,,30.000000,
 GC50b,qfloor_max,,40253.364342,02-Feb 15
 GC50b,qzone_max,,40273.311837,02-Feb 5
 GC50b,todb_min,,2.000000,08-Jan 4
+GC50b,todb_min_hours,,15.000000,
 GC55b,Qfloor,,31814.146050,
 GC55b,Qzone,,31818.939360,
 GC55b,tzone_mean,,30.000000,
 GC55b,qfloor_max,,4242.334539,02-Feb 4
 GC55b,qzone_max,,4243.091097,02-Feb 4
 GC55b,todb_min,,2.000000,08-Jan 4
+GC55b,todb_min_hours,,15.000000,
 GC70b,Qfloor,,16850.545335,
 GC70b,Qzone,,16855.338553,
 GC70b,tzone_mean,,30.000000,
 GC70b,qfloor_max,,2303.342096,03-Feb 19
 GC70b,qzone_max,,2304.088434,04-Feb 4
 GC70b,todb_min,,2.000000,08-Jan 4
+GC70b,todb_min_hours,,15.000000,
 GC80b,Qfloor,,5710.882804,
 GC80b,Qzone,,5715.676113,
 GC80b,tzone_mean,,30.000000,
 GC80b,qfloor_max,,782.160914,07-Feb 9
 GC80b,qzone_max,,782.912778,07-Feb 5
 GC80b,todb_min,,2.000000,08-Jan 4
+GC80b,todb_min_hours,,15.000000,
 GC40c,Qfloor,,18351.149286,
 GC40c,Qzone,,18355.942540,
 GC40c,tzone_mean,,30.000000,
 GC40c,qfloor_max,,2485.875279,03-Feb 17
 GC40c,qzone_max,,2486.617917,04-Feb 4
 GC40c,todb_min,,2.000000,08-Jan 4
+GC40c,todb_min_hours,,15.000000,
 GC45c,Qfloor,,25868.340775,
 GC45c,Qzone,,25874.647688,
 GC45c,tzone_mean,,30.000000,
 GC45c,qfloor_max,,3429.606332,03-Feb 9
 GC45c,qzone_max,,3430.599919,03-Feb 5
 GC45c,todb_min,,2.000000,08-Jan 4
+GC45c,todb_min_hours,,15.000000,
 GC55c,Qfloor,,21671.214183,
 GC55c,Qzone,,21676.007436,
 GC55c,tzone_mean,,30.000000,
 GC55c,qfloor_max,,2935.670385,03-Feb 13
 GC55c,qzone_max,,2936.418660,03-Feb 5
 GC55c,todb_min,,2.000000,08-Jan 4
+GC55c,todb_min_hours,,15.000000,
 GC80c,Qfloor,,8958.917650,
 GC80c,Qzone,,8963.710904,
 GC80c,tzone_mean,,30.000000,
 GC80c,qfloor_max,,1227.277806,05-Feb 24
 GC80c,qzone_max,,1228.030594,06-Feb 4
 GC80c,todb_min,,2.000000,08-Jan 4
+GC80c,todb_min_hours,,15.000000,
 GC40b,qfloor_hourly,1,2760.744902,
 GC40b,qfloor_hourly,2,2760.898662,
 GC40b,qfloor_hourly,3,2761.052245,

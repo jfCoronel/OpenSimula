@@ -30,12 +30,14 @@ HOURS = [str(h) for h in range(1, 8761)]
 OUTPUTS = {
     "qfloor": ("Steady-state floor conduction", "W"),
     "qzone": ("Steady-state zone load", "W"),
+    "tzone": ("Steady-state zone temperature", "°C"),
     "Qfloor": ("Annual floor conduction", "kWh"),
     "Qzone": ("Annual zone heating load", "kWh"),
     "tzone_mean": ("Annual mean zone temperature", "°C"),
     "qfloor_max": ("Annual hourly maximum floor conduction", "Wh/h"),
     "qzone_max": ("Annual hourly maximum zone heating load", "Wh/h"),
     "todb_min": ("Annual minimum outdoor dry bulb", "°C"),
+    "todb_min_hours": ("Hours at the annual minimum outdoor dry bulb", "h"),
     "qfloor_hourly": ("Hourly floor conduction, final year", "Wh/h"),
 }
 
@@ -45,9 +47,10 @@ def _cells():
     for case, row in STEADY_CASES.items():
         cells[(case, "qfloor", "")] = (row, 5)
         cells[(case, "qzone", "")] = (row, 6)
+        cells[(case, "tzone", "")] = (row, 7)
     for case, row in HARMONIC_CASES.items():
         for output, col in [("Qfloor", 5), ("Qzone", 6), ("tzone_mean", 7), ("qfloor_max", 9),
-                            ("qzone_max", 12), ("todb_min", 15)]:
+                            ("qzone_max", 12), ("todb_min", 15), ("todb_min_hours", 18)]:
             cells[(case, output, "")] = (row, col)
     for case, col in HOURLY_CASES.items():
         for i, hour in enumerate(HOURS):
@@ -58,11 +61,11 @@ def _cells():
 CELLS = _cells()
 
 GROUPS = [
-    {"title": "Steady-state cases", "kind": "annual", "outputs": ["qfloor", "qzone"]},
+    {"title": "Steady-state cases", "kind": "annual", "outputs": ["qfloor", "qzone", "tzone"]},
     {"title": "Harmonic cases: annual sums and mean", "kind": "annual",
      "outputs": ["Qfloor", "Qzone", "tzone_mean"]},
     {"title": "Harmonic cases: annual hourly maxima and minimum outdoor temperature", "kind": "annual",
-     "outputs": ["qfloor_max", "qzone_max", "todb_min"]},
+     "outputs": ["qfloor_max", "qzone_max", "todb_min", "todb_min_hours"]},
     {"title": "Hourly floor conduction, cases GC40b and GC40c", "kind": "profile", "outputs": ["qfloor_hourly"]},
 ]
 
@@ -87,7 +90,8 @@ def extract(case, project):
     q_zone = project.component("system").variable("Q_sensible").values
     t_zone = project.component("space_1").variable("temperature").values
     if case in STEADY_CASES:
-        return [("qfloor", "", float(q_floor[-1]), ""), ("qzone", "", float(q_zone[-1]), "")]
+        return [("qfloor", "", float(q_floor[-1]), ""), ("qzone", "", float(q_zone[-1]), ""),
+                ("tzone", "", float(t_zone[-1]), "")]
     # Harmonic cases: final year of the multiyear simulation (hourly time steps)
     last = slice(len(q_floor) - 8760, None)
     dates = project.dates()[last]
@@ -101,6 +105,7 @@ def extract(case, project):
         ("qfloor_max", "", float(q_floor[i_floor]), _date(dates[i_floor])),
         ("qzone_max", "", float(q_zone[i_zone]), _date(dates[i_zone])),
         ("todb_min", "", float(t_odb[i_odb]), _date(dates[i_odb])),
+        ("todb_min_hours", "", float((t_odb == t_odb[i_odb]).sum()), ""),
     ]
     if case in HOURLY_CASES:
         rows.extend(("qfloor_hourly", hour, float(v), "") for hour, v in zip(HOURS, q_floor))

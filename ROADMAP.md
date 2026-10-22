@@ -197,8 +197,13 @@ Next steps, one PR each:
     GC70b the same on GC40b + GC70b.TM2, GC80b k = 0.5 — all as in the case files.
     Simulation duration (≤ 0.1 % change between the last two years): steady-state cases are
     steady from year 1, harmonic cases from year 2 (the ISO 13370 model has only 0.5 m of
-    dynamic ground), so 1 and 2 years are enough. Not checked: the c-series section 8.2.3
-    (GC30c, GC40c, GC45c, GC55c with E = 5 m, GC80c with k = 0.85).
+    dynamic ground), so 1 and 2 years are enough. c-series (8.2.3) checked too: GC30c
+    interior combined 7.95, exterior surface at T_o = 10 °C via h_ext 10000 (≥ 5000 allowed)
+    and GC30a.TM2; GC40c GC40a.TM2; GC45c 36 × 4 m; GC55c E = 5 m; GC80c k = 0.85 — all as
+    in the case files. E for the c series is inherited from GC30b (15 m, Table 8-9 does not
+    change it). Model limitation: the c-series far-field distance F = 8 m (and F in general)
+    cannot be set in the ISO 13370 ground model. Added outputs: steady-state zone
+    temperature and hours at the minimum outdoor temperature (71/82 values inside).
   - GC40b hourly floor conduction ~5 % below a narrow band (3 programs) all year; the shape
     and amplitude match.
 - [ ] AIR_SIDE_HVAC_TEST (two workbooks → one suite module each; same JSON migration of the

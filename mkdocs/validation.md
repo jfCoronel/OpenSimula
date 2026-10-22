@@ -1764,7 +1764,7 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 
 ## Ground-coupled slab-on-grade tests (GC30b–GC80c)
 
-Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC, TRNSYS, VA114 (example results from `Std140_GC_Results.xlsx`). **57 of 68 values inside the reference range; 7888 of 17520 profile points (hourly, monthly…).**
+Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC, TRNSYS, VA114 (example results from `Std140_GC_Results.xlsx`). **71 of 82 values inside the reference range; 7888 of 17520 profile points (hourly, monthly…).**
 
 ### Steady-state cases
 
@@ -1772,6 +1772,7 @@ Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC,
 |---|--:|--:|--:|
 | Steady-state floor conduction (W) | 4 | 4 | 0 |
 | Steady-state zone load (W) | 4 | 4 | 0 |
+| Steady-state zone temperature (°C) | 4 | 4 | 0 |
 
 ![Steady-state cases](img/validation/ground_test_1.png)
 
@@ -1792,6 +1793,15 @@ Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC,
 | GC30c | 2095.494 | 2003.000 | 2307.922 | 4 | ✓ inside |
 | GC60b | 2072.537 | 1999.000 | 2218.583 | 3 | ✓ inside |
 | GC65b | 1924.187 | 1615.545 | 1925.000 | 3 | ✓ inside |
+
+#### Steady-state zone temperature (°C)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| GC30b | 30.000 | 30.000 | 30.000 | 3 | ✓ inside |
+| GC30c | 30.000 | 30.000 | 30.000 | 4 | ✓ inside |
+| GC60b | 30.000 | 30.000 | 30.000 | 3 | ✓ inside |
+| GC65b | 30.000 | 30.000 | 30.000 | 3 | ✓ inside |
 
 ### Harmonic cases: annual sums and mean
 
@@ -1855,6 +1865,7 @@ Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC,
 | Annual hourly maximum floor conduction (Wh/h) | 10 | 6 | 4 |
 | Annual hourly maximum zone heating load (Wh/h) | 10 | 5 | 5 |
 | Annual minimum outdoor dry bulb (°C) | 10 | 10 | 0 |
+| Hours at the annual minimum outdoor dry bulb (h) | 10 | 10 | 0 |
 
 ![Harmonic cases: annual hourly maxima and minimum outdoor temperature](img/validation/ground_test_3.png)
 
@@ -1902,6 +1913,21 @@ Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC,
 | GC45c | 2.000 | 08-Jan 4 | 2.000 | 4.000 | 6 | ✓ inside |
 | GC55c | 2.000 | 08-Jan 4 | 2.000 | 4.000 | 6 | ✓ inside |
 | GC80c | 2.000 | 08-Jan 4 | 2.000 | 4.000 | 6 | ✓ inside |
+
+#### Hours at the annual minimum outdoor dry bulb (h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| GC40b | 15.000 | 15.000 | 30.000 | 6 | ✓ inside |
+| GC45b | 15.000 | 15.000 | 30.000 | 4 | ✓ inside |
+| GC50b | 15.000 | 15.000 | 30.000 | 4 | ✓ inside |
+| GC55b | 15.000 | 15.000 | 30.000 | 5 | ✓ inside |
+| GC70b | 15.000 | 15.000 | 30.000 | 5 | ✓ inside |
+| GC80b | 15.000 | 15.000 | 30.000 | 5 | ✓ inside |
+| GC40c | 15.000 | 15.000 | 744.000 | 6 | ✓ inside |
+| GC45c | 15.000 | 15.000 | 744.000 | 6 | ✓ inside |
+| GC55c | 15.000 | 15.000 | 744.000 | 6 | ✓ inside |
+| GC80c | 15.000 | 15.000 | 744.000 | 6 | ✓ inside |
 
 ### Hourly floor conduction, cases GC40b and GC40c
 
