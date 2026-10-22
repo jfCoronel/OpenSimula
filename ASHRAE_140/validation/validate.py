@@ -22,10 +22,11 @@ from pathlib import Path
 
 import pandas as pd
 
+import heating_test
 import load_test
 import report
 
-SUITES = {suite.NAME: suite for suite in [load_test]}
+SUITES = {suite.NAME: suite for suite in [load_test, heating_test]}
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 
 
