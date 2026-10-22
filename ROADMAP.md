@@ -54,15 +54,32 @@ Next steps, one PR each:
   used to read the references (and reusable to fill `Std140_TF_Output.xlsx`). The page has
   "annual" groups (range chart + tables) and "profile" groups (min–max band + OpenSimula
   line per series). "Inside" now allows 0.1 % of the bound, for the rounding of the reference
-  spreadsheets. Result: 1368/1616 values inside range. Findings to investigate:
-  - Sky temperature: at the top of the range on Feb 1 and Jul 14 and below it on May 4
-    (cloudy day) — the sky model differs from the reference programs on cloudy/clear days.
-  - Hourly loads on Jul 14: cooling starts 1–2 h earlier than the references (hours 9–11),
-    as if solar gains reached the zone load with less delay.
-  - Horizontal hourly incident solar no longer equals the weather file GHI (it did in the
-    old v0.5 results): it is rebuilt as DNI·cos(zenith) + DHI with the sun at mid-hour, which
-    differs at low sun (Jul 14 hours 6–7 and 18–19). The annual total barely changes.
-  - North and east annual incident solar slightly above range.
+  spreadsheets. Result: 1368/1616 values inside range.
+- **Findings investigated (2026-10-22):**
+  1. *Horizontal hourly solar ≠ GHI* → **bug** in `shadow_calculation = "INTERPOLATION"`
+     (`Environment_3D._calculate_shadow_interpolation_table`): the sunny fraction is
+     tabulated on a 10° grid (altitude −85…85, azimuth 0…350, not closed at 360) and
+     interpolated with **cubic** splines across the 1→0 step where the sun goes behind the
+     surface. The overshoot gives fractions of 0.84–1.11 for an unshaded roof (1269 h > 1).
+     `INSTANT` gives exactly GHI (1670.17) and is not slower for these cases (7–9 s).
+     Impact on loads < 0.2 %. Fix: linear interpolation, sun-behind cells filled with the
+     neighbouring front values (or 1), azimuth grid closed at 360.
+  2. *Sky temperature* → **not a bug**: same Clark & Allen + Walton model as EnergyPlus and
+     it matches EnergyPlus (annual mean −1.99 vs −2.02 °C, min −37.96 vs −37.98; ~1 °C
+     hourly). The other programs use models ~10 °C colder on clear days; EnergyPlus is the
+     warm edge of the band.
+  3. *Jul 14 cooling starts earlier* → **numerical, time step**: lightweight zones respond
+     with a ~30 min phase lead at 1 h steps (the implicit hourly value behaves like an
+     end-of-hour temperature). 600FF Feb 1 with 15 min steps: −2.5 °C in the morning,
+     +2.6 °C in the evening, much closer to the references. Heavy cases (950FF) are fine.
+     But 15 min steps *increase* annual loads of lightweight cases (heating +1.5 %, cooling
+     +2.5 %), so the heating excess is not a time-step artefact.
+- **Open: annual heating slightly above range in lightweight cases**, already in case 195
+  (opaque envelope only, ε = 0.1, no gains/infiltration): 4.234 vs 3.951–4.217 MWh
+  (EnergyPlus 4.070). Next place to look: exterior/interior convective coefficients
+  (`h_cv` constants in the case files vs the Standard's specification) and the floor.
+- North and east annual incident solar slightly above range also with `INSTANT`
+  (483 vs ≤ 477 kWh/m²): diffuse model (Perez) or ground reflection, not interpolation.
 - [ ] HEATING_TEST, COOLING_TEST, AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own
   layout → one suite module each; same JSON migration of the notebooks).
 - [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
