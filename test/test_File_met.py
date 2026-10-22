@@ -131,3 +131,22 @@ def test_ground_temperature_kasuda():
     T_mean = met.T_average
     # At 10m, temperature should be very close to annual mean
     assert abs(var_z10.values[0] - T_mean) < 2.0  # Within 2°C of mean
+
+
+def test_perez_surface_facing_away_from_sun():
+    # A surface that does not see the sun gets no circumsolar diffuse, but the rest of the
+    # sky radiation keeps the Perez (1 - F1) weighting, so it is below the isotropic value
+    # (the fallback to the isotropic model overestimated north walls by ~20 %)
+    sim = osim.Simulation()
+    pro = sim.new_project("pro")
+    pro.read_dict({**project, "simulation_file_met": "denver"})
+    pro.simulate()
+    met = pro.component("denver")
+    perez, isotropic = 0, 0
+    for i in range(8760):
+        cos_theta = met._cos_incidence(i, 180, 0)  # north vertical wall
+        if met.variable("sol_direct").values[i] > 0 and cos_theta < 0:
+            perez += met.solar_diffuse_rad(i, 180, 0)
+            isotropic += met.variable("sol_diffuse").values[i] / 2
+    assert isotropic > 0
+    assert perez < 0.95 * isotropic

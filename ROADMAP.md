@@ -95,7 +95,8 @@ Next steps, one PR each:
   ΔT-dependent natural convection (e.g. EnergyPlus TARP) get lower values in winter.
   Accepted as a consequence of the constant coefficients (see the decision above).
 - North and east annual incident solar slightly above range also with `INSTANT`
-  (483 vs ≤ 477 kWh/m²): diffuse model (Perez) or ground reflection, not interpolation.
+  (483 vs ≤ 477 kWh/m²) → **fixed with the WEATHER_TEST work** (diffuse model on surfaces
+  facing away from the sun, see below): north 429, east 1046 kWh/m², both inside.
 - [x] HEATING_TEST (branch `feat/ashrae140-validation-heating`): `heating_test.py`, 11
   cases (HE100–HE230) in `HEATING_TEST/cases/*.json` (HE220/HE230 had arithmetic such as
   `6*3600` in their dictionaries, evaluated in the migration). Outputs: furnace load and
@@ -234,6 +235,25 @@ Next steps, one PR each:
   - Other differences to look at: AE101/AE201/AE301/AE401 zone heating load ~3 % above the
     range (3.02 vs 2.93 kW, all references within 0.001); AE101/AE201 heating coil load
     0.3 % below; AE301 coil outlet RH and reheat loads.
+- [x] WEATHER_TEST (branch `feat/ashrae140-validation-weather`): `weather_test.py`, six cases
+  WD100–WD600 (same building, different weather file, 10 min steps), annual averages of the
+  weather variables and of total/beam/diffuse radiation on the horizontal and nine surfaces,
+  vs eight programs and the weather file itself. **228/246 inside.**
+  - Found and fixed: Hay-Davies, Reindl and Perez in `File_met.solar_diffuse_rad` fell back
+    to the isotropic model whenever the sun was behind the surface (or no beam), giving
+    shaded faces the circumsolar sky: WD100 north diffuse 32.5 vs 21.8–28.9 W/m². Now the
+    circumsolar term uses cos θ clipped at 0 and the sky keeps its anisotropy weighting;
+    Perez overcast bin includes ε = 1. Perez is the default: on a cloudy day OpenSimula now
+    matches EnergyPlus/ESP-r/TRNSYS (BSIMAC/CSE/DeST behave isotropically). LOAD_TEST
+    1369 → 1344 (north/east incident now inside, but less solar adds to the known heating
+    excess); other suites unchanged.
+  - **WD600 ground albedo 0.2 inferred from the reference results** (same Denver weather as
+    WD100, vertical diffuse ~19 W/m² higher = 0.2 × 190 × 0.5). To confirm in the Standard.
+  - Remaining: vertical beam 0.2–1 % below the range (likely the beam → diffuse rule for
+    sun altitude < 3°, largest at Barrow WD400); sky temperature 0.01–0.02 °C above in
+    WD300/WD500.
+- **All six ASHRAE 140 folders are automated** (LOAD, HEATING, COOLING a/b, GROUND,
+  AIR_SIDE, WEATHER); all case notebooks archived in `<TEST>/old_notebooks/`.
 - [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
 - [ ] Optionally fill `Std140_TF_Output.xlsx` (the plain output form) from the CSV, to paste
   into the Standard's workbook. Do not write into `Std140_*_Results.xlsx` with openpyxl: it

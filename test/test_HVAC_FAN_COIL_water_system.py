@@ -376,12 +376,12 @@ def test_HVAC_FAN_COIL_water_system():
     peak_heating = Q_sens.max() / 1000
     peak_cooling = -Q_sens.min() / 1000
 
-    assert annual_heating == pytest.approx(0.0723505200343804, rel=1e-5)
-    assert annual_cooling == pytest.approx(4.8761768134697965, rel=1e-5)
-    assert annual_humidification == pytest.approx(0.582456227451429, rel=1e-5)
+    assert annual_heating == pytest.approx(0.07271765233509604, rel=1e-5)
+    assert annual_cooling == pytest.approx(4.838342243586122, rel=1e-5)
+    assert annual_humidification == pytest.approx(0.5796872363278687, rel=1e-5)
     assert annual_dehumidification == pytest.approx(0.0)
-    assert peak_heating == pytest.approx(2.6769614390992165, rel=1e-5)
-    assert peak_cooling == pytest.approx(5.530450229446886, rel=1e-5)
+    assert peak_heating == pytest.approx(2.679327322280834, rel=1e-5)
+    assert peak_cooling == pytest.approx(5.531297059385839, rel=1e-5)
 
     yearly_df = water.variable_dataframe(
         frequency="yearly", value="sum", pos_neg_columns=["Q_gen"]
@@ -389,13 +389,13 @@ def test_HVAC_FAN_COIL_water_system():
     heating_generation = yearly_df["Q_gen_pos"].values[0] / 1e6
     cooling_generation = yearly_df["Q_gen_neg"].values[0] / 1e6
 
-    assert heating_generation == pytest.approx(0.07351652686203701, rel=1e-5)
-    assert cooling_generation == pytest.approx(-4.969237804755222, rel=1e-5)
+    assert heating_generation == pytest.approx(0.07388369713417615, rel=1e-5)
+    assert cooling_generation == pytest.approx(-4.93133992091134, rel=1e-5)
 
     T_WGO = water.variable("T_WGO").values
     T_WGI = water.variable("T_WGI").values
 
-    assert T_WGO.max() == pytest.approx(51.407879045644584, rel=1e-5)
+    assert T_WGO.max() == pytest.approx(50.6756558449134, rel=1e-5)
     assert T_WGO.min() == pytest.approx(7.0)
-    assert T_WGI.max() == pytest.approx(51.42244343580782, rel=1e-5)
-    assert T_WGI.min() == pytest.approx(7.042183201358537, rel=1e-5)
+    assert T_WGI.max() == pytest.approx(50.688432226123474, rel=1e-5)
+    assert T_WGI.min() == pytest.approx(7.041926599097343, rel=1e-5)

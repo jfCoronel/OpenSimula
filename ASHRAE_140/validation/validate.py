@@ -29,8 +29,9 @@ import ground_test
 import heating_test
 import load_test
 import report
+import weather_test
 
-SUITES = {suite.NAME: suite for suite in [load_test, heating_test, cooling_a_test, cooling_b_test, ground_test, airside_test]}
+SUITES = {suite.NAME: suite for suite in [load_test, heating_test, cooling_a_test, cooling_b_test, ground_test, airside_test, weather_test]}
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 
 
