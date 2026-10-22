@@ -412,66 +412,53 @@ class File_met(Component):
             return 0
         model = self.parameter("tilted_diffuse_model").value
         beta = math.radians(surf_altitude)
-        if (model == "ISOTROPIC"):
-            # Isotropic diffuse radiation (Liu-Jordan model)
-            E_dif = sol_diffuse * (1 + math.sin(beta))/2
-        elif (model == "HAY-DAVIES"):
-            theta = self.solar_surface_angle(
-                time_index, surf_azimuth, surf_altitude)
-            if theta is not None:
-                sol_direct = self.variable("sol_direct").values[time_index]
-                sol_altitude = math.radians(self.variable(
-                    "sol_altitude").values[time_index])
-                A = sol_direct/math.sin(sol_altitude)/1353
-                R_b = math.cos(theta) / math.sin(sol_altitude)
-                E_dif = sol_diffuse * A * R_b + sol_diffuse * \
-                    (1-A) * (1 + math.sin(beta))/2
-            else:
-                E_dif = sol_diffuse * (1 + math.sin(beta))/2
-        elif (model == "REINDL"):
-            theta = self.solar_surface_angle(
-                time_index, surf_azimuth, surf_altitude)
-            sol_altitude = math.radians(self.variable(
-                "sol_altitude").values[time_index])
-            sol_direct = self.variable("sol_direct").values[time_index]
-            zenit = math.pi/2 - beta
-            f_horizon = 1 + \
-                math.sqrt(sol_direct/(sol_direct+sol_diffuse)) * \
-                (math.sin(zenit/2))**3
-            if theta is not None:
-                A = sol_direct/math.sin(sol_altitude)/1353
-                R_b = math.cos(theta) / math.sin(sol_altitude)
-                E_dif = sol_diffuse * A * R_b + sol_diffuse * \
-                    (1-A) * (1 + math.sin(beta))/2 * f_horizon
-            else:
-                E_dif = sol_diffuse * (1 + math.sin(beta))/2 * f_horizon
-        elif (model == "PEREZ"):
-            theta = self.solar_surface_angle(
-                time_index, surf_azimuth, surf_altitude)
-            if theta is None:  # No direct sun
-                E_dif = sol_diffuse * (1 + math.sin(beta))/2
-            else:
-                sol_altitude = math.radians(self.variable(
-                    "sol_altitude").values[time_index])
-                sol_direct = self.variable("sol_direct").values[time_index]
-                zenit = math.pi/2 - beta
-                sol_zenit = math.pi/2 - sol_altitude
-                epsilon = ((sol_direct/math.sin(sol_altitude)+sol_diffuse) /
-                           sol_diffuse + 1.041 * sol_zenit**3)/(1 + 1.041*sol_zenit**3)
-                m = 1 / math.cos(sol_zenit)
-                Delta = m*sol_diffuse/1353
-                f = self._perez_coef(epsilon)
-                F_2 = f[3]+f[4]*Delta+f[5]*sol_zenit
-                a = math.cos(theta)
-                b = max(0.087156, math.cos(sol_zenit))
-                F_1 = max(0, f[0]+f[1]*Delta+f[2]*sol_zenit)
-                E_dif = sol_diffuse * \
-                    ((1-F_1)*(1+math.cos(zenit))/2 +
-                     F_1 * a/b + F_2 * math.sin(zenit))
-        return E_dif
+        isotropic = sol_diffuse * (1 + math.sin(beta)) / 2
+        if model == "ISOTROPIC":  # Liu-Jordan model
+            return isotropic
+        # Anisotropic models need the sun above the horizon (sol_altitude is NaN below 3°)
+        alt_sol = self.variable("sol_altitude").values[time_index]
+        if math.isnan(alt_sol):
+            return isotropic
+        sol_altitude = math.radians(alt_sol)
+        sol_direct = self.variable("sol_direct").values[time_index]
+        # Circumsolar term only on surfaces that see the sun (cos_theta clipped at 0), but the
+        # sky part keeps its anisotropy weighting also on surfaces facing away from the sun:
+        # using the isotropic model for them overestimated their diffuse radiation
+        cos_theta = max(0.0, self._cos_incidence(time_index, surf_azimuth, surf_altitude))
+        if model in ("HAY-DAVIES", "REINDL"):
+            A = sol_direct / math.sin(sol_altitude) / 1353  # anisotropy index
+            R_b = cos_theta / math.sin(sol_altitude)
+            f_horizon = 1
+            if model == "REINDL":
+                zenit = math.pi / 2 - beta
+                f_horizon = 1 + math.sqrt(sol_direct / (sol_direct + sol_diffuse)) * (math.sin(zenit / 2)) ** 3
+            return sol_diffuse * A * R_b + sol_diffuse * (1 - A) * (1 + math.sin(beta)) / 2 * f_horizon
+        # PEREZ
+        zenit = math.pi / 2 - beta
+        sol_zenit = math.pi / 2 - sol_altitude
+        epsilon = ((sol_direct / math.sin(sol_altitude) + sol_diffuse) / sol_diffuse
+                   + 1.041 * sol_zenit**3) / (1 + 1.041 * sol_zenit**3)
+        m = 1 / math.cos(sol_zenit)
+        Delta = m * sol_diffuse / 1353
+        f = self._perez_coef(epsilon)
+        F_1 = max(0, f[0] + f[1] * Delta + f[2] * sol_zenit)
+        F_2 = f[3] + f[4] * Delta + f[5] * sol_zenit
+        b = max(0.087156, math.cos(sol_zenit))
+        return sol_diffuse * ((1 - F_1) * (1 + math.cos(zenit)) / 2 + F_1 * cos_theta / b + F_2 * math.sin(zenit))
+
+    def _cos_incidence(self, time_index, surf_azimuth, surf_altitude):
+        """Cosine of the angle between the sun and the surface exterior normal (negative when
+        the sun is behind the surface)."""
+        azi_sur = math.radians(surf_azimuth)
+        alt_sur = math.radians(surf_altitude)
+        azi_sol = math.radians(self.variable("sol_azimuth").values[time_index])
+        alt_sol = math.radians(self.variable("sol_altitude").values[time_index])
+        return (math.cos(azi_sol) * math.cos(alt_sol) * math.cos(azi_sur) * math.cos(alt_sur)
+                + math.sin(azi_sol) * math.cos(alt_sol) * math.sin(azi_sur) * math.cos(alt_sur)
+                + math.sin(alt_sol) * math.sin(alt_sur))
 
     def _perez_coef(self, epsilon):
-        if epsilon > 1 and epsilon <= 1.065:
+        if epsilon <= 1.065:  # overcast bin, also epsilon = 1 (no beam radiation)
             return [-0.0083117, 0.5877285, -0.0620636, -0.0596012, 0.0721249, -0.0220216]
         elif epsilon > 1.065 and epsilon <= 1.23:
             return [0.1299457, 0.6825954, -0.1513752, -0.0189325, 0.0659650, -0.0288748]

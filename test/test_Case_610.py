@@ -349,10 +349,10 @@ def test_HVAC_perfect_system():
     peak_heating = load.max()/1000
     peak_cooling = -load.min()/1000
 
-    assert annual_heating == pytest.approx(4.620497586789972)
-    assert annual_cooling == pytest.approx(4.177222815842593)
-    assert peak_heating == pytest.approx(3.257835742527949)
-    assert peak_cooling == pytest.approx(5.4474494603311845)
+    assert annual_heating == pytest.approx(4.635639661707876)
+    assert annual_cooling == pytest.approx(4.135999834242331)
+    assert peak_heating == pytest.approx(3.2579149609779443)
+    assert peak_cooling == pytest.approx(5.451313222438749)
 
 
 def test_interpolated_sunny_fraction():
