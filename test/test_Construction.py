@@ -74,6 +74,29 @@ project_dic = {
             ],
             "thicknesses": [0.016, 0.076, 0.203, 0.076, 0.025],
         },
+        {
+            "type": "Material",
+            "name": "Opaque panel",
+            "conductivity": 1,
+            "density": 2470,
+            "specific_heat": 750,
+        },
+        {
+            "type": "Material",
+            "name": "Air gap",
+            "conductivity": 0.0625,
+            "density": 1.2925,
+            "specific_heat": 1006,
+        },
+        {
+            # Thin and light, with a single root: its CTF used to fail the steady state
+            # (ASHRAE 140 high-conductance wall)
+            "type": "Construction",
+            "name": "Thin panel",
+            "solar_alpha": [0.8, 0.8],
+            "materials": ["Opaque panel", "Air gap", "Opaque panel"],
+            "thicknesses": [0.003048, 0.012, 0.003048],
+        },
     ],
 }
 
@@ -102,6 +125,12 @@ def test_walls_1h():
     U = sum(wall._coef_T_a)/sum(wall._coef_Q)
     assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)
 
+    wall = pro.component("Thin panel")
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
+    U = sum(wall._coef_T_a)/sum(wall._coef_Q)
+    assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)
+
 
 def test_walls_15min():
     sim = osim.Simulation()
@@ -123,6 +152,12 @@ def test_walls_15min():
     assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)
 
     wall = pro.component("Multilayer wall")
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
+    assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
+    U = sum(wall._coef_T_a)/sum(wall._coef_Q)
+    assert 1/wall.thermal_resistance() == pytest.approx(U, 0.00001)
+
+    wall = pro.component("Thin panel")
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_b), 0.00001)
     assert sum(wall._coef_T_a) == pytest.approx(sum(wall._coef_T_c), 0.00001)
     U = sum(wall._coef_T_a)/sum(wall._coef_Q)
