@@ -187,6 +187,7 @@
             "construction": "Floor_Slab",
             "ground_material": "Ground",
             "exterior_perimeter_wall_thickness": 0.24,
+            "groundwater_depth": 15,
             "spaces": "space_1",
             "ref_point": [
                 0,

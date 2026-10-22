@@ -184,11 +184,16 @@ Next steps, one PR each:
   - Found: `Building` radiosity matrix (I − F·ρ) is singular when no surface absorbs (GC
     cases have solar absorptance and emissivity 0); GC50b raised "Singular matrix". Fixed
     with a pseudo-inverse fallback.
-  - **GC50b (80 × 80 m slab) floor conduction 26 % below the range** (205 699 vs
-    277 923–324 257 kWh); GC45b ~1 % below. The ground model is ISO 13370 (semi-infinite
-    ground). With `groundwater_depth` = 15 m (deep-ground boundary) GC50b gives 302 865 kWh,
-    inside; GC40b +0.7 %, GC45b unchanged. **Pending: confirm the Standard's deep-ground
-    boundary (depth, temperature) for the GC cases before setting it.**
+  - **Deep-ground boundary added (Standard, Table 8-1: depth E = 15 m at 10 °C, far field
+    15 m adiabatic):** the case files had no deep boundary (semi-infinite ground in the ISO
+    13370 model) except the water-table cases GC55b (2 m) and GC55c (5 m); now
+    `groundwater_depth` = 15 in the other 12. GC50b (80 × 80 m) annual floor conduction
+    205 699 → 302 865 kWh (range 277 923–324 257, inside; its peak now 1.7 % above); the
+    rest +0.7 %; GC45b (36 × 4 m) unchanged, ~1 % below. Values 55 → 57/68, hourly
+    7393 → 7888/17520. Rest of Table 8-1 / Section 8.2.1 checked in the case files (soil,
+    adiabatic massless walls, volume, initial 10 °C, set points, h = 100, slab 0.01 m, wall
+    0.24 m). Not checked: the water-table depths of GC55b/GC55c and the other cases'
+    parameter changes (their sections were not reviewed).
   - GC40b hourly floor conduction ~5 % below a narrow band (3 programs) all year; the shape
     and amplitude match.
 - [ ] AIR_SIDE_HVAC_TEST (two workbooks → one suite module each; same JSON migration of the
