@@ -171,16 +171,22 @@ def _date(d, with_month=True):
 
 
 def extract(case, project):
-    """Standard's outputs of a simulated case: list of (output, point, value, date) tuples."""
-    dates = project.dates()
-    hours = project.parameter("time_step").value / 3600
+    """Standard's outputs of a simulated case: list of (output, point, value, date) tuples.
+
+    The Standard asks for hourly integrated values, so with sub-hourly time steps every
+    variable is averaged over each hour first (the time step must divide the hour).
+    """
+    steps = round(3600 / project.parameter("time_step").value)  # time steps per hour
+    dates = project.dates()[::steps]  # a date within each hour: gives its month, day and hour
+    hours = 1  # hourly values: W x 1 h = Wh
     months = np.array([d.month for d in dates])
     days = {day: np.array([d.month == m and d.day == dd for d in dates]) for day, (m, dd, _) in DAYS.items()}
     wanted = {(o, p) for c, o, p in CELLS if c == case}
     rows = []
 
     def var(component, variable):
-        return project.component(component).variable(variable).values
+        values = project.component(component).variable(variable).values
+        return values.reshape(-1, steps).mean(axis=1)
 
     def add_hourly(output, values):
         """values: function returning the annual hourly values, called only if the series is wanted."""
