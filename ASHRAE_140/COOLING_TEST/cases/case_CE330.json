@@ -336,13 +336,13 @@
             "type": "Year_schedule",
             "name": "latent_schedule",
             "periods": [
-                "10/03",
-                "10/04",
+                "11/03",
                 "11/04",
-                "20/04",
-                "12/10",
-                "18/10",
-                "05/11"
+                "12/04",
+                "21/04",
+                "13/10",
+                "19/10",
+                "06/11"
             ],
             "weeks_schedules": [
                 "latent_week_1",
@@ -359,13 +359,13 @@
             "type": "Year_schedule",
             "name": "sensible_schedule",
             "periods": [
-                "10/03",
-                "10/04",
+                "11/03",
                 "11/04",
-                "20/04",
-                "12/10",
-                "18/10",
-                "05/11"
+                "12/04",
+                "21/04",
+                "13/10",
+                "19/10",
+                "06/11"
             ],
             "weeks_schedules": [
                 "sensible_week_1",
@@ -382,8 +382,8 @@
             "type": "Year_schedule",
             "name": "ventilation_schedule",
             "periods": [
-                "20/04",
-                "12/10"
+                "21/04",
+                "13/10"
             ],
             "weeks_schedules": [
                 "ventilation_week_1",

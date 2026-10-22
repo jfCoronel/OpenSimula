@@ -120,12 +120,57 @@ Next steps, one PR each:
   + condenser fan) for hours with load. Where the old notebooks disagreed with each other
   the form's definitions were followed (e.g. CE500–CE545 minima of IDB/w/RH over Apr 1 –
   Dec 31, as the form's note says; the hand-copied values used the whole year).
-  **Result: a 217/266, b 633/783 inside.** Patterns to investigate later:
-  - Series a: zone humidity ratio systematically below the range (CE110, CE140, CE180–190)
-    and COP slightly below (CE100, CE120, CE180).
-  - Series b, CE500–CE545 (realistic weather, no winter control): minimum IDB 7.5 °C vs
-    ≥ 7.9 °C, zone RH reaches 100 % (CE520/530/540/545) and low minimum RH/w; indoor fan and
-    condenser fan energy ~3–5 % above range (run time / cycling of the indoor fan?).
+  **Result: a 217/266, b 633/783 inside.** Patterns investigated (2026-10-22):
+  - *Series a, zone humidity ratio 5–10 % below the range in the dry-coil cases
+    (CE100–CE140)* → **model limitation, not a calculation error.** With no moisture
+    sources the zone settles where the coil turns dry, and in `DX_unit` that is where the
+    fitted sensible and total capacity curves cross: OpenSimula's equilibrium equals that
+    crossing exactly (CE130 6.992 vs 6.989 g/kg). For CE100/110/130/140 the crossing is at
+    T_iwb 13.7–14.4 °C, below the catalogue minimum (15 °C): extrapolated polynomials (the
+    sensible fit has R² 0.991). The analytical solution and the programs use an
+    apparatus-dew-point / bypass-factor coil, ~0.3–0.7 g/kg higher. Loads are not affected
+    (the coil is dry in February in all of them). Possible feature: ADP/bypass-factor dry-coil
+    criterion in `DX_unit`.
+  - *CE500–CE545, zone RH 100 %* → **initial conditions.** No infiltration, outdoor air or
+    winter gains, so the zone keeps the default initial humidity (Building
+    `initial_humidity` 7.3 g/kg) until spring and saturates at ~9 °C in January (CE530:
+    47 h). Starting from the end-of-year state (13.3 °C, 5.16 g/kg) the maximum RH is 86 %
+    (references 36–96 %). OpenSimula has no warm-up/preconditioning period; possible
+    feature: a Project parameter for warm-up days (the Standard's minima for CE500–CE545 are
+    taken from April 1 precisely to avoid initialization effects; the maxima are not).
+    **Decision: no warm-up; the CE500–CE545 case files use their end-of-year zone humidity
+    as `initial_humidity`** (the Standard does not specify it). Effect: the 4 cases at
+    100 % RH move inside the range, but the references evidently started moister (their
+    maximum humidity ratio and CE540 annual latent load include removing initial moisture),
+    so CE530/540/545 maximum w, CE540 coil latent and CE530 mean RH move below (632/783,
+    was 633). Known limitation: the dry-coil criterion of `DX_unit` (decision, not to change).
+  - *CE500–CE545, consumption, fan energy and coil loads above range* → **error in the
+    case files' internal gains schedule, fixed.** Checked against Tables 9-22 (CE500) and
+    9-23 (CE510) of the Standard: the period changes were one day early (now 11/03, 11/04,
+    12/04, 21/04, 12/10, 19/10, 06/11, i.e. "Jan 1 thru Mar 10", "Mar 11 thru Apr 10",
+    "Apr 11", "Apr 12 thru Apr 20", "Apr 21 thru Oct 11", "Oct 12 thru Oct 18", "Oct 19 thru
+    Nov 05", "Nov 06 thru Dec 31") and three transition periods were 2 h too long (now
+    9:00–16:00, 8:00–17:00 and 8:00–14:00). Values were right. CE500 annual latent gains
+    18.596 → 18.236 MWh (references' coil latent 18.08–18.35). Series b: 633 → 658/783;
+    CE500–CE545 coil loads 9/9 inside. Still outside: fan energy and total consumption of
+    CE520/522/525/540 (the set point variants), CE540 coil latent (initial humidity) and the
+    minimum IDB (below).
+  - *CE300–CE440 schedules* checked against Tables 9-20 (CE310), 9-21 (CE360) and the CE320
+    infiltration schedule: hours and values right, but every period change one day early
+    too (now 11/03, 11/04, 12/04, 21/04, 13/10, 19/10, 06/11 — note "Apr 21 thru Oct 12"
+    here vs "Oct 11" in CE500 — and 21/04, 13/10 for the infiltration/ventilation/
+    thermostat schedules of CE320–CE350; those of CE330–CE350 assumed to follow the same
+    dates, their tables not checked). Effect < 0.25 %; series b 658 → 660/783.
+  - *LOAD_TEST night ventilation, fixed:* the Standard (Section 7.2.2.1.5.1) has the vent fan
+    ON 18:00–07:00 (hours 19–7) and OFF 07:00–18:00; cases 650 and 950 had it off
+    08:00–19:00, one hour late (650FF/950FF were right; 650FF's odd 7.083 h first step set
+    to 7 h). 650 annual cooling 4.883 → 4.786 MWh (inside), 950 0.834 → 0.786 (range
+    0.586–0.707, still above: with 950FF maximum temperature also slightly above, the
+    heavy-mass night-ventilated zone is worth a look). The 640/940 thermostat (linear
+    10 → 20 °C from 07:00 to 08:00, step down at 23:00, Figures 7-7/7-8) is right.
+  - *CE500–CE545, minimum IDB 7.48 °C vs 7.94–8.94* (Dec 20): quasi-adiabatic envelope
+    (1 m of k = 0.003) and air-only capacity, ~5-day time constant, so the zone follows the
+    outdoor/sky conditions; the references themselves spread 1 K. Not investigated further.
   - CE430: annual coil loads ~3 % below the hand-copied values (model changes since v0.5).
 - **Case notebooks archived** in `<TEST>/old_notebooks/` for every automated folder (LOAD,
   HEATING, COOLING): their first cell changes to the test folder so they still run. Do the
