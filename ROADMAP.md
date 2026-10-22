@@ -218,14 +218,19 @@ Next steps, one PR each:
     reported stale uncontrolled-system loads after a VAV system switched to a controlled
     flow (AE403 zone 1: 5.1 kW instead of 1.45 kW). AE400 summary values 59 → 79/91.
   - `test_editor_schema` now validates the 135 case JSON files against the editor schema.
-  - **Open: multizone humidity convergence.** In AE301/303/305 the zone latent load does
-    not match the latent gains in steady state (AE303 zone 1 removes 738 W vs 586 W of
-    gains; supply and zone humidity ratios above the references). With the Space
-    `convergence_Dw` at 0.001 g/kg (default 0.1) AE303 gives 595 W and humidity ratios
-    inside the range, but needs 62 iterations per step instead of 8; with 0.01 still 670 W.
-    The iteration stops on the step size, not on the moisture balance residual, and the
-    multizone humidity loop converges slowly. Needs a look at the convergence criterion
-    (residual-based) or the relaxation of the humidity iteration.
+  - **Multizone humidity convergence — fixed (branch `fix/humidity-convergence`).** Two
+    problems in `Iterative_process` (used by `Space` for T and w and by `HVAC_water_system`):
+    (1) convergence tested the relaxed step |x_k − x_k−1| = λ·residual, so with λ down to
+    0.1 it stopped with residuals up to 10 × tol; now it tests the fixed-point residual
+    |proposed − x|; (2) λ was reduced by 0.8 every iteration whether or not the iteration
+    oscillated (the adaptive check was commented out), so well-behaved loops crawled; now λ
+    is reduced only when the residual changes sign or grows, and recovered while it
+    contracts (the "grows" guard is needed: CE200 diverged to 696 °C without it). Space
+    `convergence_Dw` default 0.1 → 0.01 g/kg. AE303 zone 1 latent 0.738 → 0.5905 kW
+    (references 0.586–0.590); CE200 coil latent 1221 (range 1210–1222). Runtime about the
+    same overall (CE150 30 → 15 iterations per step, two-zone AE cases 6–8 → 10–12).
+    Validation: COOLING_A 217 → 227, AIR_SIDE 1122 → 1164, COOLING_B 660 → 655 (5 values at
+    the range edges moved < 0.6 %), the rest unchanged.
   - Other differences to look at: AE101/AE201/AE301/AE401 zone heating load ~3 % above the
     range (3.02 vs 2.93 kW, all references within 0.001); AE101/AE201 heating coil load
     0.3 % below; AE301 coil outlet RH and reheat loads.
