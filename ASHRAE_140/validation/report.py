@@ -10,6 +10,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
 from matplotlib.patches import Patch  # noqa: E402
@@ -133,16 +134,28 @@ def _profile_figure(suite, comparison, series, path):
             df = df.loc[used.min() - 2: used.max() + 2]
         x = range(len(df))
         ax.fill_between(x, df["min"], df["max"], color=RANGE_COLOR, linewidth=0, alpha=0.8, step=None)
-        ax.plot(x, df["value"], color=INSIDE_COLOR, linewidth=1.6, marker="o", markersize=2.5)
+        long = len(df) > 200  # e.g. a year of hourly values: no markers, thinner line
+        ax.plot(x, df["value"], color=INSIDE_COLOR, linewidth=0.8 if long else 1.6,
+                marker="" if long else "o", markersize=2.5)
         bad = ~df["inside"].to_numpy()
-        ax.scatter([j for j in x if bad[j]], df["value"][bad], s=30, marker="X", color=OUTSIDE_COLOR,
-                   edgecolor="white", linewidth=0.6, zorder=3)
+        if long:  # many points: small dots without the white ring, which would hide the line
+            ax.scatter([j for j in x if bad[j]], df["value"][bad], s=1.5, color=OUTSIDE_COLOR,
+                       linewidth=0, zorder=3)
+        else:
+            ax.scatter([j for j in x if bad[j]], df["value"][bad], s=30, marker="X", color=OUTSIDE_COLOR,
+                       edgecolor="white", linewidth=0.6, zorder=3)
         ax.set_title(_title(f"Case {case}: {name} ({unit})"), fontsize=8, color=TEXT_COLOR, loc="left")
         points = list(df["point"])
-        step = 1 if len(points) <= 12 else (6 if len(points) <= 24 else 5)
-        ticks = [j for j in x if (j + 1) % step == 0 or j == 0] if len(points) <= 24 else \
-            [j for j in x if int(points[j]) % step == 0]
-        ax.set_xticks(ticks, [points[j] for j in ticks])
+        if len(points) == 8760:  # a year of hours: month labels
+            ticks = list(np.cumsum([0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30]) * 24)
+            labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            ax.set_xticks(ticks, labels, rotation=90)
+        else:
+            # every month, every 6 hours or every 5 bins
+            step = 1 if len(points) <= 12 else (6 if len(points) <= 24 else 5)
+            ticks = [j for j in x if (j + 1) % step == 0 or j == 0] if len(points) <= 24 else \
+                [j for j in x if int(points[j]) % step == 0]
+            ax.set_xticks(ticks, [points[j] for j in ticks])
         ax.grid(axis="y", color=GRID_COLOR, linewidth=0.8)
         _style(ax)
     for ax in list(axes.flat)[len(series):]:
@@ -200,11 +213,18 @@ def _profile_section(suite, comparison, group, img):
 
 def _suite_section(suite, results):
     comparison = compare(suite, results, suite.read_reference())
+    # Single values and profile points (hourly, monthly, bins) are counted apart, so that
+    # long profiles do not dominate the summary
+    profile_outputs = {o for g in suite.GROUPS if g["kind"] == "profile" for o in g["outputs"]}
+    is_profile = comparison["output"].isin(profile_outputs)
+    single, profile = comparison[~is_profile], comparison[is_profile]
+    summary = f"**{single['inside'].sum()} of {len(single)} values inside the reference range"
+    if len(profile):
+        summary += f"; {profile['inside'].sum()} of {len(profile)} profile points (hourly, monthly…)"
     lines = [f"## {suite.TITLE}", ""]
     lines += [
         f"Reference programs: {', '.join(suite.REFERENCE_PROGRAMS)} "
-        f"(example results from `{suite.RESULTS_FILE.name}`). "
-        f"**{comparison['inside'].sum()} of {len(comparison)} values inside the reference range.**",
+        f"(example results from `{suite.RESULTS_FILE.name}`). {summary}.**",
         "",
     ]
     for i, group in enumerate(suite.GROUPS, 1):
