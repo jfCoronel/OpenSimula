@@ -3,7 +3,18 @@
 Working notes for resuming development on OpenSimula from any machine. This file is for
 the maintainer, not end users — it is not part of the published docs (`mkdocs/`).
 
-## Where things stand (2026-10-07, v0.8.7)
+## Where things stand (2026-10-22, v0.8.8)
+
+- **Session of 2026-10-22: ASHRAE 140 validation automated and v0.8.8 released.** All six
+  ASHRAE 140 folders run from `ASHRAE_140/validation/validate.py` (PRs #7–#13, #15), the
+  validation is checked in CI (#16), and the fixes it found are in v0.8.8 (#17): published
+  to PyPI, GitHub release `v0.8.8`, Zenodo version DOI 10.5281/zenodo.23562791 (concept DOI
+  unchanged). Details of each test group and of the open items further below.
+- Security note: when publishing to PyPI, never select or paste the API token in the editor
+  or the chat (it is sent as context); use `read -s UV_PUBLISH_TOKEN && export
+  UV_PUBLISH_TOKEN` in the terminal and revoke any token that was exposed.
+
+## Previous session (2026-10-07, v0.8.7)
 
 - **Session of 2026-10-07: project infrastructure (block 1 of the growth plan below).**
   Merged PRs #3–#6: CI on every push/PR (tests on Python 3.12 and 3.13 + docs build,
