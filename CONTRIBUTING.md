@@ -31,17 +31,23 @@ uv run pytest test   # should be all green
 4. Open a pull request against `main` and fill in the checklist of the template.
 
 Every pull request runs the test suite on Python 3.12 and 3.13 and checks that the
-documentation builds. It must be green before it is merged.
+documentation builds. Pull requests that touch the code, the ASHRAE 140 cases or the weather
+files also run a quick ASHRAE 140 check (representative cases of every test group); the full
+check runs on every merge into `main` and on every release. All must be green before merging.
 
 ### Changes that modify simulation results
 
-OpenSimula is validated against ASHRAE 140 (notebooks in `ASHRAE_140/`). If your change
-alters numerical results:
+OpenSimula is validated against ASHRAE Standard 140 with `ASHRAE_140/validation/validate.py`
+(cases in `ASHRAE_140/<TEST>/cases/`, stored results in `ASHRAE_140/validation/results/`,
+report in the "Validation" page of the documentation). The CI check
+(`validate.py --check`) fails when a result differs from the stored one by more than
+0.1 %. If your change alters numerical results on purpose:
 
 - Update the reference values of the affected tests in `test/` and say in the pull request
   how much they changed.
-- Re-run the ASHRAE 140 notebooks related to the change and check the results stay within
-  the range of the reference programs.
+- Run `uv run python ASHRAE_140/validation/validate.py` (all cases, a few minutes) and
+  commit the updated `results/*.csv`, `mkdocs/validation.md` and figures. Say in the pull
+  request how the number of values inside the reference range changed for each test group.
 
 ## Code conventions
 
@@ -94,7 +100,8 @@ uv run mkdocs build --clean  # local build in site/ (not committed)
    `date-released`), and run `uv sync` so that `uv.lock` picks it up.
 2. Add an entry to the release notes in `mkdocs/index.md` and update its
    "Current Version" line.
-3. Run all the tests: `uv run pytest test`.
+3. Run all the tests: `uv run pytest test`, and check that the ASHRAE 140 results are up to
+   date: `uv run python ASHRAE_140/validation/validate.py --check`.
 4. Commit with the version as message (e.g. `Version 0.8.8: ...`) and push. The
    documentation site is updated automatically.
 5. Publish to PyPI:

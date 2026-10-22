@@ -254,7 +254,11 @@ Next steps, one PR each:
     WD300/WD500.
 - **All six ASHRAE 140 folders are automated** (LOAD, HEATING, COOLING a/b, GROUND,
   AIR_SIDE, WEATHER); all case notebooks archived in `<TEST>/old_notebooks/`.
-- [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
+- [x] CI (branch `ci/ashrae140-validation`): `validate.py --check` compares with the stored
+  CSVs (fails beyond 0.1 % relative + 1e-4 absolute) and `--quick` runs `QUICK_CASES` (18
+  representative cases, ~2 min). `.github/workflows/validation.yml`: quick on pull requests
+  touching src/ASHRAE_140/mets/dependencies, full on merges into `main`, releases and manual
+  runs. Workflow for intended changes documented in `CONTRIBUTING.md`.
 - [ ] Optionally fill `Std140_TF_Output.xlsx` (the plain output form) from the CSV, to paste
   into the Standard's workbook. Do not write into `Std140_*_Results.xlsx` with openpyxl: it
   drops the charts.

@@ -1,0 +1,47 @@
+name: ASHRAE 140 validation
+
+# Simulates the ASHRAE 140 cases and compares the results with the ones stored in
+# ASHRAE_140/validation/results (validate.py --check). A change beyond the tolerance fails the
+# job: if it is intended, run validate.py locally and commit the updated results and page.
+on:
+  pull_request:
+    paths: ["src/**", "ASHRAE_140/**", "mets/**", "pyproject.toml", "uv.lock"]
+  push:
+    branches: [main]
+    paths: ["src/**", "ASHRAE_140/**", "mets/**", "pyproject.toml", "uv.lock"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  quick:
+    # Representative cases of every suite (~2 min)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Check representative cases
+        run: uv run python ASHRAE_140/validation/validate.py --check --quick
+
+  full:
+    # All cases (~10 min)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Check all cases
+        run: uv run python ASHRAE_140/validation/validate.py --check
