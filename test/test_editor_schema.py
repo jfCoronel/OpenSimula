@@ -124,15 +124,21 @@ def test_real_projects_validate(schema, relative_path):
     jsonschema.validate(document, schema)
 
 
-def _project_dicts_in_notebooks(directory):
-    """Yield (notebook, project dict) for every project literal in the notebooks.
+def _ashrae_140_projects(directory):
+    """Yield (name, project dict) for every ASHRAE 140 case.
 
-    The ASHRAE 140 cases define their projects as dict literals inside code
-    cells, which makes them the largest corpus of real project definitions in
-    the repository. They are read with ast.literal_eval, so cells that build a
-    dict from variables are skipped rather than executed.
+    The cases are the largest corpus of real project definitions in the
+    repository: project JSON files in <TEST>/cases/ for the automated folders,
+    plus dict literals still defined inside notebooks (folders not automated
+    yet; read with ast.literal_eval, so cells that build a dict from variables
+    are skipped rather than executed). Archived notebooks are skipped: their
+    cases are the JSON files.
     """
+    for json_path in sorted(directory.glob("*/cases/*.json")):
+        yield json_path.name, json.loads(json_path.read_text())
     for notebook_path in sorted(directory.rglob("*.ipynb")):
+        if "old_notebooks" in notebook_path.parts:
+            continue
         notebook = nbformat.read(notebook_path, as_version=4)
         for cell in notebook.cells:
             if cell.cell_type != "code":
@@ -160,7 +166,7 @@ def test_ashrae_140_projects_validate(schema):
     validator = jsonschema.Draft202012Validator(schema)
     failures = []
     n_documents = 0
-    for notebook, document in _project_dicts_in_notebooks(directory):
+    for notebook, document in _ashrae_140_projects(directory):
         n_documents += 1
         for component in document["components"]:
             type_name = component.get("type")
@@ -176,7 +182,7 @@ def test_ashrae_140_projects_validate(schema):
                 failures.append(f"{notebook}: {type_name}.{path}: {error.message}")
         validator.validate(document)
 
-    assert n_documents > 0, "no project dicts found in the notebooks"
+    assert n_documents > 0, "no ASHRAE 140 project definitions found"
     assert failures == [], "\n".join(failures[:20])
 
 

@@ -1937,3 +1937,1798 @@ Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC,
 |---|---|--:|--:|--:|
 | GC40b | Hourly floor conduction, final year (Wh/h) | 8760 | 0 | 121 Wh/h |
 | GC40c | Hourly floor conduction, final year (Wh/h) | 8760 | 7888 | 12.2 Wh/h |
+
+## Air-side HVAC equipment tests (AE101–AE445)
+
+Reference programs: QAS, DEEAP, DeST, DOE-2.2, EnergyPlus, IES-VE, LCEM, TRNSYS (example results from `Std140_AE_FCSZ_Results.xlsx`). **1122 of 1371 values inside the reference range.**
+
+### AE100 series: loads
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Zone sensible heating load (kWh/h) | 3 | 2 | 1 |
+| Zone sensible cooling load (kWh/h) | 3 | 1 | 2 |
+| Zone latent load (kWh/h) | 3 | 3 | 0 |
+| Heating (preheat) coil load (kWh/h) | 3 | 2 | 1 |
+| Cooling coil sensible load (kWh/h) | 3 | 3 | 0 |
+| Cooling coil latent load (kWh/h) | 3 | 3 | 0 |
+| Cooling coil total load (kWh/h) | 3 | 2 | 1 |
+
+![AE100 series: loads](img/validation/air_side_hvac_test_1.png)
+
+#### Zone sensible heating load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 | 3.021 | 2.930 | 2.931 | 8 | ✗ +3.1 % above max |
+| AE103 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+| AE104 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+
+#### Zone sensible cooling load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+| AE103 | 1.451 | 1.465 | 1.467 | 8 | ✗ -0.9 % below min |
+| AE104 | 2.936 | 2.930 | 2.931 | 8 | ✗ +0.2 % above max |
+
+#### Zone latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 | 0.586 | 0.586 | 0.587 | 8 | ✓ inside |
+| AE103 | 0.586 | 0.586 | 0.590 | 8 | ✓ inside |
+| AE104 | 0.585 | 0.586 | 0.586 | 8 | ✓ inside |
+
+#### Heating (preheat) coil load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 | 8.351 | 8.372 | 8.768 | 8 | ✗ -0.3 % below min |
+| AE103 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE104 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+
+#### Cooling coil sensible load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE103 | 0.758 | 0.752 | 0.784 | 8 | ✓ inside |
+| AE104 | 3.482 | 3.389 | 3.543 | 8 | ✓ inside |
+
+#### Cooling coil latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE103 | -0.000 | 0.000 | 0.010 | 8 | ✓ inside |
+| AE104 | 2.189 | 2.012 | 2.293 | 8 | ✓ inside |
+
+#### Cooling coil total load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE103 | 0.758 | 0.762 | 0.784 | 8 | ✗ -0.5 % below min |
+| AE104 | 5.671 | 5.533 | 5.836 | 8 | ✓ inside |
+
+### AE100 series: coil outlet humidity and air states
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Cooling coil outlet relative humidity (%) | 3 | 3 | 0 |
+| Dry bulb temperature (°C) | 21 | 16 | 5 |
+| Humidity ratio (kg/kg) | 21 | 18 | 3 |
+| Specific volume (L/kg) | 21 | 17 | 4 |
+| Enthalpy (kJ/kg) | 21 | 14 | 7 |
+| Dry air mass flow rate (kg/s) | 18 | 16 | 2 |
+
+#### Cooling coil outlet relative humidity (%)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 | 6.586 | 6.353 | 6.867 | 7 | ✓ inside |
+| AE103 | 32.715 | 31.654 | 33.030 | 8 | ✓ inside |
+| AE104 | 99.745 | 98.660 | 100.000 | 8 | ✓ inside |
+
+#### Dry bulb temperature (°C)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 oa | -29.000 | -29.000 | -29.000 | 8 | ✓ inside |
+| AE101 ma | 4.397 | 4.003 | 4.454 | 8 | ✓ inside |
+| AE101 hco | 29.607 | 28.994 | 29.326 | 8 | ✗ +0.28 °C above max |
+| AE101 cco | 29.607 | 28.994 | 29.326 | 8 | ✗ +0.28 °C above max |
+| AE101 sa | 30.215 | 29.222 | 29.933 | 8 | ✗ +0.28 °C above max |
+| AE101 z1 | 21.095 | 21.099 | 21.118 | 8 | ✓ inside |
+| AE101 ra | 21.095 | 21.099 | 21.118 | 7 | ✓ inside |
+| AE103 oa | 15.500 | 15.500 | 15.500 | 8 | ✓ inside |
+| AE103 ma | 20.724 | 20.689 | 20.774 | 8 | ✓ inside |
+| AE103 hco | 18.510 | 20.721 | 21.278 | 8 | ✗ -2.21 °C below min |
+| AE103 cco | 18.510 | 18.462 | 19.000 | 8 | ✓ inside |
+| AE103 sa | 19.099 | 19.000 | 19.101 | 8 | ✓ inside |
+| AE103 z1 | 23.337 | 23.329 | 23.348 | 8 | ✓ inside |
+| AE103 ra | 23.337 | 23.329 | 23.348 | 7 | ✓ inside |
+| AE104 oa | 26.900 | 26.889 | 26.900 | 8 | ✓ inside |
+| AE104 ma | 24.892 | 24.864 | 24.906 | 8 | ✓ inside |
+| AE104 hco | 14.755 | 24.864 | 25.500 | 8 | ✗ -10.11 °C below min |
+| AE104 cco | 14.755 | 14.701 | 15.222 | 8 | ✓ inside |
+| AE104 sa | 15.342 | 15.222 | 15.525 | 8 | ✓ inside |
+| AE104 z1 | 23.888 | 23.876 | 23.890 | 8 | ✓ inside |
+| AE104 ra | 23.888 | 23.876 | 23.890 | 7 | ✓ inside |
+
+#### Humidity ratio (kg/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 oa | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE101 ma | 0.002 | 0.002 | 0.002 | 8 | ✓ inside |
+| AE101 hco | 0.002 | 0.002 | 0.002 | 8 | ✓ inside |
+| AE101 cco | 0.002 | 0.002 | 0.002 | 8 | ✓ inside |
+| AE101 sa | 0.002 | 0.002 | 0.002 | 8 | ✓ inside |
+| AE101 z1 | 0.002 | 0.002 | 0.002 | 8 | ✗ +0.9 % above max |
+| AE101 ra | 0.002 | 0.002 | 0.002 | 7 | ✗ +0.9 % above max |
+| AE103 oa | 0.003 | 0.003 | 0.003 | 8 | ✓ inside |
+| AE103 ma | 0.004 | 0.004 | 0.004 | 8 | ✓ inside |
+| AE103 hco | 0.004 | 0.004 | 0.004 | 8 | ✓ inside |
+| AE103 cco | 0.004 | 0.004 | 0.004 | 8 | ✓ inside |
+| AE103 sa | 0.004 | 0.004 | 0.004 | 8 | ✓ inside |
+| AE103 z1 | 0.005 | 0.005 | 0.005 | 8 | ✓ inside |
+| AE103 ra | 0.005 | 0.005 | 0.005 | 7 | ✓ inside |
+| AE104 oa | 0.017 | 0.017 | 0.017 | 8 | ✓ inside |
+| AE104 ma | 0.013 | 0.013 | 0.013 | 8 | ✓ inside |
+| AE104 hco | 0.010 | 0.013 | 0.013 | 8 | ✗ -19.3 % below min |
+| AE104 cco | 0.010 | 0.010 | 0.011 | 8 | ✓ inside |
+| AE104 sa | 0.010 | 0.010 | 0.011 | 8 | ✓ inside |
+| AE104 z1 | 0.011 | 0.011 | 0.011 | 8 | ✓ inside |
+| AE104 ra | 0.011 | 0.011 | 0.011 | 7 | ✓ inside |
+
+#### Specific volume (L/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 oa | 691.937 | 691.841 | 833.330 | 6 | ✓ inside |
+| AE101 ma | 788.386 | 787.059 | 833.330 | 6 | ✓ inside |
+| AE101 hco | 859.995 | 830.352 | 859.055 | 6 | ✗ +0.1 % above max |
+| AE101 cco | 859.995 | 830.352 | 859.055 | 6 | ✗ +0.1 % above max |
+| AE101 sa | 861.723 | 830.352 | 860.776 | 6 | ✗ +0.1 % above max |
+| AE101 z1 | 836.771 | 830.352 | 836.689 | 6 | ✓ inside |
+| AE101 ra | 836.771 | 830.352 | 836.689 | 5 | ✓ inside |
+| AE103 oa | 821.567 | 821.405 | 833.330 | 6 | ✓ inside |
+| AE103 ma | 838.282 | 830.352 | 838.437 | 6 | ✓ inside |
+| AE103 hco | 831.966 | 830.352 | 838.437 | 6 | ✓ inside |
+| AE103 cco | 831.966 | 830.352 | 833.330 | 6 | ✓ inside |
+| AE103 sa | 833.644 | 829.577 | 833.628 | 6 | ✓ inside |
+| AE103 z1 | 846.662 | 830.352 | 846.664 | 6 | ✓ inside |
+| AE103 ra | 846.662 | 830.352 | 846.664 | 5 | ✓ inside |
+| AE104 oa | 872.920 | 830.352 | 872.931 | 6 | ✓ inside |
+| AE104 ma | 861.987 | 830.352 | 861.984 | 6 | ✓ inside |
+| AE104 hco | 829.307 | 830.352 | 861.984 | 6 | ✗ -0.1 % below min |
+| AE104 cco | 829.307 | 829.891 | 833.330 | 6 | ✓ inside |
+| AE104 sa | 830.996 | 827.667 | 833.330 | 6 | ✓ inside |
+| AE104 z1 | 856.541 | 830.352 | 856.758 | 6 | ✓ inside |
+| AE104 ra | 856.541 | 830.352 | 856.758 | 5 | ✓ inside |
+
+#### Enthalpy (kJ/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 oa | -28.540 | -28.540 | -28.330 | 5 | ✓ inside |
+| AE101 ma | 8.646 | 8.031 | 8.680 | 5 | ✓ inside |
+| AE101 hco | 34.086 | 33.309 | 33.592 | 5 | ✗ +1.5 % above max |
+| AE101 cco | 34.086 | 33.309 | 33.592 | 5 | ✗ +1.5 % above max |
+| AE101 sa | 34.699 | 33.900 | 34.203 | 5 | ✗ +1.5 % above max |
+| AE101 z1 | 27.304 | 27.034 | 27.263 | 5 | ✗ +0.2 % above max |
+| AE101 ra | 27.304 | 27.034 | 27.263 | 5 | ✗ +0.2 % above max |
+| AE103 oa | 23.010 | 22.996 | 23.032 | 5 | ✓ inside |
+| AE103 ma | 31.795 | 31.706 | 31.890 | 5 | ✓ inside |
+| AE103 hco | 29.549 | 31.706 | 31.890 | 5 | ✗ -6.8 % below min |
+| AE103 cco | 29.549 | 29.461 | 29.598 | 5 | ✓ inside |
+| AE103 sa | 30.146 | 30.052 | 30.190 | 5 | ✓ inside |
+| AE103 z1 | 36.194 | 36.062 | 36.260 | 5 | ✓ inside |
+| AE103 ra | 36.194 | 36.062 | 36.260 | 5 | ✓ inside |
+| AE104 oa | 69.831 | 69.795 | 69.994 | 5 | ✓ inside |
+| AE104 ma | 58.194 | 57.970 | 58.382 | 5 | ✓ inside |
+| AE104 hco | 41.268 | 57.970 | 58.382 | 5 | ✗ -28.8 % below min |
+| AE104 cco | 41.268 | 40.790 | 41.874 | 5 | ✓ inside |
+| AE104 sa | 41.869 | 41.400 | 42.465 | 5 | ✓ inside |
+| AE104 z1 | 52.378 | 51.940 | 52.774 | 5 | ✓ inside |
+| AE104 ra | 52.378 | 51.940 | 52.774 | 5 | ✓ inside |
+
+#### Dry air mass flow rate (kg/s)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE101 oa | 0.110 | 0.113 | 0.120 | 8 | ✗ -2.7 % below min |
+| AE101 ma | 0.329 | 0.330 | 0.359 | 8 | ✓ inside |
+| AE101 hco | 0.329 | 0.330 | 0.359 | 8 | ✓ inside |
+| AE101 cco | 0.329 | 0.330 | 0.359 | 8 | ✓ inside |
+| AE101 sa | 0.329 | 0.330 | 0.359 | 8 | ✓ inside |
+| AE101 ra | 0.220 | 0.217 | 0.239 | 7 | ✓ inside |
+| AE103 oa | 0.113 | 0.111 | 0.114 | 8 | ✓ inside |
+| AE103 ma | 0.340 | 0.337 | 0.341 | 8 | ✓ inside |
+| AE103 hco | 0.340 | 0.337 | 0.341 | 8 | ✓ inside |
+| AE103 cco | 0.340 | 0.337 | 0.341 | 8 | ✓ inside |
+| AE103 sa | 0.340 | 0.337 | 0.341 | 8 | ✓ inside |
+| AE103 ra | 0.227 | 0.225 | 0.229 | 7 | ✓ inside |
+| AE104 oa | 0.114 | 0.109 | 0.114 | 8 | ✗ +0.1 % above max |
+| AE104 ma | 0.341 | 0.328 | 0.341 | 8 | ✓ inside |
+| AE104 hco | 0.341 | 0.328 | 0.341 | 8 | ✓ inside |
+| AE104 cco | 0.341 | 0.328 | 0.341 | 8 | ✓ inside |
+| AE104 sa | 0.341 | 0.328 | 0.341 | 8 | ✓ inside |
+| AE104 ra | 0.228 | 0.219 | 0.231 | 7 | ✓ inside |
+
+### AE200 series: loads
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Zone sensible heating load (kWh/h) | 7 | 6 | 1 |
+| Zone sensible cooling load (kWh/h) | 7 | 5 | 2 |
+| Zone latent load (kWh/h) | 7 | 6 | 1 |
+| Heating (preheat) coil load (kWh/h) | 7 | 6 | 1 |
+| Cooling coil sensible load (kWh/h) | 7 | 7 | 0 |
+| Cooling coil latent load (kWh/h) | 7 | 7 | 0 |
+| Cooling coil total load (kWh/h) | 7 | 6 | 1 |
+
+![AE200 series: loads](img/validation/air_side_hvac_test_3.png)
+
+#### Zone sensible heating load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 | 3.021 | 2.930 | 2.931 | 8 | ✗ +3.1 % above max |
+| AE203 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+| AE204 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+| AE205 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+| AE206 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+| AE226 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+| AE245 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+
+#### Zone sensible cooling load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 | 0.000 | 0.000 | 0.000 | 5 | ✓ inside |
+| AE203 | 1.451 | 1.465 | 1.467 | 8 | ✗ -0.9 % below min |
+| AE204 | 2.936 | 2.930 | 2.931 | 8 | ✗ +0.2 % above max |
+| AE205 | 1.467 | 1.464 | 1.470 | 8 | ✓ inside |
+| AE206 | 1.464 | 1.464 | 1.470 | 8 | ✓ inside |
+| AE226 | 1.464 | 1.464 | 1.466 | 8 | ✓ inside |
+| AE245 | 1.467 | 1.464 | 1.564 | 8 | ✓ inside |
+
+#### Zone latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 | 0.586 | 0.586 | 0.590 | 8 | ✓ inside |
+| AE203 | 0.586 | 0.586 | 0.590 | 8 | ✓ inside |
+| AE204 | 0.584 | 0.586 | 0.586 | 8 | ✗ -0.2 % below min |
+| AE205 | 0.586 | 0.586 | 0.590 | 8 | ✓ inside |
+| AE206 | 0.586 | 0.586 | 0.590 | 8 | ✓ inside |
+| AE226 | 0.588 | 0.586 | 0.590 | 8 | ✓ inside |
+| AE245 | 0.586 | 0.586 | 0.590 | 8 | ✓ inside |
+
+#### Heating (preheat) coil load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 | 8.285 | 8.302 | 8.709 | 8 | ✗ -0.2 % below min |
+| AE203 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE204 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE205 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE206 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE226 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE245 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+
+#### Cooling coil sensible load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE203 | 0.826 | 0.819 | 0.856 | 8 | ✓ inside |
+| AE204 | 3.551 | 3.456 | 3.608 | 8 | ✓ inside |
+| AE205 | 1.915 | 1.880 | 1.929 | 8 | ✓ inside |
+| AE206 | 1.696 | 1.646 | 1.731 | 8 | ✓ inside |
+| AE226 | 1.553 | 1.503 | 1.597 | 8 | ✓ inside |
+| AE245 | 2.205 | 2.171 | 2.216 | 8 | ✓ inside |
+
+#### Cooling coil latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE203 | -0.000 | 0.000 | 0.011 | 8 | ✓ inside |
+| AE204 | 2.188 | 2.054 | 2.289 | 8 | ✓ inside |
+| AE205 | -0.000 | 0.000 | 0.031 | 8 | ✓ inside |
+| AE206 | 1.046 | 0.963 | 1.087 | 8 | ✓ inside |
+| AE226 | 1.959 | 1.778 | 2.050 | 8 | ✓ inside |
+| AE245 | -0.000 | 0.000 | 0.031 | 8 | ✓ inside |
+
+#### Cooling coil total load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE203 | 0.826 | 0.830 | 0.856 | 8 | ✗ -0.4 % below min |
+| AE204 | 5.740 | 5.623 | 5.897 | 8 | ✓ inside |
+| AE205 | 1.915 | 1.908 | 1.929 | 8 | ✓ inside |
+| AE206 | 2.742 | 2.664 | 2.818 | 8 | ✓ inside |
+| AE226 | 3.512 | 3.335 | 3.643 | 8 | ✓ inside |
+| AE245 | 2.205 | 2.188 | 2.216 | 8 | ✓ inside |
+
+### AE200 series: coil outlet humidity and air states
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Cooling coil outlet relative humidity (%) | 7 | 7 | 0 |
+| Dry bulb temperature (°C) | 56 | 43 | 13 |
+| Humidity ratio (kg/kg) | 56 | 45 | 11 |
+| Specific volume (L/kg) | 56 | 52 | 4 |
+| Enthalpy (kJ/kg) | 56 | 41 | 15 |
+| Dry air mass flow rate (kg/s) | 49 | 43 | 6 |
+
+#### Cooling coil outlet relative humidity (%)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 | 6.586 | 6.353 | 6.871 | 7 | ✓ inside |
+| AE203 | 32.715 | 32.515 | 33.030 | 8 | ✓ inside |
+| AE204 | 99.753 | 98.620 | 100.000 | 8 | ✓ inside |
+| AE205 | 44.547 | 44.111 | 44.853 | 8 | ✓ inside |
+| AE206 | 99.652 | 99.025 | 100.000 | 8 | ✓ inside |
+| AE226 | 99.704 | 99.650 | 100.000 | 8 | ✓ inside |
+| AE245 | 34.109 | 33.839 | 34.330 | 8 | ✓ inside |
+
+#### Dry bulb temperature (°C)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 oa | -29.000 | -29.000 | -29.000 | 8 | ✓ inside |
+| AE201 ma | 4.594 | 4.183 | 4.648 | 8 | ✓ inside |
+| AE201 hco | 29.607 | 28.667 | 29.326 | 8 | ✗ +0.28 °C above max |
+| AE201 cco | 29.607 | 28.667 | 29.326 | 8 | ✗ +0.28 °C above max |
+| AE201 sa | 30.215 | 29.576 | 29.933 | 7 | ✗ +0.28 °C above max |
+| AE201 z1 | 21.095 | 21.099 | 21.119 | 8 | ✓ inside |
+| AE201 rfi | 21.095 | 21.099 | 21.119 | 8 | ✓ inside |
+| AE201 rfo | 21.391 | 21.383 | 21.408 | 8 | ✓ inside |
+| AE203 oa | 15.500 | 15.500 | 15.500 | 8 | ✓ inside |
+| AE203 ma | 20.924 | 20.889 | 20.985 | 8 | ✓ inside |
+| AE203 hco | 18.510 | 20.889 | 20.985 | 8 | ✗ -2.38 °C below min |
+| AE203 cco | 18.510 | 18.444 | 18.519 | 8 | ✓ inside |
+| AE203 sa | 19.099 | 19.052 | 19.101 | 7 | ✓ inside |
+| AE203 z1 | 23.337 | 23.329 | 23.348 | 8 | ✓ inside |
+| AE203 rfi | 23.337 | 23.329 | 23.348 | 8 | ✓ inside |
+| AE203 rfo | 23.636 | 23.611 | 23.648 | 8 | ✓ inside |
+| AE204 oa | 26.900 | 26.889 | 26.900 | 8 | ✓ inside |
+| AE204 ma | 25.094 | 25.065 | 25.111 | 8 | ✓ inside |
+| AE204 hco | 14.755 | 25.065 | 25.111 | 8 | ✗ -10.31 °C below min |
+| AE204 cco | 14.755 | 14.611 | 14.949 | 8 | ✓ inside |
+| AE204 sa | 15.342 | 15.312 | 15.525 | 7 | ✓ inside |
+| AE204 z1 | 23.888 | 23.882 | 23.897 | 8 | ✓ inside |
+| AE204 rfi | 23.888 | 23.882 | 23.897 | 8 | ✓ inside |
+| AE204 rfo | 24.191 | 24.167 | 24.217 | 8 | ✓ inside |
+| AE205 oa | 24.900 | 24.889 | 24.900 | 8 | ✓ inside |
+| AE205 ma | 24.055 | 24.041 | 24.056 | 8 | ✓ inside |
+| AE205 hco | 18.450 | 24.041 | 24.056 | 8 | ✗ -5.59 °C below min |
+| AE205 cco | 18.450 | 18.444 | 18.524 | 8 | ✓ inside |
+| AE205 sa | 19.040 | 19.053 | 19.109 | 7 | ✓ inside |
+| AE205 z1 | 23.333 | 23.330 | 23.348 | 8 | ✓ inside |
+| AE205 rfi | 23.333 | 23.330 | 23.348 | 8 | ✓ inside |
+| AE205 rfo | 23.633 | 23.620 | 23.667 | 8 | ✓ inside |
+| AE206 oa | 23.000 | 23.000 | 23.000 | 8 | ✓ inside |
+| AE206 ma | 23.424 | 23.407 | 23.444 | 8 | ✓ inside |
+| AE206 hco | 18.401 | 23.407 | 23.444 | 8 | ✗ -5.01 °C below min |
+| AE206 cco | 18.401 | 18.444 | 18.589 | 8 | ✗ -0.04 °C below min |
+| AE206 sa | 18.998 | 19.045 | 19.165 | 7 | ✗ -0.05 °C below min |
+| AE206 z1 | 23.333 | 23.330 | 23.338 | 8 | ✓ inside |
+| AE206 rfi | 23.333 | 23.330 | 23.338 | 8 | ✓ inside |
+| AE206 rfo | 23.637 | 23.611 | 23.648 | 8 | ✓ inside |
+| AE226 oa | 23.000 | 23.000 | 23.000 | 8 | ✓ inside |
+| AE226 ma | 23.000 | 23.000 | 23.000 | 8 | ✓ inside |
+| AE226 hco | 18.401 | 23.000 | 23.000 | 8 | ✗ -4.60 °C below min |
+| AE226 cco | 18.401 | 18.444 | 18.590 | 8 | ✗ -0.04 °C below min |
+| AE226 sa | 18.998 | 19.034 | 19.165 | 7 | ✗ -0.04 °C below min |
+| AE226 z1 | 23.333 | 23.327 | 23.333 | 8 | ✓ inside |
+| AE226 rfi | 23.333 | 23.327 | 23.333 | 8 | ✓ inside |
+| AE226 rfo | 23.637 | 23.616 | 23.667 | 8 | ✓ inside |
+| AE245 oa | 24.900 | 24.889 | 24.900 | 8 | ✓ inside |
+| AE245 ma | 24.900 | 24.889 | 24.900 | 8 | ✓ inside |
+| AE245 hco | 18.461 | 24.889 | 24.900 | 8 | ✗ -6.43 °C below min |
+| AE245 cco | 18.461 | 18.444 | 18.519 | 8 | ✓ inside |
+| AE245 sa | 19.049 | 19.053 | 19.101 | 7 | ✓ inside |
+| AE245 z1 | 23.333 | 23.323 | 23.348 | 8 | ✓ inside |
+| AE245 rfi | 23.333 | 23.323 | 23.348 | 8 | ✓ inside |
+| AE245 rfo | 23.632 | 23.621 | 23.667 | 8 | ✓ inside |
+
+#### Humidity ratio (kg/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 oa | 0.000 | 0.000 | 0.000 | 8 | ✓ inside |
+| AE201 ma | 0.002 | 0.002 | 0.002 | 8 | ✓ inside |
+| AE201 hco | 0.002 | 0.002 | 0.002 | 8 | ✓ inside |
+| AE201 cco | 0.002 | 0.002 | 0.002 | 8 | ✓ inside |
+| AE201 sa | 0.002 | 0.002 | 0.002 | 8 | ✓ inside |
+| AE201 z1 | 0.002 | 0.002 | 0.002 | 8 | ✗ +0.9 % above max |
+| AE201 rfi | 0.002 | 0.002 | 0.002 | 8 | ✗ +0.9 % above max |
+| AE201 rfo | 0.002 | 0.002 | 0.002 | 8 | ✗ +0.9 % above max |
+| AE203 oa | 0.003 | 0.003 | 0.003 | 8 | ✓ inside |
+| AE203 ma | 0.004 | 0.004 | 0.004 | 8 | ✓ inside |
+| AE203 hco | 0.004 | 0.004 | 0.004 | 8 | ✓ inside |
+| AE203 cco | 0.004 | 0.004 | 0.004 | 8 | ✓ inside |
+| AE203 sa | 0.004 | 0.004 | 0.004 | 8 | ✓ inside |
+| AE203 z1 | 0.005 | 0.005 | 0.005 | 8 | ✓ inside |
+| AE203 rfi | 0.005 | 0.005 | 0.005 | 8 | ✓ inside |
+| AE203 rfo | 0.005 | 0.005 | 0.005 | 8 | ✓ inside |
+| AE204 oa | 0.017 | 0.017 | 0.017 | 8 | ✓ inside |
+| AE204 ma | 0.013 | 0.013 | 0.013 | 8 | ✓ inside |
+| AE204 hco | 0.010 | 0.013 | 0.013 | 8 | ✗ -19.3 % below min |
+| AE204 cco | 0.010 | 0.010 | 0.011 | 8 | ✓ inside |
+| AE204 sa | 0.010 | 0.010 | 0.011 | 8 | ✓ inside |
+| AE204 z1 | 0.011 | 0.011 | 0.011 | 8 | ✓ inside |
+| AE204 rfi | 0.011 | 0.011 | 0.011 | 8 | ✓ inside |
+| AE204 rfo | 0.011 | 0.011 | 0.011 | 8 | ✓ inside |
+| AE205 oa | 0.004 | 0.004 | 0.005 | 8 | ✓ inside |
+| AE205 ma | 0.006 | 0.006 | 0.006 | 8 | ✓ inside |
+| AE205 hco | 0.006 | 0.006 | 0.006 | 8 | ✓ inside |
+| AE205 cco | 0.006 | 0.006 | 0.006 | 8 | ✓ inside |
+| AE205 sa | 0.006 | 0.006 | 0.006 | 8 | ✓ inside |
+| AE205 z1 | 0.007 | 0.007 | 0.007 | 8 | ✓ inside |
+| AE205 rfi | 0.007 | 0.007 | 0.007 | 8 | ✓ inside |
+| AE205 rfo | 0.007 | 0.007 | 0.007 | 8 | ✓ inside |
+| AE206 oa | 0.016 | 0.016 | 0.016 | 8 | ✓ inside |
+| AE206 ma | 0.014 | 0.014 | 0.015 | 8 | ✓ inside |
+| AE206 hco | 0.013 | 0.014 | 0.015 | 8 | ✗ -8.7 % below min |
+| AE206 cco | 0.013 | 0.013 | 0.013 | 8 | ✓ inside |
+| AE206 sa | 0.013 | 0.013 | 0.013 | 8 | ✓ inside |
+| AE206 z1 | 0.014 | 0.014 | 0.014 | 8 | ✓ inside |
+| AE206 rfi | 0.014 | 0.014 | 0.014 | 8 | ✓ inside |
+| AE206 rfo | 0.014 | 0.014 | 0.014 | 8 | ✓ inside |
+| AE226 oa | 0.016 | 0.016 | 0.016 | 8 | ✓ inside |
+| AE226 ma | 0.016 | 0.016 | 0.016 | 8 | ✓ inside |
+| AE226 hco | 0.013 | 0.016 | 0.016 | 8 | ✗ -14.8 % below min |
+| AE226 cco | 0.013 | 0.013 | 0.013 | 8 | ✗ -0.2 % below min |
+| AE226 sa | 0.013 | 0.013 | 0.013 | 8 | ✗ -0.2 % below min |
+| AE226 z1 | 0.014 | 0.014 | 0.014 | 8 | ✗ -0.1 % below min |
+| AE226 rfi | 0.014 | 0.014 | 0.014 | 8 | ✗ -0.1 % below min |
+| AE226 rfo | 0.014 | 0.014 | 0.014 | 8 | ✗ -0.1 % below min |
+| AE245 oa | 0.004 | 0.004 | 0.005 | 8 | ✓ inside |
+| AE245 ma | 0.004 | 0.004 | 0.005 | 8 | ✓ inside |
+| AE245 hco | 0.004 | 0.004 | 0.005 | 8 | ✓ inside |
+| AE245 cco | 0.004 | 0.004 | 0.005 | 8 | ✓ inside |
+| AE245 sa | 0.004 | 0.004 | 0.005 | 8 | ✓ inside |
+| AE245 z1 | 0.005 | 0.005 | 0.005 | 8 | ✓ inside |
+| AE245 rfi | 0.005 | 0.005 | 0.005 | 8 | ✓ inside |
+| AE245 rfo | 0.005 | 0.005 | 0.005 | 8 | ✓ inside |
+
+#### Specific volume (L/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 oa | 691.937 | 691.841 | 833.330 | 6 | ✓ inside |
+| AE201 ma | 788.946 | 787.610 | 833.330 | 6 | ✓ inside |
+| AE201 hco | 859.995 | 830.352 | 859.055 | 6 | ✗ +0.1 % above max |
+| AE201 cco | 859.995 | 830.352 | 859.055 | 6 | ✗ +0.1 % above max |
+| AE201 sa | 861.723 | 830.352 | 860.776 | 6 | ✗ +0.1 % above max |
+| AE201 z1 | 836.771 | 830.352 | 836.689 | 6 | ✓ inside |
+| AE201 rfi | 836.771 | 830.352 | 836.689 | 6 | ✓ inside |
+| AE201 rfo | 837.613 | 830.352 | 837.463 | 6 | ✓ inside |
+| AE203 oa | 821.567 | 821.405 | 833.330 | 6 | ✓ inside |
+| AE203 ma | 838.851 | 830.352 | 839.044 | 6 | ✓ inside |
+| AE203 hco | 831.966 | 830.352 | 839.044 | 6 | ✓ inside |
+| AE203 cco | 831.966 | 830.352 | 833.330 | 6 | ✓ inside |
+| AE203 sa | 833.644 | 829.586 | 833.628 | 6 | ✓ inside |
+| AE203 z1 | 846.662 | 830.352 | 846.674 | 6 | ✓ inside |
+| AE203 rfi | 846.662 | 830.352 | 846.674 | 6 | ✓ inside |
+| AE203 rfo | 847.517 | 830.352 | 847.544 | 6 | ✓ inside |
+| AE204 oa | 872.920 | 830.352 | 872.931 | 6 | ✓ inside |
+| AE204 ma | 862.569 | 830.352 | 862.620 | 6 | ✓ inside |
+| AE204 hco | 829.308 | 830.352 | 862.620 | 6 | ✗ -0.1 % below min |
+| AE204 cco | 829.308 | 829.891 | 833.330 | 6 | ✓ inside |
+| AE204 sa | 830.997 | 827.667 | 833.330 | 6 | ✓ inside |
+| AE204 z1 | 856.541 | 830.352 | 856.758 | 6 | ✓ inside |
+| AE204 rfi | 856.541 | 830.352 | 856.758 | 6 | ✓ inside |
+| AE204 rfo | 857.414 | 830.352 | 857.672 | 6 | ✓ inside |
+| AE205 oa | 850.421 | 830.352 | 850.438 | 6 | ✓ inside |
+| AE205 ma | 849.882 | 830.352 | 849.907 | 6 | ✓ inside |
+| AE205 hco | 833.853 | 830.352 | 849.907 | 6 | ✓ inside |
+| AE205 cco | 833.853 | 830.352 | 834.058 | 6 | ✓ inside |
+| AE205 sa | 835.540 | 830.352 | 835.706 | 6 | ✓ inside |
+| AE205 z1 | 848.748 | 830.352 | 848.765 | 6 | ✓ inside |
+| AE205 rfi | 848.748 | 830.352 | 848.765 | 6 | ✓ inside |
+| AE205 rfo | 849.607 | 830.352 | 849.653 | 6 | ✓ inside |
+| AE206 oa | 859.948 | 830.352 | 859.942 | 6 | ✓ inside |
+| AE206 ma | 859.707 | 830.352 | 859.843 | 6 | ✓ inside |
+| AE206 hco | 843.493 | 830.352 | 859.843 | 6 | ✓ inside |
+| AE206 cco | 843.493 | 830.352 | 844.047 | 6 | ✓ inside |
+| AE206 sa | 845.218 | 830.352 | 845.690 | 6 | ✓ inside |
+| AE206 z1 | 858.704 | 830.352 | 858.905 | 6 | ✓ inside |
+| AE206 rfi | 858.704 | 830.352 | 858.905 | 6 | ✓ inside |
+| AE206 rfo | 859.583 | 830.352 | 859.780 | 6 | ✓ inside |
+| AE226 oa | 859.948 | 830.352 | 859.942 | 6 | ✓ inside |
+| AE226 ma | 859.954 | 830.352 | 859.942 | 6 | ✓ inside |
+| AE226 hco | 843.502 | 830.352 | 859.942 | 6 | ✓ inside |
+| AE226 cco | 843.502 | 830.352 | 844.033 | 6 | ✓ inside |
+| AE226 sa | 845.227 | 830.352 | 845.690 | 6 | ✓ inside |
+| AE226 z1 | 858.716 | 830.352 | 858.892 | 6 | ✓ inside |
+| AE226 rfi | 858.716 | 830.352 | 858.892 | 6 | ✓ inside |
+| AE226 rfo | 859.595 | 830.352 | 859.780 | 6 | ✓ inside |
+| AE245 oa | 850.421 | 830.352 | 850.438 | 6 | ✓ inside |
+| AE245 ma | 850.424 | 830.352 | 850.438 | 6 | ✓ inside |
+| AE245 hco | 832.051 | 830.352 | 850.438 | 6 | ✓ inside |
+| AE245 cco | 832.051 | 830.352 | 833.330 | 6 | ✓ inside |
+| AE245 sa | 833.730 | 829.764 | 833.848 | 6 | ✓ inside |
+| AE245 z1 | 846.882 | 830.352 | 846.875 | 6 | ✓ inside |
+| AE245 rfi | 846.882 | 830.352 | 846.875 | 6 | ✓ inside |
+| AE245 rfo | 847.737 | 830.352 | 847.768 | 6 | ✓ inside |
+
+#### Enthalpy (kJ/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 oa | -28.540 | -28.543 | -28.330 | 5 | ✓ inside |
+| AE201 ma | 8.845 | 8.212 | 8.892 | 5 | ✓ inside |
+| AE201 hco | 34.086 | 33.309 | 33.594 | 5 | ✗ +1.5 % above max |
+| AE201 cco | 34.086 | 33.309 | 33.594 | 5 | ✗ +1.5 % above max |
+| AE201 sa | 34.699 | 33.900 | 34.206 | 5 | ✗ +1.4 % above max |
+| AE201 z1 | 27.304 | 27.035 | 27.266 | 5 | ✗ +0.1 % above max |
+| AE201 rfi | 27.304 | 27.035 | 27.266 | 5 | ✗ +0.1 % above max |
+| AE201 rfo | 27.603 | 27.327 | 27.564 | 5 | ✗ +0.1 % above max |
+| AE203 oa | 23.010 | 22.996 | 23.032 | 5 | ✓ inside |
+| AE203 ma | 31.997 | 31.903 | 32.106 | 5 | ✓ inside |
+| AE203 hco | 29.549 | 31.903 | 32.106 | 5 | ✗ -7.4 % below min |
+| AE203 cco | 29.549 | 29.461 | 29.601 | 5 | ✓ inside |
+| AE203 sa | 30.146 | 30.052 | 30.193 | 5 | ✓ inside |
+| AE203 z1 | 36.194 | 36.061 | 36.260 | 5 | ✓ inside |
+| AE203 rfi | 36.194 | 36.061 | 36.260 | 5 | ✓ inside |
+| AE203 rfo | 36.498 | 36.357 | 36.560 | 5 | ✓ inside |
+| AE204 oa | 69.831 | 69.795 | 69.994 | 5 | ✓ inside |
+| AE204 ma | 58.399 | 58.200 | 58.581 | 5 | ✓ inside |
+| AE204 hco | 41.270 | 58.200 | 58.581 | 5 | ✗ -29.1 % below min |
+| AE204 cco | 41.270 | 40.840 | 41.874 | 5 | ✓ inside |
+| AE204 sa | 41.871 | 41.440 | 42.465 | 5 | ✓ inside |
+| AE204 z1 | 52.377 | 51.990 | 52.775 | 5 | ✓ inside |
+| AE204 rfi | 52.377 | 51.990 | 52.775 | 5 | ✓ inside |
+| AE204 rfo | 52.688 | 52.290 | 53.109 | 5 | ✓ inside |
+| AE205 oa | 36.457 | 36.435 | 36.500 | 5 | ✓ inside |
+| AE205 ma | 39.120 | 39.008 | 39.183 | 5 | ✓ inside |
+| AE205 hco | 33.420 | 39.008 | 39.183 | 5 | ✗ -14.3 % below min |
+| AE205 cco | 33.420 | 33.399 | 33.549 | 5 | ✓ inside |
+| AE205 sa | 34.020 | 33.990 | 34.142 | 5 | ✓ inside |
+| AE205 z1 | 40.141 | 39.999 | 40.230 | 5 | ✓ inside |
+| AE205 rfi | 40.141 | 39.999 | 40.230 | 5 | ✓ inside |
+| AE205 rfo | 40.447 | 40.295 | 40.530 | 5 | ✓ inside |
+| AE206 oa | 62.719 | 62.663 | 62.851 | 5 | ✓ inside |
+| AE206 ma | 60.383 | 60.360 | 60.625 | 5 | ✓ inside |
+| AE206 hco | 52.039 | 60.360 | 60.625 | 5 | ✗ -13.8 % below min |
+| AE206 cco | 52.039 | 52.060 | 52.683 | 5 | ✓ inside |
+| AE206 sa | 52.653 | 52.670 | 53.290 | 5 | ✓ inside |
+| AE206 z1 | 58.897 | 58.850 | 59.302 | 5 | ✓ inside |
+| AE206 rfi | 58.897 | 58.850 | 59.302 | 5 | ✓ inside |
+| AE206 rfo | 59.211 | 59.160 | 59.606 | 5 | ✓ inside |
+| AE226 oa | 62.719 | 62.663 | 62.851 | 5 | ✓ inside |
+| AE226 ma | 62.731 | 62.663 | 62.851 | 5 | ✓ inside |
+| AE226 hco | 52.056 | 62.663 | 62.851 | 5 | ✗ -16.9 % below min |
+| AE226 cco | 52.056 | 52.130 | 52.683 | 5 | ✗ -0.1 % below min |
+| AE226 sa | 52.671 | 52.740 | 53.290 | 5 | ✗ -0.1 % below min |
+| AE226 z1 | 58.920 | 58.920 | 59.302 | 5 | ✓ inside |
+| AE226 rfi | 58.920 | 58.920 | 59.302 | 5 | ✓ inside |
+| AE226 rfo | 59.233 | 58.920 | 59.606 | 5 | ✓ inside |
+| AE245 oa | 36.457 | 36.435 | 36.510 | 5 | ✓ inside |
+| AE245 ma | 36.463 | 36.435 | 36.510 | 5 | ✓ inside |
+| AE245 hco | 29.932 | 36.435 | 36.510 | 5 | ✗ -17.8 % below min |
+| AE245 cco | 29.932 | 29.962 | 30.003 | 5 | ✗ -0.1 % below min |
+| AE245 sa | 30.528 | 30.553 | 30.596 | 5 | ✓ inside |
+| AE245 z1 | 36.625 | 36.562 | 36.700 | 5 | ✓ inside |
+| AE245 rfi | 36.625 | 36.562 | 36.700 | 5 | ✓ inside |
+| AE245 rfo | 36.930 | 36.700 | 36.942 | 5 | ✓ inside |
+
+#### Dry air mass flow rate (kg/s)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE201 oa | 0.110 | 0.113 | 0.120 | 8 | ✗ -2.7 % below min |
+| AE201 ma | 0.329 | 0.330 | 0.359 | 8 | ✓ inside |
+| AE201 hco | 0.329 | 0.330 | 0.359 | 8 | ✓ inside |
+| AE201 cco | 0.329 | 0.330 | 0.359 | 8 | ✓ inside |
+| AE201 sa | 0.329 | 0.330 | 0.359 | 8 | ✓ inside |
+| AE201 rfi | 0.220 | 0.217 | 0.239 | 8 | ✓ inside |
+| AE201 rfo | 0.220 | 0.217 | 0.239 | 8 | ✓ inside |
+| AE203 oa | 0.113 | 0.111 | 0.114 | 8 | ✓ inside |
+| AE203 ma | 0.340 | 0.338 | 0.341 | 8 | ✓ inside |
+| AE203 hco | 0.340 | 0.338 | 0.341 | 8 | ✓ inside |
+| AE203 cco | 0.340 | 0.338 | 0.341 | 8 | ✓ inside |
+| AE203 sa | 0.340 | 0.338 | 0.341 | 8 | ✓ inside |
+| AE203 rfi | 0.227 | 0.225 | 0.229 | 8 | ✓ inside |
+| AE203 rfo | 0.227 | 0.225 | 0.229 | 8 | ✓ inside |
+| AE204 oa | 0.114 | 0.109 | 0.114 | 8 | ✗ +0.1 % above max |
+| AE204 ma | 0.341 | 0.328 | 0.341 | 8 | ✓ inside |
+| AE204 hco | 0.341 | 0.328 | 0.341 | 8 | ✓ inside |
+| AE204 cco | 0.341 | 0.328 | 0.341 | 8 | ✓ inside |
+| AE204 sa | 0.341 | 0.328 | 0.341 | 8 | ✓ inside |
+| AE204 rfi | 0.228 | 0.219 | 0.231 | 8 | ✓ inside |
+| AE204 rfo | 0.228 | 0.219 | 0.231 | 8 | ✓ inside |
+| AE205 oa | 0.113 | 0.111 | 0.114 | 8 | ✓ inside |
+| AE205 ma | 0.340 | 0.333 | 0.341 | 8 | ✓ inside |
+| AE205 hco | 0.340 | 0.333 | 0.341 | 8 | ✓ inside |
+| AE205 cco | 0.340 | 0.333 | 0.341 | 8 | ✓ inside |
+| AE205 sa | 0.340 | 0.333 | 0.341 | 8 | ✓ inside |
+| AE205 rfi | 0.226 | 0.222 | 0.228 | 8 | ✓ inside |
+| AE205 rfo | 0.226 | 0.222 | 0.228 | 8 | ✓ inside |
+| AE206 oa | 0.112 | 0.110 | 0.114 | 8 | ✓ inside |
+| AE206 ma | 0.336 | 0.329 | 0.341 | 8 | ✓ inside |
+| AE206 hco | 0.336 | 0.329 | 0.341 | 8 | ✓ inside |
+| AE206 cco | 0.336 | 0.329 | 0.341 | 8 | ✓ inside |
+| AE206 sa | 0.336 | 0.329 | 0.341 | 8 | ✓ inside |
+| AE206 rfi | 0.224 | 0.220 | 0.227 | 8 | ✓ inside |
+| AE206 rfo | 0.224 | 0.220 | 0.227 | 8 | ✓ inside |
+| AE226 oa | 0.336 | 0.329 | 0.341 | 8 | ✓ inside |
+| AE226 ma | 0.336 | 0.329 | 0.341 | 8 | ✓ inside |
+| AE226 hco | 0.336 | 0.329 | 0.341 | 8 | ✓ inside |
+| AE226 cco | 0.336 | 0.329 | 0.341 | 8 | ✓ inside |
+| AE226 sa | 0.336 | 0.329 | 0.341 | 8 | ✓ inside |
+| AE226 rfi | 0.000 | 0.220 | 0.227 | 8 | ✗ -100.0 % below min |
+| AE226 rfo | 0.000 | 0.220 | 0.227 | 8 | ✗ -100.0 % below min |
+| AE245 oa | 0.340 | 0.333 | 0.341 | 8 | ✓ inside |
+| AE245 ma | 0.340 | 0.333 | 0.341 | 8 | ✓ inside |
+| AE245 hco | 0.340 | 0.333 | 0.341 | 8 | ✓ inside |
+| AE245 cco | 0.340 | 0.333 | 0.341 | 8 | ✓ inside |
+| AE245 sa | 0.340 | 0.333 | 0.341 | 8 | ✓ inside |
+| AE245 rfi | 0.000 | 0.222 | 0.229 | 8 | ✗ -100.0 % below min |
+| AE245 rfo | 0.000 | 0.222 | 0.229 | 8 | ✗ -100.0 % below min |
+
+### AE300 series: loads
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Zone 1 sensible heating load (kWh/h) | 7 | 6 | 1 |
+| Zone 1 sensible cooling load (kWh/h) | 7 | 6 | 1 |
+| Zone 1 latent load (kWh/h) | 7 | 3 | 4 |
+| Zone 2 sensible heating load (kWh/h) | 7 | 6 | 1 |
+| Zone 2 sensible cooling load (kWh/h) | 7 | 6 | 1 |
+| Zone 2 latent load (kWh/h) | 7 | 4 | 3 |
+| Heating (preheat) coil load (kWh/h) | 7 | 7 | 0 |
+| Cooling coil sensible load (kWh/h) | 7 | 7 | 0 |
+| Cooling coil latent load (kWh/h) | 7 | 7 | 0 |
+| Cooling coil total load (kWh/h) | 7 | 7 | 0 |
+| Zone 1 reheat coil load (kWh/h) | 7 | 6 | 1 |
+| Zone 2 reheat coil load (kWh/h) | 7 | 6 | 1 |
+
+![AE300 series: loads](img/validation/air_side_hvac_test_5.png)
+
+#### Zone 1 sensible heating load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 3.019 | 2.930 | 2.931 | 7 | ✗ +3.0 % above max |
+| AE303 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE304 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE305 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE306 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE326 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE345 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+
+#### Zone 1 sensible cooling load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE303 | 1.450 | 1.465 | 1.467 | 7 | ✗ -1.0 % below min |
+| AE304 | 2.936 | 2.931 | 2.934 | 7 | ✓ inside |
+| AE305 | 1.467 | 1.465 | 1.466 | 7 | ✓ inside |
+| AE306 | 1.464 | 1.465 | 1.466 | 7 | ✓ inside |
+| AE326 | 1.464 | 1.465 | 1.466 | 7 | ✓ inside |
+| AE345 | 1.467 | 1.465 | 1.466 | 7 | ✓ inside |
+
+#### Zone 1 latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 0.515 | 0.586 | 0.590 | 7 | ✗ -12.1 % below min |
+| AE303 | 0.738 | 0.586 | 0.590 | 7 | ✗ +25.2 % above max |
+| AE304 | 0.586 | 0.586 | 0.593 | 7 | ✓ inside |
+| AE305 | 0.705 | 0.586 | 0.590 | 7 | ✗ +19.5 % above max |
+| AE306 | 0.585 | 0.586 | 0.590 | 7 | ✗ -0.1 % below min |
+| AE326 | 0.586 | 0.586 | 0.590 | 7 | ✓ inside |
+| AE345 | 0.586 | 0.586 | 0.590 | 7 | ✓ inside |
+
+#### Zone 2 sensible heating load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 2.434 | 2.345 | 2.350 | 7 | ✗ +3.6 % above max |
+| AE303 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE304 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE305 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE306 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE326 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE345 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+
+#### Zone 2 sensible cooling load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE303 | 2.329 | 2.345 | 2.346 | 7 | ✗ -0.7 % below min |
+| AE304 | 3.520 | 3.516 | 3.517 | 7 | ✓ inside |
+| AE305 | 2.345 | 2.344 | 2.345 | 7 | ✓ inside |
+| AE306 | 2.342 | 2.345 | 2.345 | 7 | ✓ inside |
+| AE326 | 2.342 | 2.345 | 2.345 | 7 | ✓ inside |
+| AE345 | 2.345 | 2.344 | 2.345 | 7 | ✓ inside |
+
+#### Zone 2 latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 0.796 | 0.879 | 0.880 | 7 | ✗ -9.4 % below min |
+| AE303 | 1.057 | 0.879 | 0.891 | 7 | ✗ +18.6 % above max |
+| AE304 | 0.879 | 0.879 | 0.894 | 7 | ✓ inside |
+| AE305 | 1.018 | 0.879 | 0.891 | 7 | ✗ +14.2 % above max |
+| AE306 | 0.878 | 0.879 | 0.891 | 7 | ✓ inside |
+| AE326 | 0.879 | 0.879 | 0.891 | 7 | ✓ inside |
+| AE345 | 0.879 | 0.879 | 0.891 | 7 | ✓ inside |
+
+#### Heating (preheat) coil load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 3.769 | 2.947 | 3.788 | 7 | ✓ inside |
+| AE303 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE304 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE305 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE306 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE326 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE345 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+
+#### Cooling coil sensible load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE303 | 6.552 | 6.420 | 6.735 | 7 | ✓ inside |
+| AE304 | 10.069 | 9.890 | 10.320 | 7 | ✓ inside |
+| AE305 | 9.271 | 8.929 | 9.383 | 7 | ✓ inside |
+| AE306 | 8.682 | 8.598 | 8.921 | 7 | ✓ inside |
+| AE326 | 8.130 | 8.096 | 8.470 | 7 | ✓ inside |
+| AE345 | 9.624 | 9.285 | 9.707 | 7 | ✓ inside |
+
+#### Cooling coil latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE303 | -0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE304 | 6.596 | 6.214 | 7.011 | 7 | ✓ inside |
+| AE305 | -0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE306 | 5.733 | 5.434 | 6.103 | 7 | ✓ inside |
+| AE326 | 12.571 | 11.712 | 12.879 | 7 | ✓ inside |
+| AE345 | -0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+
+#### Cooling coil total load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE303 | 6.552 | 6.420 | 6.735 | 7 | ✓ inside |
+| AE304 | 16.665 | 16.104 | 17.070 | 7 | ✓ inside |
+| AE305 | 9.271 | 8.929 | 9.383 | 7 | ✓ inside |
+| AE306 | 14.416 | 14.031 | 14.802 | 7 | ✓ inside |
+| AE326 | 20.701 | 19.944 | 20.993 | 7 | ✓ inside |
+| AE345 | 9.624 | 9.285 | 9.707 | 7 | ✓ inside |
+
+#### Zone 1 reheat coil load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 7.788 | 7.472 | 7.713 | 7 | ✗ +1.0 % above max |
+| AE303 | 2.242 | 2.136 | 2.258 | 7 | ✓ inside |
+| AE304 | 0.924 | 0.798 | 0.993 | 7 | ✓ inside |
+| AE305 | 2.217 | 2.072 | 2.260 | 7 | ✓ inside |
+| AE306 | 2.203 | 2.111 | 2.262 | 7 | ✓ inside |
+| AE326 | 2.203 | 2.126 | 2.267 | 7 | ✓ inside |
+| AE345 | 2.226 | 2.089 | 2.261 | 7 | ✓ inside |
+
+#### Zone 2 reheat coil load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 8.462 | 8.077 | 8.389 | 7 | ✗ +0.9 % above max |
+| AE303 | 2.433 | 2.300 | 2.457 | 7 | ✓ inside |
+| AE304 | 1.434 | 1.268 | 1.524 | 7 | ✓ inside |
+| AE305 | 2.405 | 2.223 | 2.459 | 7 | ✓ inside |
+| AE306 | 2.386 | 2.270 | 2.462 | 7 | ✓ inside |
+| AE326 | 2.386 | 2.289 | 2.468 | 7 | ✓ inside |
+| AE345 | 2.416 | 2.241 | 2.461 | 7 | ✓ inside |
+
+### AE300 series: coil outlet humidity and air states
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Cooling coil outlet relative humidity (%) | 7 | 4 | 3 |
+| Dry bulb temperature (°C) | 77 | 71 | 6 |
+| Humidity ratio (kg/kg) | 77 | 44 | 33 |
+| Specific volume (L/kg) | 77 | 70 | 7 |
+| Enthalpy (kJ/kg) | 77 | 41 | 36 |
+| Dry air mass flow rate (kg/s) | 63 | 55 | 8 |
+
+#### Cooling coil outlet relative humidity (%)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 | 21.344 | 23.891 | 24.733 | 6 | ✗ -10.7 % below min |
+| AE303 | 50.584 | 47.457 | 48.220 | 7 | ✗ +4.9 % above max |
+| AE304 | 100.000 | 95.490 | 100.000 | 7 | ✓ inside |
+| AE305 | 67.377 | 64.909 | 65.840 | 7 | ✗ +2.3 % above max |
+| AE306 | 99.902 | 96.210 | 100.000 | 7 | ✓ inside |
+| AE326 | 100.000 | 98.890 | 100.000 | 7 | ✓ inside |
+| AE345 | 50.983 | 50.707 | 51.330 | 7 | ✓ inside |
+
+#### Dry bulb temperature (°C)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 oa | -29.000 | -29.000 | -29.000 | 7 | ✓ inside |
+| AE301 ma | 2.361 | 2.358 | 3.432 | 6 | ✓ inside |
+| AE301 pco | 7.222 | 7.220 | 7.222 | 7 | ✓ inside |
+| AE301 cco | 7.222 | 7.220 | 7.222 | 7 | ✓ inside |
+| AE301 sa | 7.785 | 7.778 | 7.810 | 7 | ✓ inside |
+| AE301 z1s | 29.545 | 29.270 | 29.670 | 6 | ✓ inside |
+| AE301 z2s | 28.052 | 27.810 | 28.089 | 6 | ✓ inside |
+| AE301 z1 | 21.111 | 21.110 | 21.130 | 7 | ✓ inside |
+| AE301 z2 | 22.222 | 22.217 | 22.248 | 7 | ✓ inside |
+| AE301 rfi | 21.666 | 21.666 | 21.709 | 6 | ✓ inside |
+| AE301 rfo | 21.963 | 21.944 | 22.019 | 7 | ✓ inside |
+| AE303 oa | 15.500 | 15.500 | 15.500 | 7 | ✓ inside |
+| AE303 ma | 20.847 | 20.833 | 21.018 | 7 | ✓ inside |
+| AE303 pco | 12.204 | 20.833 | 21.018 | 7 | ✗ -8.63 °C below min |
+| AE303 cco | 12.204 | 12.167 | 12.215 | 7 | ✓ inside |
+| AE303 sa | 12.780 | 12.778 | 12.795 | 7 | ✓ inside |
+| AE303 z1s | 19.188 | 19.050 | 19.180 | 6 | ✓ inside |
+| AE303 z2s | 18.740 | 18.570 | 18.750 | 6 | ✓ inside |
+| AE303 z1 | 23.333 | 23.328 | 23.339 | 7 | ✓ inside |
+| AE303 z2 | 24.444 | 24.439 | 24.452 | 7 | ✓ inside |
+| AE303 rfi | 23.889 | 23.887 | 23.946 | 6 | ✓ inside |
+| AE303 rfo | 24.189 | 24.178 | 24.241 | 7 | ✓ inside |
+| AE304 oa | 26.900 | 26.889 | 26.900 | 7 | ✓ inside |
+| AE304 ma | 25.575 | 25.541 | 25.596 | 7 | ✓ inside |
+| AE304 pco | 12.200 | 25.541 | 25.596 | 7 | ✗ -13.34 °C below min |
+| AE304 cco | 12.200 | 12.199 | 12.222 | 7 | ✓ inside |
+| AE304 sa | 12.780 | 12.778 | 12.833 | 7 | ✓ inside |
+| AE304 z1s | 15.439 | 15.310 | 15.590 | 6 | ✓ inside |
+| AE304 z2s | 16.316 | 16.185 | 16.480 | 6 | ✓ inside |
+| AE304 z1 | 23.889 | 23.881 | 23.891 | 7 | ✓ inside |
+| AE304 z2 | 25.000 | 25.000 | 25.005 | 7 | ✓ inside |
+| AE304 rfi | 24.445 | 24.445 | 24.502 | 6 | ✓ inside |
+| AE304 rfo | 24.747 | 24.722 | 24.797 | 7 | ✓ inside |
+| AE305 oa | 24.900 | 24.889 | 24.900 | 7 | ✓ inside |
+| AE305 ma | 24.463 | 24.444 | 24.485 | 7 | ✓ inside |
+| AE305 pco | 12.203 | 24.444 | 24.485 | 7 | ✗ -12.24 °C below min |
+| AE305 cco | 12.203 | 12.199 | 12.278 | 7 | ✓ inside |
+| AE305 sa | 12.780 | 12.778 | 12.889 | 7 | ✓ inside |
+| AE305 z1s | 19.131 | 19.051 | 19.181 | 6 | ✓ inside |
+| AE305 z2s | 18.686 | 18.572 | 18.750 | 6 | ✓ inside |
+| AE305 z1 | 23.333 | 23.327 | 23.339 | 7 | ✓ inside |
+| AE305 z2 | 24.444 | 24.437 | 24.452 | 7 | ✓ inside |
+| AE305 rfi | 23.889 | 23.885 | 23.946 | 6 | ✓ inside |
+| AE305 rfo | 24.189 | 24.167 | 24.241 | 7 | ✓ inside |
+| AE306 oa | 23.000 | 23.000 | 23.000 | 7 | ✓ inside |
+| AE306 ma | 23.733 | 23.722 | 23.774 | 7 | ✓ inside |
+| AE306 pco | 12.200 | 23.722 | 23.774 | 7 | ✗ -11.52 °C below min |
+| AE306 cco | 12.200 | 12.176 | 12.222 | 7 | ✓ inside |
+| AE306 sa | 12.780 | 12.766 | 12.784 | 7 | ✓ inside |
+| AE306 z1s | 19.119 | 19.025 | 19.190 | 6 | ✓ inside |
+| AE306 z2s | 18.666 | 18.540 | 18.760 | 6 | ✓ inside |
+| AE306 z1 | 23.333 | 23.331 | 23.339 | 7 | ✓ inside |
+| AE306 z2 | 24.444 | 24.442 | 24.452 | 7 | ✓ inside |
+| AE306 rfi | 23.889 | 23.887 | 23.917 | 6 | ✓ inside |
+| AE306 rfo | 24.191 | 24.167 | 24.232 | 7 | ✓ inside |
+| AE326 oa | 23.000 | 23.000 | 23.000 | 7 | ✓ inside |
+| AE326 ma | 23.000 | 23.000 | 23.000 | 7 | ✓ inside |
+| AE326 pco | 12.200 | 23.000 | 23.000 | 7 | ✗ -10.80 °C below min |
+| AE326 cco | 12.200 | 12.199 | 12.222 | 7 | ✓ inside |
+| AE326 sa | 12.780 | 12.770 | 12.794 | 7 | ✓ inside |
+| AE326 z1s | 19.119 | 19.052 | 19.190 | 6 | ✓ inside |
+| AE326 z2s | 18.666 | 18.568 | 18.760 | 6 | ✓ inside |
+| AE326 z1 | 23.333 | 23.331 | 23.339 | 7 | ✓ inside |
+| AE326 z2 | 24.444 | 24.442 | 24.452 | 7 | ✓ inside |
+| AE326 rfi | 23.889 | 23.887 | 23.945 | 6 | ✓ inside |
+| AE326 rfo | 24.191 | 24.167 | 24.240 | 7 | ✓ inside |
+| AE345 oa | 24.900 | 24.889 | 24.900 | 7 | ✓ inside |
+| AE345 ma | 24.900 | 24.889 | 24.900 | 7 | ✓ inside |
+| AE345 pco | 12.204 | 24.889 | 24.900 | 7 | ✗ -12.68 °C below min |
+| AE345 cco | 12.204 | 12.197 | 12.222 | 7 | ✓ inside |
+| AE345 sa | 12.780 | 12.771 | 12.795 | 7 | ✓ inside |
+| AE345 z1s | 19.141 | 19.052 | 19.180 | 6 | ✓ inside |
+| AE345 z2s | 18.699 | 18.572 | 18.750 | 6 | ✓ inside |
+| AE345 z1 | 23.333 | 23.328 | 23.339 | 7 | ✓ inside |
+| AE345 z2 | 24.444 | 24.438 | 24.452 | 7 | ✓ inside |
+| AE345 rfi | 23.889 | 23.887 | 23.946 | 6 | ✓ inside |
+| AE345 rfo | 24.189 | 24.167 | 24.241 | 7 | ✓ inside |
+
+#### Humidity ratio (kg/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 oa | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE301 ma | 0.001 | 0.001 | 0.002 | 7 | ✗ -10.7 % below min |
+| AE301 pco | 0.001 | 0.001 | 0.002 | 7 | ✗ -10.7 % below min |
+| AE301 cco | 0.001 | 0.001 | 0.002 | 7 | ✗ -10.7 % below min |
+| AE301 sa | 0.001 | 0.001 | 0.002 | 7 | ✗ -10.7 % below min |
+| AE301 z1s | 0.001 | 0.001 | 0.002 | 7 | ✗ -10.7 % below min |
+| AE301 z2s | 0.001 | 0.001 | 0.002 | 7 | ✗ -10.7 % below min |
+| AE301 z1 | 0.002 | 0.002 | 0.002 | 6 | ✗ -11.8 % below min |
+| AE301 z2 | 0.002 | 0.002 | 0.002 | 6 | ✗ -11.1 % below min |
+| AE301 rfi | 0.002 | 0.002 | 0.002 | 7 | ✗ -8.7 % below min |
+| AE301 rfo | 0.002 | 0.002 | 0.002 | 7 | ✗ -8.7 % below min |
+| AE303 oa | 0.003 | 0.003 | 0.003 | 7 | ✓ inside |
+| AE303 ma | 0.004 | 0.004 | 0.004 | 7 | ✗ +5.0 % above max |
+| AE303 pco | 0.004 | 0.004 | 0.004 | 7 | ✗ +4.9 % above max |
+| AE303 cco | 0.004 | 0.004 | 0.004 | 7 | ✗ +4.9 % above max |
+| AE303 sa | 0.004 | 0.004 | 0.004 | 7 | ✗ +4.9 % above max |
+| AE303 z1s | 0.004 | 0.004 | 0.004 | 7 | ✗ +4.9 % above max |
+| AE303 z2s | 0.004 | 0.004 | 0.004 | 7 | ✗ +4.9 % above max |
+| AE303 z1 | 0.005 | 0.005 | 0.005 | 6 | ✗ +7.2 % above max |
+| AE303 z2 | 0.005 | 0.005 | 0.005 | 6 | ✗ +6.8 % above max |
+| AE303 rfi | 0.005 | 0.005 | 0.005 | 7 | ✗ +7.0 % above max |
+| AE303 rfo | 0.005 | 0.005 | 0.005 | 7 | ✗ +7.0 % above max |
+| AE304 oa | 0.017 | 0.017 | 0.017 | 7 | ✓ inside |
+| AE304 ma | 0.012 | 0.012 | 0.012 | 7 | ✓ inside |
+| AE304 pco | 0.009 | 0.012 | 0.012 | 7 | ✗ -27.4 % below min |
+| AE304 cco | 0.009 | 0.008 | 0.009 | 7 | ✓ inside |
+| AE304 sa | 0.009 | 0.008 | 0.009 | 7 | ✓ inside |
+| AE304 z1s | 0.009 | 0.008 | 0.009 | 7 | ✓ inside |
+| AE304 z2s | 0.009 | 0.008 | 0.009 | 7 | ✓ inside |
+| AE304 z1 | 0.010 | 0.009 | 0.010 | 6 | ✓ inside |
+| AE304 z2 | 0.010 | 0.009 | 0.010 | 6 | ✓ inside |
+| AE304 rfi | 0.010 | 0.009 | 0.010 | 7 | ✓ inside |
+| AE304 rfo | 0.010 | 0.009 | 0.010 | 7 | ✓ inside |
+| AE305 oa | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE305 ma | 0.006 | 0.006 | 0.006 | 7 | ✗ +2.3 % above max |
+| AE305 pco | 0.006 | 0.006 | 0.006 | 7 | ✗ +2.3 % above max |
+| AE305 cco | 0.006 | 0.006 | 0.006 | 7 | ✗ +2.3 % above max |
+| AE305 sa | 0.006 | 0.006 | 0.006 | 7 | ✗ +2.3 % above max |
+| AE305 z1s | 0.006 | 0.006 | 0.006 | 7 | ✗ +2.3 % above max |
+| AE305 z2s | 0.006 | 0.006 | 0.006 | 7 | ✗ +2.3 % above max |
+| AE305 z1 | 0.007 | 0.006 | 0.006 | 6 | ✗ +3.8 % above max |
+| AE305 z2 | 0.007 | 0.007 | 0.007 | 6 | ✗ +3.6 % above max |
+| AE305 rfi | 0.007 | 0.006 | 0.007 | 7 | ✗ +3.7 % above max |
+| AE305 rfo | 0.007 | 0.006 | 0.007 | 7 | ✗ +3.7 % above max |
+| AE306 oa | 0.016 | 0.016 | 0.016 | 7 | ✓ inside |
+| AE306 ma | 0.012 | 0.012 | 0.012 | 7 | ✓ inside |
+| AE306 pco | 0.009 | 0.012 | 0.012 | 7 | ✗ -24.8 % below min |
+| AE306 cco | 0.009 | 0.008 | 0.009 | 7 | ✓ inside |
+| AE306 sa | 0.009 | 0.008 | 0.009 | 7 | ✓ inside |
+| AE306 z1s | 0.009 | 0.008 | 0.009 | 7 | ✓ inside |
+| AE306 z2s | 0.009 | 0.008 | 0.009 | 7 | ✓ inside |
+| AE306 z1 | 0.010 | 0.009 | 0.010 | 6 | ✓ inside |
+| AE306 z2 | 0.010 | 0.009 | 0.010 | 6 | ✓ inside |
+| AE306 rfi | 0.010 | 0.009 | 0.010 | 7 | ✓ inside |
+| AE306 rfo | 0.010 | 0.010 | 0.010 | 7 | ✓ inside |
+| AE326 oa | 0.016 | 0.016 | 0.016 | 7 | ✓ inside |
+| AE326 ma | 0.016 | 0.016 | 0.016 | 7 | ✓ inside |
+| AE326 pco | 0.009 | 0.016 | 0.016 | 7 | ✗ -43.0 % below min |
+| AE326 cco | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE326 sa | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE326 z1s | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE326 z2s | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE326 z1 | 0.010 | 0.009 | 0.010 | 6 | ✓ inside |
+| AE326 z2 | 0.010 | 0.010 | 0.010 | 6 | ✓ inside |
+| AE326 rfi | 0.010 | 0.010 | 0.010 | 7 | ✓ inside |
+| AE326 rfo | 0.010 | 0.010 | 0.010 | 7 | ✓ inside |
+| AE345 oa | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE345 ma | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE345 pco | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE345 cco | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE345 sa | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE345 z1s | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE345 z2s | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE345 z1 | 0.005 | 0.005 | 0.005 | 6 | ✓ inside |
+| AE345 z2 | 0.005 | 0.005 | 0.005 | 6 | ✓ inside |
+| AE345 rfi | 0.005 | 0.005 | 0.005 | 7 | ✓ inside |
+| AE345 rfo | 0.005 | 0.005 | 0.005 | 7 | ✓ inside |
+
+#### Specific volume (L/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 oa | 691.937 | 691.841 | 833.330 | 5 | ✓ inside |
+| AE301 ma | 782.169 | 785.271 | 833.330 | 5 | ✗ -0.4 % below min |
+| AE301 pco | 795.968 | 796.130 | 833.330 | 5 | ✓ inside |
+| AE301 cco | 795.968 | 796.130 | 833.330 | 5 | ✓ inside |
+| AE301 sa | 797.566 | 793.917 | 833.330 | 5 | ✓ inside |
+| AE301 z1s | 859.342 | 830.352 | 858.872 | 5 | ✓ inside |
+| AE301 z2s | 855.104 | 830.352 | 854.737 | 5 | ✓ inside |
+| AE301 z1 | 836.173 | 830.352 | 836.546 | 5 | ✓ inside |
+| AE301 z2 | 839.584 | 830.352 | 839.953 | 5 | ✓ inside |
+| AE301 rfi | 837.878 | 830.352 | 838.262 | 5 | ✓ inside |
+| AE301 rfo | 838.720 | 830.352 | 839.252 | 5 | ✓ inside |
+| AE303 oa | 821.567 | 821.405 | 833.330 | 5 | ✓ inside |
+| AE303 ma | 838.812 | 830.352 | 839.011 | 5 | ✓ inside |
+| AE303 pco | 814.153 | 830.352 | 839.011 | 5 | ✗ -2.0 % below min |
+| AE303 cco | 814.153 | 813.714 | 833.330 | 5 | ✓ inside |
+| AE303 sa | 815.796 | 811.552 | 833.330 | 5 | ✓ inside |
+| AE303 z1s | 834.078 | 830.352 | 833.777 | 5 | ✓ inside |
+| AE303 z2s | 832.800 | 830.352 | 833.330 | 5 | ✓ inside |
+| AE303 z1 | 847.052 | 830.352 | 846.506 | 5 | ✓ inside |
+| AE303 z2 | 850.487 | 830.352 | 849.934 | 5 | ✓ inside |
+| AE303 rfi | 848.769 | 830.352 | 848.231 | 5 | ✓ inside |
+| AE303 rfo | 849.627 | 830.352 | 849.198 | 5 | ✓ inside |
+| AE304 oa | 872.920 | 830.352 | 872.931 | 5 | ✓ inside |
+| AE304 ma | 863.088 | 830.352 | 862.918 | 5 | ✓ inside |
+| AE304 pco | 819.864 | 830.352 | 862.918 | 5 | ✗ -1.3 % below min |
+| AE304 cco | 819.864 | 819.774 | 833.330 | 5 | ✓ inside |
+| AE304 sa | 821.530 | 817.526 | 833.330 | 5 | ✓ inside |
+| AE304 z1s | 829.170 | 829.468 | 833.330 | 5 | ✓ inside |
+| AE304 z2s | 831.691 | 830.352 | 833.330 | 5 | ✓ inside |
+| AE304 z1 | 854.366 | 830.352 | 854.349 | 5 | ✓ inside |
+| AE304 z2 | 857.825 | 830.352 | 857.827 | 5 | ✓ inside |
+| AE304 rfi | 856.095 | 830.352 | 856.095 | 5 | ✓ inside |
+| AE304 rfo | 856.966 | 830.352 | 857.070 | 5 | ✓ inside |
+| AE305 oa | 850.421 | 830.352 | 850.438 | 5 | ✓ inside |
+| AE305 ma | 851.147 | 830.352 | 850.986 | 5 | ✓ inside |
+| AE305 pco | 816.085 | 830.352 | 850.986 | 5 | ✗ -1.7 % below min |
+| AE305 cco | 816.085 | 815.748 | 833.330 | 5 | ✓ inside |
+| AE305 sa | 817.736 | 813.565 | 833.330 | 5 | ✓ inside |
+| AE305 z1s | 835.900 | 830.352 | 835.852 | 5 | ✓ inside |
+| AE305 z2s | 834.627 | 830.352 | 834.622 | 5 | ✓ inside |
+| AE305 z1 | 849.013 | 830.352 | 848.610 | 5 | ✓ inside |
+| AE305 z2 | 852.457 | 830.352 | 852.047 | 5 | ✓ inside |
+| AE305 rfi | 850.735 | 830.352 | 850.339 | 5 | ✓ inside |
+| AE305 rfo | 851.596 | 830.352 | 851.311 | 5 | ✓ inside |
+| AE306 oa | 859.948 | 830.352 | 859.942 | 5 | ✓ inside |
+| AE306 ma | 857.129 | 830.352 | 857.123 | 5 | ✓ inside |
+| AE306 pco | 819.852 | 830.352 | 857.123 | 5 | ✗ -1.3 % below min |
+| AE306 cco | 819.852 | 819.774 | 833.330 | 5 | ✓ inside |
+| AE306 sa | 821.518 | 817.534 | 833.330 | 5 | ✓ inside |
+| AE306 z1s | 839.731 | 830.352 | 839.957 | 5 | ✓ inside |
+| AE306 z2s | 838.429 | 830.352 | 839.809 | 5 | ✓ inside |
+| AE306 z1 | 852.754 | 830.352 | 852.767 | 5 | ✓ inside |
+| AE306 z2 | 856.212 | 830.352 | 856.216 | 5 | ✓ inside |
+| AE306 rfi | 854.482 | 830.352 | 854.502 | 5 | ✓ inside |
+| AE306 rfo | 855.352 | 830.352 | 855.464 | 5 | ✓ inside |
+| AE326 oa | 859.948 | 830.352 | 859.942 | 5 | ✓ inside |
+| AE326 ma | 859.954 | 830.352 | 859.942 | 5 | ✓ inside |
+| AE326 pco | 819.864 | 830.352 | 859.942 | 5 | ✗ -1.3 % below min |
+| AE326 cco | 819.864 | 819.774 | 833.330 | 5 | ✓ inside |
+| AE326 sa | 821.530 | 817.484 | 833.330 | 5 | ✓ inside |
+| AE326 z1s | 839.743 | 830.352 | 839.947 | 5 | ✓ inside |
+| AE326 z2s | 838.441 | 830.352 | 838.711 | 5 | ✓ inside |
+| AE326 z1 | 852.767 | 830.352 | 852.756 | 5 | ✓ inside |
+| AE326 z2 | 856.225 | 830.352 | 856.204 | 5 | ✓ inside |
+| AE326 rfi | 854.496 | 830.352 | 854.491 | 5 | ✓ inside |
+| AE326 rfo | 855.365 | 830.352 | 855.464 | 5 | ✓ inside |
+| AE345 oa | 850.421 | 830.352 | 850.438 | 5 | ✓ inside |
+| AE345 ma | 850.424 | 830.352 | 850.438 | 5 | ✓ inside |
+| AE345 pco | 814.199 | 830.352 | 850.438 | 5 | ✗ -1.9 % below min |
+| AE345 cco | 814.199 | 814.061 | 833.330 | 5 | ✓ inside |
+| AE345 sa | 815.842 | 811.840 | 833.330 | 5 | ✓ inside |
+| AE345 z1s | 833.992 | 830.352 | 834.117 | 5 | ✓ inside |
+| AE345 z2s | 832.732 | 830.352 | 833.330 | 5 | ✓ inside |
+| AE345 z1 | 846.863 | 830.352 | 846.856 | 5 | ✓ inside |
+| AE345 z2 | 850.297 | 830.352 | 850.285 | 5 | ✓ inside |
+| AE345 rfi | 848.580 | 830.352 | 848.581 | 5 | ✓ inside |
+| AE345 rfo | 849.437 | 830.352 | 849.551 | 5 | ✓ inside |
+
+#### Enthalpy (kJ/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 oa | -28.540 | -28.543 | -28.507 | 4 | ✓ inside |
+| AE301 ma | 5.723 | 6.178 | 7.335 | 4 | ✗ -7.4 % below min |
+| AE301 pco | 10.624 | 11.016 | 11.159 | 4 | ✗ -3.6 % below min |
+| AE301 cco | 10.624 | 11.016 | 11.159 | 4 | ✗ -3.6 % below min |
+| AE301 sa | 11.192 | 11.606 | 11.726 | 4 | ✗ -3.6 % below min |
+| AE301 z1s | 33.137 | 33.386 | 33.740 | 4 | ✗ -0.7 % below min |
+| AE301 z2s | 31.631 | 31.913 | 32.140 | 4 | ✗ -0.9 % below min |
+| AE301 z1 | 26.101 | 26.750 | 26.866 | 4 | ✗ -2.4 % below min |
+| AE301 z2 | 27.701 | 28.368 | 28.485 | 4 | ✗ -2.4 % below min |
+| AE301 rfi | 26.901 | 27.559 | 27.740 | 4 | ✗ -2.4 % below min |
+| AE301 rfo | 27.200 | 27.855 | 28.040 | 4 | ✗ -2.3 % below min |
+| AE303 oa | 23.010 | 22.996 | 23.032 | 4 | ✓ inside |
+| AE303 ma | 32.263 | 31.540 | 31.900 | 4 | ✗ +1.1 % above max |
+| AE303 pco | 23.496 | 31.540 | 31.900 | 4 | ✗ -25.5 % below min |
+| AE303 cco | 23.496 | 22.775 | 22.978 | 4 | ✗ +2.3 % above max |
+| AE303 sa | 24.080 | 23.365 | 23.557 | 4 | ✗ +2.2 % above max |
+| AE303 z1s | 30.579 | 29.766 | 30.039 | 4 | ✗ +1.8 % above max |
+| AE303 z2s | 30.125 | 29.299 | 29.604 | 4 | ✗ +1.8 % above max |
+| AE303 z1 | 36.944 | 35.775 | 35.990 | 4 | ✗ +2.7 % above max |
+| AE303 z2 | 38.563 | 37.393 | 37.630 | 4 | ✗ +2.5 % above max |
+| AE303 rfi | 37.753 | 36.584 | 36.890 | 4 | ✗ +2.3 % above max |
+| AE303 rfo | 38.058 | 36.880 | 37.190 | 4 | ✗ +2.3 % above max |
+| AE304 oa | 69.831 | 69.814 | 69.994 | 4 | ✓ inside |
+| AE304 ma | 57.261 | 56.750 | 57.106 | 4 | ✗ +0.3 % above max |
+| AE304 pco | 34.602 | 56.750 | 57.106 | 4 | ✗ -39.0 % below min |
+| AE304 cco | 34.602 | 33.560 | 34.630 | 4 | ✓ inside |
+| AE304 sa | 35.195 | 34.160 | 35.214 | 4 | ✓ inside |
+| AE304 z1s | 37.914 | 36.730 | 38.085 | 4 | ✓ inside |
+| AE304 z2s | 38.811 | 37.620 | 38.995 | 4 | ✓ inside |
+| AE304 z1 | 48.281 | 47.260 | 48.269 | 4 | ✓ inside |
+| AE304 z2 | 49.912 | 48.905 | 49.905 | 4 | ✓ inside |
+| AE304 rfi | 49.096 | 48.170 | 49.092 | 4 | ✓ inside |
+| AE304 rfo | 49.406 | 48.470 | 49.442 | 4 | ✓ inside |
+| AE305 oa | 36.457 | 36.435 | 36.506 | 4 | ✓ inside |
+| AE305 ma | 39.722 | 39.133 | 39.374 | 4 | ✗ +0.9 % above max |
+| AE305 pco | 27.254 | 39.133 | 39.374 | 4 | ✗ -30.4 % below min |
+| AE305 cco | 27.254 | 26.682 | 26.908 | 4 | ✗ +1.3 % above max |
+| AE305 sa | 27.841 | 27.273 | 27.490 | 4 | ✗ +1.3 % above max |
+| AE305 z1s | 34.300 | 33.703 | 33.992 | 4 | ✗ +0.9 % above max |
+| AE305 z2s | 33.847 | 33.240 | 33.555 | 4 | ✗ +0.9 % above max |
+| AE305 z1 | 40.640 | 39.713 | 39.960 | 4 | ✗ +1.7 % above max |
+| AE305 z2 | 42.263 | 41.334 | 41.610 | 4 | ✗ +1.6 % above max |
+| AE305 rfi | 41.452 | 40.523 | 40.860 | 4 | ✗ +1.4 % above max |
+| AE305 rfo | 41.758 | 40.819 | 41.160 | 4 | ✗ +1.5 % above max |
+| AE306 oa | 62.719 | 62.705 | 62.851 | 4 | ✓ inside |
+| AE306 ma | 54.167 | 53.770 | 54.042 | 4 | ✗ +0.2 % above max |
+| AE306 pco | 34.580 | 53.770 | 54.042 | 4 | ✗ -35.7 % below min |
+| AE306 cco | 34.580 | 33.660 | 34.636 | 4 | ✓ inside |
+| AE306 sa | 35.173 | 34.260 | 35.220 | 4 | ✓ inside |
+| AE306 z1s | 41.654 | 40.650 | 41.769 | 4 | ✓ inside |
+| AE306 z2s | 41.191 | 40.150 | 41.330 | 4 | ✓ inside |
+| AE306 z1 | 47.687 | 46.810 | 47.709 | 4 | ✓ inside |
+| AE306 z2 | 49.318 | 48.470 | 49.331 | 4 | ✓ inside |
+| AE306 rfi | 48.502 | 47.690 | 48.525 | 4 | ✓ inside |
+| AE306 rfo | 48.812 | 47.990 | 48.872 | 4 | ✓ inside |
+| AE326 oa | 62.719 | 62.705 | 62.851 | 4 | ✓ inside |
+| AE326 ma | 62.731 | 62.705 | 62.851 | 4 | ✓ inside |
+| AE326 pco | 34.602 | 62.705 | 62.851 | 4 | ✗ -44.8 % below min |
+| AE326 cco | 34.602 | 34.330 | 34.621 | 4 | ✓ inside |
+| AE326 sa | 35.195 | 34.930 | 35.204 | 4 | ✓ inside |
+| AE326 z1s | 41.677 | 41.320 | 41.755 | 4 | ✓ inside |
+| AE326 z2s | 41.213 | 40.828 | 41.315 | 4 | ✓ inside |
+| AE326 z1 | 47.712 | 47.450 | 47.695 | 4 | ✓ inside |
+| AE326 z2 | 49.343 | 49.140 | 49.316 | 4 | ✓ inside |
+| AE326 rfi | 48.527 | 48.370 | 48.510 | 4 | ✓ inside |
+| AE326 rfo | 48.836 | 48.370 | 48.858 | 4 | ✓ inside |
+| AE345 oa | 36.457 | 36.435 | 36.506 | 4 | ✓ inside |
+| AE345 ma | 36.463 | 36.435 | 36.506 | 4 | ✓ inside |
+| AE345 pco | 23.585 | 36.435 | 36.506 | 4 | ✗ -35.3 % below min |
+| AE345 cco | 23.585 | 23.564 | 23.640 | 4 | ✓ inside |
+| AE345 sa | 24.170 | 24.155 | 24.240 | 4 | ✓ inside |
+| AE345 z1s | 30.622 | 30.550 | 30.688 | 4 | ✓ inside |
+| AE345 z2s | 30.174 | 30.070 | 30.251 | 4 | ✓ inside |
+| AE345 z1 | 36.588 | 36.571 | 36.680 | 4 | ✓ inside |
+| AE345 z2 | 38.207 | 38.190 | 38.330 | 4 | ✓ inside |
+| AE345 rfi | 37.397 | 37.381 | 37.590 | 4 | ✓ inside |
+| AE345 rfo | 37.702 | 37.590 | 37.741 | 4 | ✓ inside |
+
+#### Dry air mass flow rate (kg/s)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE301 oa | 0.296 | 0.281 | 0.296 | 7 | ✓ inside |
+| AE301 ma | 0.771 | 0.736 | 0.771 | 7 | ✓ inside |
+| AE301 pco | 0.771 | 0.736 | 0.771 | 7 | ✓ inside |
+| AE301 cco | 0.771 | 0.736 | 0.771 | 7 | ✓ inside |
+| AE301 sa | 0.771 | 0.736 | 0.771 | 7 | ✓ inside |
+| AE301 z1s | 0.356 | 0.340 | 0.356 | 7 | ✓ inside |
+| AE301 z2s | 0.415 | 0.396 | 0.415 | 7 | ✓ inside |
+| AE301 rfi | 0.474 | 0.453 | 0.489 | 7 | ✓ inside |
+| AE301 rfo | 0.474 | 0.453 | 0.489 | 7 | ✓ inside |
+| AE303 oa | 0.290 | 0.278 | 0.284 | 7 | ✗ +2.0 % above max |
+| AE303 ma | 0.754 | 0.732 | 0.754 | 7 | ✓ inside |
+| AE303 pco | 0.754 | 0.732 | 0.754 | 7 | ✓ inside |
+| AE303 cco | 0.754 | 0.732 | 0.754 | 7 | ✓ inside |
+| AE303 sa | 0.754 | 0.732 | 0.754 | 7 | ✓ inside |
+| AE303 z1s | 0.348 | 0.338 | 0.348 | 7 | ✓ inside |
+| AE303 z2s | 0.406 | 0.394 | 0.406 | 7 | ✓ inside |
+| AE303 rfi | 0.464 | 0.450 | 0.476 | 7 | ✓ inside |
+| AE303 rfo | 0.464 | 0.450 | 0.476 | 7 | ✓ inside |
+| AE304 oa | 0.288 | 0.273 | 0.284 | 7 | ✗ +1.3 % above max |
+| AE304 ma | 0.748 | 0.711 | 0.748 | 7 | ✓ inside |
+| AE304 pco | 0.748 | 0.711 | 0.748 | 7 | ✓ inside |
+| AE304 cco | 0.748 | 0.711 | 0.748 | 7 | ✓ inside |
+| AE304 sa | 0.748 | 0.711 | 0.748 | 7 | ✓ inside |
+| AE304 z1s | 0.345 | 0.328 | 0.345 | 7 | ✓ inside |
+| AE304 z2s | 0.403 | 0.383 | 0.403 | 7 | ✓ inside |
+| AE304 rfi | 0.461 | 0.438 | 0.473 | 7 | ✓ inside |
+| AE304 rfo | 0.461 | 0.438 | 0.473 | 7 | ✓ inside |
+| AE305 oa | 0.289 | 0.277 | 0.284 | 7 | ✗ +1.7 % above max |
+| AE305 ma | 0.752 | 0.721 | 0.752 | 7 | ✓ inside |
+| AE305 pco | 0.752 | 0.721 | 0.752 | 7 | ✓ inside |
+| AE305 cco | 0.752 | 0.721 | 0.752 | 7 | ✓ inside |
+| AE305 sa | 0.752 | 0.721 | 0.752 | 7 | ✓ inside |
+| AE305 z1s | 0.347 | 0.333 | 0.347 | 7 | ✓ inside |
+| AE305 z2s | 0.405 | 0.388 | 0.405 | 7 | ✓ inside |
+| AE305 rfi | 0.463 | 0.444 | 0.475 | 7 | ✓ inside |
+| AE305 rfo | 0.463 | 0.444 | 0.475 | 7 | ✓ inside |
+| AE306 oa | 0.288 | 0.275 | 0.284 | 7 | ✗ +1.3 % above max |
+| AE306 ma | 0.748 | 0.716 | 0.748 | 7 | ✓ inside |
+| AE306 pco | 0.748 | 0.716 | 0.748 | 7 | ✓ inside |
+| AE306 cco | 0.748 | 0.716 | 0.748 | 7 | ✓ inside |
+| AE306 sa | 0.748 | 0.716 | 0.748 | 7 | ✓ inside |
+| AE306 z1s | 0.345 | 0.330 | 0.345 | 7 | ✓ inside |
+| AE306 z2s | 0.403 | 0.386 | 0.403 | 7 | ✓ inside |
+| AE306 rfi | 0.461 | 0.441 | 0.472 | 7 | ✓ inside |
+| AE306 rfo | 0.461 | 0.441 | 0.472 | 7 | ✓ inside |
+| AE326 oa | 0.748 | 0.714 | 0.748 | 7 | ✓ inside |
+| AE326 ma | 0.748 | 0.714 | 0.748 | 7 | ✓ inside |
+| AE326 pco | 0.748 | 0.714 | 0.748 | 7 | ✓ inside |
+| AE326 cco | 0.748 | 0.714 | 0.748 | 7 | ✓ inside |
+| AE326 sa | 0.748 | 0.714 | 0.748 | 7 | ✓ inside |
+| AE326 z1s | 0.345 | 0.329 | 0.345 | 7 | ✓ inside |
+| AE326 z2s | 0.403 | 0.384 | 0.403 | 7 | ✓ inside |
+| AE326 rfi | 0.000 | 0.439 | 0.472 | 7 | ✗ -100.0 % below min |
+| AE326 rfo | 0.000 | 0.439 | 0.472 | 7 | ✗ -100.0 % below min |
+| AE345 oa | 0.754 | 0.722 | 0.754 | 7 | ✓ inside |
+| AE345 ma | 0.754 | 0.722 | 0.754 | 7 | ✓ inside |
+| AE345 pco | 0.754 | 0.722 | 0.754 | 7 | ✓ inside |
+| AE345 cco | 0.754 | 0.722 | 0.754 | 7 | ✓ inside |
+| AE345 sa | 0.754 | 0.722 | 0.754 | 7 | ✓ inside |
+| AE345 z1s | 0.348 | 0.333 | 0.348 | 7 | ✓ inside |
+| AE345 z2s | 0.406 | 0.389 | 0.406 | 7 | ✓ inside |
+| AE345 rfi | 0.000 | 0.444 | 0.476 | 7 | ✗ -100.0 % below min |
+| AE345 rfo | 0.000 | 0.444 | 0.476 | 7 | ✗ -100.0 % below min |
+
+### AE400 series: loads
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Zone 1 sensible heating load (kWh/h) | 7 | 6 | 1 |
+| Zone 1 sensible cooling load (kWh/h) | 7 | 6 | 1 |
+| Zone 1 latent load (kWh/h) | 7 | 5 | 2 |
+| Zone 2 sensible heating load (kWh/h) | 7 | 6 | 1 |
+| Zone 2 sensible cooling load (kWh/h) | 7 | 6 | 1 |
+| Zone 2 latent load (kWh/h) | 7 | 7 | 0 |
+| Heating (preheat) coil load (kWh/h) | 7 | 7 | 0 |
+| Cooling coil sensible load (kWh/h) | 7 | 4 | 3 |
+| Cooling coil latent load (kWh/h) | 7 | 7 | 0 |
+| Cooling coil total load (kWh/h) | 7 | 6 | 1 |
+| Zone 1 reheat coil load (kWh/h) | 7 | 6 | 1 |
+| Zone 2 reheat coil load (kWh/h) | 7 | 6 | 1 |
+
+![AE400 series: loads](img/validation/air_side_hvac_test_7.png)
+
+#### Zone 1 sensible heating load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 3.019 | 2.930 | 2.931 | 7 | ✗ +3.0 % above max |
+| AE403 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE404 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE405 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE406 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE426 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE445 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+
+#### Zone 1 sensible cooling load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE403 | 1.450 | 1.465 | 1.467 | 7 | ✗ -1.0 % below min |
+| AE404 | 2.936 | 2.931 | 2.934 | 7 | ✓ inside |
+| AE405 | 1.467 | 1.465 | 1.466 | 7 | ✓ inside |
+| AE406 | 1.464 | 1.465 | 1.466 | 7 | ✓ inside |
+| AE426 | 1.464 | 1.465 | 1.466 | 7 | ✓ inside |
+| AE445 | 1.467 | 1.465 | 1.466 | 7 | ✓ inside |
+
+#### Zone 1 latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 0.586 | 0.586 | 0.590 | 7 | ✓ inside |
+| AE403 | 0.592 | 0.586 | 0.590 | 7 | ✗ +0.4 % above max |
+| AE404 | 0.586 | 0.586 | 0.593 | 7 | ✓ inside |
+| AE405 | 0.591 | 0.586 | 0.590 | 7 | ✗ +0.2 % above max |
+| AE406 | 0.586 | 0.586 | 0.590 | 7 | ✓ inside |
+| AE426 | 0.586 | 0.586 | 0.590 | 7 | ✓ inside |
+| AE445 | 0.586 | 0.586 | 0.590 | 7 | ✓ inside |
+
+#### Zone 2 sensible heating load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 2.434 | 2.345 | 2.350 | 7 | ✗ +3.6 % above max |
+| AE403 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE404 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE405 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE406 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE426 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE445 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+
+#### Zone 2 sensible cooling load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 0.000 | 0.000 | 0.000 | 4 | ✓ inside |
+| AE403 | 2.329 | 2.345 | 2.346 | 7 | ✗ -0.7 % below min |
+| AE404 | 3.520 | 3.516 | 3.517 | 7 | ✓ inside |
+| AE405 | 2.345 | 2.344 | 2.345 | 7 | ✓ inside |
+| AE406 | 2.342 | 2.345 | 2.345 | 7 | ✓ inside |
+| AE426 | 2.342 | 2.345 | 2.345 | 7 | ✓ inside |
+| AE445 | 2.345 | 2.344 | 2.345 | 7 | ✓ inside |
+
+#### Zone 2 latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 0.879 | 0.879 | 0.880 | 7 | ✓ inside |
+| AE403 | 0.888 | 0.879 | 0.891 | 7 | ✓ inside |
+| AE404 | 0.879 | 0.879 | 0.894 | 7 | ✓ inside |
+| AE405 | 0.886 | 0.879 | 0.891 | 7 | ✓ inside |
+| AE406 | 0.879 | 0.879 | 0.891 | 7 | ✓ inside |
+| AE426 | 0.879 | 0.879 | 0.891 | 7 | ✓ inside |
+| AE445 | 0.879 | 0.879 | 0.891 | 7 | ✓ inside |
+
+#### Heating (preheat) coil load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 10.821 | 10.248 | 10.818 | 7 | ✓ inside |
+| AE403 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE404 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE405 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE406 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE426 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE445 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+
+#### Cooling coil sensible load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE403 | 1.338 | 1.399 | 1.466 | 7 | ✗ -4.3 % below min |
+| AE404 | 7.333 | 7.333 | 7.459 | 7 | ✓ inside |
+| AE405 | 4.113 | 4.091 | 4.143 | 7 | ✓ inside |
+| AE406 | 3.558 | 3.567 | 3.680 | 7 | ✗ -0.3 % below min |
+| AE426 | 3.511 | 3.516 | 3.642 | 7 | ✗ -0.2 % below min |
+| AE445 | 4.161 | 4.145 | 4.191 | 7 | ✓ inside |
+
+#### Cooling coil latent load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE403 | -0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE404 | 6.261 | 5.917 | 6.581 | 7 | ✓ inside |
+| AE405 | -0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE406 | 4.845 | 4.495 | 4.969 | 7 | ✓ inside |
+| AE426 | 5.437 | 5.189 | 5.633 | 7 | ✓ inside |
+| AE445 | -0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+
+#### Cooling coil total load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE403 | 1.338 | 1.399 | 1.466 | 7 | ✗ -4.3 % below min |
+| AE404 | 13.594 | 13.308 | 14.031 | 7 | ✓ inside |
+| AE405 | 4.113 | 4.091 | 4.143 | 7 | ✓ inside |
+| AE406 | 8.403 | 8.175 | 8.596 | 7 | ✓ inside |
+| AE426 | 8.947 | 8.805 | 9.207 | 7 | ✓ inside |
+| AE445 | 4.161 | 4.145 | 4.191 | 7 | ✓ inside |
+
+#### Zone 1 reheat coil load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 4.668 | 4.489 | 4.584 | 7 | ✗ +1.8 % above max |
+| AE403 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE404 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE405 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE406 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE426 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE445 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+
+#### Zone 2 reheat coil load (kWh/h)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 5.108 | 4.869 | 5.015 | 7 | ✗ +1.9 % above max |
+| AE403 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE404 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE405 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE406 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE426 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE445 | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+
+### AE400 series: coil outlet humidity and air states
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Cooling coil outlet relative humidity (%) | 7 | 7 | 0 |
+| Dry bulb temperature (°C) | 75 | 67 | 8 |
+| Humidity ratio (kg/kg) | 75 | 70 | 5 |
+| Specific volume (L/kg) | 75 | 68 | 7 |
+| Enthalpy (kJ/kg) | 75 | 59 | 16 |
+| Dry air mass flow rate (kg/s) | 63 | 49 | 14 |
+
+#### Cooling coil outlet relative humidity (%)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 | 4.146 | 4.145 | 4.802 | 6 | ✓ inside |
+| AE403 | 35.477 | 34.290 | 36.395 | 7 | ✓ inside |
+| AE404 | 100.000 | 97.240 | 100.000 | 7 | ✓ inside |
+| AE405 | 52.690 | 51.855 | 53.520 | 7 | ✓ inside |
+| AE406 | 100.000 | 99.380 | 100.000 | 7 | ✓ inside |
+| AE426 | 100.000 | 99.580 | 100.000 | 7 | ✓ inside |
+| AE445 | 49.466 | 49.242 | 49.780 | 7 | ✓ inside |
+
+#### Dry bulb temperature (°C)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 oa | -29.000 | -29.000 | -29.000 | 7 | ✓ inside |
+| AE401 ma | -29.000 | -29.000 | -28.996 | 6 | ✓ inside |
+| AE401 pco | 7.222 | 7.203 | 7.222 | 7 | ✓ inside |
+| AE401 cco | 7.222 | 7.203 | 7.222 | 7 | ✓ inside |
+| AE401 sa | 7.305 | 7.278 | 7.310 | 7 | ✓ inside |
+| AE401 z1s | 46.370 | 46.505 | 46.948 | 6 | ✗ -0.13 °C below min |
+| AE401 z2s | 35.803 | 35.766 | 36.055 | 6 | ✓ inside |
+| AE401 z1 | 21.111 | 21.110 | 21.145 | 7 | ✓ inside |
+| AE401 z2 | 22.222 | 22.221 | 22.259 | 7 | ✓ inside |
+| AE403 oa | 15.500 | 15.500 | 15.500 | 7 | ✓ inside |
+| AE403 ma | 16.637 | 16.776 | 16.962 | 7 | ✗ -0.14 °C below min |
+| AE403 pco | 12.666 | 16.776 | 16.962 | 7 | ✗ -4.11 °C below min |
+| AE403 cco | 12.666 | 12.647 | 12.670 | 7 | ✓ inside |
+| AE403 sa | 12.780 | 12.778 | 12.795 | 7 | ✓ inside |
+| AE403 z1s | 12.780 | 12.778 | 12.795 | 6 | ✓ inside |
+| AE403 z2s | 12.780 | 12.778 | 12.795 | 6 | ✓ inside |
+| AE403 z1 | 23.333 | 23.330 | 23.344 | 7 | ✓ inside |
+| AE403 z2 | 24.444 | 24.439 | 24.461 | 7 | ✓ inside |
+| AE403 rfi | 23.936 | 23.936 | 24.005 | 6 | ✓ inside |
+| AE403 rfo | 23.939 | 23.944 | 24.009 | 7 | ✓ inside |
+| AE404 oa | 26.900 | 26.889 | 26.900 | 7 | ✓ inside |
+| AE404 ma | 25.743 | 25.721 | 25.910 | 7 | ✓ inside |
+| AE404 pco | 12.467 | 25.721 | 25.910 | 7 | ✗ -13.25 °C below min |
+| AE404 cco | 12.467 | 12.444 | 12.491 | 7 | ✓ inside |
+| AE404 sa | 12.780 | 12.778 | 12.792 | 7 | ✓ inside |
+| AE404 z1s | 12.780 | 12.778 | 12.792 | 6 | ✓ inside |
+| AE404 z2s | 12.780 | 12.778 | 12.792 | 6 | ✓ inside |
+| AE404 z1 | 23.889 | 23.883 | 23.900 | 7 | ✓ inside |
+| AE404 z2 | 25.000 | 24.999 | 25.017 | 7 | ✓ inside |
+| AE404 rfi | 24.373 | 24.368 | 24.480 | 6 | ✓ inside |
+| AE404 rfo | 24.471 | 24.474 | 24.582 | 7 | ✓ inside |
+| AE405 oa | 24.900 | 24.889 | 24.900 | 7 | ✓ inside |
+| AE405 ma | 24.761 | 24.722 | 24.758 | 7 | ✓ inside |
+| AE405 pco | 12.663 | 24.722 | 24.758 | 7 | ✗ -12.06 °C below min |
+| AE405 cco | 12.663 | 12.647 | 12.670 | 7 | ✓ inside |
+| AE405 sa | 12.780 | 12.778 | 12.795 | 7 | ✓ inside |
+| AE405 z1s | 12.780 | 12.778 | 12.795 | 6 | ✓ inside |
+| AE405 z2s | 12.780 | 12.778 | 12.795 | 6 | ✓ inside |
+| AE405 z1 | 23.333 | 23.332 | 23.344 | 7 | ✓ inside |
+| AE405 z2 | 24.444 | 24.440 | 24.461 | 7 | ✓ inside |
+| AE405 rfi | 23.932 | 23.936 | 23.996 | 6 | ✓ inside |
+| AE405 rfo | 23.935 | 23.944 | 24.000 | 7 | ✓ inside |
+| AE406 oa | 23.000 | 23.000 | 23.000 | 7 | ✓ inside |
+| AE406 ma | 23.140 | 23.134 | 23.167 | 7 | ✓ inside |
+| AE406 pco | 12.661 | 23.134 | 23.167 | 7 | ✗ -10.47 °C below min |
+| AE406 cco | 12.661 | 12.647 | 12.669 | 7 | ✓ inside |
+| AE406 sa | 12.780 | 12.771 | 12.794 | 7 | ✓ inside |
+| AE406 z1s | 12.780 | 12.771 | 12.794 | 6 | ✓ inside |
+| AE406 z2s | 12.780 | 12.771 | 12.794 | 6 | ✓ inside |
+| AE406 z1 | 23.333 | 23.318 | 23.344 | 7 | ✓ inside |
+| AE406 z2 | 24.444 | 24.431 | 24.461 | 7 | ✓ inside |
+| AE406 rfi | 23.935 | 23.935 | 24.004 | 6 | ✓ inside |
+| AE406 rfo | 23.939 | 23.939 | 24.008 | 7 | ✓ inside |
+| AE426 oa | 23.000 | 23.000 | 23.000 | 7 | ✓ inside |
+| AE426 ma | 23.000 | 23.000 | 23.000 | 7 | ✓ inside |
+| AE426 pco | 12.661 | 23.000 | 23.000 | 7 | ✗ -10.34 °C below min |
+| AE426 cco | 12.661 | 12.647 | 12.670 | 7 | ✓ inside |
+| AE426 sa | 12.780 | 12.778 | 12.782 | 7 | ✓ inside |
+| AE426 z1s | 12.780 | 12.778 | 12.790 | 6 | ✓ inside |
+| AE426 z2s | 12.780 | 12.778 | 12.790 | 6 | ✓ inside |
+| AE426 z1 | 23.333 | 23.329 | 23.344 | 7 | ✓ inside |
+| AE426 z2 | 24.444 | 24.442 | 24.461 | 7 | ✓ inside |
+| AE426 rfi | 23.935 | 23.936 | 23.992 | 6 | ✓ inside |
+| AE426 rfo | 23.939 | 23.944 | 23.997 | 7 | ✓ inside |
+| AE445 oa | 24.900 | 24.889 | 24.900 | 7 | ✓ inside |
+| AE445 ma | 24.900 | 24.889 | 24.900 | 7 | ✓ inside |
+| AE445 pco | 12.664 | 24.889 | 24.900 | 7 | ✗ -12.23 °C below min |
+| AE445 cco | 12.664 | 12.652 | 12.670 | 7 | ✓ inside |
+| AE445 sa | 12.780 | 12.778 | 12.795 | 7 | ✓ inside |
+| AE445 z1s | 12.780 | 12.778 | 12.795 | 6 | ✓ inside |
+| AE445 z2s | 12.780 | 12.778 | 12.795 | 6 | ✓ inside |
+| AE445 z1 | 23.333 | 23.332 | 23.344 | 7 | ✓ inside |
+| AE445 z2 | 24.444 | 24.442 | 24.461 | 7 | ✓ inside |
+| AE445 rfi | 23.932 | 23.936 | 24.005 | 6 | ✓ inside |
+| AE445 rfo | 23.935 | 23.944 | 24.009 | 7 | ✓ inside |
+
+#### Humidity ratio (kg/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 oa | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE401 ma | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE401 pco | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE401 cco | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE401 sa | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE401 z1s | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE401 z2s | 0.000 | 0.000 | 0.000 | 7 | ✓ inside |
+| AE401 z1 | 0.002 | 0.002 | 0.002 | 6 | ✗ -1.6 % below min |
+| AE401 z2 | 0.002 | 0.002 | 0.002 | 6 | ✗ -2.4 % below min |
+| AE403 oa | 0.003 | 0.003 | 0.003 | 7 | ✓ inside |
+| AE403 ma | 0.003 | 0.003 | 0.003 | 7 | ✓ inside |
+| AE403 pco | 0.003 | 0.003 | 0.003 | 7 | ✓ inside |
+| AE403 cco | 0.003 | 0.003 | 0.003 | 7 | ✓ inside |
+| AE403 sa | 0.003 | 0.003 | 0.003 | 7 | ✓ inside |
+| AE403 z1s | 0.003 | 0.003 | 0.003 | 7 | ✓ inside |
+| AE403 z2s | 0.003 | 0.003 | 0.003 | 7 | ✓ inside |
+| AE403 z1 | 0.005 | 0.005 | 0.005 | 6 | ✓ inside |
+| AE403 z2 | 0.005 | 0.005 | 0.005 | 6 | ✓ inside |
+| AE403 rfi | 0.005 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE403 rfo | 0.005 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE404 oa | 0.017 | 0.017 | 0.017 | 7 | ✓ inside |
+| AE404 ma | 0.014 | 0.013 | 0.014 | 7 | ✓ inside |
+| AE404 pco | 0.009 | 0.013 | 0.014 | 7 | ✗ -33.1 % below min |
+| AE404 cco | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE404 sa | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE404 z1s | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE404 z2s | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE404 z1 | 0.010 | 0.010 | 0.010 | 6 | ✓ inside |
+| AE404 z2 | 0.010 | 0.010 | 0.010 | 6 | ✓ inside |
+| AE404 rfi | 0.010 | 0.010 | 0.010 | 7 | ✓ inside |
+| AE404 rfo | 0.010 | 0.010 | 0.010 | 7 | ✓ inside |
+| AE405 oa | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE405 ma | 0.005 | 0.005 | 0.005 | 7 | ✓ inside |
+| AE405 pco | 0.005 | 0.005 | 0.005 | 7 | ✓ inside |
+| AE405 cco | 0.005 | 0.005 | 0.005 | 7 | ✓ inside |
+| AE405 sa | 0.005 | 0.005 | 0.005 | 7 | ✓ inside |
+| AE405 z1s | 0.005 | 0.005 | 0.005 | 7 | ✓ inside |
+| AE405 z2s | 0.005 | 0.005 | 0.005 | 7 | ✓ inside |
+| AE405 z1 | 0.006 | 0.006 | 0.007 | 6 | ✓ inside |
+| AE405 z2 | 0.007 | 0.007 | 0.007 | 6 | ✓ inside |
+| AE405 rfi | 0.007 | 0.006 | 0.007 | 7 | ✓ inside |
+| AE405 rfo | 0.007 | 0.006 | 0.007 | 7 | ✓ inside |
+| AE406 oa | 0.016 | 0.016 | 0.016 | 7 | ✓ inside |
+| AE406 ma | 0.015 | 0.015 | 0.015 | 7 | ✓ inside |
+| AE406 pco | 0.009 | 0.015 | 0.015 | 7 | ✗ -37.9 % below min |
+| AE406 cco | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE406 sa | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE406 z1s | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE406 z2s | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE406 z1 | 0.011 | 0.011 | 0.011 | 6 | ✓ inside |
+| AE406 z2 | 0.011 | 0.011 | 0.011 | 6 | ✓ inside |
+| AE406 rfi | 0.011 | 0.010 | 0.011 | 7 | ✓ inside |
+| AE406 rfo | 0.011 | 0.010 | 0.011 | 7 | ✓ inside |
+| AE426 oa | 0.016 | 0.016 | 0.016 | 7 | ✓ inside |
+| AE426 ma | 0.016 | 0.016 | 0.016 | 7 | ✓ inside |
+| AE426 pco | 0.009 | 0.016 | 0.016 | 7 | ✗ -41.2 % below min |
+| AE426 cco | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE426 sa | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE426 z1s | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE426 z2s | 0.009 | 0.009 | 0.009 | 7 | ✓ inside |
+| AE426 z1 | 0.011 | 0.011 | 0.011 | 6 | ✓ inside |
+| AE426 z2 | 0.011 | 0.011 | 0.011 | 6 | ✓ inside |
+| AE426 rfi | 0.011 | 0.010 | 0.011 | 7 | ✓ inside |
+| AE426 rfo | 0.011 | 0.010 | 0.011 | 7 | ✓ inside |
+| AE445 oa | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE445 ma | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE445 pco | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE445 cco | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE445 sa | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE445 z1s | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE445 z2s | 0.004 | 0.004 | 0.005 | 7 | ✓ inside |
+| AE445 z1 | 0.006 | 0.006 | 0.006 | 6 | ✓ inside |
+| AE445 z2 | 0.006 | 0.006 | 0.006 | 6 | ✓ inside |
+| AE445 rfi | 0.006 | 0.006 | 0.006 | 7 | ✓ inside |
+| AE445 rfo | 0.006 | 0.006 | 0.006 | 7 | ✓ inside |
+
+#### Specific volume (L/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 oa | 691.937 | 691.841 | 833.330 | 5 | ✓ inside |
+| AE401 ma | 691.938 | 691.854 | 833.330 | 5 | ✓ inside |
+| AE401 pco | 794.593 | 794.484 | 833.330 | 5 | ✓ inside |
+| AE401 cco | 794.593 | 794.484 | 833.330 | 5 | ✓ inside |
+| AE401 sa | 794.828 | 794.278 | 833.330 | 5 | ✓ inside |
+| AE401 z1s | 905.541 | 830.352 | 907.092 | 5 | ✓ inside |
+| AE401 z2s | 875.593 | 830.352 | 876.255 | 5 | ✓ inside |
+| AE401 z1 | 836.599 | 833.330 | 836.689 | 4 | ✓ inside |
+| AE401 z2 | 839.757 | 833.330 | 839.857 | 4 | ✓ inside |
+| AE403 oa | 821.567 | 821.405 | 833.330 | 5 | ✓ inside |
+| AE403 ma | 825.167 | 826.037 | 833.330 | 5 | ✗ -0.1 % below min |
+| AE403 pco | 813.860 | 826.037 | 833.330 | 5 | ✗ -1.5 % below min |
+| AE403 cco | 813.860 | 813.750 | 833.330 | 5 | ✓ inside |
+| AE403 sa | 814.184 | 813.507 | 833.330 | 5 | ✓ inside |
+| AE403 z1s | 814.184 | 814.124 | 833.330 | 5 | ✓ inside |
+| AE403 z2s | 814.184 | 814.124 | 833.330 | 5 | ✓ inside |
+| AE403 z1 | 846.573 | 830.352 | 846.630 | 5 | ✓ inside |
+| AE403 z2 | 849.821 | 830.352 | 849.878 | 5 | ✓ inside |
+| AE403 rfi | 848.335 | 830.352 | 848.432 | 5 | ✓ inside |
+| AE403 rfo | 848.343 | 830.352 | 848.427 | 5 | ✓ inside |
+| AE404 oa | 872.920 | 830.352 | 872.931 | 5 | ✓ inside |
+| AE404 ma | 865.198 | 830.352 | 865.036 | 5 | ✓ inside |
+| AE404 pco | 820.836 | 830.352 | 865.036 | 5 | ✗ -1.1 % below min |
+| AE404 cco | 820.836 | 820.703 | 833.330 | 5 | ✓ inside |
+| AE404 sa | 821.736 | 819.659 | 833.330 | 5 | ✓ inside |
+| AE404 z1s | 821.736 | 821.612 | 833.330 | 5 | ✓ inside |
+| AE404 z2s | 821.736 | 821.612 | 833.330 | 5 | ✓ inside |
+| AE404 z1 | 854.870 | 830.352 | 854.883 | 5 | ✓ inside |
+| AE404 z2 | 858.523 | 830.352 | 858.556 | 5 | ✓ inside |
+| AE404 rfi | 856.459 | 830.352 | 856.486 | 5 | ✓ inside |
+| AE404 rfo | 856.741 | 830.352 | 856.792 | 5 | ✓ inside |
+| AE405 oa | 850.421 | 830.352 | 850.438 | 5 | ✓ inside |
+| AE405 ma | 850.426 | 830.352 | 850.449 | 5 | ✓ inside |
+| AE405 pco | 815.893 | 830.352 | 850.449 | 5 | ✗ -1.7 % below min |
+| AE405 cco | 815.893 | 815.783 | 833.330 | 5 | ✓ inside |
+| AE405 sa | 816.225 | 815.520 | 833.330 | 5 | ✓ inside |
+| AE405 z1s | 816.225 | 816.157 | 833.330 | 5 | ✓ inside |
+| AE405 z2s | 816.225 | 816.157 | 833.330 | 5 | ✓ inside |
+| AE405 z1 | 848.660 | 830.352 | 848.727 | 5 | ✓ inside |
+| AE405 z2 | 851.925 | 830.352 | 851.982 | 5 | ✓ inside |
+| AE405 rfi | 850.421 | 830.352 | 850.533 | 5 | ✓ inside |
+| AE405 rfo | 850.430 | 830.352 | 850.538 | 5 | ✓ inside |
+| AE406 oa | 859.948 | 830.352 | 859.942 | 5 | ✓ inside |
+| AE406 ma | 859.414 | 830.352 | 859.333 | 5 | ✓ inside |
+| AE406 pco | 821.548 | 830.352 | 859.390 | 5 | ✗ -1.1 % below min |
+| AE406 cco | 821.548 | 821.383 | 833.330 | 5 | ✓ inside |
+| AE406 sa | 821.889 | 821.066 | 833.330 | 5 | ✓ inside |
+| AE406 z1s | 821.889 | 821.759 | 833.330 | 5 | ✓ inside |
+| AE406 z2s | 821.889 | 821.759 | 833.330 | 5 | ✓ inside |
+| AE406 z1 | 854.518 | 830.352 | 854.513 | 5 | ✓ inside |
+| AE406 z2 | 857.804 | 830.352 | 857.797 | 5 | ✓ inside |
+| AE406 rfi | 856.300 | 830.352 | 856.333 | 5 | ✓ inside |
+| AE406 rfo | 856.310 | 830.352 | 856.347 | 5 | ✓ inside |
+| AE426 oa | 859.948 | 830.352 | 859.942 | 5 | ✓ inside |
+| AE426 ma | 859.954 | 830.352 | 859.942 | 5 | ✓ inside |
+| AE426 pco | 821.548 | 830.352 | 859.942 | 5 | ✗ -1.1 % below min |
+| AE426 cco | 821.548 | 821.383 | 833.330 | 5 | ✓ inside |
+| AE426 sa | 821.889 | 821.110 | 833.330 | 5 | ✓ inside |
+| AE426 z1s | 821.889 | 821.759 | 833.330 | 5 | ✓ inside |
+| AE426 z2s | 821.889 | 821.759 | 833.330 | 5 | ✓ inside |
+| AE426 z1 | 854.518 | 830.352 | 854.534 | 5 | ✓ inside |
+| AE426 z2 | 857.804 | 830.352 | 857.826 | 5 | ✓ inside |
+| AE426 rfi | 856.300 | 830.352 | 856.358 | 5 | ✓ inside |
+| AE426 rfo | 856.310 | 830.352 | 856.347 | 5 | ✓ inside |
+| AE445 oa | 850.421 | 830.352 | 850.438 | 5 | ✓ inside |
+| AE445 ma | 850.424 | 830.352 | 850.438 | 5 | ✓ inside |
+| AE445 pco | 815.510 | 830.352 | 850.438 | 5 | ✗ -1.8 % below min |
+| AE445 cco | 815.510 | 815.319 | 833.330 | 5 | ✓ inside |
+| AE445 sa | 815.842 | 815.075 | 833.330 | 5 | ✓ inside |
+| AE445 z1s | 815.842 | 815.692 | 833.330 | 5 | ✓ inside |
+| AE445 z2s | 815.842 | 815.692 | 833.330 | 5 | ✓ inside |
+| AE445 z1 | 848.244 | 830.352 | 848.261 | 5 | ✓ inside |
+| AE445 z2 | 851.508 | 830.352 | 851.519 | 5 | ✓ inside |
+| AE445 rfi | 850.003 | 830.352 | 850.068 | 5 | ✓ inside |
+| AE445 rfo | 850.013 | 830.352 | 850.056 | 5 | ✓ inside |
+
+#### Enthalpy (kJ/kg)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 oa | -28.540 | -28.543 | -28.507 | 4 | ✓ inside |
+| AE401 ma | -28.540 | -28.543 | -28.507 | 4 | ✓ inside |
+| AE401 pco | 7.917 | 7.889 | 7.917 | 4 | ✓ inside |
+| AE401 cco | 7.917 | 7.889 | 7.917 | 4 | ✓ inside |
+| AE401 sa | 8.000 | 7.977 | 8.000 | 4 | ✓ inside |
+| AE401 z1s | 47.319 | 47.593 | 47.876 | 4 | ✗ -0.6 % below min |
+| AE401 z2s | 36.683 | 36.727 | 36.923 | 4 | ✗ -0.1 % below min |
+| AE401 z1 | 26.907 | 27.006 | 27.138 | 4 | ✗ -0.4 % below min |
+| AE401 z2 | 28.030 | 28.174 | 28.252 | 4 | ✗ -0.5 % below min |
+| AE403 oa | 23.010 | 22.996 | 23.032 | 4 | ✓ inside |
+| AE403 ma | 24.859 | 25.077 | 25.392 | 4 | ✗ -0.9 % below min |
+| AE403 pco | 20.840 | 25.077 | 25.392 | 4 | ✗ -16.9 % below min |
+| AE403 cco | 20.840 | 20.903 | 21.052 | 4 | ✗ -0.3 % below min |
+| AE403 sa | 20.955 | 21.024 | 21.164 | 4 | ✗ -0.3 % below min |
+| AE403 z1s | 20.955 | 21.024 | 21.164 | 4 | ✗ -0.3 % below min |
+| AE403 z2s | 20.955 | 21.024 | 21.164 | 4 | ✗ -0.3 % below min |
+| AE403 z1 | 36.041 | 35.989 | 36.162 | 4 | ✓ inside |
+| AE403 z2 | 37.312 | 37.273 | 37.470 | 4 | ✓ inside |
+| AE403 rfi | 36.731 | 36.687 | 36.950 | 4 | ✓ inside |
+| AE403 rfo | 36.734 | 36.691 | 36.950 | 4 | ✓ inside |
+| AE404 oa | 69.831 | 69.814 | 69.994 | 4 | ✓ inside |
+| AE404 ma | 60.476 | 60.150 | 60.405 | 4 | ✗ +0.1 % above max |
+| AE404 pco | 35.276 | 60.150 | 60.405 | 4 | ✗ -41.4 % below min |
+| AE404 cco | 35.276 | 34.600 | 35.337 | 4 | ✓ inside |
+| AE404 sa | 35.596 | 34.930 | 35.624 | 4 | ✓ inside |
+| AE404 z1s | 35.596 | 34.930 | 35.640 | 4 | ✓ inside |
+| AE404 z2s | 35.596 | 34.930 | 35.640 | 4 | ✓ inside |
+| AE404 z1 | 49.229 | 48.560 | 49.280 | 4 | ✓ inside |
+| AE404 z2 | 51.222 | 50.580 | 51.288 | 4 | ✓ inside |
+| AE404 rfi | 50.096 | 49.630 | 50.147 | 4 | ✓ inside |
+| AE404 rfo | 50.196 | 49.730 | 50.256 | 4 | ✓ inside |
+| AE405 oa | 36.457 | 36.435 | 36.506 | 4 | ✓ inside |
+| AE405 ma | 37.072 | 37.062 | 37.230 | 4 | ✓ inside |
+| AE405 pco | 24.794 | 37.062 | 37.230 | 4 | ✗ -33.1 % below min |
+| AE405 cco | 24.794 | 24.799 | 24.975 | 4 | ✓ inside |
+| AE405 sa | 24.912 | 24.919 | 25.100 | 4 | ✓ inside |
+| AE405 z1s | 24.912 | 24.919 | 25.100 | 4 | ✓ inside |
+| AE405 z2s | 24.912 | 24.919 | 25.100 | 4 | ✓ inside |
+| AE405 z1 | 39.974 | 39.926 | 40.116 | 4 | ✓ inside |
+| AE405 z2 | 41.265 | 41.214 | 41.450 | 4 | ✓ inside |
+| AE405 rfi | 40.670 | 40.625 | 40.920 | 4 | ✓ inside |
+| AE405 rfo | 40.673 | 40.628 | 40.920 | 4 | ✓ inside |
+| AE406 oa | 62.719 | 62.705 | 62.851 | 4 | ✓ inside |
+| AE406 ma | 61.091 | 60.839 | 61.128 | 4 | ✓ inside |
+| AE406 pco | 35.771 | 60.839 | 61.128 | 4 | ✗ -41.2 % below min |
+| AE406 cco | 35.771 | 35.620 | 35.781 | 4 | ✓ inside |
+| AE406 sa | 35.892 | 35.740 | 35.897 | 4 | ✓ inside |
+| AE406 z1s | 35.892 | 35.740 | 35.897 | 4 | ✓ inside |
+| AE406 z2s | 35.892 | 35.740 | 35.897 | 4 | ✓ inside |
+| AE406 z1 | 51.011 | 50.850 | 51.035 | 4 | ✓ inside |
+| AE406 z2 | 52.309 | 52.180 | 52.335 | 4 | ✓ inside |
+| AE406 rfi | 51.715 | 51.644 | 51.755 | 4 | ✓ inside |
+| AE406 rfo | 51.719 | 51.647 | 51.760 | 4 | ✓ inside |
+| AE426 oa | 62.719 | 62.705 | 62.851 | 4 | ✓ inside |
+| AE426 ma | 62.731 | 62.705 | 62.851 | 4 | ✓ inside |
+| AE426 pco | 35.771 | 62.705 | 62.851 | 4 | ✗ -43.0 % below min |
+| AE426 cco | 35.771 | 35.630 | 35.793 | 4 | ✓ inside |
+| AE426 sa | 35.892 | 35.760 | 35.908 | 4 | ✓ inside |
+| AE426 z1s | 35.892 | 35.760 | 35.908 | 4 | ✓ inside |
+| AE426 z2s | 35.892 | 35.760 | 35.908 | 4 | ✓ inside |
+| AE426 z1 | 51.011 | 50.880 | 51.061 | 4 | ✓ inside |
+| AE426 z2 | 52.309 | 52.208 | 52.361 | 4 | ✓ inside |
+| AE426 rfi | 51.715 | 51.670 | 51.781 | 4 | ✓ inside |
+| AE426 rfo | 51.719 | 51.670 | 51.786 | 4 | ✓ inside |
+| AE445 oa | 36.457 | 36.435 | 36.506 | 4 | ✓ inside |
+| AE445 ma | 36.463 | 36.435 | 36.506 | 4 | ✓ inside |
+| AE445 pco | 24.051 | 36.435 | 36.506 | 4 | ✗ -34.0 % below min |
+| AE445 cco | 24.051 | 24.034 | 24.110 | 4 | ✓ inside |
+| AE445 sa | 24.170 | 24.155 | 24.240 | 4 | ✓ inside |
+| AE445 z1s | 24.170 | 24.155 | 24.240 | 4 | ✓ inside |
+| AE445 z2s | 24.170 | 24.155 | 24.240 | 4 | ✓ inside |
+| AE445 z1 | 39.190 | 39.153 | 39.260 | 4 | ✓ inside |
+| AE445 z2 | 40.480 | 40.441 | 40.580 | 4 | ✓ inside |
+| AE445 rfi | 39.885 | 39.852 | 40.050 | 4 | ✓ inside |
+| AE445 rfo | 39.889 | 39.856 | 40.060 | 4 | ✓ inside |
+
+#### Dry air mass flow rate (kg/s)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| AE401 oa | 0.297 | 0.281 | 0.297 | 7 | ✓ inside |
+| AE401 ma | 0.297 | 0.281 | 0.297 | 7 | ✓ inside |
+| AE401 pco | 0.297 | 0.281 | 0.297 | 7 | ✓ inside |
+| AE401 cco | 0.297 | 0.281 | 0.297 | 7 | ✓ inside |
+| AE401 sa | 0.297 | 0.281 | 0.297 | 7 | ✓ inside |
+| AE401 z1s | 0.119 | 0.113 | 0.119 | 7 | ✓ inside |
+| AE401 z2s | 0.178 | 0.169 | 0.178 | 7 | ✓ inside |
+| AE401 rfi | 0.000 | 0.000 | 0.000 | 7 | ✗ +0.00 kg/s above max |
+| AE401 rfo | 0.000 | 0.000 | 0.000 | 7 | ✗ +0.00 kg/s above max |
+| AE403 oa | 0.290 | 0.278 | 0.286 | 7 | ✗ +1.4 % above max |
+| AE403 ma | 0.335 | 0.334 | 0.339 | 7 | ✓ inside |
+| AE403 pco | 0.335 | 0.334 | 0.339 | 7 | ✓ inside |
+| AE403 cco | 0.335 | 0.334 | 0.339 | 7 | ✓ inside |
+| AE403 sa | 0.335 | 0.334 | 0.339 | 7 | ✓ inside |
+| AE403 z1s | 0.137 | 0.136 | 0.138 | 7 | ✓ inside |
+| AE403 z2s | 0.198 | 0.197 | 0.200 | 7 | ✓ inside |
+| AE403 rfi | 0.045 | 0.051 | 0.058 | 7 | ✗ -10.7 % below min |
+| AE403 rfo | 0.045 | 0.050 | 0.058 | 7 | ✗ -10.4 % below min |
+| AE404 oa | 0.287 | 0.273 | 0.284 | 7 | ✗ +1.2 % above max |
+| AE404 ma | 0.549 | 0.535 | 0.549 | 7 | ✓ inside |
+| AE404 pco | 0.549 | 0.535 | 0.549 | 7 | ✓ inside |
+| AE404 cco | 0.549 | 0.535 | 0.549 | 7 | ✓ inside |
+| AE404 sa | 0.549 | 0.535 | 0.549 | 7 | ✓ inside |
+| AE404 z1s | 0.263 | 0.255 | 0.263 | 7 | ✓ inside |
+| AE404 z2s | 0.286 | 0.280 | 0.286 | 7 | ✓ inside |
+| AE404 rfi | 0.262 | 0.254 | 0.266 | 7 | ✓ inside |
+| AE404 rfo | 0.262 | 0.254 | 0.266 | 7 | ✓ inside |
+| AE405 oa | 0.289 | 0.277 | 0.284 | 7 | ✗ +1.8 % above max |
+| AE405 ma | 0.338 | 0.334 | 0.338 | 7 | ✓ inside |
+| AE405 pco | 0.338 | 0.334 | 0.338 | 7 | ✓ inside |
+| AE405 cco | 0.338 | 0.334 | 0.338 | 7 | ✓ inside |
+| AE405 sa | 0.338 | 0.334 | 0.338 | 7 | ✓ inside |
+| AE405 z1s | 0.138 | 0.136 | 0.138 | 7 | ✓ inside |
+| AE405 z2s | 0.200 | 0.197 | 0.200 | 7 | ✓ inside |
+| AE405 rfi | 0.049 | 0.050 | 0.058 | 7 | ✗ -1.7 % below min |
+| AE405 rfo | 0.049 | 0.050 | 0.058 | 7 | ✗ -2.4 % below min |
+| AE406 oa | 0.287 | 0.275 | 0.284 | 7 | ✗ +1.1 % above max |
+| AE406 ma | 0.338 | 0.330 | 0.338 | 7 | ✓ inside |
+| AE406 pco | 0.338 | 0.330 | 0.338 | 7 | ✓ inside |
+| AE406 cco | 0.338 | 0.330 | 0.338 | 7 | ✓ inside |
+| AE406 sa | 0.338 | 0.330 | 0.338 | 7 | ✓ inside |
+| AE406 z1s | 0.138 | 0.135 | 0.138 | 7 | ✓ inside |
+| AE406 z2s | 0.200 | 0.195 | 0.200 | 7 | ✓ inside |
+| AE406 rfi | 0.050 | 0.047 | 0.057 | 7 | ✓ inside |
+| AE406 rfo | 0.050 | 0.047 | 0.057 | 7 | ✓ inside |
+| AE426 oa | 0.338 | 0.329 | 0.338 | 7 | ✓ inside |
+| AE426 ma | 0.338 | 0.329 | 0.338 | 7 | ✓ inside |
+| AE426 pco | 0.338 | 0.329 | 0.338 | 7 | ✓ inside |
+| AE426 cco | 0.338 | 0.329 | 0.338 | 7 | ✓ inside |
+| AE426 sa | 0.338 | 0.329 | 0.338 | 7 | ✓ inside |
+| AE426 z1s | 0.138 | 0.135 | 0.138 | 7 | ✓ inside |
+| AE426 z2s | 0.200 | 0.195 | 0.200 | 7 | ✓ inside |
+| AE426 rfi | 0.000 | 0.047 | 0.057 | 7 | ✗ -100.0 % below min |
+| AE426 rfo | 0.000 | 0.047 | 0.057 | 7 | ✗ -100.0 % below min |
+| AE445 oa | 0.338 | 0.334 | 0.338 | 7 | ✓ inside |
+| AE445 ma | 0.338 | 0.334 | 0.338 | 7 | ✓ inside |
+| AE445 pco | 0.338 | 0.334 | 0.338 | 7 | ✓ inside |
+| AE445 cco | 0.338 | 0.334 | 0.338 | 7 | ✓ inside |
+| AE445 sa | 0.338 | 0.334 | 0.338 | 7 | ✓ inside |
+| AE445 z1s | 0.138 | 0.136 | 0.138 | 7 | ✓ inside |
+| AE445 z2s | 0.200 | 0.197 | 0.200 | 7 | ✓ inside |
+| AE445 rfi | 0.000 | 0.050 | 0.058 | 7 | ✗ -100.0 % below min |
+| AE445 rfo | 0.000 | 0.050 | 0.058 | 7 | ✗ -100.0 % below min |

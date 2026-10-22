@@ -176,9 +176,10 @@ def _summary_table(suite, comparison, outputs):
 
 def _annual_section(suite, comparison, group, img):
     outputs = group["outputs"]
-    _annual_figure(suite, comparison, outputs, IMG_DIR / img)
     lines = [f"### {group['title']}", ""] + _summary_table(suite, comparison, outputs)
-    lines += [f"![{group['title']}](img/validation/{img})", ""]
+    if group.get("figure", True):  # groups with many rows (e.g. air states) get only tables
+        _annual_figure(suite, comparison, outputs, IMG_DIR / img)
+        lines += [f"![{group['title']}](img/validation/{img})", ""]
     for output in outputs:
         name, unit = suite.OUTPUTS[output]
         df = comparison[comparison["output"] == output]
@@ -230,7 +231,9 @@ def _suite_section(suite, results):
     for i, group in enumerate(suite.GROUPS, 1):
         img = f"{suite.NAME.lower()}_{i}.png"
         section = _annual_section if group["kind"] == "annual" else _profile_section
-        lines += section(suite, comparison, group, img)
+        # a group may cover only some cases (e.g. one series of an output form)
+        group_comparison = comparison[comparison["case"].isin(group["cases"])] if "cases" in group else comparison
+        lines += section(suite, group_comparison, group, img)
     return lines
 
 
