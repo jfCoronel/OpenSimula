@@ -175,8 +175,24 @@ Next steps, one PR each:
 - **Case notebooks archived** in `<TEST>/old_notebooks/` for every automated folder (LOAD,
   HEATING, COOLING): their first cell changes to the test folder so they still run. Do the
   same when automating the next folders.
-- [ ] AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own layout → one suite module
-  each; same JSON migration of the notebooks, then archive them).
+- [x] GROUND_TEST (branch `feat/ashrae140-validation-ground`): `ground_test.py`, 14 cases
+  (steady-state GC30b/30c/60b/65b; harmonic GC40b–GC80c, 2-year runs, final year). Outputs:
+  floor conduction and zone load, annual sums/mean, hourly maxima with dates, minimum ODB,
+  GC40b/GC40c hourly floor conduction (only from the 5 sheets whose hourly columns follow
+  the output form). Extraction reproduces the hand-copied values (≤ 1e-5). **55/68 values
+  and 7393/17520 hourly points inside.** GC45c's project was named "Case GC40c" (fixed).
+  - Found: `Building` radiosity matrix (I − F·ρ) is singular when no surface absorbs (GC
+    cases have solar absorptance and emissivity 0); GC50b raised "Singular matrix". Fixed
+    with a pseudo-inverse fallback.
+  - **GC50b (80 × 80 m slab) floor conduction 26 % below the range** (205 699 vs
+    277 923–324 257 kWh); GC45b ~1 % below. The ground model is ISO 13370 (semi-infinite
+    ground). With `groundwater_depth` = 15 m (deep-ground boundary) GC50b gives 302 865 kWh,
+    inside; GC40b +0.7 %, GC45b unchanged. **Pending: confirm the Standard's deep-ground
+    boundary (depth, temperature) for the GC cases before setting it.**
+  - GC40b hourly floor conduction ~5 % below a narrow band (3 programs) all year; the shape
+    and amplitude match.
+- [ ] AIR_SIDE_HVAC_TEST (two workbooks → one suite module each; same JSON migration of the
+  notebooks, then archive them).
 - [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
 - [ ] Optionally fill `Std140_TF_Output.xlsx` (the plain output form) from the CSV, to paste
   into the Standard's workbook. Do not write into `Std140_*_Results.xlsx` with openpyxl: it
