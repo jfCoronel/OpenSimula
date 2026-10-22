@@ -47,8 +47,22 @@ Block 3 below. **Session of 2026-10-22: LOAD_TEST done** (branch
 
 Next steps, one PR each:
 
-- [ ] Remaining LOAD_TEST outputs: solar radiation (C155…C171), sky temperature, monthly
-  loads of 600/900, specific-day hourly outputs, 900FF temperature bins.
+- [x] Remaining LOAD_TEST outputs (branch `feat/ashrae140-validation-load-detail`, stacked
+  on the first PR): annual solar radiation, sky temperature, monthly loads of 600/900,
+  specific-day hourly outputs, 900FF temperature bins. `load_test.py` now has a map of
+  every cell of the output form, `CELLS[(case, output, point)] = (row, col)` (1616 values),
+  used to read the references (and reusable to fill `Std140_TF_Output.xlsx`). The page has
+  "annual" groups (range chart + tables) and "profile" groups (min–max band + OpenSimula
+  line per series). "Inside" now allows 0.1 % of the bound, for the rounding of the reference
+  spreadsheets. Result: 1368/1616 values inside range. Findings to investigate:
+  - Sky temperature: at the top of the range on Feb 1 and Jul 14 and below it on May 4
+    (cloudy day) — the sky model differs from the reference programs on cloudy/clear days.
+  - Hourly loads on Jul 14: cooling starts 1–2 h earlier than the references (hours 9–11),
+    as if solar gains reached the zone load with less delay.
+  - Horizontal hourly incident solar no longer equals the weather file GHI (it did in the
+    old v0.5 results): it is rebuilt as DNI·cos(zenith) + DHI with the sun at mid-hour, which
+    differs at low sun (Jul 14 hours 6–7 and 18–19). The annual total barely changes.
+  - North and east annual incident solar slightly above range.
 - [ ] HEATING_TEST, COOLING_TEST, AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own
   layout → one suite module each; same JSON migration of the notebooks).
 - [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
