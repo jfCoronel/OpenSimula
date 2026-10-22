@@ -353,3 +353,19 @@ def test_HVAC_perfect_system():
     assert annual_cooling == pytest.approx(4.177237252213477)
     assert peak_heating == pytest.approx(3.257835742527949)
     assert peak_cooling == pytest.approx(5.447455230231858)
+
+
+def test_interpolated_sunny_fraction():
+    # Unshaded surfaces must get a sunny fraction of exactly 1 with INTERPOLATION, also with
+    # low sun, and every fraction must stay within [0, 1] (cubic interpolation overshot both)
+    sim = osim.Simulation()
+    pro = sim.new_project("pro")
+    pro.read_dict({**case610_dict, "shadow_calculation": "INTERPOLATION", "n_time_steps": 24})
+    pro.simulate()
+    env = pro.env_3D
+    roof = env.get_sunny_index("roof_wall")
+    window = env.get_sunny_index("south_window_1")
+    for azi in range(-180, 181, 7):
+        for alt in [1, 3, 5, 8, 12, 20, 40, 70, 88]:
+            assert env.get_direct_interpolated_sunny_fraction(roof, azi, alt) == pytest.approx(1)
+            assert 0 <= env.get_direct_interpolated_sunny_fraction(window, azi, alt) <= 1

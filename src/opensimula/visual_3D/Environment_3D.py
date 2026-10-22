@@ -2,6 +2,7 @@ import time
 import numpy as np
 import math
 from scipy.interpolate import RegularGridInterpolator
+from scipy.ndimage import distance_transform_edt
 import matplotlib.pyplot as plt
 from opensimula.visual_3D.Polygon_3D import Polygon_3D
 
@@ -424,15 +425,31 @@ class Environment_3D:
                 k = k + 1
             j = j + 1
         
+        # Interpolation tables. Where the sun is behind a polygon its sunny fraction drops to 0,
+        # but there the direct radiation is already 0, so those cells take the value of the
+        # nearest cell with the sun in front: otherwise the interpolation between both sides
+        # of that step gives wrong fractions near grazing sun (e.g. 0.84-1.11 for an unshaded
+        # roof with cubic splines). Linear interpolation keeps the values within [0, 1], and
+        # the azimuth grid is closed at 360° so that 350°-360° is interpolated, not extrapolated.
+        azimuth_grid = np.append(self.shadow_azimuth_grid, 360)
         self.sunny_interpolation_functions = []
-        for i in range(0, len(sunny_polygons)):
+        for i, polygon in enumerate(sunny_polygons):
+            table = self.sunny_fraction_tables[i].copy()
+            behind = np.array(
+                [[polygon.get_angle_with_normal(azi, alt) >= math.pi / 2
+                  for alt in self.shadow_altitude_grid] for azi in self.shadow_azimuth_grid]
+            )
+            if behind.any() and not behind.all():
+                nearest = distance_transform_edt(behind, return_distances=False, return_indices=True)
+                table = table[nearest[0], nearest[1]]
+            table = np.vstack([table, table[0]])
             self.sunny_interpolation_functions.append(
                 RegularGridInterpolator(
-                    (self.shadow_azimuth_grid, self.shadow_altitude_grid),
-                    self.sunny_fraction_tables[i],
+                    (azimuth_grid, self.shadow_altitude_grid),
+                    table,
                     bounds_error=False,
                     fill_value=None,
-                    method="cubic",
+                    method="linear",
                 )
             )
     
@@ -471,7 +488,8 @@ class Environment_3D:
         if self.solar_tables_calculated == True:
             if azi < 0:
                 azi = azi + 360
-            return self.sunny_interpolation_functions[sunny_i]((azi, alt))
+            # clip: linear extrapolation beyond the ±85° altitude grid could leave [0, 1]
+            return float(np.clip(self.sunny_interpolation_functions[sunny_i]((azi, alt)), 0, 1))
         else:
             return 1      
     
