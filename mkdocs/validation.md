@@ -946,16 +946,16 @@ Reference programs: Analytical TUD, Analytical HTAL1, Analytical HTAL2, CA-SIS, 
 
 ## Space cooling equipment, dynamic tests (CE300–CE545)
 
-Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 (example results from `Std140_CE-b_Results.xlsx`). **632 of 783 values inside the reference range.**
+Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 (example results from `Std140_CE-b_Results.xlsx`). **658 of 783 values inside the reference range.**
 
 ### Annual energy consumption
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Annual total cooling energy consumption (kWh) | 21 | 16 | 5 |
+| Annual total cooling energy consumption (kWh) | 21 | 18 | 3 |
 | Annual compressor consumption (kWh) | 21 | 19 | 2 |
-| Annual condenser fan consumption (kWh) | 21 | 15 | 6 |
-| Annual indoor fan consumption (kWh) | 21 | 16 | 5 |
+| Annual condenser fan consumption (kWh) | 21 | 17 | 4 |
+| Annual indoor fan consumption (kWh) | 21 | 17 | 4 |
 
 ![Annual energy consumption](img/validation/cooling_test_b_1.png)
 
@@ -975,15 +975,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 32926.559 | 32530.000 | 33387.008 | 5 | ✓ inside |
 | CE430 | 31767.064 | 31772.397 | 32538.031 | 5 | ✓ inside |
 | CE440 | 33062.668 | 32973.000 | 33691.321 | 5 | ✓ inside |
-| CE500 | 23426.356 | 22322.953 | 23138.000 | 6 | ✗ +1.2 % above max |
+| CE500 | 23024.538 | 22322.953 | 23138.000 | 6 | ✓ inside |
 | CE500 May-Sep | 17987.057 | 17390.851 | 18051.000 | 6 | ✓ inside |
 | CE510 May-Sep | 35844.754 | 34608.775 | 35971.000 | 6 | ✓ inside |
-| CE520 | 26574.384 | 24986.582 | 25781.000 | 6 | ✗ +3.1 % above max |
-| CE522 | 24978.681 | 23544.161 | 24360.000 | 6 | ✗ +2.5 % above max |
-| CE525 | 21345.609 | 20241.713 | 21323.000 | 6 | ✗ +0.1 % above max |
-| CE530 | 17831.339 | 17281.271 | 17875.000 | 6 | ✓ inside |
-| CE540 | 20806.937 | 19061.113 | 20164.000 | 6 | ✗ +3.2 % above max |
-| CE545 | 16337.059 | 15687.080 | 16635.726 | 6 | ✓ inside |
+| CE520 | 26113.551 | 24986.582 | 25781.000 | 6 | ✗ +1.3 % above max |
+| CE522 | 24548.198 | 23544.161 | 24360.000 | 6 | ✗ +0.8 % above max |
+| CE525 | 20981.210 | 20241.713 | 21323.000 | 6 | ✓ inside |
+| CE530 | 17524.063 | 17281.271 | 17875.000 | 6 | ✓ inside |
+| CE540 | 20445.034 | 19061.113 | 20164.000 | 6 | ✗ +1.4 % above max |
+| CE545 | 16057.359 | 15687.080 | 16635.726 | 6 | ✓ inside |
 
 #### Annual compressor consumption (kWh)
 
@@ -1001,15 +1001,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 19949.585 | 19596.000 | 21873.413 | 5 | ✓ inside |
 | CE430 | 18910.860 | 18951.000 | 20910.305 | 5 | ✗ -0.2 % below min |
 | CE440 | 20069.577 | 19989.000 | 22169.553 | 5 | ✓ inside |
-| CE500 | 18735.423 | 17854.296 | 20406.282 | 6 | ✓ inside |
+| CE500 | 18422.085 | 17854.296 | 20406.282 | 6 | ✓ inside |
 | CE500 May-Sep | 14434.134 | 13942.148 | 15967.148 | 6 | ✓ inside |
 | CE510 May-Sep | 28708.650 | 27747.879 | 31669.181 | 6 | ✓ inside |
-| CE520 | 20771.276 | 19521.277 | 21998.508 | 6 | ✓ inside |
-| CE522 | 19742.950 | 18620.311 | 21235.168 | 6 | ✓ inside |
-| CE525 | 17378.808 | 16506.802 | 18521.664 | 6 | ✓ inside |
-| CE530 | 14137.766 | 13656.995 | 15651.726 | 6 | ✓ inside |
-| CE540 | 16125.597 | 15020.743 | 16751.867 | 6 | ✓ inside |
-| CE545 | 13178.812 | 12621.869 | 14764.824 | 6 | ✓ inside |
+| CE520 | 20419.957 | 19521.277 | 21998.508 | 6 | ✓ inside |
+| CE522 | 19411.161 | 18620.311 | 21235.168 | 6 | ✓ inside |
+| CE525 | 17089.424 | 16506.802 | 18521.664 | 6 | ✓ inside |
+| CE530 | 13900.237 | 13656.995 | 15651.726 | 6 | ✓ inside |
+| CE540 | 15851.734 | 15020.743 | 16751.867 | 6 | ✓ inside |
+| CE545 | 12958.698 | 12621.869 | 14764.824 | 6 | ✓ inside |
 
 #### Annual condenser fan consumption (kWh)
 
@@ -1027,15 +1027,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 2097.054 | 2054.000 | 2148.502 | 4 | ✓ inside |
 | CE430 | 1976.284 | 1970.000 | 2059.490 | 4 | ✓ inside |
 | CE440 | 2113.172 | 2104.000 | 2182.268 | 4 | ✓ inside |
-| CE500 | 2008.549 | 1911.869 | 1976.000 | 5 | ✗ +1.6 % above max |
+| CE500 | 1970.663 | 1911.869 | 1976.000 | 5 | ✓ inside |
 | CE500 May-Sep | 1521.279 | 1475.528 | 1527.000 | 5 | ✓ inside |
 | CE510 May-Sep | 3055.514 | 2937.677 | 3061.000 | 5 | ✓ inside |
-| CE520 | 2484.756 | 2340.117 | 2396.000 | 5 | ✗ +3.7 % above max |
-| CE522 | 2241.819 | 2108.278 | 2182.000 | 5 | ✗ +2.7 % above max |
-| CE525 | 1698.492 | 1599.203 | 1663.000 | 5 | ✗ +2.1 % above max |
-| CE530 | 1581.502 | 1535.684 | 1585.000 | 5 | ✓ inside |
-| CE540 | 2004.441 | 1872.336 | 1940.000 | 5 | ✗ +3.3 % above max |
-| CE545 | 1352.288 | 1301.791 | 1337.000 | 5 | ✗ +1.1 % above max |
+| CE520 | 2437.865 | 2340.117 | 2396.000 | 5 | ✗ +1.7 % above max |
+| CE522 | 2199.560 | 2108.278 | 2182.000 | 5 | ✗ +0.8 % above max |
+| CE525 | 1666.373 | 1599.203 | 1663.000 | 5 | ✗ +0.2 % above max |
+| CE530 | 1551.638 | 1535.684 | 1585.000 | 5 | ✓ inside |
+| CE540 | 1966.745 | 1872.336 | 1940.000 | 5 | ✗ +1.4 % above max |
+| CE545 | 1326.775 | 1301.791 | 1337.000 | 5 | ✓ inside |
 
 #### Annual indoor fan consumption (kWh)
 
@@ -1053,24 +1053,24 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 10879.920 | 10862.092 | 10880.000 | 5 | ✓ inside |
 | CE430 | 10879.920 | 10862.092 | 10880.000 | 5 | ✓ inside |
 | CE440 | 10879.920 | 10862.092 | 10880.000 | 5 | ✓ inside |
-| CE500 | 2682.385 | 2369.000 | 2639.000 | 6 | ✗ +1.6 % above max |
+| CE500 | 2631.789 | 2369.000 | 2639.000 | 6 | ✓ inside |
 | CE500 May-Sep | 2031.644 | 1837.000 | 2035.000 | 6 | ✓ inside |
 | CE510 May-Sep | 4080.590 | 3923.220 | 4099.000 | 6 | ✓ inside |
-| CE520 | 3318.351 | 2871.000 | 3200.000 | 6 | ✗ +3.7 % above max |
-| CE522 | 2993.913 | 2704.000 | 2904.000 | 6 | ✗ +3.1 % above max |
-| CE525 | 2268.309 | 1885.000 | 2221.000 | 6 | ✗ +2.1 % above max |
-| CE530 | 2112.070 | 1833.000 | 2117.000 | 6 | ✓ inside |
-| CE540 | 2676.899 | 2258.000 | 2573.000 | 6 | ✗ +4.0 % above max |
-| CE545 | 1805.959 | 1501.000 | 1870.902 | 6 | ✓ inside |
+| CE520 | 3255.729 | 2871.000 | 3200.000 | 6 | ✗ +1.7 % above max |
+| CE522 | 2937.477 | 2704.000 | 2904.000 | 6 | ✗ +1.2 % above max |
+| CE525 | 2225.414 | 1885.000 | 2221.000 | 6 | ✗ +0.2 % above max |
+| CE530 | 2072.188 | 1833.000 | 2117.000 | 6 | ✓ inside |
+| CE540 | 2626.556 | 2258.000 | 2573.000 | 6 | ✗ +2.1 % above max |
+| CE545 | 1771.886 | 1501.000 | 1870.902 | 6 | ✓ inside |
 
 ### Annual evaporator coil loads and COP2
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Annual evaporator coil total load (kWh) | 21 | 13 | 8 |
-| Annual evaporator coil sensible load (kWh) | 21 | 14 | 7 |
-| Annual evaporator coil latent load (kWh) | 21 | 16 | 5 |
-| Annual cOP2 (-) | 21 | 16 | 5 |
+| Annual evaporator coil total load (kWh) | 21 | 20 | 1 |
+| Annual evaporator coil sensible load (kWh) | 21 | 21 | 0 |
+| Annual evaporator coil latent load (kWh) | 21 | 20 | 1 |
+| Annual cOP2 (-) | 21 | 17 | 4 |
 
 ![Annual evaporator coil loads and COP2](img/validation/cooling_test_b_2.png)
 
@@ -1090,15 +1090,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 70763.738 | 69610.957 | 72609.307 | 5 | ✓ inside |
 | CE430 | 66892.797 | 67141.352 | 69756.312 | 5 | ✗ -0.4 % below min |
 | CE440 | 71304.924 | 71181.094 | 73711.363 | 5 | ✓ inside |
-| CE500 | 66693.318 | 63105.366 | 65995.861 | 6 | ✗ +1.1 % above max |
+| CE500 | 65405.046 | 63105.366 | 65995.861 | 6 | ✓ inside |
 | CE500 May-Sep | 50218.691 | 48439.570 | 50692.817 | 6 | ✓ inside |
 | CE510 May-Sep | 113080.884 | 108974.310 | 114017.952 | 6 | ✓ inside |
-| CE520 | 67433.185 | 63212.102 | 66571.217 | 6 | ✗ +1.3 % above max |
-| CE522 | 67070.646 | 63157.030 | 66373.081 | 6 | ✗ +1.1 % above max |
-| CE525 | 66186.665 | 63001.558 | 65399.110 | 6 | ✗ +1.2 % above max |
-| CE530 | 47541.044 | 44875.414 | 47002.000 | 6 | ✗ +1.1 % above max |
-| CE540 | 48183.869 | 44979.842 | 47462.000 | 6 | ✗ +1.5 % above max |
-| CE545 | 47160.644 | 44775.110 | 46668.000 | 6 | ✗ +1.1 % above max |
+| CE520 | 66132.541 | 63212.102 | 66571.217 | 6 | ✓ inside |
+| CE522 | 65776.186 | 63157.030 | 66373.081 | 6 | ✓ inside |
+| CE525 | 64905.232 | 63001.558 | 65399.110 | 6 | ✓ inside |
+| CE530 | 46622.172 | 44875.414 | 47002.000 | 6 | ✓ inside |
+| CE540 | 47255.126 | 44979.842 | 47462.000 | 6 | ✓ inside |
+| CE545 | 46247.128 | 44775.110 | 46668.000 | 6 | ✓ inside |
 
 #### Annual evaporator coil sensible load (kWh)
 
@@ -1116,15 +1116,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 49897.565 | 49523.928 | 50612.215 | 5 | ✓ inside |
 | CE430 | 46658.202 | 46143.000 | 47863.346 | 5 | ✓ inside |
 | CE440 | 50037.016 | 49785.000 | 50876.072 | 5 | ✓ inside |
-| CE500 | 48098.282 | 44874.225 | 47649.853 | 6 | ✗ +0.9 % above max |
+| CE500 | 47169.581 | 44874.225 | 47649.853 | 6 | ✓ inside |
 | CE500 May-Sep | 36224.700 | 34443.234 | 36595.587 | 6 | ✓ inside |
 | CE510 May-Sep | 81513.288 | 77489.432 | 82305.704 | 6 | ✓ inside |
-| CE520 | 48838.797 | 44976.724 | 48101.520 | 6 | ✗ +1.5 % above max |
-| CE522 | 48457.743 | 44924.113 | 47962.298 | 6 | ✗ +1.0 % above max |
-| CE525 | 47593.033 | 44775.105 | 47217.531 | 6 | ✗ +0.8 % above max |
-| CE530 | 47541.043 | 44874.225 | 47002.000 | 6 | ✗ +1.1 % above max |
-| CE540 | 48183.867 | 44976.747 | 47460.000 | 6 | ✗ +1.5 % above max |
-| CE545 | 47160.639 | 44775.105 | 46668.000 | 6 | ✗ +1.1 % above max |
+| CE520 | 47898.323 | 44976.724 | 48101.520 | 6 | ✓ inside |
+| CE522 | 47523.456 | 44924.113 | 47962.298 | 6 | ✓ inside |
+| CE525 | 46671.682 | 44775.105 | 47217.531 | 6 | ✓ inside |
+| CE530 | 46622.172 | 44874.225 | 47002.000 | 6 | ✓ inside |
+| CE540 | 47255.124 | 44976.747 | 47460.000 | 6 | ✓ inside |
+| CE545 | 46247.128 | 44775.105 | 46668.000 | 6 | ✓ inside |
 
 #### Annual evaporator coil latent load (kWh)
 
@@ -1142,15 +1142,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 20866.173 | 19944.869 | 22219.483 | 5 | ✓ inside |
 | CE430 | 20234.594 | 19765.199 | 21892.966 | 5 | ✓ inside |
 | CE440 | 21267.908 | 20689.050 | 22835.291 | 5 | ✓ inside |
-| CE500 | 18595.036 | 18079.943 | 18346.301 | 6 | ✗ +1.4 % above max |
+| CE500 | 18235.466 | 18079.943 | 18346.301 | 6 | ✓ inside |
 | CE500 May-Sep | 13993.991 | 13877.000 | 14097.231 | 6 | ✓ inside |
 | CE510 May-Sep | 31567.596 | 31217.000 | 31712.248 | 6 | ✓ inside |
-| CE520 | 18594.388 | 18087.000 | 18469.697 | 6 | ✗ +0.7 % above max |
-| CE522 | 18612.903 | 18092.976 | 18410.783 | 6 | ✗ +1.1 % above max |
-| CE525 | 18593.632 | 18043.574 | 18313.935 | 6 | ✗ +1.5 % above max |
-| CE530 | 0.001 | 0.000 | 60.672 | 6 | ✓ inside |
+| CE520 | 18234.218 | 18087.000 | 18469.697 | 6 | ✓ inside |
+| CE522 | 18252.731 | 18092.976 | 18410.783 | 6 | ✓ inside |
+| CE525 | 18233.551 | 18043.574 | 18313.935 | 6 | ✓ inside |
+| CE530 | 0.000 | 0.000 | 60.672 | 6 | ✓ inside |
 | CE540 | 0.002 | 0.980 | 106.982 | 6 | ✗ -99.8 % below min |
-| CE545 | 0.004 | 0.000 | 25.500 | 6 | ✓ inside |
+| CE545 | 0.000 | 0.000 | 25.500 | 6 | ✓ inside |
 
 #### Annual cOP2 (-)
 
@@ -1168,15 +1168,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 3.210 | 3.210 | 3.226 | 5 | ✓ inside |
 | CE430 | 3.203 | 3.210 | 3.221 | 5 | ✗ -0.2 % below min |
 | CE440 | 3.214 | 3.220 | 3.231 | 5 | ✗ -0.2 % below min |
-| CE500 | 3.215 | 3.192 | 3.227 | 6 | ✓ inside |
+| CE500 | 3.207 | 3.192 | 3.227 | 6 | ✓ inside |
 | CE500 May-Sep | 3.147 | 3.132 | 3.162 | 6 | ✓ inside |
 | CE510 May-Sep | 3.560 | 3.530 | 3.577 | 6 | ✓ inside |
-| CE520 | 2.900 | 2.873 | 3.004 | 6 | ✓ inside |
-| CE522 | 3.051 | 3.036 | 3.101 | 6 | ✓ inside |
-| CE525 | 3.469 | 3.410 | 3.531 | 6 | ✓ inside |
-| CE530 | 3.024 | 2.916 | 2.999 | 6 | ✗ +0.8 % above max |
-| CE540 | 2.658 | 2.640 | 2.823 | 6 | ✓ inside |
-| CE545 | 3.245 | 3.157 | 3.236 | 6 | ✗ +0.3 % above max |
+| CE520 | 2.893 | 2.873 | 3.004 | 6 | ✓ inside |
+| CE522 | 3.044 | 3.036 | 3.101 | 6 | ✓ inside |
+| CE525 | 3.461 | 3.410 | 3.531 | 6 | ✓ inside |
+| CE530 | 3.017 | 2.916 | 2.999 | 6 | ✗ +0.6 % above max |
+| CE540 | 2.652 | 2.640 | 2.823 | 6 | ✓ inside |
+| CE545 | 3.237 | 3.157 | 3.236 | 6 | ✓ inside |
 
 ### Annual mean zone conditions
 
@@ -1204,15 +1204,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 24.064 | 23.926 | 24.091 | 5 | ✓ inside |
 | CE430 | 24.061 | 23.990 | 24.091 | 5 | ✓ inside |
 | CE440 | 24.066 | 23.912 | 24.091 | 5 | ✓ inside |
-| CE500 | 20.836 | 20.234 | 22.860 | 6 | ✓ inside |
+| CE500 | 20.802 | 20.234 | 22.860 | 6 | ✓ inside |
 | CE500 May-Sep | 25.014 | 24.572 | 25.000 | 6 | ✓ inside |
 | CE510 May-Sep | 25.085 | 24.960 | 25.817 | 6 | ✓ inside |
-| CE520 | 13.992 | 13.517 | 14.890 | 6 | ✓ inside |
-| CE522 | 17.518 | 16.946 | 18.700 | 6 | ✓ inside |
-| CE525 | 27.463 | 26.844 | 30.690 | 6 | ✓ inside |
-| CE530 | 20.828 | 20.025 | 22.860 | 6 | ✓ inside |
-| CE540 | 13.960 | 13.289 | 14.980 | 6 | ✓ inside |
-| CE545 | 27.460 | 26.605 | 30.690 | 6 | ✓ inside |
+| CE520 | 13.980 | 13.517 | 14.890 | 6 | ✓ inside |
+| CE522 | 17.490 | 16.946 | 18.700 | 6 | ✓ inside |
+| CE525 | 27.414 | 26.844 | 30.690 | 6 | ✓ inside |
+| CE530 | 20.794 | 20.025 | 22.860 | 6 | ✓ inside |
+| CE540 | 13.948 | 13.289 | 14.980 | 6 | ✓ inside |
+| CE545 | 27.410 | 26.605 | 30.690 | 6 | ✓ inside |
 
 #### Annual mean zone humidity ratio (kg/kg)
 
@@ -1238,7 +1238,7 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE525 | 0.013 | 0.014 | 0.015 | 4 | ✗ -5.8 % below min |
 | CE530 | 0.005 | 0.006 | 0.007 | 4 | ✗ -11.0 % below min |
 | CE540 | 0.003 | 0.004 | 0.005 | 4 | ✗ -34.2 % below min |
-| CE545 | 0.006 | 0.006 | 0.007 | 4 | ✗ -10.4 % below min |
+| CE545 | 0.006 | 0.006 | 0.007 | 4 | ✗ -10.2 % below min |
 
 #### Annual mean zone relative humidity (%)
 
@@ -1256,15 +1256,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 48.654 | 48.760 | 49.398 | 5 | ✗ -0.2 % below min |
 | CE430 | 49.060 | 48.822 | 49.600 | 5 | ✓ inside |
 | CE440 | 48.206 | 48.230 | 48.829 | 5 | ✓ inside |
-| CE500 | 64.381 | 59.198 | 66.526 | 4 | ✓ inside |
+| CE500 | 64.470 | 59.198 | 66.526 | 4 | ✓ inside |
 | CE500 May-Sep | 56.328 | 55.130 | 57.470 | 6 | ✓ inside |
 | CE510 May-Sep | 56.338 | 54.700 | 57.436 | 6 | ✓ inside |
-| CE520 | 64.991 | 61.405 | 72.170 | 4 | ✓ inside |
-| CE522 | 64.732 | 60.752 | 68.677 | 4 | ✓ inside |
-| CE525 | 56.736 | 54.994 | 61.467 | 4 | ✓ inside |
-| CE530 | 36.902 | 39.600 | 48.973 | 4 | ✗ -6.8 % below min |
-| CE540 | 26.064 | 40.051 | 48.521 | 4 | ✗ -34.9 % below min |
-| CE545 | 31.501 | 29.200 | 38.631 | 4 | ✓ inside |
+| CE520 | 65.345 | 61.405 | 72.170 | 4 | ✓ inside |
+| CE522 | 64.808 | 60.752 | 68.677 | 4 | ✓ inside |
+| CE525 | 56.846 | 54.994 | 61.467 | 4 | ✓ inside |
+| CE530 | 37.012 | 39.600 | 48.973 | 4 | ✗ -6.5 % below min |
+| CE540 | 26.086 | 40.051 | 48.521 | 4 | ✗ -34.9 % below min |
+| CE545 | 31.641 | 29.200 | 38.631 | 4 | ✓ inside |
 
 ### Annual hourly maxima of consumption and loads
 
@@ -1272,7 +1272,7 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 |---|--:|--:|--:|
 | Maximum hourly consumption (compressor + both fans) (Wh) | 20 | 12 | 8 |
 | Maximum hourly coil sensible load (Wh) | 20 | 17 | 3 |
-| Maximum hourly coil latent load (Wh) | 20 | 17 | 3 |
+| Maximum hourly coil latent load (Wh) | 20 | 18 | 2 |
 | Maximum hourly coil total load (Wh) | 20 | 19 | 1 |
 
 ![Annual hourly maxima of consumption and loads](img/validation/cooling_test_b_4.png)
@@ -1298,9 +1298,9 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE520 | 11180.085 | 20-Jul 15 | 10684.000 | 11100.525 | 6 | ✗ +0.7 % above max |
 | CE522 | 11042.957 | 20-Jul 15 | 10430.779 | 10972.000 | 6 | ✗ +0.6 % above max |
 | CE525 | 9727.042 | 20-Jul 15 | 9366.748 | 9585.000 | 6 | ✗ +1.5 % above max |
-| CE530 | 7990.316 | 20-Jul 15 | 7992.000 | 8171.048 | 6 | ✓ inside |
+| CE530 | 7991.210 | 20-Jul 15 | 7992.000 | 8171.048 | 6 | ✓ inside |
 | CE540 | 9150.898 | 20-Jul 15 | 8677.402 | 8985.000 | 6 | ✗ +1.8 % above max |
-| CE545 | 7425.340 | 20-Jul 15 | 7204.827 | 7762.756 | 6 | ✓ inside |
+| CE545 | 7426.528 | 20-Jul 15 | 7204.827 | 7762.756 | 6 | ✓ inside |
 
 #### Maximum hourly coil sensible load (Wh)
 
@@ -1323,9 +1323,9 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE520 | 20267.095 | 29-Jun 16 | 18969.000 | 20378.000 | 6 | ✓ inside |
 | CE522 | 19976.275 | 20-Jul 15 | 18785.000 | 20137.000 | 6 | ✓ inside |
 | CE525 | 19616.715 | 04-Jun 16 | 18759.000 | 19850.000 | 6 | ✓ inside |
-| CE530 | 19551.968 | 20-Jul 15 | 18776.000 | 19834.100 | 6 | ✓ inside |
+| CE530 | 19552.071 | 20-Jul 15 | 18776.000 | 19834.100 | 6 | ✓ inside |
 | CE540 | 19824.360 | 20-Jul 15 | 18794.000 | 19799.000 | 6 | ✗ +0.1 % above max |
-| CE545 | 19410.610 | 20-Jul 15 | 18759.000 | 20075.200 | 6 | ✓ inside |
+| CE545 | 19410.730 | 20-Jul 15 | 18759.000 | 20075.200 | 6 | ✓ inside |
 
 #### Maximum hourly coil latent load (Wh)
 
@@ -1348,9 +1348,9 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE520 | 7780.303 | 29-Jun 16 | 7698.534 | 7964.000 | 6 | ✓ inside |
 | CE522 | 7689.945 | 29-Jun 16 | 7743.000 | 7906.700 | 6 | ✗ -0.7 % below min |
 | CE525 | 7770.515 | 29-Jun 16 | 7663.000 | 8037.070 | 6 | ✓ inside |
-| CE530 | 0.923 | 20-Apr 5 | 0.000 | 179.000 | 6 | ✓ inside |
+| CE530 | 0.000 | 01-Jan 1 | 0.000 | 179.000 | 6 | ✓ inside |
 | CE540 | 1.925 | 01-Jan 1 | 0.000 | 1654.951 | 6 | ✓ inside |
-| CE545 | 4.335 | 20-Apr 5 | 0.000 | 4.000 | 6 | ✗ +8.4 % above max |
+| CE545 | 0.000 | 01-Jan 1 | 0.000 | 4.000 | 6 | ✓ inside |
 
 #### Maximum hourly coil total load (Wh)
 
@@ -1373,15 +1373,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE520 | 28047.398 | 29-Jun 16 | 26675.000 | 28343.000 | 6 | ✓ inside |
 | CE522 | 27610.605 | 20-Jul 15 | 26514.000 | 27868.000 | 6 | ✓ inside |
 | CE525 | 27333.178 | 29-Jun 16 | 26683.000 | 27739.770 | 6 | ✓ inside |
-| CE530 | 19551.968 | 20-Jul 15 | 18776.000 | 19834.100 | 6 | ✓ inside |
+| CE530 | 19552.071 | 20-Jul 15 | 18776.000 | 19834.100 | 6 | ✓ inside |
 | CE540 | 19824.360 | 20-Jul 15 | 18794.000 | 19799.000 | 6 | ✗ +0.1 % above max |
-| CE545 | 19410.610 | 20-Jul 15 | 18764.000 | 20075.200 | 6 | ✓ inside |
+| CE545 | 19410.730 | 20-Jul 15 | 18764.000 | 20075.200 | 6 | ✓ inside |
 
 ### Annual hourly maxima and minima of COP2 and zone conditions
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Maximum hourly COP2 (-) | 20 | 16 | 4 |
+| Maximum hourly COP2 (-) | 20 | 17 | 3 |
 | Minimum hourly COP2 (-) | 20 | 18 | 2 |
 | Maximum indoor dry bulb (°C) | 20 | 18 | 2 |
 | Minimum indoor dry bulb (°C) | 20 | 12 | 8 |
@@ -1408,14 +1408,14 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 3.782 | 21-May 15 | 3.759 | 3.940 | 5 | ✓ inside |
 | CE430 | 3.784 | 21-May 15 | 3.759 | 3.930 | 5 | ✓ inside |
 | CE440 | 3.760 | 27-Sep 15 | 3.759 | 3.883 | 5 | ✓ inside |
-| CE500 | 4.480 | 11-Apr 19 | 4.140 | 7.367 | 6 | ✓ inside |
-| CE510 | 5.079 | 20-Apr 5 | 4.530 | 7.367 | 6 | ✓ inside |
-| CE520 | 4.053 | 01-Jan 1 | 3.802 | 4.896 | 6 | ✓ inside |
-| CE522 | 4.207 | 11-Apr 19 | 3.986 | 6.233 | 6 | ✓ inside |
-| CE525 | 4.899 | 11-Apr 19 | 4.400 | 6.325 | 6 | ✓ inside |
-| CE530 | 4.082 | 11-Apr 19 | 3.840 | 4.006 | 6 | ✗ +1.9 % above max |
+| CE500 | 4.214 | 16-Mar 10 | 4.140 | 7.367 | 6 | ✓ inside |
+| CE510 | 4.750 | 04-Oct 24 | 4.530 | 7.367 | 6 | ✓ inside |
+| CE520 | 4.061 | 01-Jan 1 | 3.802 | 4.896 | 6 | ✓ inside |
+| CE522 | 4.007 | 30-Apr 16 | 3.986 | 6.233 | 6 | ✓ inside |
+| CE525 | 4.619 | 16-Mar 10 | 4.400 | 6.325 | 6 | ✓ inside |
+| CE530 | 3.859 | 16-Mar 10 | 3.840 | 4.006 | 6 | ✓ inside |
 | CE540 | 3.789 | 01-Jan 1 | 3.455 | 3.696 | 6 | ✗ +2.5 % above max |
-| CE545 | 4.421 | 11-Apr 19 | 4.156 | 4.428 | 6 | ✓ inside |
+| CE545 | 4.179 | 16-Mar 10 | 4.156 | 4.428 | 6 | ✓ inside |
 
 #### Minimum hourly COP2 (-)
 
@@ -1434,13 +1434,13 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE430 | 2.798 | 03-Dec 14 | 2.734 | 2.810 | 5 | ✓ inside |
 | CE440 | 2.798 | 03-Dec 14 | 2.734 | 2.810 | 5 | ✓ inside |
 | CE500 | 2.680 | 29-Jul 12 | 2.652 | 2.710 | 6 | ✓ inside |
-| CE510 | 2.892 | 31-Mar 15 | 2.652 | 2.900 | 6 | ✓ inside |
+| CE510 | 2.789 | 05-Apr 17 | 2.652 | 2.900 | 6 | ✓ inside |
 | CE520 | 2.426 | 29-Jul 12 | 2.333 | 2.532 | 6 | ✓ inside |
 | CE522 | 2.547 | 29-Jul 12 | 2.429 | 2.613 | 6 | ✓ inside |
 | CE525 | 2.889 | 29-Jul 12 | 2.814 | 2.940 | 6 | ✓ inside |
-| CE530 | 2.574 | 29-Jul 12 | 2.473 | 2.532 | 6 | ✗ +1.7 % above max |
+| CE530 | 2.574 | 29-Jul 12 | 2.473 | 2.532 | 6 | ✗ +1.6 % above max |
 | CE540 | 2.256 | 29-Jul 12 | 2.143 | 2.383 | 6 | ✓ inside |
-| CE545 | 2.759 | 29-Jul 12 | 2.660 | 2.733 | 6 | ✗ +1.0 % above max |
+| CE545 | 2.758 | 29-Jul 12 | 2.660 | 2.733 | 6 | ✗ +0.9 % above max |
 
 #### Maximum indoor dry bulb (°C)
 
@@ -1463,9 +1463,9 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE520 | 17.283 | 04-Jun 16 | 15.000 | 18.620 | 6 | ✓ inside |
 | CE522 | 20.090 | 29-Aug 15 | 20.000 | 21.009 | 6 | ✓ inside |
 | CE525 | 35.090 | 10-May 15 | 34.999 | 36.080 | 6 | ✓ inside |
-| CE530 | 25.000 | 10-Mar 10 | 25.000 | 26.116 | 6 | ✓ inside |
+| CE530 | 25.007 | 04-Apr 17 | 25.000 | 26.116 | 6 | ✓ inside |
 | CE540 | 15.044 | 10-Apr 4 | 15.000 | 16.146 | 6 | ✓ inside |
-| CE545 | 35.000 | 10-Mar 10 | 35.000 | 35.672 | 6 | ✓ inside |
+| CE545 | 35.000 | 11-Mar 10 | 35.000 | 35.672 | 6 | ✓ inside |
 
 #### Minimum indoor dry bulb (°C)
 
@@ -1535,12 +1535,12 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE440 | 0.002 | 11-Jan 2 | 0.002 | 0.002 | 5 | ✓ inside |
 | CE500 | 0.006 | 20-Dec 12 | 0.007 | 0.010 | 4 | ✗ -5.9 % below min |
 | CE510 | 0.006 | 20-Dec 12 | 0.007 | 0.011 | 4 | ✗ -5.9 % below min |
-| CE520 | 0.006 | 27-Nov 23 | 0.006 | 0.007 | 4 | ✗ -4.4 % below min |
+| CE520 | 0.006 | 27-Nov 23 | 0.006 | 0.007 | 4 | ✗ -2.8 % below min |
 | CE522 | 0.006 | 20-Dec 12 | 0.007 | 0.008 | 4 | ✗ -5.8 % below min |
 | CE525 | 0.006 | 20-Dec 12 | 0.007 | 0.015 | 4 | ✗ -6.0 % below min |
-| CE530 | 0.005 | 20-Apr 15 | 0.005 | 0.007 | 4 | ✗ -5.5 % below min |
+| CE530 | 0.005 | 01-Apr 1 | 0.005 | 0.007 | 4 | ✗ -5.4 % below min |
 | CE540 | 0.003 | 01-Apr 1 | 0.003 | 0.004 | 4 | ✗ -22.0 % below min |
-| CE545 | 0.006 | 20-Apr 5 | 0.006 | 0.007 | 4 | ✗ -10.2 % below min |
+| CE545 | 0.006 | 01-Apr 1 | 0.006 | 0.007 | 4 | ✗ -10.0 % below min |
 
 #### Maximum zone relative humidity (%)
 
@@ -1558,11 +1558,11 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 70.560 | 17-Apr 3 | 70.841 | 74.510 | 5 | ✗ -0.4 % below min |
 | CE430 | 83.935 | 02-Apr 5 | 78.430 | 80.743 | 5 | ✗ +4.0 % above max |
 | CE440 | 69.327 | 16-Nov 16 | 67.510 | 69.350 | 5 | ✓ inside |
-| CE500 | 100.000 | 19-Dec 4 | 60.080 | 100.000 | 4 | ✓ inside |
-| CE510 | 100.000 | 19-Dec 4 | 57.510 | 100.000 | 4 | ✓ inside |
-| CE520 | 91.027 | 20-Dec 12 | 71.770 | 95.000 | 4 | ✓ inside |
+| CE500 | 100.000 | 14-Jan 4 | 60.080 | 100.000 | 4 | ✓ inside |
+| CE510 | 100.000 | 14-Jan 4 | 57.510 | 100.000 | 4 | ✓ inside |
+| CE520 | 92.562 | 20-Dec 12 | 71.770 | 95.000 | 4 | ✓ inside |
 | CE522 | 100.000 | 14-Jan 4 | 71.320 | 100.000 | 4 | ✓ inside |
-| CE525 | 100.000 | 18-Dec 11 | 51.120 | 100.000 | 4 | ✓ inside |
+| CE525 | 100.000 | 14-Jan 4 | 51.120 | 100.000 | 4 | ✓ inside |
 | CE530 | 83.826 | 14-Jan 8 | 36.010 | 96.160 | 4 | ✓ inside |
 | CE540 | 42.235 | 14-Jan 8 | 39.960 | 61.275 | 4 | ✓ inside |
 | CE545 | 90.732 | 14-Jan 8 | 24.140 | 97.000 | 4 | ✓ inside |
@@ -1583,14 +1583,14 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 13.316 | 06-Nov 5 | 11.970 | 14.590 | 5 | ✓ inside |
 | CE430 | 13.316 | 06-Nov 5 | 11.970 | 14.580 | 5 | ✓ inside |
 | CE440 | 13.316 | 06-Nov 5 | 11.970 | 14.540 | 5 | ✓ inside |
-| CE500 | 53.735 | 20-Apr 5 | 52.830 | 55.167 | 4 | ✓ inside |
-| CE510 | 53.654 | 20-Apr 5 | 52.088 | 55.288 | 4 | ✓ inside |
-| CE520 | 55.196 | 27-Nov 23 | 61.000 | 61.900 | 4 | ✗ -9.5 % below min |
-| CE522 | 56.624 | 20-Apr 5 | 57.970 | 60.000 | 4 | ✗ -2.3 % below min |
-| CE525 | 41.652 | 20-Apr 6 | 44.000 | 47.852 | 4 | ✗ -5.3 % below min |
-| CE530 | 26.277 | 20-Apr 15 | 28.000 | 34.028 | 4 | ✗ -6.2 % below min |
+| CE500 | 54.154 | 05-Oct 1 | 52.830 | 55.167 | 4 | ✓ inside |
+| CE510 | 54.126 | 04-Oct 24 | 52.088 | 55.288 | 4 | ✓ inside |
+| CE520 | 56.127 | 27-Nov 23 | 61.000 | 61.900 | 4 | ✗ -8.0 % below min |
+| CE522 | 56.981 | 05-Oct 1 | 57.970 | 60.000 | 4 | ✗ -1.7 % below min |
+| CE525 | 42.039 | 05-Oct 2 | 44.000 | 47.852 | 4 | ✗ -4.5 % below min |
+| CE530 | 26.291 | 04-Apr 17 | 28.000 | 34.028 | 4 | ✗ -6.1 % below min |
 | CE540 | 24.066 | 10-Apr 4 | 31.000 | 39.740 | 4 | ✗ -22.4 % below min |
-| CE545 | 15.991 | 20-Apr 5 | 17.124 | 20.140 | 4 | ✗ -6.6 % below min |
+| CE545 | 16.032 | 01-Apr 10 | 17.124 | 20.140 | 4 | ✗ -6.4 % below min |
 
 ### Weather checks, case CE300
 
@@ -1669,8 +1669,8 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 |---|--:|--:|--:|--:|---|
 | CE500 Apr 30 | 4010.496 | 3892.939 | 4073.000 | 6 | ✓ inside |
 | CE500 Jun 25 | 5231.225 | 5044.922 | 5230.000 | 6 | ✓ inside |
-| CE530 Apr 30 | 3112.107 | 3022.773 | 3144.000 | 6 | ✓ inside |
-| CE530 Jun 25 | 3946.042 | 3894.123 | 4043.000 | 6 | ✓ inside |
+| CE530 Apr 30 | 3112.506 | 3022.773 | 3144.000 | 6 | ✓ inside |
+| CE530 Jun 25 | 3946.525 | 3894.123 | 4043.000 | 6 | ✓ inside |
 
 #### Daily average compressor consumption (Wh)
 
@@ -1678,8 +1678,8 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 |---|--:|--:|--:|--:|---|
 | CE500 Apr 30 | 3104.460 | 3014.619 | 3509.897 | 6 | ✓ inside |
 | CE500 Jun 25 | 4239.765 | 4083.883 | 4663.240 | 6 | ✓ inside |
-| CE530 Apr 30 | 2388.766 | 2311.472 | 2689.040 | 6 | ✓ inside |
-| CE530 Jun 25 | 3170.962 | 3118.095 | 3578.620 | 6 | ✓ inside |
+| CE530 Apr 30 | 2389.073 | 2311.472 | 2689.040 | 6 | ✓ inside |
+| CE530 Jun 25 | 3171.350 | 3118.095 | 3578.620 | 6 | ✓ inside |
 
 #### Daily average condenser fan consumption (Wh)
 
@@ -1687,8 +1687,8 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 |---|--:|--:|--:|--:|---|
 | CE500 Apr 30 | 387.943 | 376.076 | 391.000 | 5 | ✓ inside |
 | CE500 Jun 25 | 424.520 | 411.333 | 426.333 | 5 | ✓ inside |
-| CE530 Apr 30 | 309.718 | 304.562 | 314.000 | 5 | ✓ inside |
-| CE530 Jun 25 | 331.871 | 329.250 | 340.000 | 5 | ✓ inside |
+| CE530 Apr 30 | 309.757 | 304.562 | 314.000 | 5 | ✓ inside |
+| CE530 Jun 25 | 331.912 | 329.250 | 340.000 | 5 | ✓ inside |
 
 #### Daily average indoor fan consumption (Wh)
 
@@ -1696,8 +1696,8 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 |---|--:|--:|--:|--:|---|
 | CE500 Apr 30 | 518.092 | 466.417 | 522.000 | 6 | ✓ inside |
 | CE500 Jun 25 | 566.940 | 514.333 | 566.000 | 6 | ✗ +0.2 % above max |
-| CE530 Apr 30 | 413.623 | 360.750 | 419.000 | 6 | ✓ inside |
-| CE530 Jun 25 | 443.209 | 395.500 | 454.000 | 6 | ✓ inside |
+| CE530 Apr 30 | 413.676 | 360.750 | 419.000 | 6 | ✓ inside |
+| CE530 Jun 25 | 443.263 | 395.500 | 454.000 | 6 | ✓ inside |
 
 #### Daily average coil total load (Wh)
 
@@ -1705,8 +1705,8 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 |---|--:|--:|--:|--:|---|
 | CE500 Apr 30 | 13622.101 | 13169.542 | 13732.907 | 6 | ✓ inside |
 | CE500 Jun 25 | 13695.691 | 13188.050 | 13837.532 | 6 | ✓ inside |
-| CE530 Apr 30 | 9713.397 | 9353.163 | 9798.000 | 6 | ✓ inside |
-| CE530 Jun 25 | 9762.679 | 9376.296 | 9835.136 | 6 | ✓ inside |
+| CE530 Apr 30 | 9713.446 | 9353.163 | 9798.000 | 6 | ✓ inside |
+| CE530 Jun 25 | 9762.730 | 9376.296 | 9835.136 | 6 | ✓ inside |
 
 #### Daily average coil sensible load (Wh)
 
@@ -1714,8 +1714,8 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 |---|--:|--:|--:|--:|---|
 | CE500 Apr 30 | 9814.494 | 9365.458 | 9925.025 | 6 | ✓ inside |
 | CE500 Jun 25 | 9884.562 | 9377.687 | 9981.240 | 6 | ✓ inside |
-| CE530 Apr 30 | 9713.397 | 9353.163 | 9798.000 | 6 | ✓ inside |
-| CE530 Jun 25 | 9762.679 | 9376.296 | 9835.136 | 6 | ✓ inside |
+| CE530 Apr 30 | 9713.446 | 9353.163 | 9798.000 | 6 | ✓ inside |
+| CE530 Jun 25 | 9762.730 | 9376.296 | 9835.136 | 6 | ✓ inside |
 
 #### Daily average coil latent load (Wh)
 
@@ -1732,8 +1732,8 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 |---|--:|--:|--:|--:|---|
 | CE500 Apr 30 | 0.011 | 0.011 | 0.016 | 6 | ✓ inside |
 | CE500 Jun 25 | 0.011 | 0.011 | 0.011 | 6 | ✓ inside |
-| CE530 Apr 30 | 0.005 | 0.005 | 0.007 | 6 | ✗ -6.0 % below min |
-| CE530 Jun 25 | 0.005 | 0.005 | 0.008 | 6 | ✗ -5.9 % below min |
+| CE530 Apr 30 | 0.005 | 0.005 | 0.007 | 6 | ✗ -5.9 % below min |
+| CE530 Jun 25 | 0.005 | 0.005 | 0.008 | 6 | ✗ -5.8 % below min |
 
 #### Daily average cOP2 (-)
 
@@ -1741,7 +1741,7 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 |---|--:|--:|--:|--:|---|
 | CE500 Apr 30 | 3.900 | 3.837 | 3.914 | 6 | ✓ inside |
 | CE500 Jun 25 | 2.936 | 2.921 | 2.951 | 6 | ✓ inside |
-| CE530 Apr 30 | 3.600 | 3.441 | 3.599 | 6 | ✓ inside |
+| CE530 Apr 30 | 3.599 | 3.441 | 3.599 | 6 | ✓ inside |
 | CE530 Jun 25 | 2.787 | 2.690 | 2.780 | 6 | ✗ +0.3 % above max |
 
 #### Daily average outdoor dry bulb (°C)

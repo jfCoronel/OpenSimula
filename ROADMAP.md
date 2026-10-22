@@ -144,14 +144,17 @@ Next steps, one PR each:
     maximum humidity ratio and CE540 annual latent load include removing initial moisture),
     so CE530/540/545 maximum w, CE540 coil latent and CE530 mean RH move below (632/783,
     was 633). Known limitation: the dry-coil criterion of `DX_unit` (decision, not to change).
-  - *CE500–CE545, consumption, fan energy and coil loads above range* → **internal gains
-    schedule, to check against the Standard.** The energy balance closes (coil latent =
-    latent gains = 18.596 MWh). Daily values on Jun 25 and Apr 30 match TRNSYS/CODYRUN
-    (3811 vs 3810 Wh/h) and May–Sep is inside the range, but outside May–Sep OpenSimula has
-    4601 kWh of latent gains vs 4201–4313 for the references (+7 %). The case files'
-    `Year_schedule` periods (10/03, 10/04, 11/04, 20/04, 12/10, 18/10, 05/11) or the
-    shoulder-period day schedules probably differ from the Standard's table; more gains →
-    more run time → more fan energy. Pending: compare with the Standard's CE500 schedule.
+  - *CE500–CE545, consumption, fan energy and coil loads above range* → **error in the
+    case files' internal gains schedule, fixed.** Checked against Tables 9-22 (CE500) and
+    9-23 (CE510) of the Standard: the period changes were one day early (now 11/03, 11/04,
+    12/04, 21/04, 12/10, 19/10, 06/11, i.e. "Jan 1 thru Mar 10", "Mar 11 thru Apr 10",
+    "Apr 11", "Apr 12 thru Apr 20", "Apr 21 thru Oct 11", "Oct 12 thru Oct 18", "Oct 19 thru
+    Nov 05", "Nov 06 thru Dec 31") and three transition periods were 2 h too long (now
+    9:00–16:00, 8:00–17:00 and 8:00–14:00). Values were right. CE500 annual latent gains
+    18.596 → 18.236 MWh (references' coil latent 18.08–18.35). Series b: 633 → 658/783;
+    CE500–CE545 coil loads 9/9 inside. Still outside: fan energy and total consumption of
+    CE520/522/525/540 (the set point variants), CE540 coil latent (initial humidity) and the
+    minimum IDB (below).
   - *CE500–CE545, minimum IDB 7.48 °C vs 7.94–8.94* (Dec 20): quasi-adiabatic envelope
     (1 m of k = 0.003) and air-only capacity, ~5-day time constant, so the zone follows the
     outdoor/sky conditions; the references themselves spread 1 K. Not investigated further.
