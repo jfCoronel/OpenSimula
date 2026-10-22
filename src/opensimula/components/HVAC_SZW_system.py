@@ -383,14 +383,14 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 self.M_w = 0
                 self.w_CA = self.w_MA
                 return
-            else:
-                capacity, self.epsilon = self.h_coil.get_heating_capacity(
-                    self.T_MA,
-                    self.T_MAwb,
-                    heating_Tw,
-                    self.air_flow,
-                    self.heating_water_flow,
-                )
+        # Coil capacity with the water temperature of either source
+        capacity, self.epsilon = self.h_coil.get_heating_capacity(
+            self.T_MA,
+            self.T_MAwb,
+            heating_Tw,
+            self.air_flow,
+            self.heating_water_flow,
+        )
         self.M_w = 0  # No latent load in heating
         self.w_CA = self.w_MA
         # Q_required is only the coil capacity
@@ -435,20 +435,20 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 self.M_w = 0
                 self.w_CA = self.w_MA
                 return
-            else:
-                (
-                    capacity_sen,
-                    capacity_lat,
-                    self.T_ADP,
-                    self.epsilon,
-                    self.epsilon_adp,
-                ) = self.c_coil.get_cooling_capacity(
-                    self.T_MA,
-                    self.T_MAwb,
-                    cooling_Tw,
-                    self.air_flow,
-                    self.cooling_water_flow,
-                )
+        # Coil capacity with the water temperature of either source
+        (
+            capacity_sen,
+            capacity_lat,
+            self.T_ADP,
+            self.epsilon,
+            self.epsilon_adp,
+        ) = self.c_coil.get_cooling_capacity(
+            self.T_MA,
+            self.T_MAwb,
+            cooling_Tw,
+            self.air_flow,
+            self.cooling_water_flow,
+        )
 
         Q_required = -self.Q_required
         # Q_required is only the coil capacity
