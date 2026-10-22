@@ -96,8 +96,22 @@ Next steps, one PR each:
   Accepted as a consequence of the constant coefficients (see the decision above).
 - North and east annual incident solar slightly above range also with `INSTANT`
   (483 vs ≤ 477 kWh/m²): diffuse model (Perez) or ground reflection, not interpolation.
-- [ ] HEATING_TEST, COOLING_TEST, AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own
-  layout → one suite module each; same JSON migration of the notebooks).
+- [x] HEATING_TEST (branch `feat/ashrae140-validation-heating`): `heating_test.py`, 11
+  cases (HE100–HE230) in `HEATING_TEST/cases/*.json` (HE220/HE230 had arithmetic such as
+  `6*3600` in their dictionaries, evaluated in the migration). Outputs: furnace load and
+  input, fan energy (draft fan = 50 W × burner run fraction F_load/efficiency_degradation,
+  computed in the extraction as the notebooks did), mean/max/min zone temperature. Only 3
+  reference programs (ESP-r/HOT3000, EnergyPlus, DOE-2.1E), so the ranges are narrow.
+  **Result: 32/37 inside**; outside by 0.2–0.7 % (HE220/230 input, HE160/230 fan energy)
+  and HE230 minimum temperature 0.14 °C below.
+  - Found through HE130 (no load case gave a constant 13 W load and 0.9 GJ input):
+    **bug in `Construction._calc_trans_fun_`** — the CTF a, b, c coefficients were cut to
+    n_coef − 1 terms, so light constructions with few roots failed the steady state
+    (HE130 roof 7.149 vs U 7.140; high-conductance panel 6.59 vs 5.05 W/m²K). Fixed (n_coef
+    terms); test in `test_Construction.py`. LOAD_TEST does not change: its high-conductance
+    wall is an Opening, whose conduction uses U, not CTF.
+- [ ] COOLING_TEST, AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own layout → one
+  suite module each; same JSON migration of the notebooks).
 - [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
 - [ ] Optionally fill `Std140_TF_Output.xlsx` (the plain output form) from the CSV, to paste
   into the Standard's workbook. Do not write into `Std140_*_Results.xlsx` with openpyxl: it

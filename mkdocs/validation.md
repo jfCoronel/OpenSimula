@@ -26,7 +26,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 600 | 4.490 | 3.993 | 4.504 | 6 | ✓ inside |
 | 610 | 4.624 | 4.066 | 4.592 | 6 | ✗ +0.7 % above max |
 | 620 | 4.723 | 4.094 | 4.719 | 6 | ✓ inside |
-| 630 | 5.146 | 4.356 | 5.139 | 6 | ✗ +0.2 % above max |
+| 630 | 5.147 | 4.356 | 5.139 | 6 | ✗ +0.2 % above max |
 | 640 | 2.644 | 2.403 | 2.682 | 6 | ✓ inside |
 | 650 | 0.000 | 0.000 | 0.000 | 6 | ✓ inside |
 | 660 | 3.932 | 3.574 | 3.821 | 6 | ✗ +2.9 % above max |
@@ -40,7 +40,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 930 | 4.358 | 3.524 | 4.384 | 6 | ✓ inside |
 | 940 | 1.132 | 0.863 | 1.389 | 6 | ✓ inside |
 | 950 | 0.000 | 0.000 | 0.000 | 6 | ✓ inside |
-| 960 | 2.786 | 2.522 | 2.860 | 5 | ✓ inside |
+| 960 | 2.785 | 2.522 | 2.860 | 5 | ✓ inside |
 | 980 | 0.425 | 0.246 | 0.720 | 6 | ✓ inside |
 | 985 | 2.542 | 2.120 | 2.801 | 6 | ✓ inside |
 | 995 | 1.027 | 0.755 | 1.330 | 6 | ✓ inside |
@@ -68,7 +68,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 460 | 4.236 | 3.828 | 4.290 | 6 | ✓ inside |
 | 470 | 4.144 | 3.540 | 4.094 | 6 | ✗ +1.2 % above max |
 | 800 | 5.426 | 4.906 | 5.403 | 6 | ✗ +0.4 % above max |
-| 810 | 2.564 | 2.038 | 2.610 | 5 | ✓ inside |
+| 810 | 2.563 | 2.038 | 2.610 | 5 | ✓ inside |
 
 #### Annual cooling load (MWh)
 
@@ -85,16 +85,16 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 680 | 6.517 | 5.932 | 6.529 | 6 | ✓ inside |
 | 685 | 8.960 | 8.238 | 9.130 | 6 | ✓ inside |
 | 695 | 9.176 | 8.386 | 9.172 | 6 | ✓ inside |
-| 900 | 2.599 | 2.267 | 2.714 | 6 | ✓ inside |
-| 910 | 1.377 | 1.191 | 1.490 | 6 | ✓ inside |
-| 920 | 2.931 | 2.549 | 3.128 | 6 | ✓ inside |
+| 900 | 2.600 | 2.267 | 2.714 | 6 | ✓ inside |
+| 910 | 1.378 | 1.191 | 1.490 | 6 | ✓ inside |
+| 920 | 2.932 | 2.549 | 3.128 | 6 | ✓ inside |
 | 930 | 1.942 | 1.654 | 2.161 | 6 | ✓ inside |
 | 940 | 2.524 | 2.203 | 2.613 | 6 | ✓ inside |
 | 950 | 0.834 | 0.586 | 0.707 | 6 | ✗ +18.0 % above max |
-| 960 | 0.823 | 0.789 | 0.950 | 5 | ✓ inside |
-| 980 | 3.906 | 3.501 | 3.995 | 6 | ✓ inside |
-| 985 | 6.444 | 5.880 | 7.273 | 6 | ✓ inside |
-| 995 | 7.303 | 6.771 | 7.482 | 6 | ✓ inside |
+| 960 | 0.824 | 0.789 | 0.950 | 5 | ✓ inside |
+| 980 | 3.907 | 3.501 | 3.995 | 6 | ✓ inside |
+| 985 | 6.445 | 5.880 | 7.273 | 6 | ✓ inside |
+| 995 | 7.304 | 6.771 | 7.482 | 6 | ✓ inside |
 | 195 | 0.657 | 0.592 | 0.712 | 6 | ✓ inside |
 | 200 | 0.860 | 0.788 | 0.839 | 6 | ✗ +2.5 % above max |
 | 210 | 0.580 | 0.459 | 0.688 | 6 | ✓ inside |
@@ -104,7 +104,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 240 | 0.983 | 0.834 | 1.287 | 6 | ✓ inside |
 | 250 | 3.223 | 2.904 | 3.612 | 6 | ✓ inside |
 | 270 | 7.457 | 6.698 | 7.522 | 5 | ✓ inside |
-| 280 | 5.130 | 4.215 | 5.206 | 5 | ✓ inside |
+| 280 | 5.129 | 4.215 | 5.206 | 5 | ✓ inside |
 | 290 | 5.541 | 5.310 | 5.743 | 5 | ✓ inside |
 | 300 | 5.373 | 4.805 | 5.152 | 5 | ✗ +4.3 % above max |
 | 310 | 3.689 | 3.128 | 3.752 | 5 | ✓ inside |
@@ -119,7 +119,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 460 | 6.808 | 5.929 | 6.729 | 6 | ✗ +1.2 % above max |
 | 470 | 6.273 | 5.644 | 6.056 | 6 | ✗ +3.6 % above max |
 | 800 | 0.343 | 0.282 | 0.473 | 6 | ✓ inside |
-| 810 | 1.569 | 1.295 | 1.606 | 5 | ✓ inside |
+| 810 | 1.570 | 1.295 | 1.606 | 5 | ✓ inside |
 
 ### Peak loads
 
@@ -153,14 +153,14 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 950 | 0.000 | Jan 1 1 | 0.000 | 0.000 | 6 | ✓ inside |
 | 960 | 2.000 | Feb 9 6 | 2.085 | 2.300 | 5 | ✗ -4.1 % below min |
 | 980 | 1.669 | Feb 9 6 | 1.254 | 1.693 | 6 | ✓ inside |
-| 985 | 2.694 | Feb 9 6 | 2.452 | 2.785 | 6 | ✓ inside |
+| 985 | 2.693 | Feb 9 6 | 2.452 | 2.785 | 6 | ✓ inside |
 | 995 | 1.718 | Feb 9 6 | 1.370 | 1.711 | 6 | ✗ +0.4 % above max |
 | 195 | 1.820 | Dec 31 24 | 1.791 | 1.802 | 6 | ✗ +1.0 % above max |
 | 200 | 2.320 | Dec 31 24 | 2.226 | 2.353 | 6 | ✓ inside |
 | 210 | 2.557 | Dec 31 24 | 2.374 | 2.750 | 6 | ✓ inside |
 | 215 | 2.522 | Dec 31 24 | 2.390 | 2.521 | 6 | ✓ inside |
 | 220 | 2.814 | Dec 31 24 | 2.631 | 2.879 | 6 | ✓ inside |
-| 230 | 4.201 | Dec 31 24 | 4.133 | 4.316 | 6 | ✓ inside |
+| 230 | 4.202 | Dec 31 24 | 4.133 | 4.316 | 6 | ✓ inside |
 | 240 | 2.637 | Dec 31 24 | 2.431 | 2.693 | 6 | ✓ inside |
 | 250 | 2.805 | Dec 31 24 | 2.631 | 2.874 | 6 | ✓ inside |
 | 270 | 2.760 | Dec 31 24 | 2.560 | 2.843 | 5 | ✓ inside |
@@ -196,14 +196,14 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 680 | 6.195 | Jan 22 14 | 5.761 | 7.051 | 6 | ✓ inside |
 | 685 | 6.494 | Jan 22 14 | 6.071 | 7.159 | 6 | ✓ inside |
 | 695 | 6.766 | Jan 22 14 | 6.232 | 7.541 | 6 | ✓ inside |
-| 900 | 2.840 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
-| 910 | 2.031 | Oct 1 15 | 2.081 | 2.722 | 6 | ✗ -2.4 % below min |
+| 900 | 2.841 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
+| 910 | 2.032 | Oct 1 15 | 2.081 | 2.722 | 6 | ✗ -2.4 % below min |
 | 920 | 3.008 | Jun 26 17 | 2.710 | 3.481 | 6 | ✓ inside |
 | 930 | 2.524 | Jun 26 18 | 2.335 | 3.052 | 6 | ✓ inside |
 | 940 | 2.840 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
 | 950 | 2.300 | Sep 11 15 | 2.054 | 2.388 | 6 | ✓ inside |
 | 960 | 1.001 | Jun 26 17 | 1.338 | 1.480 | 5 | ✗ -25.2 % below min |
-| 980 | 3.145 | Oct 18 15 | 2.930 | 3.668 | 6 | ✓ inside |
+| 980 | 3.146 | Oct 18 15 | 2.930 | 3.668 | 6 | ✓ inside |
 | 985 | 3.542 | Oct 1 14 | 3.208 | 4.225 | 6 | ✓ inside |
 | 995 | 3.591 | Oct 18 15 | 3.315 | 4.224 | 6 | ✓ inside |
 | 195 | 1.021 | Jun 26 17 | 0.944 | 1.118 | 6 | ✓ inside |
@@ -247,11 +247,11 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
 | 600FF | -13.376 | Feb 9 7 | -13.844 | -9.900 | 6 | ✓ inside |
-| 900FF | 0.598 | Feb 9 7 | 0.600 | 2.165 | 6 | ✓ inside |
+| 900FF | 0.599 | Feb 9 7 | 0.600 | 2.165 | 6 | ✓ inside |
 | 650FF | -17.369 | Dec 31 24 | -17.762 | -16.700 | 6 | ✓ inside |
 | 950FF | -13.170 | Dec 31 24 | -13.360 | -12.500 | 6 | ✓ inside |
 | 680FF | -8.388 | Feb 9 7 | -8.074 | -5.700 | 6 | ✗ -0.31 °C below min |
-| 980FF | 10.143 | Nov 4 7 | 7.300 | 12.536 | 6 | ✓ inside |
+| 980FF | 10.144 | Nov 4 7 | 7.300 | 12.536 | 6 | ✓ inside |
 | 960 | 4.454 | Feb 9 7 | 4.238 | 8.017 | 5 | ✓ inside |
 
 #### Annual hourly average zone temperature (°C)
@@ -259,24 +259,24 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
 | 600FF | 25.176 | 24.258 | 26.100 | 6 | ✓ inside |
-| 900FF | 25.239 | 24.462 | 25.692 | 6 | ✓ inside |
+| 900FF | 25.240 | 24.462 | 25.692 | 6 | ✓ inside |
 | 650FF | 18.876 | 17.600 | 18.930 | 6 | ✓ inside |
 | 950FF | 14.887 | 14.350 | 15.000 | 6 | ✓ inside |
 | 680FF | 32.046 | 30.187 | 33.300 | 6 | ✓ inside |
-| 980FF | 32.048 | 30.492 | 33.300 | 6 | ✓ inside |
-| 960 | 27.929 | 26.798 | 29.450 | 5 | ✓ inside |
+| 980FF | 32.049 | 30.492 | 33.300 | 6 | ✓ inside |
+| 960 | 27.930 | 26.798 | 29.450 | 5 | ✓ inside |
 
 #### Annual hourly maximum zone temperature (°C)
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
 | 600FF | 65.718 | Oct 1 15 | 62.369 | 68.361 | 6 | ✓ inside |
-| 900FF | 44.853 | Sep 11 15 | 43.252 | 46.000 | 6 | ✓ inside |
+| 900FF | 44.854 | Sep 11 15 | 43.252 | 46.000 | 6 | ✓ inside |
 | 650FF | 64.108 | Oct 1 15 | 61.133 | 66.846 | 6 | ✓ inside |
-| 950FF | 37.296 | Sep 11 16 | 36.127 | 37.100 | 6 | ✗ +0.20 °C above max |
+| 950FF | 37.297 | Sep 11 16 | 36.127 | 37.100 | 6 | ✗ +0.20 °C above max |
 | 680FF | 73.818 | Oct 18 16 | 69.774 | 78.514 | 6 | ✓ inside |
-| 980FF | 51.494 | Sep 12 15 | 48.541 | 52.810 | 6 | ✓ inside |
-| 960 | 49.777 | Oct 12 15 | 48.097 | 53.180 | 5 | ✓ inside |
+| 980FF | 51.497 | Sep 12 15 | 48.541 | 52.810 | 6 | ✓ inside |
+| 960 | 49.778 | Oct 12 15 | 48.097 | 53.180 | 5 | ✓ inside |
 
 ### Solar radiation
 
@@ -348,14 +348,14 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| 600 | Monthly heating load (kWh) | 12 | 9 | 3.86 kWh |
+| 600 | Monthly heating load (kWh) | 12 | 9 | 3.87 kWh |
 | 600 | Monthly cooling load (kWh) | 12 | 12 | – |
 | 600 | Monthly peak heating load (kW) | 12 | 10 | 0.0269 kW |
 | 600 | Monthly peak cooling load (kW) | 12 | 11 | 0.0562 kW |
-| 900 | Monthly heating load (kWh) | 12 | 11 | 0.998 kWh |
-| 900 | Monthly cooling load (kWh) | 12 | 11 | 5.5 kWh |
-| 900 | Monthly peak heating load (kW) | 12 | 10 | 0.0536 kW |
-| 900 | Monthly peak cooling load (kW) | 12 | 9 | 0.0956 kW |
+| 900 | Monthly heating load (kWh) | 12 | 11 | 0.988 kWh |
+| 900 | Monthly cooling load (kWh) | 12 | 11 | 5.55 kWh |
+| 900 | Monthly peak heating load (kW) | 12 | 10 | 0.0535 kW |
+| 900 | Monthly peak cooling load (kW) | 12 | 9 | 0.0957 kW |
 
 ### Hourly incident solar radiation and sky temperature, case 600
 
@@ -403,9 +403,9 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 685 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.0469 kWh |
 | 695 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.14 kWh |
 | 900 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 17 | 0.0711 kWh |
-| 940 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0292 kWh |
+| 940 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0293 kWh |
 | 980 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 24 | – |
-| 985 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 17 | 0.0783 kWh |
+| 985 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 17 | 0.0782 kWh |
 | 995 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0539 kWh |
 | 600 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 21 | 0.241 kWh |
 | 660 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.174 kWh |
@@ -429,7 +429,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | 600FF | Zone temperature, Feb 1 (°C) | 24 | 11 | 1.06 °C |
 | 900FF | Zone temperature, Feb 1 (°C) | 24 | 24 | – |
 | 650FF | Zone temperature, Jul 14 (°C) | 24 | 5 | 1.83 °C |
-| 950FF | Zone temperature, Jul 14 (°C) | 24 | 20 | 0.088 °C |
+| 950FF | Zone temperature, Jul 14 (°C) | 24 | 20 | 0.0883 °C |
 | 680FF | Zone temperature, Feb 1 (°C) | 24 | 15 | 1.3 °C |
 | 980FF | Zone temperature, Feb 1 (°C) | 24 | 24 | – |
 
@@ -440,3 +440,101 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
 | 900FF | Annual hours per 1 °C zone temperature bin (h) | 149 | 147 | 7 h |
+
+## Fuel-fired furnace tests (HE100–HE230)
+
+Reference programs: ESP-r/HOT3000, EnergyPlus, DOE-2.1E (example results from `Std140_HE_Results.xlsx`). **32 of 37 values inside the reference range.**
+
+### Furnace load and fuel input
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Total furnace load (GJ) | 11 | 11 | 0 |
+| Total furnace input (fuel) (GJ) | 11 | 9 | 2 |
+
+![Furnace load and fuel input](img/validation/heating_test_1.png)
+
+#### Total furnace load (GJ)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| HE100 | 77.742 | 77.750 | 77.940 | 3 | ✓ inside |
+| HE110 | 77.742 | 77.750 | 77.940 | 3 | ✓ inside |
+| HE120 | 31.097 | 31.100 | 31.250 | 3 | ✓ inside |
+| HE130 | 0.000 | 0.000 | 0.155 | 3 | ✓ inside |
+| HE140 | 31.097 | 31.100 | 31.260 | 3 | ✓ inside |
+| HE150 | 29.639 | 29.565 | 29.880 | 3 | ✓ inside |
+| HE160 | 30.487 | 30.460 | 31.260 | 3 | ✓ inside |
+| HE170 | 29.639 | 29.565 | 29.880 | 3 | ✓ inside |
+| HE210 | 42.038 | 41.360 | 42.057 | 3 | ✓ inside |
+| HE220 | 39.814 | 39.410 | 39.870 | 3 | ✓ inside |
+| HE230 | 34.595 | 34.320 | 34.590 | 3 | ✓ inside |
+
+#### Total furnace input (fuel) (GJ)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| HE100 | 77.739 | 77.713 | 78.417 | 3 | ✓ inside |
+| HE110 | 97.174 | 96.920 | 98.020 | 3 | ✓ inside |
+| HE120 | 38.271 | 38.266 | 38.556 | 3 | ✓ inside |
+| HE130 | 0.000 | 0.000 | 0.142 | 3 | ✓ inside |
+| HE140 | 38.899 | 38.764 | 39.004 | 3 | ✓ inside |
+| HE150 | 37.001 | 36.820 | 37.231 | 3 | ✓ inside |
+| HE160 | 38.125 | 37.962 | 38.118 | 3 | ✓ inside |
+| HE170 | 37.001 | 36.820 | 37.231 | 3 | ✓ inside |
+| HE210 | 52.402 | 50.528 | 52.371 | 3 | ✓ inside |
+| HE220 | 49.548 | 47.869 | 49.466 | 3 | ✗ +0.2 % above max |
+| HE230 | 43.320 | 41.368 | 43.219 | 3 | ✗ +0.2 % above max |
+
+### Fan energy
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Fan energy (circulating and draft fans) (kWh) | 6 | 4 | 2 |
+
+![Fan energy](img/validation/heating_test_2.png)
+
+#### Fan energy (circulating and draft fans) (kWh)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| HE150 | 432.000 | 432.000 | 433.300 | 3 | ✓ inside |
+| HE160 | 169.444 | 170.200 | 172.385 | 3 | ✗ -0.4 % below min |
+| HE170 | 473.112 | 473.100 | 473.400 | 3 | ✓ inside |
+| HE210 | 291.123 | 281.600 | 298.918 | 3 | ✓ inside |
+| HE220 | 275.265 | 268.300 | 281.157 | 3 | ✓ inside |
+| HE230 | 481.336 | 431.400 | 478.408 | 3 | ✗ +0.6 % above max |
+
+### Zone temperatures
+
+| Output | Values | Inside range | Outside range |
+|---|--:|--:|--:|
+| Minimum zone temperature (°C) | 3 | 2 | 1 |
+| Mean zone temperature (°C) | 3 | 3 | 0 |
+| Maximum zone temperature (°C) | 3 | 3 | 0 |
+
+![Zone temperatures](img/validation/heating_test_3.png)
+
+#### Minimum zone temperature (°C)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| HE210 | 20.000 | 19.890 | 20.000 | 3 | ✓ inside |
+| HE220 | 15.000 | 14.940 | 15.000 | 3 | ✓ inside |
+| HE230 | 1.308 | 1.450 | 4.480 | 3 | ✗ -0.14 °C below min |
+
+#### Mean zone temperature (°C)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| HE210 | 20.000 | 19.980 | 20.010 | 3 | ✓ inside |
+| HE220 | 18.542 | 18.530 | 18.750 | 3 | ✓ inside |
+| HE230 | 15.563 | 15.170 | 15.640 | 3 | ✓ inside |
+
+#### Maximum zone temperature (°C)
+
+| Case | OpenSimula | Min | Max | Programs | Result |
+|---|--:|--:|--:|--:|---|
+| HE210 | 20.000 | 20.000 | 21.450 | 3 | ✓ inside |
+| HE220 | 20.000 | 20.000 | 22.700 | 3 | ✓ inside |
+| HE230 | 20.000 | 20.000 | 20.140 | 3 | ✓ inside |

@@ -376,9 +376,9 @@ def test_HVAC_FAN_COIL_water_system():
     peak_heating = Q_sens.max() / 1000
     peak_cooling = -Q_sens.min() / 1000
 
-    assert annual_heating == pytest.approx(0.0723509834896354, rel=1e-5)
+    assert annual_heating == pytest.approx(0.0723524242667451, rel=1e-5)
     assert annual_cooling == pytest.approx(4.8761768134697965, rel=1e-5)
-    assert annual_humidification == pytest.approx(0.5830451955419828, rel=1e-5)
+    assert annual_humidification == pytest.approx(0.5830583639213694, rel=1e-5)
     assert annual_dehumidification == pytest.approx(0.0)
     assert peak_heating == pytest.approx(2.6769614390992165, rel=1e-5)
     assert peak_cooling == pytest.approx(5.530450229446886, rel=1e-5)
@@ -389,7 +389,7 @@ def test_HVAC_FAN_COIL_water_system():
     heating_generation = yearly_df["Q_gen_pos"].values[0] / 1e6
     cooling_generation = yearly_df["Q_gen_neg"].values[0] / 1e6
 
-    assert heating_generation == pytest.approx(0.07351703946829136, rel=1e-5)
+    assert heating_generation == pytest.approx(0.07351848030624408, rel=1e-5)
     assert cooling_generation == pytest.approx(-4.969237804755222, rel=1e-5)
 
     T_WGO = water.variable("T_WGO").values

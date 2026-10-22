@@ -281,7 +281,10 @@ class Construction(Component):
         ox = []
         oy = []
         oz = []
-        for i in range(1, n_coef):
+        # n_coef terms of the response series give n_coef valid a, b, c coefficients, as many
+        # as d has: with one fewer, the steady state (sum(a)/sum(d) = U) failed for light
+        # constructions with few roots, e.g. 6.59 instead of 5.05 W/m²K for a thin panel
+        for i in range(1, n_coef + 1):
             sum_exp_x = 0
             sum_exp_y = 0
             sum_exp_z = 0
@@ -304,10 +307,11 @@ class Construction(Component):
             if math.fabs(d[i]) < min_coef:
                 d = d[0: i+1]
                 break
-        # Cut number of coeficients, se producen coeficientes extraños para muros ligeros a partir del n. de roots
-        a = np.resize(a, n_coef-1)
-        b = np.resize(b, n_coef-1)
-        c = np.resize(c, n_coef-1)
+        # Only the first n_coef terms of the convolutions are valid (the response series
+        # above are truncated after n_coef terms)
+        a = np.resize(a, n_coef)
+        b = np.resize(b, n_coef)
+        c = np.resize(c, n_coef)
         # Cut a, b, c coefficients
         for i in range(len(a)):
             if (
