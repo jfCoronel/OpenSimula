@@ -18,26 +18,29 @@ class Iterative_process:
         self.lambda_i = lambda_max
         self.n_ini_relax = n_ini_relax
         self.rel_vel = rel_vel
+        self.residual = None  # |proposed_x - x| of the last iteration
 
-        
     def converged(self):
-        if len(self.x) == 1:
-            return False
-        else:
-            if abs(self.x[-1]-self.x[-2]) < self.tol:
-                return True
-            else:
-                return False
+        # Fixed-point residual, not the relaxed step: with relaxation lambda the step is only
+        # lambda * residual, so testing the step stopped with residuals up to tol / lambda_min
+        # (10 x tol), e.g. zones far from their moisture balance in steady state
+        return self.residual is not None and self.residual < self.tol
 
     def estimate_next_x(self, proposed_x):
+        residual = proposed_x - self.x[-1]
         x_next = (1 - self.lambda_i) * self.x[-1] + self.lambda_i * proposed_x
-        
-        # Ajuste dinámico de lambda (reduce si hay oscilaciones)
-        if len(self.x)>self.n_ini_relax:
-            #if abs(x_next - self.x[-1]) > abs(self.x[-1]- self.x[-2]):
-                self.lambda_i = max(self.lambda_min, self.lambda_i * self.rel_vel)  # Reducimos lambda
-            #else:
-                #self.lambda_i = min(self.lambda_max, self.lambda_i * 1/self.rel_vel)  # Aumentamos lambda
+
+        # Adaptive relaxation: reduce lambda when the iteration oscillates (the residual
+        # changes sign) or does not contract (the residual grows), and recover it while it
+        # contracts; reducing it unconditionally made well-behaved iterations crawl
+        # (lambda_min after ~10 iterations)
+        if len(self.x) > self.n_ini_relax and self.residual is not None:
+            if residual * self._last_residual < 0 or abs(residual) > self.residual:
+                self.lambda_i = max(self.lambda_min, self.lambda_i * self.rel_vel)
+            else:
+                self.lambda_i = min(self.lambda_max, self.lambda_i / self.rel_vel)
+        self._last_residual = residual
+        self.residual = abs(residual)
 
         self.x.append(x_next)
         return x_next
