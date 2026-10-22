@@ -24,11 +24,12 @@ import pandas as pd
 
 import cooling_a_test
 import cooling_b_test
+import ground_test
 import heating_test
 import load_test
 import report
 
-SUITES = {suite.NAME: suite for suite in [load_test, heating_test, cooling_a_test, cooling_b_test]}
+SUITES = {suite.NAME: suite for suite in [load_test, heating_test, cooling_a_test, cooling_b_test, ground_test]}
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 
 

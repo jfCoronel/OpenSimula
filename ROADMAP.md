@@ -175,8 +175,39 @@ Next steps, one PR each:
 - **Case notebooks archived** in `<TEST>/old_notebooks/` for every automated folder (LOAD,
   HEATING, COOLING): their first cell changes to the test folder so they still run. Do the
   same when automating the next folders.
-- [ ] AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own layout → one suite module
-  each; same JSON migration of the notebooks, then archive them).
+- [x] GROUND_TEST (branch `feat/ashrae140-validation-ground`): `ground_test.py`, 14 cases
+  (steady-state GC30b/30c/60b/65b; harmonic GC40b–GC80c, 2-year runs, final year). Outputs:
+  floor conduction and zone load, annual sums/mean, hourly maxima with dates, minimum ODB,
+  GC40b/GC40c hourly floor conduction (only from the 5 sheets whose hourly columns follow
+  the output form). Extraction reproduces the hand-copied values (≤ 1e-5). **55/68 values
+  and 7393/17520 hourly points inside.** GC45c's project was named "Case GC40c" (fixed).
+  - Found: `Building` radiosity matrix (I − F·ρ) is singular when no surface absorbs (GC
+    cases have solar absorptance and emissivity 0); GC50b raised "Singular matrix". Fixed
+    with a pseudo-inverse fallback.
+  - **Deep-ground boundary added (Standard, Table 8-1: depth E = 15 m at 10 °C, far field
+    15 m adiabatic):** the case files had no deep boundary (semi-infinite ground in the ISO
+    13370 model) except the water-table cases GC55b (2 m) and GC55c (5 m); now
+    `groundwater_depth` = 15 in the other 12. GC50b (80 × 80 m) annual floor conduction
+    205 699 → 302 865 kWh (range 277 923–324 257, inside; its peak now 1.7 % above); the
+    rest +0.7 %; GC45b (36 × 4 m) unchanged, ~1 % below. Values 55 → 57/68, hourly
+    7393 → 7888/17520. Rest of Table 8-1 / Section 8.2.1 checked in the case files (soil,
+    adiabatic massless walls, volume, initial 10 °C, set points, h = 100, slab 0.01 m, wall
+    0.24 m). Sections 8.2.1.2–8.2.1.9 (b-series) checked too: GC45b 36 × 4 m, GC50b
+    80 × 80 m, GC55b E = 2 m, GC60b h_int 7.95, GC65b h_int 7.95 / h_ext 11.95 + GC65b.TM2,
+    GC70b the same on GC40b + GC70b.TM2, GC80b k = 0.5 — all as in the case files.
+    Simulation duration (≤ 0.1 % change between the last two years): steady-state cases are
+    steady from year 1, harmonic cases from year 2 (the ISO 13370 model has only 0.5 m of
+    dynamic ground), so 1 and 2 years are enough. c-series (8.2.3) checked too: GC30c
+    interior combined 7.95, exterior surface at T_o = 10 °C via h_ext 10000 (≥ 5000 allowed)
+    and GC30a.TM2; GC40c GC40a.TM2; GC45c 36 × 4 m; GC55c E = 5 m; GC80c k = 0.85 — all as
+    in the case files. E for the c series is inherited from GC30b (15 m, Table 8-9 does not
+    change it). Model limitation: the c-series far-field distance F = 8 m (and F in general)
+    cannot be set in the ISO 13370 ground model. Added outputs: steady-state zone
+    temperature and hours at the minimum outdoor temperature (71/82 values inside).
+  - GC40b hourly floor conduction ~5 % below a narrow band (3 programs) all year; the shape
+    and amplitude match.
+- [ ] AIR_SIDE_HVAC_TEST (two workbooks → one suite module each; same JSON migration of the
+  notebooks, then archive them).
 - [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
 - [ ] Optionally fill `Std140_TF_Output.xlsx` (the plain output form) from the CSV, to paste
   into the Standard's workbook. Do not write into `Std140_*_Results.xlsx` with openpyxl: it
