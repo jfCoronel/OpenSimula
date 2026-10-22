@@ -13,3 +13,4 @@ nav:
     - User guide: user_guide.md
     - Component list: component_list.md
     - Developer guide: developer_guide.md
+    - Validation: validation.md
