@@ -15,23 +15,46 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
 - Gotcha: `astral-sh/setup-uv` no longer publishes major version tags (`@v10` fails to
   resolve); pin the full version (`@v10.2.0`) when bumping it.
 
-## Next session: automated ASHRAE 140 validation
+## Automated ASHRAE 140 validation (in progress, started 2026-10-22)
 
-Agreed as the next step (block 3 below). What is known so far, to start from:
+Block 3 below. **Session of 2026-10-22: LOAD_TEST done** (branch
+`feat/ashrae140-validation-load`):
 
-- ~160 notebooks in `ASHRAE_140/` (LOAD_TEST, HEATING_TEST, COOLING_TEST,
-  AIR_SIDE_HVAC_TEST, GROUND_TEST, WEATHER_TEST), one per case, plus the standard's result
-  spreadsheets (`Std140_*_Results.xlsx`, `Std140_*_Output.xlsx`) in each folder.
-- Most notebooks do not read the reference spreadsheets: only GROUND_TEST and WEATHER_TEST
-  do. The comparison with the reference programs is not automated today — work out first how
-  results currently get from the notebooks into the `Std140_*` spreadsheets.
-- Speed is not a problem: an annual run of case 600FF takes ~4 s.
-- Goal: a script (not notebooks) that runs the cases, extracts the standard's outputs
-  (annual heating/cooling, peaks, free-float temperatures, ...), compares them with the
-  reference programs' min/max range and generates a "Validation" page in `mkdocs/` with
-  tables and plots. Then decide whether it runs in CI (all cases on release, a subset on
-  every PR) and whether the case definitions move from notebooks to JSON files shared by the
-  notebooks and the script.
+- Until now results were copied by hand from each notebook (`to_clipboard()`) into the
+  `YourData` sheet of `Std140_*_Results.xlsx`. In those workbooks every reference program
+  has a sheet with exactly the same layout as `YourData`, so the reference range of an output
+  is the same cells read across the program sheets (located by the `CASE#` header rows).
+- The 52 LOAD_TEST case dictionaries moved from the notebooks to
+  `ASHRAE_140/LOAD_TEST/cases/case_XXX.json`; the notebooks now `pro.read_json(...)` them
+  (single source of truth). Weather file paths stay relative to the suite folder.
+- `ASHRAE_140/validation/`: `validate.py` (CLI, simulates in parallel: 52 cases in ~70 s on
+  8 cores), `load_test.py` (suite: cases, output extraction, reference reading),
+  `report.py` (writes `mkdocs/validation.md` + PNG figures in `mkdocs/img/validation/`).
+  Results stored in `ASHRAE_140/validation/results/LOAD_TEST.csv`; `--report-only`
+  regenerates the page from it, `--cases 600 900` re-runs only some cases.
+- Outputs covered: annual heating/cooling, annual peaks (with date), free-float
+  min/avg/max temperatures. The script reproduces the old hand-copied `YourData` values
+  (max difference 0.06 °C / 0.4 %).
+- Criterion: inside the min–max of the six reference programs (BSIMAC, CSE, DeST,
+  EnergyPlus, ESP-r, TRNSYS; BSIMAC has no results for 270–320, 440, 810, 960). This is the
+  spread of the programs, not the Standard's formal acceptance criteria.
+- **First result: 162/205 outputs inside range.** Annual heating is the weak spot: 20/46
+  cases slightly above the maximum (mostly +0.1–1 %, worst 660 at +2.9 %), concentrated in
+  the 195–320 series and 610–695. Cooling of 450–470 also above range. Worth investigating
+  as a modelling question (systematic heating over-estimate?), separately from this work.
+- Cases 610 and 910 read `mets/WD100.tmy3` instead of `725650TY.tmy3`: checked, same Denver
+  data hour by hour, so harmless; left as it was.
+
+Next steps, one PR each:
+
+- [ ] Remaining LOAD_TEST outputs: solar radiation (C155…C171), sky temperature, monthly
+  loads of 600/900, specific-day hourly outputs, 900FF temperature bins.
+- [ ] HEATING_TEST, COOLING_TEST, AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own
+  layout → one suite module each; same JSON migration of the notebooks).
+- [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
+- [ ] Optionally fill `Std140_TF_Output.xlsx` (the plain output form) from the CSV, to paste
+  into the Standard's workbook. Do not write into `Std140_*_Results.xlsx` with openpyxl: it
+  drops the charts.
 
 - The `pro.editor()` Jupyter widget's `_esm` module is now fully bundled (Ajv included), so
   it loads in VS Code notebooks as well as JupyterLab (was issue #1, fixed on
@@ -102,7 +125,8 @@ from several groups. Work is done step by step; tick items off as they ship.
 ### 3. Scientific credibility and publications
 
 - [ ] Automated ASHRAE 140 validation: a script that runs every case and generates a
-  "Validation" docs page comparing OpenSimula with the reference programs' range.
+  "Validation" docs page comparing OpenSimula with the reference programs' range
+  (LOAD_TEST annual outputs done 2026-10-22; see the section above).
 - [ ] API reference generated from docstrings (mkdocstrings).
 - [ ] JOSS paper (multi-author), after items above.
 - [ ] Full validation paper (JBPS / Energy and Buildings) and conference talks (IBPSA BS,
