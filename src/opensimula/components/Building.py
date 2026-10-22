@@ -85,7 +85,7 @@ class Building(Component):
         SWR_matrix = (SWR_matrix - np.matmul(self.ff_matrix, rho_matrix)
             - np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix)))
 
-        SWR_matrix = np.linalg.inv(SWR_matrix)
+        SWR_matrix = _radiosity_inverse_(SWR_matrix)
         aux_matrix = np.matmul(area_matrix, np.matmul(alpha_matrix, SWR_matrix))
         self.SWDIF_matrix = np.matmul(aux_matrix, np.matmul(self.ff_matrix, tau_matrix))  # SW Solar Diffuse
 
@@ -119,7 +119,7 @@ class Building(Component):
         LWR_matrix = (LWR_matrix - np.matmul(self.ff_matrix, rho_matrix)
             - np.matmul(self.ff_matrix, np.matmul(tau_matrix, self.B_matrix)))
 
-        LWR_matrix = np.linalg.inv(LWR_matrix)
+        LWR_matrix = _radiosity_inverse_(LWR_matrix)
         aux_matrix = np.matmul(area_matrix, np.matmul(alpha_matrix,LWR_matrix))
 
         ig_dist_matrix = np.zeros((self._n_surfaces, self._n_spaces))
@@ -509,3 +509,17 @@ class Building(Component):
     # _______________ post_iteration _______________
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
+
+
+def _radiosity_inverse_(matrix):
+    """Inverse of a radiosity matrix (I - F·rho - F·tau·B).
+
+    In a closed enclosure whose surfaces neither absorb nor transmit (rho = 1, e.g. surfaces
+    with solar absorptance or emissivity 0, as in the ASHRAE 140 ground-coupling cases) the
+    matrix is singular, since the rows of F sum to 1. Nothing is absorbed then, so any
+    generalised inverse gives the same (zero) absorbed radiation: use the pseudo-inverse.
+    """
+    try:
+        return np.linalg.inv(matrix)
+    except np.linalg.LinAlgError:
+        return np.linalg.pinv(matrix)
