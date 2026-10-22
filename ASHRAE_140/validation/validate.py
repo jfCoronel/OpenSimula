@@ -44,9 +44,13 @@ def simulate_case(suite_name, case):
     if errors:
         raise RuntimeError("\n".join(errors))
     return [
-        {"case": case, "output": output, "value": value, "date": date}
-        for output, value, date in suite.extract(case, pro)
+        {"case": case, "output": output, "point": point, "value": value, "date": date}
+        for output, point, value, date in suite.extract(case, pro)
     ]
+
+
+def read_results(csv):
+    return pd.read_csv(csv, dtype={"case": str, "point": str}, keep_default_na=False, float_precision="round_trip")
 
 
 def run_suite(suite, cases, jobs):
@@ -85,16 +89,18 @@ def main():
         rows, failed = run_suite(suite, cases, args.jobs)
         all_failed += [f"{name} {c}" for c in failed]
         print(f"{name}: {len(cases)} cases in {time.time() - start:.0f} s")
-        new = pd.DataFrame(rows, columns=["case", "output", "value", "date"])
+        new = pd.DataFrame(rows, columns=["case", "output", "point", "value", "date"])
         if args.cases and csv.exists():  # keep the stored results of the other cases
-            old = pd.read_csv(csv, dtype={"case": str}, keep_default_na=False, float_precision="round_trip")
+            old = read_results(csv)
             new = pd.concat([old[~old["case"].isin(cases)], new])
-        order = {c: i for i, c in enumerate(suite.cases())}
-        new = new.sort_values(["case", "output"], key=lambda s: s.map(order) if s.name == "case" else s)
+        # Same order as the Standard's output form
+        order = {key: i for i, key in enumerate(suite.CELLS)}
+        new["position"] = [order[key] for key in zip(new["case"], new["output"], new["point"])]
+        new = new.sort_values("position").drop(columns="position")
         new.to_csv(csv, index=False, float_format="%.6f")
 
     results = {
-        name: pd.read_csv(RESULTS_DIR / f"{name}.csv", dtype={"case": str}, keep_default_na=False, float_precision="round_trip")
+        name: read_results(RESULTS_DIR / f"{name}.csv")
         for name in SUITES
         if (RESULTS_DIR / f"{name}.csv").exists()
     }

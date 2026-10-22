@@ -68,6 +68,7 @@ class File_met(Component):
         self.pressure = np.zeros(8760)
         self.total_cloud_cover = np.zeros(8760)
         self.opaque_cloud_cover = np.zeros(8760)
+        self._delta_t = 3600  # time step, set by pre_simulation
 
     def check(self):
         errors = super().check()
@@ -219,6 +220,7 @@ class File_met(Component):
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
+        self._delta_t = delta_t
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -262,6 +264,8 @@ class File_met(Component):
                           time_index, i, j, f)
         self._interpolate("opaque_cloud_cover", self.opaque_cloud_cover,
                           time_index, i, j, f)
+        if self._sub_hourly_integrated_radiation_():
+            self._set_sub_hourly_radiation_(time_index, date, alt)
         # Corregir la directa si el sol no ha salido, y con alturas solares pequeñas
         if (alt < 3 and self.variable("sol_direct").values[time_index] > 0):
             self.variable(
@@ -281,6 +285,37 @@ class File_met(Component):
             T, HR)
         self.variable("wet_bulb_temp").values[time_index] = sicro.GetTWetBulbFromRelHum(
             T, HR, p)
+
+    def _sub_hourly_integrated_radiation_(self):
+        """TMY3, TMY2 and WYEC2 radiation values are totals over the hour before each record."""
+        return (
+            self.parameter("file_type").value in ("TMY3", "TMY2", "WYEC2")
+            and self._delta_t < 3600
+            and 3600 % self._delta_t == 0
+        )
+
+    def _set_sub_hourly_radiation_(self, time_index, date, alt):
+        """Radiation of a sub-hourly time step that keeps the hour total of the file.
+
+        Interpolating linearly between hour centres would spread a quarter of each hour's
+        radiation over the neighbouring hours. Instead, the diffuse radiation is held through
+        the hour and the horizontal direct radiation follows the sine of the solar altitude,
+        scaled so that its mean over the time steps of the hour is the file value.
+        """
+        hour_start = date.replace(minute=0, second=0, microsecond=0)
+        k = int((hour_start - dt.datetime(date.year, 1, 1)).total_seconds() // 3600) % 8760
+        n = round(3600 / self._delta_t)
+        sin_alt = [
+            max(math.sin(math.radians(self.sunpos(hour_start + dt.timedelta(seconds=(m + 0.5) * self._delta_t))[1])), 0)
+            for m in range(n)
+        ]
+        mean_sin_alt = sum(sin_alt) / n
+        if mean_sin_alt > 0:
+            direct = self.sol_direct[k] * max(math.sin(math.radians(alt)), 0) / mean_sin_alt
+        else:
+            direct = 0
+        self.variable("sol_direct").values[time_index] = direct
+        self.variable("sol_diffuse").values[time_index] = self.sol_diffuse[k]
 
     def _interpolate(self, variable, array, time_i, i, j, f):
         self.variable(

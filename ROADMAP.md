@@ -47,8 +47,55 @@ Block 3 below. **Session of 2026-10-22: LOAD_TEST done** (branch
 
 Next steps, one PR each:
 
-- [ ] Remaining LOAD_TEST outputs: solar radiation (C155…C171), sky temperature, monthly
-  loads of 600/900, specific-day hourly outputs, 900FF temperature bins.
+- [x] Remaining LOAD_TEST outputs (branch `feat/ashrae140-validation-load-detail`, stacked
+  on the first PR): annual solar radiation, sky temperature, monthly loads of 600/900,
+  specific-day hourly outputs, 900FF temperature bins. `load_test.py` now has a map of
+  every cell of the output form, `CELLS[(case, output, point)] = (row, col)` (1616 values),
+  used to read the references (and reusable to fill `Std140_TF_Output.xlsx`). The page has
+  "annual" groups (range chart + tables) and "profile" groups (min–max band + OpenSimula
+  line per series). "Inside" now allows 0.1 % of the bound, for the rounding of the reference
+  spreadsheets. Result: 1368/1616 values inside range.
+- **Findings investigated (2026-10-22):**
+  1. *Horizontal hourly solar ≠ GHI* → **bug** in `shadow_calculation = "INTERPOLATION"`
+     (`Environment_3D._calculate_shadow_interpolation_table`): the sunny fraction is
+     tabulated on a 10° grid (altitude −85…85, azimuth 0…350, not closed at 360) and
+     interpolated with **cubic** splines across the 1→0 step where the sun goes behind the
+     surface. The overshoot gives fractions of 0.84–1.11 for an unshaded roof (1269 h > 1).
+     `INSTANT` gives exactly GHI (1670.17) and is not slower for these cases (7–9 s).
+     Impact on loads < 0.2 %. Fix: linear interpolation, sun-behind cells filled with the
+     neighbouring front values (or 1), azimuth grid closed at 360.
+  2. *Sky temperature* → **not a bug**: same Clark & Allen + Walton model as EnergyPlus and
+     it matches EnergyPlus (annual mean −1.99 vs −2.02 °C, min −37.96 vs −37.98; ~1 °C
+     hourly). The other programs use models ~10 °C colder on clear days; EnergyPlus is the
+     warm edge of the band.
+  3. *Jul 14 cooling starts earlier* → **numerical, time step**: lightweight zones respond
+     with a ~30 min phase lead at 1 h steps (the implicit hourly value behaves like an
+     end-of-hour temperature). 600FF Feb 1 with 15 min steps: −2.5 °C in the morning,
+     +2.6 °C in the evening, much closer to the references. Heavy cases (950FF) are fine.
+     But 15 min steps *increase* annual loads of lightweight cases (heating +1.5 %, cooling
+     +2.5 %), so the heating excess is not a time-step artefact.
+- **Done in PR #8 after the investigation:** (1) INTERPOLATION shadow fix (linear,
+  sun-behind cells filled, azimuth closed at 360, regression test in `test_Case_610.py`);
+  (2) `File_met`: sub-hourly TMY radiation keeps the hour total (linear interpolation
+  between hour centres spread 25 % of each hour over its neighbours: hourly value =
+  0.75·v(h) + 0.125·(v(h−1) + v(h+1))); hourly simulations unchanged; (3) the validation
+  extraction averages every variable over each hour, so it works with any time step.
+- **Decision (2026-10-22): the validation stays at 1 h time steps**, the usual practice of
+  the other programs. 15 min was tried: 1357/1616 inside (hourly solar and temperatures
+  better, annual loads worse, 54/92), not enough of an improvement. Result at 1 h with
+  the shadow fix: **1369/1616 inside**.
+- **Decision: interior convective coefficients stay constant** (no ΔT-dependent option).
+- **Case 195 studied (heating 4.243 vs 3.951–4.217 MWh, EnergyPlus 4.070):** implied
+  UA 46.5 W/K vs 43.3–46.2 for the references. Only the cases with interior ε = 0.1 are
+  out (195, 200, 215); 210 and 220 (interior ε = 0.9) are inside. Sensitivity of 195
+  heating: interior h_cv ×1.5 +6.1 %, ×0.9 −1.9 %, ×0.8 −4.1 % (= EnergyPlus exactly);
+  exterior α = 0 +5.3 %; exterior ε = 0 −3.0 %; adiabatic floor −3.6 %; interior ε = 0
+  −0.8 %. **Conclusion: the excess comes from the level of the constant interior
+  convective coefficients of the case files (walls 2.2, roof 1.8 W/m²K)**; programs with
+  ΔT-dependent natural convection (e.g. EnergyPlus TARP) get lower values in winter.
+  Accepted as a consequence of the constant coefficients (see the decision above).
+- North and east annual incident solar slightly above range also with `INSTANT`
+  (483 vs ≤ 477 kWh/m²): diffuse model (Perez) or ground reflection, not interpolation.
 - [ ] HEATING_TEST, COOLING_TEST, AIR_SIDE_HVAC_TEST, GROUND_TEST (each workbook has its own
   layout → one suite module each; same JSON migration of the notebooks).
 - [ ] Decide on CI: full run on release, a subset (e.g. 600, 900, 600FF) on every PR.
