@@ -5,6 +5,13 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
 
 ## Where things stand (2026-10-28)
 
+- **Session of 2026-10-28 (afternoon): minor ASHRAE 140 items** (branch
+  `fix/ashrae140-minor`): AE envelope made adiabatic (AIR_SIDE 1164 → 1201/1371); beam
+  radiation kept down to 1° solar altitude, was 3° (WEATHER 228 → 241/246, LOAD 176 →
+  184/219 values); WD600 albedo 0.2 and the 650/950 vent fan flow confirmed in the Standard;
+  `Opening.check()` rejects surfaces other than EXTERIOR/INTERIOR. Details in the test group
+  notes below.
+
 - **Session of 2026-10-28: API reference with mkdocstrings** (block 3), plus a fix of
   `Parameter_container.del_parameter()` (it always raised AttributeError). Next in block 3:
   the JOSS paper; the open items of the ASHRAE 140 validation can be interleaved.
@@ -184,7 +191,16 @@ Next steps, one PR each:
     08:00–19:00, one hour late (650FF/950FF were right; 650FF's odd 7.083 h first step set
     to 7 h). 650 annual cooling 4.883 → 4.786 MWh (inside), 950 0.834 → 0.786 (range
     0.586–0.707, still above: with 950FF maximum temperature also slightly above, the
-    heavy-mass night-ventilated zone is worth a look). The 640/940 thermostat (linear
+    heavy-mass night-ventilated zone is worth a look).
+    **Studied 2026-10-28:** the vent flow is right — Table 7-16: 1700 m³/h = 13.12 ach for
+    programs that correct the mass flow for altitude (OpenSimula does, with the weather
+    file altitude; 1409 m³/h only for sea-level programs). Interior convection ×2 lowers
+    950 cooling only 0.771 → 0.744 MWh. Open: how the heavy mass charges/discharges at
+    night (650, light mass, is inside).
+  - *CE520–CE540 fan energy and consumption 0.2–2 % above* (coil loads inside): longer run
+    time from a lower total capacity, because the zone humidity is below the range in those
+    cases (CE540 −34 % → fans +2.1 %, CE525 −6 % → +0.2 %). Consequence of the known
+    dry-coil limitation of `DX_unit` and the initial humidity, not a separate error. The 640/940 thermostat (linear
     10 → 20 °C from 07:00 to 08:00, step down at 23:00, Figures 7-7/7-8) is right.
   - *CE500–CE545, minimum IDB 7.48 °C vs 7.94–8.94* (Dec 20): quasi-adiabatic envelope
     (1 m of k = 0.003) and air-only capacity, ~5-day time constant, so the zone follows the
@@ -249,9 +265,15 @@ Next steps, one PR each:
     same overall (CE150 30 → 15 iterations per step, two-zone AE cases 6–8 → 10–12).
     Validation: COOLING_A 217 → 227, AIR_SIDE 1122 → 1164, COOLING_B 660 → 655 (5 values at
     the range edges moved < 0.6 %), the rest unchanged.
-  - Other differences to look at: AE101/AE201/AE301/AE401 zone heating load ~3 % above the
-    range (3.02 vs 2.93 kW, all references within 0.001); AE101/AE201 heating coil load
-    0.3 % below; AE301 coil outlet RH and reheat loads.
+  - **AE101/201/301/401 zone heating load 3 % above — fixed (2026-10-28):** the adiabatic
+    envelope of the 24 AE cases was 1 m of insulation with k = 0.01 (U ≈ 0.01 W/m²K × 171.6
+    m², ~0.09 kW lost at −29 °C); now k = 1e-6 and the zone loads equal the imposed gains
+    (2.931 kW). AIR_SIDE 1164 → 1201/1371.
+  - Remaining in AE101/AE201: outdoor air mass flow 0.110 vs 0.113–0.120 kg/s, heating coil
+    load 1.3 % below. OpenSimula converts the volumetric flows with the density at the fan
+    inlet; some programs evidently use standard air (200 cfm × 1.204 = 0.1137 kg/s, the
+    minimum of the range). To check in the Standard whether the AE flows are at standard
+    conditions. Also AE301 coil outlet RH and reheat loads.
 - [x] WEATHER_TEST (branch `feat/ashrae140-validation-weather`): `weather_test.py`, six cases
   WD100–WD600 (same building, different weather file, 10 min steps), annual averages of the
   weather variables and of total/beam/diffuse radiation on the horizontal and nine surfaces,
@@ -264,11 +286,17 @@ Next steps, one PR each:
     matches EnergyPlus/ESP-r/TRNSYS (BSIMAC/CSE/DeST behave isotropically). LOAD_TEST
     1369 → 1344 (north/east incident now inside, but less solar adds to the known heating
     excess); other suites unchanged.
-  - **WD600 ground albedo 0.2 inferred from the reference results** (same Denver weather as
-    WD100, vertical diffuse ~19 W/m² higher = 0.2 × 190 × 0.5). To confirm in the Standard.
-  - Remaining: vertical beam 0.2–1 % below the range (likely the beam → diffuse rule for
-    sun altitude < 3°, largest at Barrow WD400); sky temperature 0.01–0.02 °C above in
-    WD300/WD500.
+  - **WD600 ground albedo 0.2**, first inferred from the reference results (vertical diffuse
+    ~19 W/m² higher than WD100 = 0.2 × 190 × 0.5), **confirmed in the Standard** (2026-10-28).
+  - **Vertical beam 0.2–2 % below the range — fixed (2026-10-28):** `File_met` moved the
+    beam to the diffuse below 3° of solar altitude, losing the low-sun beam on vertical
+    surfaces. Now `MIN_SUN_ALTITUDE = 1` (0.5° put WD200 east beam 1.3 % above: the
+    horizontal beam / sin(altitude) amplifies the file's errors near the horizon). WEATHER
+    228 → 241/246, LOAD 176 → 184/219; regression tests updated (annual loads −0.9 to
+    +0.5 %). Better alternative if needed: use the DNI of TMY files directly instead of
+    (GHI − DHI) / sin(altitude).
+  - Remaining: sky temperature 0.01–0.02 °C above in WD300/WD500; WD300 south total and
+    WD200/WD500 east/north beam within 2 % of the bounds.
 - **All six ASHRAE 140 folders are automated** (LOAD, HEATING, COOLING a/b, GROUND,
   AIR_SIDE, WEATHER); all case notebooks archived in `<TEST>/old_notebooks/`.
 - [x] CI (branch `ci/ashrae140-validation`): `validate.py --check` compares with the stored
@@ -305,9 +333,6 @@ Concrete, verified items — not ideas, things already identified as needing att
   reproduced or confirmed either way — needs checking in an actual VS Code notebook. If it
   does fail, the fix is the same shape as PR #2: vendor `plotly.js-gl3d-dist-min` into the
   esbuild bundle instead of fetching it at runtime (trade-off: bundle size).
-- **`Opening.py:79`** — `# TODO: Test surface_type EXTERIOR or INTERIOR` in `check()`: the
-  validation that an Opening's `surface_type` is one of the expected values is not
-  implemented yet.
 - **`HVAC_DX_system.py:14`** — the `spaces` parameter's comment notes it should eventually
   also accept `Air_distribution` and `Energy_load` component types, neither of which exists
   yet in the codebase.
