@@ -26,7 +26,7 @@ date: 28 October 2026
 bibliography: paper.bib
 ---
 
-<!-- TODO before submission: confirm co-authors and their contributions;
+<!-- TODO before submission: complete the contributions of L. P.-L. and I. R. M.;
      complete the research impact statement (courses, theses, projects that use OpenSimula);
      review the AI usage disclosure. -->
 
@@ -157,6 +157,13 @@ versions, mainly to automate the Standard 140 validation workflow, write tests a
 documentation, and investigate and fix discrepancies found by the validation, and to prepare
 a first draft of this paper. All changes were reviewed by the authors, who take full
 responsibility for the software and the paper.
+
+# Author contributions
+
+J. F. Coronel conceived OpenSimula, designed its architecture, wrote most of the code and is
+its lead developer and maintainer. L. Pérez-Lombard and I. R. Maestre contributed to
+<!-- TODO: e.g. the HVAC system models, the definition of the test cases, the validation
+analysis, testing in teaching... --> and to the writing of this paper.
 
 # Acknowledgements
 

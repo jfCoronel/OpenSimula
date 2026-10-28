@@ -4,6 +4,11 @@ version = "0.8.8"
 requires-python = ">=3.12"
 authors = [
   { name="Juan F. Coronel", email="jfc@us.es" },
+  { name="Luis Pérez-Lombard" },
+  { name="Ismael R. Maestre" },
+]
+maintainers = [
+  { name="Juan F. Coronel", email="jfc@us.es" },
 ]
 description = "Component-based time simulation environment in Python"
 readme = "README.md"
