@@ -26,8 +26,7 @@ date: 28 October 2026
 bibliography: paper.bib
 ---
 
-<!-- TODO before submission: complete the research impact statement (courses, theses, projects that use OpenSimula);
-     review the AI usage disclosure. -->
+<!-- TODO before submission: review the AI usage disclosure; acknowledgements. -->
 
 # Summary
 
@@ -143,10 +142,18 @@ reference programs (grey) and OpenSimula (dots inside the range, crosses outside
 
 # Research impact statement
 
-OpenSimula has been developed at the Universidad de Sevilla since 2023 and is distributed on
-PyPI, with each release archived on Zenodo. It has been presented at the CYTEF 2026 congress
-[@coronel2026cytef]. <!-- TODO: courses where it is used, theses or projects that use it,
-collaborating groups (e.g. Universidad de Cádiz), number of users or downloads if known. -->
+OpenSimula has been developed at the Universidad de Sevilla since 2023, in collaboration with
+the Universidad de Cádiz, and is distributed on PyPI, with each release archived on Zenodo.
+It has been presented at the CYTEF 2026 congress [@coronel2026cytef].
+
+Several bachelor's and master's theses at the Universidad de Sevilla have used OpenSimula
+as their simulation tool, and more are in progress. One of them, close to completion,
+imports building models from HULC, the official Spanish software for the energy performance
+assessment of buildings under the national building code, so that OpenSimula can simulate
+the buildings already modelled by practitioners for compliance; a second one, planned, will
+import EnergyPlus IDF models. OpenSimula is also being introduced in master's and doctoral
+courses on building energy simulation, where students can read and modify the models they
+use.
 
 # AI usage disclosure
 
