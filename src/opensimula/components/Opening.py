@@ -76,7 +76,15 @@ class Opening(Component):
         if self.parameter("surface").value == "not_defined":
             msg = f"{self.parameter('name').value}, its surface must be defined."
             errors.append(Message(msg, "ERROR"))
-        # TODO: Test surface_type EXTERIOR or INTERIOR
+        # Openings are only simulated in EXTERIOR and INTERIOR surfaces; in the others the
+        # spaces and the building leave them out without notice
+        surface = self.parameter("surface").component
+        if surface is not None and surface.parameter("surface_type").value not in ("EXTERIOR", "INTERIOR"):
+            msg = (
+                f"{self.parameter('name').value}, its surface must be EXTERIOR or INTERIOR, "
+                f"{surface.parameter('name').value} is {surface.parameter('surface_type').value}."
+            )
+            errors.append(Message(msg, "ERROR"))
         # Test opening_type defined
         if self.parameter("opening_type").value == "not_defined":
             msg = (

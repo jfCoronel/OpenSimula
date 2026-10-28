@@ -10,6 +10,12 @@ from opensimula.Component import Component
 from opensimula.Variable import Variable
 
 
+# Below this solar altitude (degrees) the beam radiation of the file is added to the diffuse.
+# The beam on a surface is the horizontal beam / sin(altitude), which amplifies the errors of
+# the file near the horizon; with 3° the low-sun beam on vertical surfaces was lost (ASHRAE
+# 140 WD cases 0.2-2 % below the reference range), 1° keeps it without amplifying them.
+MIN_SUN_ALTITUDE = 1
+
 class File_met(Component):
     def __init__(self, name, project):
         Component.__init__(self, name, project)
@@ -229,7 +235,7 @@ class File_met(Component):
         azi, alt, solar_hour = self.sunpos(date)
 
         self.variable("sol_hour").values[time_index] = solar_hour
-        if alt < 3:
+        if alt < MIN_SUN_ALTITUDE:
             self.variable("sol_azimuth").values[time_index] = float("nan")
             self.variable("sol_altitude").values[time_index] = float("nan")
         else:
@@ -267,7 +273,7 @@ class File_met(Component):
         if self._sub_hourly_integrated_radiation_():
             self._set_sub_hourly_radiation_(time_index, date, alt)
         # Corregir la directa si el sol no ha salido, y con alturas solares pequeñas
-        if (alt < 3 and self.variable("sol_direct").values[time_index] > 0):
+        if (alt < MIN_SUN_ALTITUDE and self.variable("sol_direct").values[time_index] > 0):
             self.variable(
                 "sol_diffuse").values[time_index] += self.variable("sol_direct").values[time_index]
             self.variable("sol_direct").values[time_index] = 0
@@ -415,7 +421,7 @@ class File_met(Component):
         isotropic = sol_diffuse * (1 + math.sin(beta)) / 2
         if model == "ISOTROPIC":  # Liu-Jordan model
             return isotropic
-        # Anisotropic models need the sun above the horizon (sol_altitude is NaN below 3°)
+        # Anisotropic models need the sun above the horizon (sol_altitude is NaN below MIN_SUN_ALTITUDE)
         alt_sol = self.variable("sol_altitude").values[time_index]
         if math.isnan(alt_sol):
             return isotropic

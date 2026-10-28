@@ -202,3 +202,21 @@ def test_write_dict_survives_clear_and_reload():
     p1.read_dict(written)
 
     assert p1.write_dict() == written
+
+
+def test_opening_surface_type():
+    sim = osim.Simulation()
+    sim.console_print = False
+    p1 = sim.new_project("Project 1")
+    p1.new_component("Space", "space")
+    wall = p1.new_component("Building_surface", "wall")
+    wall.parameter("spaces").value = "space"
+    window = p1.new_component("Opening", "window")
+    window.parameter("surface").value = "wall"
+
+    def surface_type_errors():
+        return [e for e in p1.check() if "EXTERIOR or INTERIOR" in e.text]
+
+    assert surface_type_errors() == []
+    wall.parameter("surface_type").value = "UNDERGROUND"
+    assert len(surface_type_errors()) == 1

@@ -1,248 +1,248 @@
 case,output,point,value,date
-600,annual_heating,,4.505255,
-600,annual_cooling,,5.918940,
-600,peak_heating,,3.253175,Dec 31 24
-600,peak_cooling,,5.777427,Jan 22 14
-610,annual_heating,,4.639035,
-610,annual_cooling,,4.113548,
-610,peak_heating,,3.258115,Dec 31 24
+600,annual_heating,,4.470278,
+600,annual_cooling,,5.941799,
+600,peak_heating,,3.248546,Dec 31 24
+600,peak_cooling,,5.812687,Jan 22 14
+610,annual_heating,,4.603540,
+610,annual_cooling,,4.135114,
+610,peak_heating,,3.254008,Dec 31 24
 610,peak_cooling,,5.396090,Dec 1 14
-620,annual_heating,,4.762138,
-620,annual_cooling,,4.095365,
-620,peak_heating,,3.294079,Dec 31 24
+620,annual_heating,,4.702592,
+620,annual_cooling,,4.110974,
+620,peak_heating,,3.291207,Dec 31 24
 620,peak_cooling,,4.399709,Jun 26 17
-630,annual_heating,,5.181839,
-630,annual_cooling,,2.736760,
-630,peak_heating,,3.299013,Dec 31 24
+630,annual_heating,,5.123437,
+630,annual_cooling,,2.745127,
+630,peak_heating,,3.296757,Dec 31 24
 630,peak_cooling,,3.793192,Jun 26 18
-640,annual_heating,,2.658573,
-640,annual_cooling,,5.605572,
+640,annual_heating,,2.619573,
+640,annual_cooling,,5.624777,
 640,peak_heating,,3.892109,Feb 8 9
-640,peak_cooling,,5.668975,Jan 22 14
+640,peak_cooling,,5.704202,Jan 22 14
 650,annual_heating,,0.000000,
-650,annual_cooling,,4.744002,
+650,annual_cooling,,4.773336,
 650,peak_heating,,0.000000,Jan 1 1
 650,peak_cooling,,5.478946,Oct 18 14
-660,annual_heating,,3.944563,
-660,annual_cooling,,3.219633,
-660,peak_heating,,2.824159,Dec 31 24
+660,annual_heating,,3.919085,
+660,annual_cooling,,3.230328,
+660,peak_heating,,2.822062,Dec 31 24
 660,peak_cooling,,3.415827,Oct 18 14
-670,annual_heating,,6.130845,
-670,annual_cooling,,6.036890,
-670,peak_heating,,4.088721,Dec 31 24
+670,annual_heating,,6.087649,
+670,annual_cooling,,6.058845,
+670,peak_heating,,4.085199,Dec 31 24
 670,peak_cooling,,5.907694,Oct 18 14
-680,annual_heating,,2.255974,
-680,annual_cooling,,6.478841,
-680,peak_heating,,2.068178,Dec 31 24
-680,peak_cooling,,6.196163,Jan 22 14
-685,annual_heating,,5.090872,
-685,annual_cooling,,8.899839,
-685,peak_heating,,3.276165,Dec 31 24
-685,peak_cooling,,6.497495,Jan 22 14
-695,annual_heating,,2.909333,
-695,annual_cooling,,9.131092,
-695,peak_heating,,2.141274,Dec 31 24
-695,peak_cooling,,6.767054,Jan 22 14
-900,annual_heating,,1.795723,
-900,annual_cooling,,2.556825,
+680,annual_heating,,2.229099,
+680,annual_cooling,,6.510882,
+680,peak_heating,,2.066460,Feb 9 6
+680,peak_cooling,,6.241535,Jan 22 14
+685,annual_heating,,5.056106,
+685,annual_cooling,,8.928730,
+685,peak_heating,,3.272998,Dec 31 24
+685,peak_cooling,,6.522988,Jan 22 14
+695,annual_heating,,2.882747,
+695,annual_cooling,,9.167739,
+695,peak_heating,,2.136919,Dec 31 24
+695,peak_cooling,,6.799773,Jan 22 14
+900,annual_heating,,1.762547,
+900,annual_cooling,,2.572822,
 900,peak_heating,,2.691065,Feb 9 6
-900,peak_cooling,,2.835537,Oct 1 14
-910,annual_heating,,2.227672,
-910,annual_cooling,,1.346766,
+900,peak_cooling,,2.837572,Oct 1 14
+910,annual_heating,,2.192180,
+910,annual_cooling,,1.360105,
 910,peak_heating,,2.720701,Feb 9 6
-910,peak_cooling,,2.025611,Oct 1 15
-920,annual_heating,,3.597677,
-920,annual_cooling,,2.793848,
+910,peak_cooling,,2.028110,Oct 1 15
+920,annual_heating,,3.526024,
+920,annual_cooling,,2.804710,
 920,peak_heating,,2.765283,Feb 9 6
 920,peak_cooling,,2.985013,Jun 26 18
-930,annual_heating,,4.406820,
-930,annual_cooling,,1.848969,
+930,annual_heating,,4.342649,
+930,annual_cooling,,1.857275,
 930,peak_heating,,2.799255,Feb 9 6
 930,peak_cooling,,2.507174,Jun 26 18
-940,annual_heating,,1.145663,
-940,annual_cooling,,2.480949,
-940,peak_heating,,3.277452,Dec 31 9
-940,peak_cooling,,2.834883,Oct 1 14
+940,annual_heating,,1.120299,
+940,annual_cooling,,2.496151,
+940,peak_heating,,3.249048,Dec 31 9
+940,peak_cooling,,2.836954,Oct 1 14
 950,annual_heating,,0.000000,
-950,annual_cooling,,0.770861,
+950,annual_cooling,,0.771453,
 950,peak_heating,,0.000000,Jan 1 1
 950,peak_cooling,,2.312225,Sep 11 15
-960,annual_heating,,2.800676,
-960,annual_cooling,,0.799019,
+960,annual_heating,,2.772383,
+960,annual_cooling,,0.799754,
 960,peak_heating,,2.003029,Feb 9 6
 960,peak_cooling,,0.994788,Jun 26 17
-980,annual_heating,,0.432916,
-980,annual_cooling,,3.866765,
-980,peak_heating,,1.671007,Feb 9 6
+980,annual_heating,,0.423088,
+980,annual_cooling,,3.907125,
+980,peak_heating,,1.671006,Feb 9 6
 980,peak_cooling,,3.145565,Oct 18 15
-985,annual_heating,,2.560980,
-985,annual_cooling,,6.389266,
+985,annual_heating,,2.529659,
+985,annual_cooling,,6.421405,
 985,peak_heating,,2.696346,Feb 9 6
-985,peak_cooling,,3.539150,Oct 1 14
-995,annual_heating,,1.037650,
-995,annual_cooling,,7.259590,
+985,peak_cooling,,3.540395,Oct 1 14
+995,annual_heating,,1.017772,
+995,annual_cooling,,7.302740,
 995,peak_heating,,1.720002,Feb 9 6
-995,peak_cooling,,3.591057,Oct 18 15
-195,annual_heating,,4.237674,
-195,annual_cooling,,0.652813,
-195,peak_heating,,1.819610,Dec 31 24
+995,peak_cooling,,3.645139,Jan 22 15
+195,annual_heating,,4.235861,
+195,annual_cooling,,0.652918,
+195,peak_heating,,1.819561,Dec 31 24
 195,peak_cooling,,1.020201,Jun 26 17
-200,annual_heating,,5.254918,
-200,annual_cooling,,0.854824,
-200,peak_heating,,2.319573,Dec 31 24
+200,annual_heating,,5.251610,
+200,annual_cooling,,0.854934,
+200,peak_heating,,2.319520,Dec 31 24
 200,peak_cooling,,1.273537,Jun 26 16
-210,annual_heating,,6.356552,
-210,annual_cooling,,0.577218,
-210,peak_heating,,2.557115,Dec 31 24
+210,annual_heating,,6.354170,
+210,annual_cooling,,0.577277,
+210,peak_heating,,2.557078,Dec 31 24
 210,peak_cooling,,1.081766,Jun 26 16
-215,annual_heating,,5.720931,
-215,annual_cooling,,0.934680,
-215,peak_heating,,2.521625,Dec 31 24
+215,annual_heating,,5.716983,
+215,annual_cooling,,0.934792,
+215,peak_heating,,2.521496,Dec 31 24
 215,peak_cooling,,1.384089,Jun 26 16
-220,annual_heating,,7.020601,
-220,annual_cooling,,0.632358,
-220,peak_heating,,2.814420,Dec 31 24
+220,annual_heating,,7.017728,
+220,annual_cooling,,0.632419,
+220,peak_heating,,2.814328,Dec 31 24
 220,peak_cooling,,1.183848,Jun 26 16
-230,annual_heating,,10.220922,
-230,annual_cooling,,1.018646,
-230,peak_heating,,4.201510,Dec 31 24
+230,annual_heating,,10.218055,
+230,annual_cooling,,1.018713,
+230,peak_heating,,4.201418,Dec 31 24
 230,peak_cooling,,1.887955,Jun 26 16
-240,annual_heating,,5.813494,
-240,annual_cooling,,0.979388,
-240,peak_heating,,2.636993,Dec 31 24
+240,annual_heating,,5.810651,
+240,annual_cooling,,0.979479,
+240,peak_heating,,2.636901,Dec 31 24
 240,peak_cooling,,1.361275,Jun 26 16
-250,annual_heating,,5.394050,
-250,annual_cooling,,3.175781,
-250,peak_heating,,2.805239,Dec 31 24
+250,annual_heating,,5.372089,
+250,annual_cooling,,3.180224,
+250,peak_heating,,2.804411,Dec 31 24
 250,peak_cooling,,2.616184,Sep 3 14
-270,annual_heating,,4.726933,
-270,annual_cooling,,7.422401,
-270,peak_heating,,2.760089,Dec 31 24
-270,peak_cooling,,6.231465,Jan 22 14
-280,annual_heating,,5.018946,
-280,annual_cooling,,5.104305,
-280,peak_heating,,2.774613,Dec 31 24
-280,peak_cooling,,4.288641,Jan 22 14
-290,annual_heating,,4.864099,
-290,annual_cooling,,5.512614,
-290,peak_heating,,2.762476,Dec 31 24
-290,peak_cooling,,5.828509,Jan 22 14
-300,annual_heating,,4.873772,
-300,annual_cooling,,5.206113,
-300,peak_heating,,2.780623,Dec 31 24
+270,annual_heating,,4.695125,
+270,annual_cooling,,7.450579,
+270,peak_heating,,2.756849,Dec 31 24
+270,peak_cooling,,6.257590,Jan 22 14
+280,annual_heating,,4.990697,
+280,annual_cooling,,5.119654,
+280,peak_heating,,2.772595,Dec 31 24
+280,peak_cooling,,4.304443,Jan 22 14
+290,annual_heating,,4.831939,
+290,annual_cooling,,5.539685,
+290,peak_heating,,2.759389,Dec 31 24
+290,peak_cooling,,5.854580,Jan 22 14
+300,annual_heating,,4.814412,
+300,annual_cooling,,5.234730,
+300,peak_heating,,2.777709,Dec 31 24
 300,peak_cooling,,4.107482,Jun 26 17
-310,annual_heating,,5.283852,
-310,annual_cooling,,3.574000,
-310,peak_heating,,2.785767,Dec 31 24
+310,annual_heating,,5.224706,
+310,annual_cooling,,3.589826,
+310,peak_heating,,2.783503,Dec 31 24
 310,peak_cooling,,3.582828,Jun 26 18
-320,annual_heating,,4.073924,
-320,annual_cooling,,4.971439,
-320,peak_heating,,2.730094,Dec 31 24
-320,peak_cooling,,5.634889,Jan 22 14
-395,annual_heating,,4.978431,
+320,annual_heating,,4.042311,
+320,annual_cooling,,4.995526,
+320,peak_heating,,2.725362,Dec 31 24
+320,peak_cooling,,5.670898,Jan 22 14
+395,annual_heating,,4.977044,
 395,annual_cooling,,0.010018,
-395,peak_heating,,2.008466,Dec 31 24
+395,peak_heating,,2.008405,Dec 31 24
 395,peak_cooling,,0.399315,Jun 26 18
-400,annual_heating,,6.886441,
-400,annual_cooling,,0.029544,
-400,peak_heating,,2.814420,Dec 31 24
+400,annual_heating,,6.883564,
+400,annual_cooling,,0.029546,
+400,peak_heating,,2.814328,Dec 31 24
 400,peak_cooling,,0.620262,Jun 26 17
-410,annual_heating,,8.481512,
-410,annual_cooling,,0.059101,
-410,peak_heating,,3.507965,Dec 31 24
+410,annual_heating,,8.478640,
+410,annual_cooling,,0.059105,
+410,peak_heating,,3.507873,Dec 31 24
 410,peak_cooling,,0.865732,Jun 26 17
-420,annual_heating,,7.281808,
-420,annual_cooling,,0.150283,
-420,peak_heating,,3.330538,Dec 31 24
+420,annual_heating,,7.278969,
+420,annual_cooling,,0.150301,
+420,peak_heating,,3.330446,Dec 31 24
 420,peak_cooling,,1.062848,Jun 26 17
-430,annual_heating,,5.961636,
-430,annual_cooling,,0.852751,
-430,peak_heating,,3.324800,Dec 31 24
+430,annual_heating,,5.945711,
+430,annual_cooling,,0.853101,
+430,peak_heating,,3.324248,Dec 31 24
 430,peak_cooling,,1.827479,Jun 26 15
-440,annual_heating,,4.756093,
-440,annual_cooling,,4.009682,
-440,peak_heating,,3.277551,Dec 31 24
+440,annual_heating,,4.724651,
+440,annual_cooling,,4.022864,
+440,peak_heating,,3.275241,Dec 31 24
 440,peak_cooling,,4.180524,Oct 18 14
-450,annual_heating,,3.782663,
-450,annual_cooling,,7.027141,
-450,peak_heating,,3.011535,Dec 31 24
-450,peak_cooling,,6.727497,Jan 22 14
-460,annual_heating,,4.251018,
-460,annual_cooling,,6.756817,
-460,peak_heating,,3.179167,Dec 31 24
-460,peak_cooling,,6.605348,Jan 22 14
-470,annual_heating,,4.158420,
-470,annual_cooling,,6.227912,
-470,peak_heating,,3.170207,Dec 31 24
-470,peak_cooling,,5.960487,Jan 22 14
-800,annual_heating,,5.441817,
-800,annual_cooling,,0.331923,
+450,annual_heating,,3.748034,
+450,annual_cooling,,7.054735,
+450,peak_heating,,3.007063,Dec 31 24
+450,peak_cooling,,6.759580,Jan 22 14
+460,annual_heating,,4.213915,
+460,annual_cooling,,6.783985,
+460,peak_heating,,3.174603,Dec 31 24
+460,peak_cooling,,6.638122,Jan 22 14
+470,annual_heating,,4.125822,
+470,annual_cooling,,6.251608,
+470,peak_heating,,3.165776,Dec 31 24
+470,peak_cooling,,5.993974,Jan 22 14
+800,annual_heating,,5.425147,
+800,annual_cooling,,0.332367,
 800,peak_heating,,2.873950,Feb 9 6
 800,peak_cooling,,1.063465,Aug 5 15
-810,annual_heating,,2.580209,
-810,annual_cooling,,1.537314,
+810,annual_heating,,2.544102,
+810,annual_cooling,,1.540797,
 810,peak_heating,,2.746198,Feb 9 6
 810,peak_cooling,,2.221053,Sep 11 14
-600FF,average_temperature,,25.076812,
+600FF,average_temperature,,25.161302,
 600FF,minimum_temperature,,-13.387879,Feb 9 7
-600FF,maximum_temperature,,65.667258,Oct 1 15
-900FF,average_temperature,,25.140927,
-900FF,minimum_temperature,,0.551901,Feb 9 7
-900FF,maximum_temperature,,44.816402,Sep 12 15
-650FF,average_temperature,,18.817402,
-650FF,minimum_temperature,,-17.370403,Dec 31 24
-650FF,maximum_temperature,,64.058606,Oct 1 15
-950FF,average_temperature,,14.850192,
-950FF,minimum_temperature,,-13.178386,Dec 31 24
+600FF,maximum_temperature,,65.672127,Oct 1 15
+900FF,average_temperature,,25.224048,
+900FF,minimum_temperature,,0.552300,Feb 9 7
+900FF,maximum_temperature,,44.816405,Sep 12 15
+650FF,average_temperature,,18.875791,
+650FF,minimum_temperature,,-17.345857,Dec 31 24
+650FF,maximum_temperature,,64.058825,Oct 1 15
+950FF,average_temperature,,14.886449,
+950FF,minimum_temperature,,-13.126072,Dec 31 24
 950FF,maximum_temperature,,37.271525,Sep 11 16
-680FF,average_temperature,,31.940317,
+680FF,average_temperature,,32.061155,
 680FF,minimum_temperature,,-8.408498,Feb 9 7
-680FF,maximum_temperature,,73.819288,Oct 18 16
-980FF,average_temperature,,31.944029,
-980FF,minimum_temperature,,10.052033,Nov 4 7
-980FF,maximum_temperature,,51.476203,Sep 12 15
-960,average_temperature,,27.852834,
-960,minimum_temperature,,4.428032,Feb 9 7
-960,maximum_temperature,,49.775918,Oct 12 15
-600,annual_incident,horizontal,1670.170445,
-600,annual_incident,north,429.415922,
-600,annual_incident,east,1045.687419,
-600,annual_incident,south,1357.443134,
-600,annual_incident,west,954.697214,
-600,annual_transmitted,south,806.945336,
-660,annual_transmitted,south,440.061576,
-670,annual_transmitted,south,1017.647886,
-620,annual_transmitted,west,579.629903,
-610,annual_transmitted_shaded,south,634.560616,
-630,annual_transmitted_shaded,west,408.686995,
+680FF,maximum_temperature,,74.859511,Jan 22 16
+980FF,average_temperature,,32.060234,
+980FF,minimum_temperature,,10.057991,Nov 4 7
+980FF,maximum_temperature,,51.504220,Oct 21 15
+960,average_temperature,,27.941429,
+960,minimum_temperature,,4.428041,Feb 9 7
+960,maximum_temperature,,49.857235,Oct 21 15
+600,annual_incident,horizontal,1669.365186,
+600,annual_incident,north,430.046812,
+600,annual_incident,east,1060.225290,
+600,annual_incident,south,1366.517167,
+600,annual_incident,west,962.360528,
+600,annual_transmitted,south,811.886550,
+660,annual_transmitted,south,442.710852,
+670,annual_transmitted,south,1024.267084,
+620,annual_transmitted,west,584.932224,
+610,annual_transmitted_shaded,south,639.437205,
+630,annual_transmitted_shaded,west,413.272144,
 600,sky_average,,-1.985010,
 600,sky_minimum,,-37.957566,Dec 31 24
 600,sky_maximum,,26.050277,Aug 4 15
-600,monthly_heating,Jan,730.579198,
-600,monthly_heating,Feb,696.195876,
-600,monthly_heating,Mar,496.429815,
-600,monthly_heating,Apr,527.073036,
+600,monthly_heating,Jan,713.389971,
+600,monthly_heating,Feb,695.425967,
+600,monthly_heating,Mar,495.897535,
+600,monthly_heating,Apr,526.715190,
 600,monthly_heating,May,152.059256,
 600,monthly_heating,Jun,14.560939,
 600,monthly_heating,Jul,14.927783,
-600,monthly_heating,Aug,10.846189,
-600,monthly_heating,Sep,87.498344,
-600,monthly_heating,Oct,369.101669,
-600,monthly_heating,Nov,645.690431,
-600,monthly_heating,Dec,760.292196,
-600,monthly_cooling,Jan,486.352782,
-600,monthly_cooling,Feb,367.032915,
-600,monthly_cooling,Mar,466.630993,
-600,monthly_cooling,Apr,247.163109,
+600,monthly_heating,Aug,10.814189,
+600,monthly_heating,Sep,87.445062,
+600,monthly_heating,Oct,368.363432,
+600,monthly_heating,Nov,643.932771,
+600,monthly_heating,Dec,746.745713,
+600,monthly_cooling,Jan,496.183939,
+600,monthly_cooling,Feb,367.331353,
+600,monthly_cooling,Mar,466.819096,
+600,monthly_cooling,Apr,247.182126,
 600,monthly_cooling,May,345.572118,
 600,monthly_cooling,Jun,543.765991,
 600,monthly_cooling,Jul,536.511383,
-600,monthly_cooling,Aug,656.903180,
-600,monthly_cooling,Sep,729.781773,
-600,monthly_cooling,Oct,660.095121,
-600,monthly_cooling,Nov,426.702425,
-600,monthly_cooling,Dec,452.428197,
-600,monthly_peak_heating,Jan,2.962507,4 4
+600,monthly_cooling,Aug,657.204791,
+600,monthly_cooling,Sep,729.858461,
+600,monthly_cooling,Oct,660.538713,
+600,monthly_cooling,Nov,429.044868,
+600,monthly_cooling,Dec,461.785875,
+600,monthly_peak_heating,Jan,2.961908,4 4
 600,monthly_peak_heating,Feb,3.105033,9 6
 600,monthly_peak_heating,Mar,2.207380,17 6
 600,monthly_peak_heating,Apr,2.386000,11 5
@@ -250,69 +250,69 @@ case,output,point,value,date
 600,monthly_peak_heating,Jun,0.879757,9 5
 600,monthly_peak_heating,Jul,0.603590,26 5
 600,monthly_peak_heating,Aug,0.579719,17 6
-600,monthly_peak_heating,Sep,1.228430,28 24
+600,monthly_peak_heating,Sep,1.226649,28 24
 600,monthly_peak_heating,Oct,1.718512,6 7
 600,monthly_peak_heating,Nov,3.113164,26 7
-600,monthly_peak_heating,Dec,3.253175,31 24
-600,monthly_peak_cooling,Jan,5.777427,22 14
+600,monthly_peak_heating,Dec,3.248546,31 24
+600,monthly_peak_cooling,Jan,5.812687,22 14
 600,monthly_peak_cooling,Feb,4.840429,15 14
-600,monthly_peak_cooling,Mar,4.625584,9 14
+600,monthly_peak_cooling,Mar,4.629132,9 14
 600,monthly_peak_cooling,Apr,3.890603,7 14
 600,monthly_peak_cooling,May,3.141952,10 14
 600,monthly_peak_cooling,Jun,3.275308,26 14
 600,monthly_peak_cooling,Jul,3.436019,29 14
-600,monthly_peak_cooling,Aug,4.459042,27 13
-600,monthly_peak_cooling,Sep,5.286743,30 14
+600,monthly_peak_cooling,Aug,4.460032,27 13
+600,monthly_peak_cooling,Sep,5.286747,30 14
 600,monthly_peak_cooling,Oct,5.638080,18 14
 600,monthly_peak_cooling,Nov,5.477976,28 14
 600,monthly_peak_cooling,Dec,5.678020,1 14
-900,monthly_heating,Jan,280.916013,
-900,monthly_heating,Feb,317.073975,
-900,monthly_heating,Mar,142.041026,
-900,monthly_heating,Apr,279.890653,
-900,monthly_heating,May,36.449014,
+900,monthly_heating,Jan,265.180405,
+900,monthly_heating,Feb,316.134093,
+900,monthly_heating,Mar,141.807430,
+900,monthly_heating,Apr,279.637682,
+900,monthly_heating,May,36.448938,
 900,monthly_heating,Jun,0.000000,
 900,monthly_heating,Jul,0.000000,
 900,monthly_heating,Aug,0.000000,
-900,monthly_heating,Sep,0.180090,
-900,monthly_heating,Oct,87.680725,
-900,monthly_heating,Nov,314.504451,
-900,monthly_heating,Dec,336.987066,
-900,monthly_cooling,Jan,49.177959,
-900,monthly_cooling,Feb,12.552336,
-900,monthly_cooling,Mar,65.881132,
-900,monthly_cooling,Apr,24.829284,
+900,monthly_heating,Sep,0.170377,
+900,monthly_heating,Oct,87.574657,
+900,monthly_heating,Nov,312.808862,
+900,monthly_heating,Dec,322.784400,
+900,monthly_cooling,Jan,56.460079,
+900,monthly_cooling,Feb,12.588098,
+900,monthly_cooling,Mar,66.234469,
+900,monthly_cooling,Apr,24.909729,
 900,monthly_cooling,May,123.669339,
 900,monthly_cooling,Jun,411.875282,
 900,monthly_cooling,Jul,408.044570,
-900,monthly_cooling,Aug,531.141427,
-900,monthly_cooling,Sep,504.091779,
-900,monthly_cooling,Oct,296.624624,
-900,monthly_cooling,Nov,71.784971,
-900,monthly_cooling,Dec,57.152260,
-900,monthly_peak_heating,Jan,2.045571,29 7
+900,monthly_cooling,Aug,531.621897,
+900,monthly_cooling,Sep,504.157798,
+900,monthly_cooling,Oct,297.569308,
+900,monthly_cooling,Nov,73.310255,
+900,monthly_cooling,Dec,62.381626,
+900,monthly_peak_heating,Jan,2.035505,29 7
 900,monthly_peak_heating,Feb,2.691065,9 6
-900,monthly_peak_heating,Mar,1.833506,17 6
+900,monthly_peak_heating,Mar,1.833487,17 6
 900,monthly_peak_heating,Apr,2.031523,3 3
-900,monthly_peak_heating,May,1.278482,1 5
+900,monthly_peak_heating,May,1.278477,1 5
 900,monthly_peak_heating,Jun,0.000000,1 1
 900,monthly_peak_heating,Jul,0.000000,1 1
 900,monthly_peak_heating,Aug,0.000000,1 1
-900,monthly_peak_heating,Sep,0.106698,29 7
-900,monthly_peak_heating,Oct,1.391515,7 7
-900,monthly_peak_heating,Nov,2.401605,26 8
-900,monthly_peak_heating,Dec,2.219046,31 8
-900,monthly_peak_cooling,Jan,1.889887,22 15
+900,monthly_peak_heating,Sep,0.103623,29 7
+900,monthly_peak_heating,Oct,1.391509,7 7
+900,monthly_peak_heating,Nov,2.401537,26 8
+900,monthly_peak_heating,Dec,2.178754,31 7
+900,monthly_peak_cooling,Jan,1.993230,22 15
 900,monthly_peak_cooling,Feb,0.948643,15 15
-900,monthly_peak_cooling,Mar,1.563124,11 14
+900,monthly_peak_cooling,Mar,1.570569,11 14
 900,monthly_peak_cooling,Apr,1.174525,7 15
 900,monthly_peak_cooling,May,1.640500,11 14
 900,monthly_peak_cooling,Jun,1.971556,14 14
 900,monthly_peak_cooling,Jul,2.018895,17 14
-900,monthly_peak_cooling,Aug,2.490784,29 14
+900,monthly_peak_cooling,Aug,2.490852,29 14
 900,monthly_peak_cooling,Sep,2.787436,11 15
-900,monthly_peak_cooling,Oct,2.835537,1 14
-900,monthly_peak_cooling,Nov,2.060544,22 14
+900,monthly_peak_cooling,Oct,2.837572,1 14
+900,monthly_peak_cooling,Nov,2.083917,22 14
 900,monthly_peak_cooling,Dec,1.879651,2 15
 600,incident_may04_horizontal,1,0.000000,
 600,incident_may04_horizontal,2,0.000000,
@@ -914,30 +914,30 @@ case,output,point,value,date
 695,load_feb01,22,1.267912,
 695,load_feb01,23,1.447363,
 695,load_feb01,24,1.539584,
-900,load_feb01,1,1.112462,
-900,load_feb01,2,1.227177,
-900,load_feb01,3,1.339501,
-900,load_feb01,4,1.448971,
-900,load_feb01,5,1.510437,
-900,load_feb01,6,1.602502,
-900,load_feb01,7,1.656047,
-900,load_feb01,8,1.414367,
-900,load_feb01,9,0.817162,
-900,load_feb01,10,0.152467,
+900,load_feb01,1,1.112249,
+900,load_feb01,2,1.226981,
+900,load_feb01,3,1.339321,
+900,load_feb01,4,1.448806,
+900,load_feb01,5,1.510285,
+900,load_feb01,6,1.602363,
+900,load_feb01,7,1.655919,
+900,load_feb01,8,1.414250,
+900,load_feb01,9,0.817054,
+900,load_feb01,10,0.152368,
 900,load_feb01,11,0.000000,
 900,load_feb01,12,0.000000,
 900,load_feb01,13,0.000000,
 900,load_feb01,14,0.000000,
-900,load_feb01,15,-0.095067,
-900,load_feb01,16,-0.067375,
+900,load_feb01,15,-0.095163,
+900,load_feb01,16,-0.067452,
 900,load_feb01,17,0.000000,
 900,load_feb01,18,0.000000,
 900,load_feb01,19,0.000000,
 900,load_feb01,20,0.000000,
 900,load_feb01,21,0.000000,
 900,load_feb01,22,0.000000,
-900,load_feb01,23,0.136986,
-900,load_feb01,24,0.354659,
+900,load_feb01,23,0.136915,
+900,load_feb01,24,0.354603,
 940,load_feb01,1,0.000000,
 940,load_feb01,2,0.000000,
 940,load_feb01,3,0.000000,
@@ -945,10 +945,10 @@ case,output,point,value,date
 940,load_feb01,5,0.000000,
 940,load_feb01,6,0.000000,
 940,load_feb01,7,0.000000,
-940,load_feb01,8,0.875545,
-940,load_feb01,9,1.931895,
-940,load_feb01,10,0.962384,
-940,load_feb01,11,0.188948,
+940,load_feb01,8,0.875065,
+940,load_feb01,9,1.931512,
+940,load_feb01,10,0.962036,
+940,load_feb01,11,0.188630,
 940,load_feb01,12,0.000000,
 940,load_feb01,13,0.000000,
 940,load_feb01,14,0.000000,
@@ -958,82 +958,82 @@ case,output,point,value,date
 940,load_feb01,18,0.000000,
 940,load_feb01,19,0.000000,
 940,load_feb01,20,0.000000,
-940,load_feb01,21,0.177451,
-940,load_feb01,22,0.445750,
-940,load_feb01,23,0.643273,
+940,load_feb01,21,0.177177,
+940,load_feb01,22,0.445532,
+940,load_feb01,23,0.643075,
 940,load_feb01,24,0.000000,
 980,load_feb01,1,0.000000,
 980,load_feb01,2,0.000000,
 980,load_feb01,3,0.000000,
 980,load_feb01,4,0.000000,
-980,load_feb01,5,0.074256,
-980,load_feb01,6,0.213450,
-980,load_feb01,7,0.303643,
-980,load_feb01,8,0.100229,
+980,load_feb01,5,0.070294,
+980,load_feb01,6,0.210260,
+980,load_feb01,7,0.300726,
+980,load_feb01,8,0.097543,
 980,load_feb01,9,0.000000,
 980,load_feb01,10,0.000000,
 980,load_feb01,11,0.000000,
-980,load_feb01,12,-0.193389,
-980,load_feb01,13,-0.863866,
-980,load_feb01,14,-1.120244,
-980,load_feb01,15,-1.298015,
-980,load_feb01,16,-1.224758,
-980,load_feb01,17,-0.881888,
-980,load_feb01,18,-0.234372,
+980,load_feb01,12,-0.196132,
+980,load_feb01,13,-0.866083,
+980,load_feb01,14,-1.122275,
+980,load_feb01,15,-1.299889,
+980,load_feb01,16,-1.226491,
+980,load_feb01,17,-0.883492,
+980,load_feb01,18,-0.235858,
 980,load_feb01,19,0.000000,
 980,load_feb01,20,0.000000,
 980,load_feb01,21,0.000000,
 980,load_feb01,22,0.000000,
 980,load_feb01,23,0.000000,
 980,load_feb01,24,0.000000,
-985,load_feb01,1,1.273642,
-985,load_feb01,2,1.374848,
-985,load_feb01,3,1.474845,
-985,load_feb01,4,1.573057,
-985,load_feb01,5,1.624233,
-985,load_feb01,6,1.706888,
-985,load_feb01,7,1.751823,
-985,load_feb01,8,1.502261,
-985,load_feb01,9,0.897836,
-985,load_feb01,10,0.226528,
-985,load_feb01,11,-0.469166,
-985,load_feb01,12,-1.103870,
-985,load_feb01,13,-1.634636,
-985,load_feb01,14,-1.811767,
-985,load_feb01,15,-1.907856,
-985,load_feb01,16,-1.755236,
-985,load_feb01,17,-1.332998,
-985,load_feb01,18,-0.607044,
-985,load_feb01,19,-0.261109,
-985,load_feb01,20,0.017015,
-985,load_feb01,21,0.277692,
-985,load_feb01,22,0.517777,
-985,load_feb01,23,0.706092,
-985,load_feb01,24,0.855663,
-995,load_feb01,1,0.526254,
-995,load_feb01,2,0.615277,
-995,load_feb01,3,0.703048,
-995,load_feb01,4,0.788354,
-995,load_feb01,5,0.830213,
-995,load_feb01,6,0.904844,
-995,load_feb01,7,0.942214,
-995,load_feb01,8,0.690859,
-995,load_feb01,9,0.102827,
-995,load_feb01,10,-0.535861,
-995,load_feb01,11,-1.193804,
-995,load_feb01,12,-1.793976,
-995,load_feb01,13,-2.297535,
-995,load_feb01,14,-2.468239,
-995,load_feb01,15,-2.572136,
-995,load_feb01,16,-2.432687,
-995,load_feb01,17,-2.029621,
-995,load_feb01,18,-1.327023,
-995,load_feb01,19,-1.002129,
-995,load_feb01,20,-0.741495,
-995,load_feb01,21,-0.499361,
-995,load_feb01,22,-0.279865,
-995,load_feb01,23,-0.110940,
-995,load_feb01,24,0.023066,
+985,load_feb01,1,1.273619,
+985,load_feb01,2,1.374827,
+985,load_feb01,3,1.474826,
+985,load_feb01,4,1.573039,
+985,load_feb01,5,1.624217,
+985,load_feb01,6,1.706874,
+985,load_feb01,7,1.751809,
+985,load_feb01,8,1.502248,
+985,load_feb01,9,0.897825,
+985,load_feb01,10,0.226517,
+985,load_feb01,11,-0.469175,
+985,load_feb01,12,-1.103879,
+985,load_feb01,13,-1.634645,
+985,load_feb01,14,-1.811775,
+985,load_feb01,15,-1.907863,
+985,load_feb01,16,-1.755242,
+985,load_feb01,17,-1.333003,
+985,load_feb01,18,-0.607049,
+985,load_feb01,19,-0.261114,
+985,load_feb01,20,0.017010,
+985,load_feb01,21,0.277687,
+985,load_feb01,22,0.517773,
+985,load_feb01,23,0.706088,
+985,load_feb01,24,0.855659,
+995,load_feb01,1,0.526204,
+995,load_feb01,2,0.615231,
+995,load_feb01,3,0.703005,
+995,load_feb01,4,0.788314,
+995,load_feb01,5,0.830175,
+995,load_feb01,6,0.904809,
+995,load_feb01,7,0.942182,
+995,load_feb01,8,0.690828,
+995,load_feb01,9,0.102799,
+995,load_feb01,10,-0.535887,
+995,load_feb01,11,-1.193828,
+995,load_feb01,12,-1.793998,
+995,load_feb01,13,-2.297556,
+995,load_feb01,14,-2.468259,
+995,load_feb01,15,-2.572155,
+995,load_feb01,16,-2.432703,
+995,load_feb01,17,-2.029636,
+995,load_feb01,18,-1.327038,
+995,load_feb01,19,-1.002142,
+995,load_feb01,20,-0.741508,
+995,load_feb01,21,-0.499372,
+995,load_feb01,22,-0.279876,
+995,load_feb01,23,-0.110950,
+995,load_feb01,24,0.023057,
 600,load_jul14,1,0.000000,
 600,load_jul14,2,0.000000,
 600,load_jul14,3,0.000000,
@@ -1298,36 +1298,36 @@ case,output,point,value,date
 640,temperature_feb01,22,20.000000,
 640,temperature_feb01,23,20.000000,
 640,temperature_feb01,24,11.380664,
-940,temperature_feb01,1,15.397692,
-940,temperature_feb01,2,14.763091,
-940,temperature_feb01,3,14.168132,
-940,temperature_feb01,4,13.577110,
-940,temperature_feb01,5,13.111289,
-940,temperature_feb01,6,12.569042,
-940,temperature_feb01,7,12.118095,
+940,temperature_feb01,1,15.399241,
+940,temperature_feb01,2,14.764636,
+940,temperature_feb01,3,14.169653,
+940,temperature_feb01,4,13.578600,
+940,temperature_feb01,5,13.112748,
+940,temperature_feb01,6,12.570469,
+940,temperature_feb01,7,12.119490,
 940,temperature_feb01,8,15.000000,
 940,temperature_feb01,9,20.000000,
 940,temperature_feb01,10,20.000000,
 940,temperature_feb01,11,20.000000,
-940,temperature_feb01,12,21.439511,
-940,temperature_feb01,13,23.354737,
-940,temperature_feb01,14,24.415162,
-940,temperature_feb01,15,25.172313,
-940,temperature_feb01,16,25.190361,
-940,temperature_feb01,17,24.315940,
-940,temperature_feb01,18,22.385310,
-940,temperature_feb01,19,21.268677,
-940,temperature_feb01,20,20.367978,
+940,temperature_feb01,12,21.440338,
+940,temperature_feb01,13,23.355644,
+940,temperature_feb01,14,24.416066,
+940,temperature_feb01,15,25.173202,
+940,temperature_feb01,16,25.191232,
+940,temperature_feb01,17,24.316792,
+940,temperature_feb01,18,22.386143,
+940,temperature_feb01,19,21.269492,
+940,temperature_feb01,20,20.368774,
 940,temperature_feb01,21,20.000000,
 940,temperature_feb01,22,20.000000,
 940,temperature_feb01,23,20.000000,
-940,temperature_feb01,24,17.728353,
-600FF,temperature_feb01,1,4.099687,
-600FF,temperature_feb01,2,2.472886,
-600FF,temperature_feb01,3,0.983717,
-600FF,temperature_feb01,4,-0.396614,
-600FF,temperature_feb01,5,-1.442228,
-600FF,temperature_feb01,6,-2.456624,
+940,temperature_feb01,24,17.728868,
+600FF,temperature_feb01,1,4.099688,
+600FF,temperature_feb01,2,2.472887,
+600FF,temperature_feb01,3,0.983718,
+600FF,temperature_feb01,4,-0.396613,
+600FF,temperature_feb01,5,-1.442227,
+600FF,temperature_feb01,6,-2.456623,
 600FF,temperature_feb01,7,-3.234461,
 600FF,temperature_feb01,8,-1.522930,
 600FF,temperature_feb01,9,4.116487,
@@ -1344,32 +1344,32 @@ case,output,point,value,date
 600FF,temperature_feb01,20,26.014216,
 600FF,temperature_feb01,21,20.935070,
 600FF,temperature_feb01,22,16.416838,
-600FF,temperature_feb01,23,12.568440,
+600FF,temperature_feb01,23,12.568441,
 600FF,temperature_feb01,24,9.370030,
-900FF,temperature_feb01,1,12.141589,
-900FF,temperature_feb01,2,11.646059,
-900FF,temperature_feb01,3,11.141674,
-900FF,temperature_feb01,4,10.628128,
-900FF,temperature_feb01,5,10.234424,
-900FF,temperature_feb01,6,9.761216,
-900FF,temperature_feb01,7,9.377027,
-900FF,temperature_feb01,8,9.836751,
-900FF,temperature_feb01,9,11.453146,
-900FF,temperature_feb01,10,13.511278,
-900FF,temperature_feb01,11,15.818740,
-900FF,temperature_feb01,12,18.107531,
-900FF,temperature_feb01,13,20.207689,
-900FF,temperature_feb01,14,21.366312,
-900FF,temperature_feb01,15,22.202990,
-900FF,temperature_feb01,16,22.293985,
-900FF,temperature_feb01,17,21.489093,
-900FF,temperature_feb01,18,19.625614,
-900FF,temperature_feb01,19,18.574151,
-900FF,temperature_feb01,20,17.736829,
-900FF,temperature_feb01,21,16.926500,
-900FF,temperature_feb01,22,16.134096,
-900FF,temperature_feb01,23,15.450550,
-900FF,temperature_feb01,24,14.859230,
+900FF,temperature_feb01,1,12.182225,
+900FF,temperature_feb01,2,11.685758,
+900FF,temperature_feb01,3,11.180456,
+900FF,temperature_feb01,4,10.666015,
+900FF,temperature_feb01,5,10.271437,
+900FF,temperature_feb01,6,9.797374,
+900FF,temperature_feb01,7,9.412350,
+900FF,temperature_feb01,8,9.871259,
+900FF,temperature_feb01,9,11.486858,
+900FF,temperature_feb01,10,13.544212,
+900FF,temperature_feb01,11,15.850914,
+900FF,temperature_feb01,12,18.138962,
+900FF,temperature_feb01,13,20.238394,
+900FF,temperature_feb01,14,21.396309,
+900FF,temperature_feb01,15,22.232294,
+900FF,temperature_feb01,16,22.322613,
+900FF,temperature_feb01,17,21.517061,
+900FF,temperature_feb01,18,19.652935,
+900FF,temperature_feb01,19,18.600842,
+900FF,temperature_feb01,20,17.762904,
+900FF,temperature_feb01,21,16.951973,
+900FF,temperature_feb01,22,16.158981,
+900FF,temperature_feb01,23,15.474861,
+900FF,temperature_feb01,24,14.882979,
 650FF,temperature_jul14,1,19.576942,
 650FF,temperature_jul14,2,18.810942,
 650FF,temperature_jul14,3,17.719403,
@@ -1418,54 +1418,54 @@ case,output,point,value,date
 950FF,temperature_jul14,22,25.409001,
 950FF,temperature_jul14,23,24.584028,
 950FF,temperature_jul14,24,23.430102,
-680FF,temperature_feb01,1,14.421880,
-680FF,temperature_feb01,2,12.560629,
-680FF,temperature_feb01,3,10.809433,
-680FF,temperature_feb01,4,9.154910,
-680FF,temperature_feb01,5,7.759444,
-680FF,temperature_feb01,6,6.384726,
-680FF,temperature_feb01,7,5.220755,
-680FF,temperature_feb01,8,6.336619,
-680FF,temperature_feb01,9,11.222842,
-680FF,temperature_feb01,10,18.664684,
-680FF,temperature_feb01,11,27.671866,
-680FF,temperature_feb01,12,37.131282,
-680FF,temperature_feb01,13,46.126435,
-680FF,temperature_feb01,14,53.002829,
-680FF,temperature_feb01,15,57.846129,
-680FF,temperature_feb01,16,59.659326,
-680FF,temperature_feb01,17,57.838928,
-680FF,temperature_feb01,18,52.096184,
-680FF,temperature_feb01,19,46.823082,
-680FF,temperature_feb01,20,41.921157,
-680FF,temperature_feb01,21,37.326245,
-680FF,temperature_feb01,22,33.045995,
-680FF,temperature_feb01,23,29.193371,
-680FF,temperature_feb01,24,25.762699,
-980FF,temperature_feb01,1,22.930053,
-980FF,temperature_feb01,2,22.463095,
-980FF,temperature_feb01,3,21.988880,
-980FF,temperature_feb01,4,21.508631,
-980FF,temperature_feb01,5,21.139427,
-980FF,temperature_feb01,6,20.686363,
-980FF,temperature_feb01,7,20.320419,
-980FF,temperature_feb01,8,20.782003,
-980FF,temperature_feb01,9,22.347235,
-980FF,temperature_feb01,10,24.300576,
-980FF,temperature_feb01,11,26.478680,
-980FF,temperature_feb01,12,28.640144,
-980FF,temperature_feb01,13,30.630783,
-980FF,temperature_feb01,14,31.739097,
-980FF,temperature_feb01,15,32.574179,
-980FF,temperature_feb01,16,32.688335,
-980FF,temperature_feb01,17,31.930486,
-980FF,temperature_feb01,18,30.132319,
-980FF,temperature_feb01,19,29.145322,
-980FF,temperature_feb01,20,28.366202,
-980FF,temperature_feb01,21,27.619739,
-980FF,temperature_feb01,22,26.901025,
-980FF,temperature_feb01,23,26.292398,
-980FF,temperature_feb01,24,25.768377,
+680FF,temperature_feb01,1,14.422078,
+680FF,temperature_feb01,2,12.560808,
+680FF,temperature_feb01,3,10.809596,
+680FF,temperature_feb01,4,9.155058,
+680FF,temperature_feb01,5,7.759579,
+680FF,temperature_feb01,6,6.384849,
+680FF,temperature_feb01,7,5.220867,
+680FF,temperature_feb01,8,6.336720,
+680FF,temperature_feb01,9,11.222934,
+680FF,temperature_feb01,10,18.664768,
+680FF,temperature_feb01,11,27.671942,
+680FF,temperature_feb01,12,37.131351,
+680FF,temperature_feb01,13,46.126498,
+680FF,temperature_feb01,14,53.002886,
+680FF,temperature_feb01,15,57.846180,
+680FF,temperature_feb01,16,59.659373,
+680FF,temperature_feb01,17,57.838971,
+680FF,temperature_feb01,18,52.096223,
+680FF,temperature_feb01,19,46.823118,
+680FF,temperature_feb01,20,41.921189,
+680FF,temperature_feb01,21,37.326274,
+680FF,temperature_feb01,22,33.046021,
+680FF,temperature_feb01,23,29.193395,
+680FF,temperature_feb01,24,25.762721,
+980FF,temperature_feb01,1,23.068703,
+980FF,temperature_feb01,2,22.599766,
+980FF,temperature_feb01,3,22.123602,
+980FF,temperature_feb01,4,21.641430,
+980FF,temperature_feb01,5,21.270331,
+980FF,temperature_feb01,6,20.815399,
+980FF,temperature_feb01,7,20.447614,
+980FF,temperature_feb01,8,20.907384,
+980FF,temperature_feb01,9,22.470827,
+980FF,temperature_feb01,10,24.422404,
+980FF,temperature_feb01,11,26.598770,
+980FF,temperature_feb01,12,28.758520,
+980FF,temperature_feb01,13,30.747470,
+980FF,temperature_feb01,14,31.854120,
+980FF,temperature_feb01,15,32.687561,
+980FF,temperature_feb01,16,32.800098,
+980FF,temperature_feb01,17,32.040655,
+980FF,temperature_feb01,18,30.240916,
+980FF,temperature_feb01,19,29.252370,
+980FF,temperature_feb01,20,28.471722,
+980FF,temperature_feb01,21,27.723754,
+980FF,temperature_feb01,22,27.003555,
+980FF,temperature_feb01,23,26.393465,
+980FF,temperature_feb01,24,25.868003,
 900FF,temperature_bins,-50,0.000000,
 900FF,temperature_bins,-49,0.000000,
 900FF,temperature_bins,-48,0.000000,
@@ -1519,43 +1519,43 @@ case,output,point,value,date
 900FF,temperature_bins,0,3.000000,
 900FF,temperature_bins,1,3.000000,
 900FF,temperature_bins,2,11.000000,
-900FF,temperature_bins,3,26.000000,
-900FF,temperature_bins,4,28.000000,
-900FF,temperature_bins,5,36.000000,
+900FF,temperature_bins,3,25.000000,
+900FF,temperature_bins,4,25.000000,
+900FF,temperature_bins,5,38.000000,
 900FF,temperature_bins,6,47.000000,
-900FF,temperature_bins,7,67.000000,
-900FF,temperature_bins,8,63.000000,
-900FF,temperature_bins,9,89.000000,
-900FF,temperature_bins,10,135.000000,
-900FF,temperature_bins,11,182.000000,
-900FF,temperature_bins,12,210.000000,
-900FF,temperature_bins,13,196.000000,
-900FF,temperature_bins,14,204.000000,
-900FF,temperature_bins,15,263.000000,
+900FF,temperature_bins,7,66.000000,
+900FF,temperature_bins,8,59.000000,
+900FF,temperature_bins,9,88.000000,
+900FF,temperature_bins,10,123.000000,
+900FF,temperature_bins,11,184.000000,
+900FF,temperature_bins,12,205.000000,
+900FF,temperature_bins,13,197.000000,
+900FF,temperature_bins,14,199.000000,
+900FF,temperature_bins,15,248.000000,
 900FF,temperature_bins,16,262.000000,
-900FF,temperature_bins,17,258.000000,
-900FF,temperature_bins,18,315.000000,
-900FF,temperature_bins,19,323.000000,
+900FF,temperature_bins,17,256.000000,
+900FF,temperature_bins,18,302.000000,
+900FF,temperature_bins,19,335.000000,
 900FF,temperature_bins,20,316.000000,
-900FF,temperature_bins,21,313.000000,
-900FF,temperature_bins,22,312.000000,
-900FF,temperature_bins,23,273.000000,
-900FF,temperature_bins,24,275.000000,
-900FF,temperature_bins,25,285.000000,
-900FF,temperature_bins,26,262.000000,
-900FF,temperature_bins,27,281.000000,
-900FF,temperature_bins,28,312.000000,
-900FF,temperature_bins,29,294.000000,
-900FF,temperature_bins,30,341.000000,
-900FF,temperature_bins,31,361.000000,
-900FF,temperature_bins,32,361.000000,
-900FF,temperature_bins,33,392.000000,
-900FF,temperature_bins,34,379.000000,
-900FF,temperature_bins,35,329.000000,
+900FF,temperature_bins,21,309.000000,
+900FF,temperature_bins,22,320.000000,
+900FF,temperature_bins,23,290.000000,
+900FF,temperature_bins,24,263.000000,
+900FF,temperature_bins,25,299.000000,
+900FF,temperature_bins,26,264.000000,
+900FF,temperature_bins,27,287.000000,
+900FF,temperature_bins,28,309.000000,
+900FF,temperature_bins,29,296.000000,
+900FF,temperature_bins,30,343.000000,
+900FF,temperature_bins,31,368.000000,
+900FF,temperature_bins,32,366.000000,
+900FF,temperature_bins,33,387.000000,
+900FF,temperature_bins,34,381.000000,
+900FF,temperature_bins,35,333.000000,
 900FF,temperature_bins,36,263.000000,
 900FF,temperature_bins,37,228.000000,
-900FF,temperature_bins,38,173.000000,
-900FF,temperature_bins,39,114.000000,
+900FF,temperature_bins,38,171.000000,
+900FF,temperature_bins,39,116.000000,
 900FF,temperature_bins,40,85.000000,
 900FF,temperature_bins,41,46.000000,
 900FF,temperature_bins,42,25.000000,
