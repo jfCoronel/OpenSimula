@@ -5,6 +5,12 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
 
 ## Where things stand (2026-10-28)
 
+- **v0.8.9 released (2026-10-28)**: PyPI, GitHub release `v0.8.9`, Zenodo version DOI
+  10.5281/zenodo.23731882. **Paper submitted to JOSS** the same day (subject: Mechanical
+  engineering), with version 0.8.9; next: follow the pre-review issue on GitHub
+  (openjournals/joss-reviews) and answer the editor/reviewers. Remember to tell L.
+  Pérez-Lombard and I. R. Maestre (co-authors).
+
 - **Session of 2026-10-28 (afternoon): minor ASHRAE 140 items** (branch
   `fix/ashrae140-minor`): AE envelope made adiabatic (AIR_SIDE 1164 → 1201/1371); beam
   radiation kept down to 1° solar altitude, was 3° (WEATHER 228 → 241/246, LOAD 176 →
