@@ -14,7 +14,8 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
 
 - **Session of 2026-10-28: API reference with mkdocstrings** (block 3), plus a fix of
   `Parameter_container.del_parameter()` (it always raised AttributeError). Next in block 3:
-  the JOSS paper; the open items of the ASHRAE 140 validation can be interleaved.
+  the JOSS paper (draft complete, PR #20); the open items of the ASHRAE 140 validation can be
+  interleaved.
 
 ## Session of 2026-10-22 (v0.8.8)
 
@@ -387,7 +388,11 @@ from several groups. Work is done step by step; tick items off as they ship.
   public methods completed in Google style. The components' own parameters and variables
   stay in the hand-written Component list. Possible later step: docstrings of the
   component classes themselves, if the Component list is ever generated from code.
-- [ ] JOSS paper (multi-author), after items above.
+- [ ] JOSS paper (multi-author), after items above. **Draft complete (2026-10-28)** in
+  `paper/` (PR #20), PDF built by `.github/workflows/draft-pdf.yml`. Authors: J. F. Coronel
+  (lead developer, maintainer), L. Pérez-Lombard (HVAC models), I. R. Maestre (envelope
+  models). Next: co-authors' review, then submit at joss.theoj.org with the repository URL,
+  the version and its Zenodo DOI (a release including `paper/` and the new authors).
 - [ ] Full validation paper (JBPS / Energy and Buildings) and conference talks (IBPSA BS,
   BSO, CYTEF).
 

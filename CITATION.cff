@@ -7,6 +7,20 @@ authors:
   - family-names: Coronel
     given-names: Juan F.
     email: jfc@us.es
+    orcid: "https://orcid.org/0000-0002-7732-1334"
+    affiliation: Universidad de Sevilla
+  - family-names: Pérez-Lombard
+    given-names: Luis
+    orcid: "https://orcid.org/0000-0002-8887-1833"
+    affiliation: Universidad de Sevilla
+  - family-names: Maestre
+    given-names: Ismael R.
+    orcid: "https://orcid.org/0000-0002-7322-3825"
+    affiliation: Universidad de Cádiz
+contact:
+  - family-names: Coronel
+    given-names: Juan F.
+    email: jfc@us.es
     affiliation: Universidad de Sevilla
 identifiers:
   - type: doi
