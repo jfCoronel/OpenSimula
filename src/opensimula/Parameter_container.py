@@ -27,7 +27,7 @@ class Parameter_container:
 
     def del_parameter(self, param):
         """Deletet parameter"""
-        self._parameters_.remove(param)
+        self._parameters_.pop(param.key, None)
 
     def parameter(self, key):
         return self._parameters_[key]
