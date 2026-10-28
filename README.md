@@ -160,8 +160,10 @@ entries from it).
 ## Authors
 
 * [Juan F. Coronel](http://jfc.us.es), Universidad de Sevilla — creator, lead developer and maintainer
-* Luis Pérez-Lombard, Universidad de Sevilla
-* Ismael R. Maestre, Universidad de Cádiz
+* Luis Pérez-Lombard, Universidad de Sevilla — reviewer and advisor on the HVAC models, tester
+  and co-author of the validation test cases
+* Ismael R. Maestre, Universidad de Cádiz — reviewer and advisor on the building envelope
+  models, tester and co-author of the validation test cases
 
 ## License
 

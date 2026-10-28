@@ -26,8 +26,7 @@ date: 28 October 2026
 bibliography: paper.bib
 ---
 
-<!-- TODO before submission: complete the contributions of L. P.-L. and I. R. M.;
-     complete the research impact statement (courses, theses, projects that use OpenSimula);
+<!-- TODO before submission: complete the research impact statement (courses, theses, projects that use OpenSimula);
      review the AI usage disclosure. -->
 
 # Summary
@@ -161,9 +160,10 @@ responsibility for the software and the paper.
 # Author contributions
 
 J. F. Coronel conceived OpenSimula, designed its architecture, wrote most of the code and is
-its lead developer and maintainer. L. Pérez-Lombard and I. R. Maestre contributed to
-<!-- TODO: e.g. the HVAC system models, the definition of the test cases, the validation
-analysis, testing in teaching... --> and to the writing of this paper.
+its lead developer and maintainer. L. Pérez-Lombard reviewed and advised on the HVAC
+equipment and system models, and I. R. Maestre on the building envelope models. Both have
+been the main testers of the software, helped to define the many validation test cases and
+contributed to the writing of this paper.
 
 # Acknowledgements
 
