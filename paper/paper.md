@@ -146,7 +146,7 @@ OpenSimula has been developed at the Universidad de Sevilla since 2023, in colla
 the Universidad de Cádiz, and is distributed on PyPI, with each release archived on Zenodo.
 It has been presented at the CYTEF 2026 congress [@coronel2026cytef].
 
-Several bachelor's and master's theses at the Universidad de Sevilla have used OpenSimula
+More than three bachelor's and master's theses at the Universidad de Sevilla have used OpenSimula
 as their simulation tool, and more are in progress. One of them, close to completion,
 imports building models from HULC, the official Spanish software for the energy performance
 assessment of buildings under the national building code, so that OpenSimula can simulate
