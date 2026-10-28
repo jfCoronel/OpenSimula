@@ -7,6 +7,7 @@ authors:
   - family-names: Coronel
     given-names: Juan F.
     email: jfc@us.es
+    orcid: "https://orcid.org/0000-0002-7732-1334"
     affiliation: Universidad de Sevilla
 identifiers:
   - type: doi

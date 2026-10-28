@@ -8,14 +8,14 @@ tags:
   - ASHRAE 140
 authors:
   - name: Juan F. Coronel
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-7732-1334
     corresponding: true
     affiliation: 1
   - name: Luis Pérez-Lombard
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-8887-1833
     affiliation: 1
   - name: Ismael R. Maestre
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-7322-3825
     affiliation: 2
 affiliations:
   - name: Departamento de Ingeniería Energética, Escuela Técnica Superior de Ingeniería, Universidad de Sevilla, Spain
@@ -26,7 +26,7 @@ date: 28 October 2026
 bibliography: paper.bib
 ---
 
-<!-- TODO before submission: real ORCIDs; confirm co-authors and their contributions;
+<!-- TODO before submission: confirm co-authors and their contributions;
      complete the research impact statement (courses, theses, projects that use OpenSimula);
      review the AI usage disclosure. -->
 
