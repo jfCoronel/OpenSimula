@@ -1,6 +1,6 @@
 [project]
 name = "opensimula"
-version = "0.8.8"
+version = "0.8.9"
 requires-python = ">=3.12"
 authors = [
   { name="Juan F. Coronel", email="jfc@us.es" },
