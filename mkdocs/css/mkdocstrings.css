@@ -1,0 +1,21 @@
+/* API reference (mkdocstrings): the theme does not style its parameter tables */
+.doc-contents table {
+    width: 100%;
+    margin: 6px 0 18px;
+    font-size: 14px;
+}
+.doc-contents th,
+.doc-contents td {
+    padding: 4px 12px 4px 0;
+    vertical-align: top;
+    border-bottom: 1px solid #ebf2f2;
+}
+.doc-contents th {
+    border-bottom: 2px solid #d5dede;
+}
+.doc-contents td code {
+    white-space: nowrap;
+}
+.doc-object {
+    margin-bottom: 28px;
+}

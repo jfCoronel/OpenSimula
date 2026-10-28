@@ -3,40 +3,71 @@ from opensimula.Parameters import Parameter_string
 from opensimula.Message import Message
 
 class Parameter_container:
-    """Class to manage a list of Paramaters
+    """Class to manage a list of Parameters
 
     Superclass for Projects and Components
 
     Default parameters included:
+
     - name (string)
     - description (string)
-
     """
 
     def __init__(self, sim):
+        """Create the container with the parameters name and description
+
+        Args:
+            sim (Simulation): simulation environment, used to report messages
+        """
         self._sim_ = sim
         self._parameters_ = {}
         self.add_parameter(Parameter_string("name", "Name"))
         self.add_parameter(Parameter_string("description", "Description"))
 
     def add_parameter(self, param):
-        """add Parameter"""
+        """Add a parameter
+
+        Args:
+            param (Parameter): parameter to add, replaces any parameter with the same key
+        """
         param.parent = self
         param._sim_ = self._sim_
         self._parameters_[param.key] = param
 
     def del_parameter(self, param):
-        """Deletet parameter"""
+        """Delete a parameter
+
+        Args:
+            param (Parameter): parameter to delete
+        """
         self._parameters_.pop(param.key, None)
 
     def parameter(self, key):
+        """Find and return a parameter using its key
+
+        Args:
+            key (str): key of the parameter, e.g. "name"
+
+        Returns:
+            Parameter: the parameter (KeyError if it does not exist); read or change its
+                value with `.value`
+        """
         return self._parameters_[key]
 
     def parameter_dict(self):
+        """Parameters of the container
+
+        Returns:
+            dict: {key: Parameter}
+        """
         return self._parameters_
 
     def set_parameters(self, dictonary):
-        """Read parameters from dictonary"""
+        """Set parameter values from a dictionary
+
+        Args:
+            dictonary (dict): {key: value}; unknown keys are reported as errors
+        """
         for key, value in dictonary.items():
             if key in self._parameters_:
                 self.parameter(key).value = value
@@ -44,6 +75,14 @@ class Parameter_container:
                 self._sim_.message(Message("Component parameter " + key + " does not exist","ERROR"))
 
     def parameter_dataframe(self, string_format=False):
+        """Parameters as a table
+
+        Args:
+            string_format (bool, optional): Convert every value to string. Defaults to False.
+
+        Returns:
+            pandas.DataFrame: key, type, value and unit of each parameter
+        """
         keys = []
         values = []
         types = []
@@ -69,7 +108,7 @@ class Parameter_container:
         """Check if all is correct
 
         Returns:
-            errors (string list): List of errors
+            list of Message: errors found
         """
         errors = []
         for key, value in self._parameters_.items():

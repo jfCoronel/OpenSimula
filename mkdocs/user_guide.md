@@ -4,6 +4,8 @@ In this guide you will find information on how to use opensimula from an environ
 
 The best environment to start using opensimula is with [Jupyter notebooks](https://jupyter.org/).
 
+The classes and methods described here are listed, with their arguments, in the [API reference](api/index.md).
+
 ### Simulation environment
 
 Once we have opensimula installed, the base component to work with opensimula is the “Simulation” object that we must import and create an instance of it, which we will call “sim”.
@@ -363,7 +365,7 @@ As an example we can see how to obtain the monthly average values of the variabl
 <pre><code class="python">
 ...
 
-pro.component("met_file").variable_dataframe(frequency="M",value="mean")
+pro.component("met_file").variable_dataframe(frequency="monthly",value="mean")
 </code></pre>
 Jupyter shell:
 

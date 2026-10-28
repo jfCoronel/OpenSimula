@@ -7,6 +7,9 @@ theme:
     custom_dir: "mkdocs/cinder"
     logo: img/logo_opensimula.png
 
+extra_css:
+    - css/mkdocstrings.css
+
 nav:
     - Home: index.md
     - Getting started: getting_started.md
@@ -14,3 +17,32 @@ nav:
     - Component list: component_list.md
     - Developer guide: developer_guide.md
     - Validation: validation.md
+    - API reference:
+        - Overview: api/index.md
+        - Simulation: api/simulation.md
+        - Project: api/project.md
+        - Component: api/component.md
+        - Parameters: api/parameters.md
+        - Variable and Message: api/variable.md
+        - Iterative_process: api/iterative_process.md
+
+plugins:
+    - search
+    - mkdocstrings:
+        handlers:
+            python:
+                paths: [src]
+                options:
+                    docstring_style: google
+                    docstring_options:
+                        returns_named_value: false
+                    members_order: source
+                    filters: ["!^_"]
+                    show_source: false
+                    show_root_heading: true
+                    show_root_full_path: false
+                    show_symbol_type_heading: true
+                    heading_level: 2
+                    merge_init_into_class: true
+                    show_signature_annotations: false
+                    separate_signature: true

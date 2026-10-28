@@ -26,12 +26,17 @@ class Project(Parameter_container):
     - Contain a list of components
     - Contains parameters for its definition
     - Contains Environment_3D for 3D representation of the project
+
+    Projects are created with `Simulation.new_project()`, not directly. Their parameters
+    (`time_step`, `n_time_steps`, `initial_time`, `simulation_file_met`,
+    `shadow_calculation`...) are described in the user guide.
     """
 
     def __init__(self, name, sim):
         """Create new project
 
         Args:
+            name (str): name of the project
             sim (Simulation): parent Simulation environment
         """
         Parameter_container.__init__(self, sim)
@@ -122,10 +127,10 @@ class Project(Parameter_container):
         """Find and return component with its name
 
         Args:
-            name (string): name of the component
+            name (str): name of the component
 
         Returns:
-            component (Component): component found, None if not found.
+            Component: component found, None if not found.
         """
         # Components are looked up by name millions of times during a
         # simulation, so hits are served from an index. The cached component is
@@ -143,8 +148,12 @@ class Project(Parameter_container):
     def component_list(self, comp_type="all"):
         """Components list in the project
 
+        Args:
+            comp_type (str, optional): Type of the components to include ("Space",
+                "Building_surface"...), "all" for every component. Defaults to "all".
+
         Returns:
-            components (Components list): List of components.
+            list of Component: Components of the project, in definition order.
         """
         comp_list = []
         for comp in self._components_:
@@ -156,6 +165,17 @@ class Project(Parameter_container):
         return comp_list
 
     def component_dataframe(self, comp_type="all", string_format=False):
+        """Parameters of the components as a table
+
+        Args:
+            comp_type (str, optional): Type of the components to include; with "all" only
+                name, type and description are shown, with a type every parameter of
+                that type. Defaults to "all".
+            string_format (bool, optional): Convert every value to string. Defaults to False.
+
+        Returns:
+            pandas.DataFrame: One row per component, one column per parameter.
+        """
         data = pd.DataFrame()
         comp_list = self.component_list(comp_type)
         if len(comp_list) > 0:
@@ -175,6 +195,16 @@ class Project(Parameter_container):
         return data
 
     def new_component(self, comp_type, name):
+        """Create a new component and add it to the project
+
+        Args:
+            comp_type (str): Type (class name) of the component, e.g. "Space".
+            name (str): Name of the component.
+
+        Returns:
+            Component: The new component with its default parameters, None if the type
+                does not exist.
+        """
         try:
             clase = globals()[comp_type]
             comp = clase(name, self)
@@ -187,8 +217,8 @@ class Project(Parameter_container):
         """Duplicate an existing component with a new name
 
         Args:
-            component_name (string): name of the component to duplicate
-            new_name (string): name for the new component
+            component_name (str): name of the component to duplicate
+            new_name (str): name for the new component
 
         Returns:
             Component: the new duplicated component, None if error
@@ -252,11 +282,13 @@ class Project(Parameter_container):
                     self._sim_.message(Message(msg, "ERROR"))
 
     def read_dict(self, dict):
-        """Load paramaters an components from dictionary
+        """Load parameters and components from a dictionary, then check the project
+
+        Components are added to the ones already in the project (see clear()).
 
         Args:
-            dic (dictionary): dictonary with the parameters and componenets to be loaded in the project
-
+            dict (dict): dictionary with the parameters of the project and the list of
+                its components in the key "components"
         """
         self._sim_.message(Message("Reading project data from dictonary", "CONSOLE"))
         self._load_from_dict_(dict)
@@ -266,9 +298,9 @@ class Project(Parameter_container):
     def write_dict(self):
         """Write dictionary with the definition of the project
 
-        Return:
-            dic (dictionary): dictonary with the parameters and componenets that define the project
-
+        Returns:
+            dict: dictionary with the parameters and components that define the project,
+                in the format read by read_dict()
         """
         dict = {"components": []}
         for key, param in self.parameter_dict().items():
@@ -282,11 +314,10 @@ class Project(Parameter_container):
         return dict
 
     def read_json(self, json_file):
-        """Read paramaters an components from dictionary in a json file
+        """Load parameters and components from a json file, then check the project
 
         Args:
-            json_file (string): file name that contains dictonary with the parameters and componenets to be loaded in the project
-
+            json_file (str): file with the dictionary of the project (format of read_dict())
         """
         try:
             f = open(json_file, "r")
@@ -307,8 +338,7 @@ class Project(Parameter_container):
         """Write project definition to json file
 
         Args:
-            json_file (string): file name
-
+            json_file (str): file name
         """
         try:
             f = open(json_file, "w")
@@ -328,7 +358,7 @@ class Project(Parameter_container):
         """Read paramaters an components from excel file
 
         Args:
-            excel_file (string): excel file path
+            excel_file (str): excel file path
         """
         try:
             xls_file = pd.ExcelFile(excel_file)
@@ -399,10 +429,10 @@ class Project(Parameter_container):
     def check(self):
         """Check if all is correct, for the project and all its components
 
-            Prints all errors found
+        Prints all errors found
 
         Returns:
-            errors (string list): List of errors
+            list of Message: errors found
         """
         self._sim_.message(
             Message("Checking project: " + self.parameter("name").value, "CONSOLE")
@@ -470,7 +500,13 @@ class Project(Parameter_container):
         return errors
 
     def simulate(self):
-        """Project Time Simulation"""
+        """Run the time simulation of the project
+
+        Orders the components, runs pre_simulation() on them and then, for each of the
+        `n_time_steps` time steps, the pre-iteration, the iterations until every component
+        converges (at most `n_max_iteration`) and the post-iteration. Results are stored in
+        the variables of the components.
+        """
         n = self.parameter("n_time_steps").value
         date = dt.datetime.strptime(
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
@@ -586,6 +622,12 @@ class Project(Parameter_container):
             comp.post_iteration(time_index, date, dayligth_saving, converged)
 
     def dates(self):
+        """Dates of the simulation time steps
+
+        Returns:
+            numpy.ndarray of datetime: Date of each time step, centered in the interval
+                (for hourly steps, 00:30, 01:30...).
+        """
         n = self.parameter("n_time_steps").value
         date = dt.datetime.strptime(
             self.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S"
@@ -609,6 +651,12 @@ class Project(Parameter_container):
         return html
 
     def simulation_dataframe(self):
+        """Information of the last simulation, one row per time step
+
+        Returns:
+            pandas.DataFrame: Date, number of iterations, convergence and last component
+                that did not converge of each time step.
+        """
         return self._sim_df
 
     def editor(self):
@@ -628,6 +676,11 @@ class Project(Parameter_container):
         return ProjectEditor(self)
 
     def create_3D_environment(self, env_3D):
+        """Add the polygons of the project's surfaces and openings to a 3D environment
+
+        Args:
+            env_3D (Environment_3D): environment the polygons are added to
+        """
         for component in self.component_list("all"):
             if not hasattr(component, "get_polygon_3D"):
                 continue
@@ -678,6 +731,7 @@ class Project(Parameter_container):
         return env_3D.geometry_dict()
 
     def show_3D(self):
+        """Show the 3D geometry of the project (Plotly)"""
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
         env_3D.show(polygons_type="initial")
@@ -690,6 +744,11 @@ class Project(Parameter_container):
         return env_3D.plotly_figure(polygons_type="initial")
 
     def show_3D_shadows(self, date):
+        """Show the 3D geometry with the shadows of the sun at a date (Plotly)
+
+        Args:
+            date (datetime): date and time; at night a warning is shown instead
+        """
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
         file_met = self.parameter("simulation_file_met").component
@@ -701,6 +760,11 @@ class Project(Parameter_container):
             self._sim_.message(Message(date.strftime("%H:%M,  %d/%m/%Y") + " is night", "WARNING"))
 
     def show_3D_shadows_animation(self, date):
+        """Show an hourly animation of the shadows of the sun along a day (Plotly)
+
+        Args:
+            date (datetime): day of the animation (the time is ignored)
+        """
         env_3D = Environment_3D()
         self.create_3D_environment(env_3D)
         file_met = self.parameter("simulation_file_met").component
