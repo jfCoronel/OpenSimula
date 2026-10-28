@@ -126,8 +126,8 @@ reference programs; it also generates the validation page of the documentation. 
 comparison runs in continuous integration on every change to the code, so that any change in
 the results of the 135 test projects is detected.
 
-With version 0.8.8, 2,321 of the 2,740 single-valued outputs (85 %) lie inside the range of
-the reference programs, and about half of the remaining ones are within 1 % of the nearest
+With version 0.8.9, 2,379 of the 2,740 single-valued outputs (87 %) lie inside the range of
+the reference programs, and almost half of the remaining ones are within 1 % of the nearest
 bound. \autoref{fig:loads} shows the annual heating and cooling loads of the building
 envelope cases. The cases outside the range and their probable causes, such as the constant
 interior convection coefficients that produce a small, systematic overestimation of heating
