@@ -26,8 +26,6 @@ date: 28 October 2026
 bibliography: paper.bib
 ---
 
-<!-- TODO before submission: review the AI usage disclosure. -->
-
 # Summary
 
 OpenSimula is an open-source Python package for the dynamic simulation of buildings and
@@ -157,7 +155,6 @@ use.
 
 # AI usage disclosure
 
-<!-- TODO: review and adjust. -->
 Generative AI tools (Claude Code, Anthropic) were used during the development of recent
 versions, mainly to automate the Standard 140 validation workflow, write tests and
 documentation, and investigate and fix discrepancies found by the validation, and to prepare
