@@ -14,7 +14,7 @@
         {
             "type": "Material",
             "name": "Insulation",
-            "conductivity": 0.01,
+            "conductivity": 1e-06,
             "density": 1,
             "specific_heat": 1
         },

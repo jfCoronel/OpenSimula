@@ -349,9 +349,9 @@ def test_HVAC_perfect_system():
     peak_heating = load.max()/1000
     peak_cooling = -load.min()/1000
 
-    assert annual_heating == pytest.approx(4.635639661707876)
-    assert annual_cooling == pytest.approx(4.135999834242331)
-    assert peak_heating == pytest.approx(3.2579149609779443)
+    assert annual_heating == pytest.approx(4.600215347025868)
+    assert annual_cooling == pytest.approx(4.1577184451246785)
+    assert peak_heating == pytest.approx(3.253717666525836)
     assert peak_cooling == pytest.approx(5.451313222438749)
 
 

@@ -373,12 +373,12 @@ def test_HVAC_DX_system_without_vent():
     power = pro.component("system").variable("power").values.sum()/1e6
     annual_latent = pro.component("system").variable("Q_latent").values.sum()/1e6
 
-    assert annual_heating == pytest.approx(3.662558442285695)
-    assert annual_cooling == pytest.approx(4.953843972941708)
-    assert peak_heating == pytest.approx(2.753548603988852)
+    assert annual_heating == pytest.approx(3.6308525834349497)
+    assert annual_cooling == pytest.approx(4.979106872785461)
+    assert peak_heating == pytest.approx(2.749886298191046)
     assert peak_cooling == pytest.approx(5.697679866477179)
-    assert power == pytest.approx(14.602619928128332)
-    assert annual_latent == pytest.approx(0.05448078004799185)
+    assert power == pytest.approx(14.566525249640708)
+    assert annual_latent == pytest.approx(0.05448532861090071)
     
 
 def test_HVAC_DX_system_with_vent():
@@ -400,10 +400,10 @@ def test_HVAC_DX_system_with_vent():
     annual_latent = pro.component("system").variable("Q_latent").values.sum()/1e6
     print(annual_heating,annual_cooling,peak_heating,peak_cooling,power,annual_latent)
 
-    assert annual_heating == pytest.approx(6.584015158948548)
-    assert annual_cooling == pytest.approx(4.047643778543491)
-    assert peak_heating == pytest.approx(4.013662511248714)
+    assert annual_heating == pytest.approx(6.546162001592287)
+    assert annual_cooling == pytest.approx(4.064545377360391)
+    assert peak_heating == pytest.approx(4.013157255693249)
     assert peak_cooling == pytest.approx(5.378485230257034)
-    assert power == pytest.approx(16.73810229504327)
-    assert annual_latent == pytest.approx(0.07588097994857204)
+    assert power == pytest.approx(16.706104000254026)
+    assert annual_latent == pytest.approx(0.07588788128726585)
 
