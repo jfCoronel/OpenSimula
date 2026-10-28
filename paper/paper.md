@@ -26,7 +26,7 @@ date: 28 October 2026
 bibliography: paper.bib
 ---
 
-<!-- TODO before submission: review the AI usage disclosure; acknowledgements. -->
+<!-- TODO before submission: review the AI usage disclosure. -->
 
 # Summary
 
@@ -174,6 +174,7 @@ contributed to the writing of this paper.
 
 # Acknowledgements
 
-<!-- TODO: funding and acknowledgements, if any. -->
+The development of OpenSimula has not received specific funding from any project or
+grant.
 
 # References
