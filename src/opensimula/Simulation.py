@@ -5,7 +5,23 @@ from plotly.subplots import make_subplots
 
 
 class Simulation:
-    """Simulation environment object for handling projects and print messages"""
+    """Simulation environment object for handling projects and print messages
+
+    It is the entry point of every OpenSimula program:
+
+    ```python
+    import opensimula as osm
+
+    sim = osm.Simulation()
+    pro = sim.new_project("Project one")
+    pro.read_json("project.json")
+    pro.simulate()
+    ```
+
+    Attributes:
+        console_print (bool): Print the messages in the console when they are added.
+            Defaults to True.
+    """
 
     def __init__(self):
         self._projects_ = []
@@ -16,7 +32,10 @@ class Simulation:
         """Create new project in the Simulation
 
         Args:
-            project_name (string): Name of the project to be added to the simulation environment
+            project_name (str): Name of the project to be added to the simulation environment
+
+        Returns:
+            Project: The new project, None if there is already a project with that name.
         """
         if self.project(project_name) is None:
             pro = Project(project_name, self)
@@ -38,10 +57,10 @@ class Simulation:
         """Find and return a project using its name
 
         Args:
-            name (string): name of the project
+            name (str): name of the project
 
         Returns:
-            project (Project): project found, None if not found.
+            Project: project found, None if not found.
         """
         for pro in self._projects_:
             if pro.parameter("name").value == name:
@@ -52,11 +71,19 @@ class Simulation:
         """Projects list in the simulation environment
 
         Returns:
-            projects (Project): List of projects.
+            list of Project: Projects of the simulation environment.
         """
         return self._projects_
 
     def project_dataframe(self, string_format=False):
+        """Parameters of all the projects as a table
+
+        Args:
+            string_format (bool, optional): Convert every value to string. Defaults to False.
+
+        Returns:
+            pandas.DataFrame: One row per project, one column per parameter.
+        """
         data = pd.DataFrame()
         pro_list = self.project_list()
         parameters = []
@@ -90,16 +117,23 @@ class Simulation:
             message.print()
  
     def message_list(self):
-        """Return the list of messages"""
+        """List of messages
+
+        Returns:
+            list of Message: Messages added with message(), in order.
+        """
         return self._messages_
 
     def plot(self, dates, variables, names=[], axis=[], frequency=None, value="mean",interval=None):
-        """_summary_
-        Draw variables graph (using plotly)
+        """Draw variables graph (using plotly)
 
         Args:
-            variables: List of hourly variables
-            axis: list of axis y 1 or 2 to use for each variable, empty all in first axis
+            dates (array of datetime): Dates of the values, usually `project.dates()`.
+            variables (list of Variable): Variables to draw.
+            names (list of str, optional): Names of the series; variables beyond the list are
+                named "component:variable". Defaults to [].
+            axis (list of int, optional): y axis (1 or 2) of each variable; variables beyond the
+                list use the first axis. Defaults to [].
             frequency (None or str, optional): frequency of the values: None, "hourly", "daily", "monthly", "yearly". Defaults to None.
             value (str, optional): "mean", "sum", "sum_pos", "sum_neg", "max" or "min". Defaults to "mean".
             interval (None or list of two dates): List with the start and end dates of the period to be included in the dataframe, if the value is None all values are included.

@@ -63,6 +63,15 @@ def test_managing_components():
     assert p1.component("Material 1").parameter("density").value == 900
 
 
+def test_del_parameter():
+    sim = osim.Simulation()
+    p1 = sim.new_project("Project 1")
+    m1 = p1.new_component("Material", "Material 1")
+
+    m1.del_parameter(m1.parameter("density"))
+    assert "density" not in m1.parameter_dict()
+
+
 def test_load_from_dict():
     sim = osim.Simulation()
     p1 = sim.new_project("p1")

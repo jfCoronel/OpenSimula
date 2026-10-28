@@ -3,7 +3,13 @@
 Working notes for resuming development on OpenSimula from any machine. This file is for
 the maintainer, not end users — it is not part of the published docs (`mkdocs/`).
 
-## Where things stand (2026-10-22, v0.8.8)
+## Where things stand (2026-10-28)
+
+- **Session of 2026-10-28: API reference with mkdocstrings** (block 3), plus a fix of
+  `Parameter_container.del_parameter()` (it always raised AttributeError). Next in block 3:
+  the JOSS paper; the open items of the ASHRAE 140 validation can be interleaved.
+
+## Session of 2026-10-22 (v0.8.8)
 
 - **Session of 2026-10-22: ASHRAE 140 validation automated and v0.8.8 released.** All six
   ASHRAE 140 folders run from `ASHRAE_140/validation/validate.py` (PRs #7–#13, #15), the
@@ -342,10 +348,15 @@ from several groups. Work is done step by step; tick items off as they ship.
 
 ### 3. Scientific credibility and publications
 
-- [ ] Automated ASHRAE 140 validation: a script that runs every case and generates a
+- [x] Automated ASHRAE 140 validation: a script that runs every case and generates a
   "Validation" docs page comparing OpenSimula with the reference programs' range
-  (LOAD_TEST annual outputs done 2026-10-22; see the section above).
-- [ ] API reference generated from docstrings (mkdocstrings).
+  (all six folders, CI check, v0.8.8; see the section above).
+- [x] API reference generated from docstrings (mkdocstrings), 2026-10-28: "API reference"
+  section of the docs (`mkdocs/api/`) for Simulation, Project, Component, Parameter_container
+  and the parameter types, Variable, Message and Iterative_process; docstrings of their
+  public methods completed in Google style. The components' own parameters and variables
+  stay in the hand-written Component list. Possible later step: docstrings of the
+  component classes themselves, if the Component list is ever generated from code.
 - [ ] JOSS paper (multi-author), after items above.
 - [ ] Full validation paper (JBPS / Energy and Buildings) and conference talks (IBPSA BS,
   BSO, CYTEF).

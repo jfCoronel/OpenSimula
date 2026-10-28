@@ -6,6 +6,7 @@ on:
     paths:
       - "mkdocs/**"
       - "mkdocs.yml"
+      - "src/opensimula/**"  # API reference, generated from the docstrings
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 

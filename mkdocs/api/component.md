@@ -1,0 +1,3 @@
+# Component
+
+::: opensimula.Component.Component
