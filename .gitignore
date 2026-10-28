@@ -129,3 +129,6 @@ dmypy.json
 
 # draw.io
 .$*.bkp
+# JOSS paper: built PDF (CI artifact)
+paper/paper.pdf
+paper/jats/
