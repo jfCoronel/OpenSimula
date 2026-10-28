@@ -270,10 +270,15 @@ Next steps, one PR each:
     m², ~0.09 kW lost at −29 °C); now k = 1e-6 and the zone loads equal the imposed gains
     (2.931 kW). AIR_SIDE 1164 → 1201/1371.
   - Remaining in AE101/AE201: outdoor air mass flow 0.110 vs 0.113–0.120 kg/s, heating coil
-    load 1.3 % below. OpenSimula converts the volumetric flows with the density at the fan
-    inlet; some programs evidently use standard air (200 cfm × 1.204 = 0.1137 kg/s, the
-    minimum of the range). To check in the Standard whether the AE flows are at standard
-    conditions. Also AE301 coil outlet RH and reheat loads.
+    load 1.3 % below. **Checked in the Standard (2026-10-28):** supply 600 cfm at the supply
+    fan inlet conditions (as OpenSimula does) but outdoor air 200 cfm at the *exhaust fan
+    inlet* conditions (return air, zone temperature), while `outdoor_air_fraction` of
+    `HVAC_SZW_system`/`HVAC_MZW_system` is a fraction of the supply *mass* flow. So the
+    outdoor air is short when heating (warm supply) and slightly high when cooling (AE104
+    0.1 % above). **Decision: documented as a convention difference for now.** Possible
+    feature (own PR): an outdoor air volumetric flow at return air conditions, without
+    changing the meaning of `outdoor_air_fraction`, which the economizer takes to 1 as a
+    mass fraction. Also AE301 coil outlet RH and reheat loads.
 - [x] WEATHER_TEST (branch `feat/ashrae140-validation-weather`): `weather_test.py`, six cases
   WD100–WD600 (same building, different weather file, 10 min steps), annual averages of the
   weather variables and of total/beam/diffuse radiation on the horizontal and nine surfaces,
