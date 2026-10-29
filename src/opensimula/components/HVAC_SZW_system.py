@@ -30,6 +30,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         self.add_parameter(Parameter_float("air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_float("return_air_flow", 1, "m³/s", min=0))
         self.add_parameter(Parameter_math_exp("outdoor_air_fraction", "0", "frac"))
+        self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
         self.add_parameter(Parameter_math_exp("cooling_setpoint", "25", "°C"))
@@ -146,6 +147,12 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 f"{self.parameter('name').value}, must define its heating water system."
             )
             errors.append(Message(msg, "ERROR"))
+        # Test minimum outdoor air given only once
+        if _not_zero(self.parameter("outdoor_air_fraction").value) and _not_zero(
+            self.parameter("outdoor_air_flow").value
+        ):
+            msg = f"{self.parameter('name').value}, outdoor_air_fraction and outdoor_air_flow cannot be used at the same time."
+            errors.append(Message(msg, "ERROR"))
         # Test file_met defined
         if self.project().parameter("simulation_file_met").value == "not_defined":
             msg = f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'."
@@ -199,6 +206,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         # outdoor air fraction
         self.F_OA_min = self.parameter("outdoor_air_fraction").evaluate(var_dic)
         self.F_OA = self.F_OA_min
+        self.V_OA = self.parameter("outdoor_air_flow").evaluate(var_dic)
         # setpoints
         self.T_heat_sp = self.parameter("heating_setpoint").evaluate(var_dic)
         self.variable("heating_setpoint").values[time_index] = self.T_heat_sp
@@ -218,10 +226,6 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         self.epsilon_adp = 0
         # Initial mass flows
         self.m_air_supply = self.air_flow * self.props["RHO_A"]
-        if self.return_fan is None:  # No return fan
-            self.v_air_return = self.air_flow * (1 - self.F_OA)
-        else:  # Return fan
-            self.v_air_return = self.return_air_flow
 
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
@@ -245,8 +249,11 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
             self.T_ZA, self.w_ZA / 1000, self.props["ATM_PRESSURE"]
         )
         self.w_RA = self.w_ZA
-        self.m_air_return = self.v_air_return * rho_ZA
-        if self.return_fan is None:  # No return fan
+        if self.V_OA > 0:
+            self._set_outdoor_air_from_flow(rho_ZA)
+        # Zone mass balance: the minimum outdoor air is exhausted from the zone
+        self.m_air_return = self.m_air_supply * (1 - self.F_OA_min)
+        if self.return_fan is None or self.m_air_return <= 0:  # No return fan
             self.Q_return_fan_required = 0
             self.T_RA = self.T_ZA
         else:
@@ -257,6 +264,12 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
             self.T_RA = self.T_ZA + Q_return_fan / (
                 self.m_air_return * self.props["C_PA"]
             )
+
+    def _set_outdoor_air_from_flow(self, rho_ZA):
+        # Outdoor air flow given at zone air conditions (the air exhausted from the zone)
+        self.F_OA_min = min(self.V_OA * rho_ZA / self.m_air_supply, 1)
+        if self.parameter("economizer").value == "NO" or self.F_OA < self.F_OA_min:
+            self.F_OA = self.F_OA_min
 
     def _calculate_required_Q(self):
         K_t, F_t = self.space.get_thermal_equation(False)
@@ -583,3 +596,10 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 self.variable("T_ADP").values[time_index] = self.T_ADP
                 self.variable("epsilon").values[time_index] = self.epsilon
                 self.variable("epsilon_adp").values[time_index] = self.epsilon_adp
+
+
+def _not_zero(expression):
+    try:
+        return float(expression) != 0
+    except ValueError:  # Expression with variables
+        return True

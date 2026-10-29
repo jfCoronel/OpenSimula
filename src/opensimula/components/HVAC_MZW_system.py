@@ -58,6 +58,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             )
         )
         self.add_parameter(Parameter_math_exp("outdoor_air_fraction", "0", "frac"))
+        self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("supply_heating_setpoint", "10", "°C"))
         self.add_parameter(Parameter_math_exp("supply_cooling_setpoint", "15", "°C"))
@@ -214,6 +215,16 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 f"{self.parameter('name').value}, must define its reheat water system."
             )
             errors.append(Message(msg, "ERROR"))
+        # Test minimum outdoor air given only once
+        if _not_zero(self.parameter("outdoor_air_fraction").value) and _not_zero(
+            self.parameter("outdoor_air_flow").value
+        ):
+            msg = f"{self.parameter('name').value}, outdoor_air_fraction and outdoor_air_flow cannot be used at the same time."
+            errors.append(Message(msg, "ERROR"))
+        # VAV systems get the outdoor air from the return air flow
+        if self.parameter("vav").value and _not_zero(self.parameter("outdoor_air_flow").value):
+            msg = f"{self.parameter('name').value}, outdoor_air_flow cannot be used in VAV systems."
+            errors.append(Message(msg, "ERROR"))
         # Test file_met defined
         if self.project().parameter("simulation_file_met").value == "not_defined":
             msg = f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'."
@@ -286,6 +297,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         # outdoor air fraction
         self.F_OA_min = self.parameter("outdoor_air_fraction").evaluate(var_dic)
         self.F_OA = self.F_OA_min
+        self.V_OA = self.parameter("outdoor_air_flow").evaluate(var_dic)
         # setpoints
         self.T_heat_sp = self.parameter("supply_heating_setpoint").evaluate(var_dic)
         self.variable("supply_heating_setpoint").values[time_index] = self.T_heat_sp
@@ -350,19 +362,25 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         # Calculate F_OA based on return air flow
         if self.is_vav:
             self.F_OA = (self.air_flow * self.F_flow_total - v_return) / (self.air_flow* self.F_flow_total)
+        elif self.V_OA > 0:
+            self._set_outdoor_air_from_flow(rho_ZA)
 
-        # Return fan
-        if self.return_fan is None:  # No return fan
-            self.m_return = self.air_flow * (1 - self.F_OA) * rho_ZA
+        # Zone mass balance: the minimum outdoor air is exhausted from the zones
+        self.m_return = self.m_air_supply * (1 - self.F_OA)
+        if self.return_fan is None or self.m_return <= 0:  # No return fan
             self.T_RA = self.T_ZA
         else:
             # Calculate flow fraction in return fan
-            self.m_return = v_return * rho_ZA
             Q_return_fan = self._get_fan_power(
                 "return", self.F_load, v_return/self.return_air_flow
             )
             self.T_RA = Q_return_fan / (self.m_return * self.props["C_PA"]) + self.T_ZA
           
+
+    def _set_outdoor_air_from_flow(self, rho_ZA):
+        # Outdoor air flow given at zone air conditions (the air exhausted from the zones)
+        self.F_OA_min = min(self.V_OA * rho_ZA / self.m_air_supply, 1)
+        self.F_OA = self.F_OA_min
 
     def _calculate_mixed_air(self, f_oa):
         # Mixed air
@@ -717,3 +735,10 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 self.variable("T_ADP").values[time_index] = self.T_ADP
                 self.variable("epsilon").values[time_index] = self.epsilon
                 self.variable("epsilon_adp").values[time_index] = self.epsilon_adp
+
+
+def _not_zero(expression):
+    try:
+        return float(expression) != 0
+    except ValueError:  # Expression with variables
+        return True

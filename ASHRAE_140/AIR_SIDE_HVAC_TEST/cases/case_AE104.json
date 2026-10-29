@@ -198,7 +198,7 @@
             "cooling_coil": "coil",
             "supply_fan": "supply_fan",
             "air_flow": 0.28317,
-            "outdoor_air_fraction": 0.33333,
+            "outdoor_air_flow": 0.09439,
             "cooling_water_flow": 0.3415,
             "cooling_setpoint": "23.889",
             "heating_setpoint": "0",
