@@ -1,7 +1,9 @@
 from opensimula.Message import Message
 from opensimula.Parameters import Parameter_float, Parameter_float_list, Parameter_math_exp, Parameter_options, Parameter_boolean
 from opensimula.Component import Component
-from scipy.optimize import fsolve
+from scipy.optimize import fsolve, brentq
+import math
+import psychrolib as sicro
 
 class DX_unit(Component):
     def __init__(self, name, project):
@@ -24,7 +26,7 @@ class DX_unit(Component):
         self.add_parameter(Parameter_math_exp("heating_capacity_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("heating_power_expression", "1", "frac"))
         self.add_parameter(Parameter_math_exp("COP_expression", "1", "frac"))
-        self.add_parameter(Parameter_options("dry_coil_model", "SENSIBLE", ["TOTAL", "SENSIBLE"]))
+        self.add_parameter(Parameter_options("dry_coil_model", "SENSIBLE", ["TOTAL", "SENSIBLE", "ADP"]))
         self.add_parameter(Parameter_options("indoor_fan_operation", "CONTINUOUS", ["CONTINUOUS", "CYCLING"]))
         self.add_parameter(Parameter_boolean("power_dry_coil_correction", True))
         self.add_parameter(Parameter_float_list("expression_max_values", [60,30,60,30,1.5,1], "-"))
@@ -41,6 +43,11 @@ class DX_unit(Component):
             errors.append(Message(msg, "ERROR"))
         return errors
         
+    def pre_simulation(self, n_time_steps, delta_t):
+        super().pre_simulation(n_time_steps, delta_t)
+        self._A_0 = None  # Bypass factor constant, calculated at the first cooling call
+        self._T_iwb_dry = None
+
     def get_heating_load(self,T_idb,T_iwb,T_odb,T_owb,F_air,Q_required):
         """
         Q_required: Required heating load
@@ -118,7 +125,11 @@ class DX_unit(Component):
             sensible_capacity = self.parameter("nominal_sensible_cooling_capacity").value
             f = self.parameter("sensible_cooling_capacity_expression").evaluate(var_dic)
             sensible_capacity = sensible_capacity * f
-            if (sensible_capacity > total_capacity):
+            self._T_iwb_dry = None
+            if self.parameter("dry_coil_model").value == "ADP":
+                total_capacity, sensible_capacity = self._adp_capacities(
+                    T_idb, T_iwb, T_odb, T_owb, F_air, total_capacity, sensible_capacity)
+            elif (sensible_capacity > total_capacity):
                 if self.parameter("dry_coil_model").value == "SENSIBLE":
                     total_capacity = sensible_capacity
                 elif self.parameter("dry_coil_model").value == "TOTAL":
@@ -164,7 +175,10 @@ class DX_unit(Component):
         
     def _get_correct_cooling_power(self,total_capacity, sensible_capacity, var_dic):
         power = self.parameter("nominal_cooling_power").value
-        if (sensible_capacity == total_capacity and self.parameter("power_dry_coil_correction").value):
+        if self.parameter("dry_coil_model").value == "ADP":
+            if self._T_iwb_dry is not None and self.parameter("power_dry_coil_correction").value:
+                var_dic["T_iwb"] = self._T_iwb_dry
+        elif (sensible_capacity == total_capacity and self.parameter("power_dry_coil_correction").value):
             T_iwb_min = self._get_min_T_iwb(var_dic)
             var_dic["T_iwb"] = T_iwb_min
         f = self.parameter("cooling_power_expression").evaluate(var_dic)
@@ -180,6 +194,78 @@ class DX_unit(Component):
         root = fsolve(func, var_dic["T_iwb"],xtol=1e-3)
         return root[0]
     
+    # Apparatus dew point (ADP) / bypass factor (BF) dry coil model:
+    # BF = exp(-A_0/m), A_0 from the nominal capacities; the coil is dry when the humidity
+    # ratio of the ADP is not below the inlet one.
+    def _adp_capacities(self, T_idb, T_iwb, T_odb, T_owb, F_air, total_capacity, sensible_capacity):
+        p = self._sim_.props["ATM_PRESSURE"]
+        if getattr(self, "_A_0", None) is None:  # also used outside a simulation
+            self._A_0 = self._get_A_0(p)
+        w_in = sicro.GetHumRatioFromTWetBulb(T_idb, min(T_iwb, T_idb), p)
+        m_air = self._air_mass_flow(T_idb, w_in, F_air, p)
+        w_adp, SHR = self._adp_state(T_idb, w_in, m_air, total_capacity, p)
+        if w_adp >= w_in:  # Dry coil: capacity at the wet bulb of the dry/wet boundary
+            T_iwb_dry = self._get_dry_T_iwb(T_idb, T_iwb, T_odb, T_owb, F_air, m_air, p)
+            var_dic = self._var_state_dic([T_idb, T_iwb_dry, T_odb, T_owb, F_air, 1])
+            total_capacity = (self.parameter("nominal_total_cooling_capacity").value
+                              * self.parameter("total_cooling_capacity_expression").evaluate(var_dic))
+            self._T_iwb_dry = T_iwb_dry
+            return (total_capacity, total_capacity)
+        # Wet coil: the latent capacity cannot exceed that of the ADP model
+        sensible_capacity = max(sensible_capacity, total_capacity * SHR)
+        if sensible_capacity > total_capacity:
+            total_capacity = sensible_capacity
+        return (total_capacity, sensible_capacity)
+
+    def _get_A_0(self, p):
+        T_idb, T_iwb, _ = self.parameter("nominal_cooling_conditions").value
+        Q_tot = self.parameter("nominal_total_cooling_capacity").value
+        Q_sen = self.parameter("nominal_sensible_cooling_capacity").value
+        w_in = sicro.GetHumRatioFromTWetBulb(T_idb, T_iwb, p)
+        m_air = self._air_mass_flow(T_idb, w_in, 1, p)
+        h_in = sicro.GetMoistAirEnthalpy(T_idb, w_in)
+        h_out = h_in - Q_tot / m_air
+        c_p = sicro.GetMoistAirEnthalpy(1, w_in) - sicro.GetMoistAirEnthalpy(0, w_in)
+        T_out = T_idb - Q_sen / (m_air * c_p)
+        w_out = sicro.GetHumRatioFromEnthalpyAndTDryBulb(h_out, T_out)
+        # ADP: the line through inlet and outlet states meets the saturation curve
+        def func(T):
+            return sicro.GetSatHumRatio(T, p) - (w_in + (w_out - w_in) * (T - T_idb) / (T_out - T_idb))
+        T_adp = brentq(func, -40, T_out)
+        BF = (T_out - T_adp) / (T_idb - T_adp)
+        return -math.log(BF) * m_air
+
+    def _air_mass_flow(self, T_idb, w_in, F_air, p):
+        return self.parameter("nominal_air_flow").value * F_air / sicro.GetMoistAirVolume(T_idb, w_in, p)
+
+    def _adp_state(self, T_idb, w_in, m_air, total_capacity, p):
+        """Humidity ratio of the ADP and sensible heat ratio for the given total capacity"""
+        BF = math.exp(-self._A_0 / m_air)
+        h_in = sicro.GetMoistAirEnthalpy(T_idb, w_in)
+        h_adp = h_in - total_capacity / m_air / (1 - BF)
+        if h_adp >= sicro.GetSatAirEnthalpy(T_idb, p):  # No capacity: dry
+            return (sicro.GetSatHumRatio(T_idb, p), 1)
+        if h_adp <= sicro.GetSatAirEnthalpy(-60, p):
+            return (0, 0)
+        T_adp = brentq(lambda T: sicro.GetSatAirEnthalpy(T, p) - h_adp, -60, T_idb)
+        w_adp = sicro.GetSatHumRatio(T_adp, p)
+        h_tin_wadp = sicro.GetMoistAirEnthalpy(T_idb, w_adp)
+        SHR = min((h_tin_wadp - h_adp) / (h_in - h_adp), 1)
+        return (w_adp, SHR)
+
+    def _get_dry_T_iwb(self, T_idb, T_iwb, T_odb, T_owb, F_air, m_air, p):
+        """Inlet wet bulb temperature at which the coil starts to be wet"""
+        def func(T_wb):
+            var_dic = self._var_state_dic([T_idb, T_wb, T_odb, T_owb, F_air, 1])
+            total = (self.parameter("nominal_total_cooling_capacity").value
+                     * self.parameter("total_cooling_capacity_expression").evaluate(var_dic))
+            w = sicro.GetHumRatioFromTWetBulb(T_idb, T_wb, p)
+            return self._adp_state(T_idb, w, m_air, total, p)[0] - w
+        T_wb_min = min(T_iwb, T_idb)
+        if func(T_idb) >= 0:  # Dry even at saturation
+            return T_idb
+        return brentq(func, T_wb_min, T_idb, xtol=1e-3)
+
     def get_fan_power(self, f_load):
         if self.parameter("indoor_fan_operation").value == "CONTINUOUS":
             return self.parameter("indoor_fan_power").value

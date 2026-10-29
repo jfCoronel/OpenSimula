@@ -47,3 +47,24 @@ def test_points():
     assert dry_coil_Q[2] == pytest.approx(0,rel=1e-2)
 
 
+
+
+def test_adp_dry_coil_model():
+    sim = osim.Simulation()
+    pro = sim.new_project("pro")
+    pro.read_dict(case_dict)
+    dx = pro.component("HVAC_equipment")
+    dx.parameter("dry_coil_model").value = "ADP"
+
+    # Nominal conditions: the bypass factor reproduces the nominal sensible heat ratio
+    Q_eq, Q_sen, Q_lat, F_load = dx.get_cooling_load(26.7, 19.4, 35, 25, 1, -6136)
+    assert Q_sen / (Q_sen + Q_lat) == pytest.approx(6136 / 7951, rel=2e-2)
+    # Dry inlet air (26.7 °C, 13 °C wet bulb): dry coil, no latent load
+    Q_eq, Q_sen, Q_lat, F_load = dx.get_cooling_load(26.7, 13, 35, 25, 1, -3000)
+    assert Q_lat == 0
+    assert dx._T_iwb_dry > 13
+    # The latent capacity goes to 0 continuously approaching the dry/wet boundary
+    T_wb = dx._T_iwb_dry
+    lat = [dx.get_cooling_load(26.7, T_wb + dT, 35, 25, 1, -3000)[2] for dT in (0.05, 0.5, 1)]
+    assert 0 <= lat[0] < lat[1] < lat[2]
+    assert lat[0] < 0.1 * lat[2]

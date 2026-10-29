@@ -161,8 +161,19 @@ Next steps, one PR each:
     T_iwb 13.7–14.4 °C, below the catalogue minimum (15 °C): extrapolated polynomials (the
     sensible fit has R² 0.991). The analytical solution and the programs use an
     apparatus-dew-point / bypass-factor coil, ~0.3–0.7 g/kg higher. Loads are not affected
-    (the coil is dry in February in all of them). Possible feature: ADP/bypass-factor dry-coil
-    criterion in `DX_unit`.
+    (the coil is dry in February in all of them). **Done (2026-10-29, branch
+    `feat/dx-dry-coil`):** `DX_unit` option `dry_coil_model = "ADP"` (apparatus dew point /
+    bypass factor; BF from the nominal point, scaled with the air mass flow; dry when the ADP
+    humidity ratio is not below the inlet one, the dry capacity at the wet bulb of the
+    dry/wet boundary; wet coil: sensible = max(expression, total × SHR_ADP), so the latent
+    goes to 0 continuously). Used in the 34 CE cases. COOLING_A 227 → 259/266, COOLING_B
+    423 → 422/519 (profiles 232 → 230). Variants tried: ADP only as dry/wet criterion (wet
+    coil from the expressions) 223 and 418, worse; the ADP limit only below the catalogue
+    wet bulb (15 °C) makes a jump in the capacity and a case did not converge. **CE430**
+    (enthalpy economizer) loses 7 values: the ADP limit lowers the latent removal slightly
+    in ~20 % of the spring hours, and the enthalpy economizer amplifies it (moister zone →
+    more humid outdoor air): May zone w 10.16 → 10.75 g/kg, annual coil sensible −6 %,
+    latent −4 %, w_mean 1 % above the range. Accepted and documented.
   - *CE500–CE545, zone RH 100 %* → **initial conditions.** No infiltration, outdoor air or
     winter gains, so the zone keeps the default initial humidity (Building
     `initial_humidity` 7.3 g/kg) until spring and saturates at ~9 °C in January (CE530:
