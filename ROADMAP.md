@@ -260,7 +260,16 @@ Next steps, one PR each:
     13370 model) except the water-table cases GC55b (2 m) and GC55c (5 m); now
     `groundwater_depth` = 15 in the other 12. GC50b (80 × 80 m) annual floor conduction
     205 699 → 302 865 kWh (range 277 923–324 257, inside; its peak now 1.7 % above); the
-    rest +0.7 %; GC45b (36 × 4 m) unchanged, ~1 % below. Values 55 → 57/68, hourly
+    rest +0.7 %; GC45b (36 × 4 m) unchanged, ~1 % below. **Periodic part fixed (2026-10-29, branch
+    `fix/ground-periodic`):** the amplitude of the equivalent exterior ground temperature used
+    λ/√((0.457·B' + d_t)² + δ²), almost independent of the slab shape; now the ISO 13370
+    periodic external coefficient H_pe = 0.37·P·λ·ln(δ/d_t + 1), proportional to the
+    perimeter (per m²: GC40b 0.47 → 0.55, GC45b 0.58 → 0.91, GC50b 0.15 → 0.08 W/m²K). GROUND
+    71 → 78/82 values, hourly points 7888 → 8760/17520, none lost: GC45b peak −8 % → −1.2 %
+    below the range, GC50b/GC70b/GC80b/GC55c peaks inside. **Remaining, closed as a model
+    limitation:** the 4 GC45b values (annual and peak floor/zone conduction) ~1 % below the
+    lowest reference, from the steady-state ISO 13370 transmittance of a narrow slab
+    (B' = 3.6 m). Values 55 → 57/68, hourly
     7393 → 7888/17520. Rest of Table 8-1 / Section 8.2.1 checked in the case files (soil,
     adiabatic massless walls, volume, initial 10 °C, set points, h = 100, slab 0.01 m, wall
     0.24 m). Sections 8.2.1.2–8.2.1.9 (b-series) checked too: GC45b 36 × 4 m, GC50b

@@ -159,7 +159,7 @@ The following figures show the surface coordinate system versus the building coo
 
 ![Polygon surface coordinate system](img/polygon_surface_coordinate_system.png)
 
-The simulation of slabs in contact with the ground is carried out for the “UNDERGROUND” surface_type in accordance with the provisions of standard UNE-EN ISO 13370:2017 in Appendix F: Application to dynamic calculation programs.
+The simulation of slabs in contact with the ground is carried out for the “UNDERGROUND” surface_type in accordance with the provisions of standard UNE-EN ISO 13370:2017 in Appendix F: Application to dynamic calculation programs. The steady-state transmittance of the slab follows the characteristic dimension B' = 2A/P, and the annual oscillation of the ground is applied through the periodic external heat transfer coefficient of the standard, H_pe = 0.37·P·λ·ln(δ/d_t + 1), proportional to the exposed perimeter P (δ: periodic penetration depth of the ground for the annual cycle, d_t: equivalent thickness of the floor).
 
 **Example:**
 <pre><code class="python">

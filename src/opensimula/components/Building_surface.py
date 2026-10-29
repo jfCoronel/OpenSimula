@@ -268,8 +268,10 @@ class Building_surface(Surface):
             self.parameter("ground_material").component.parameter("specific_heat").value
         )
         d_p = math.sqrt((self._k_g_ * periodo_segundos) / (math.pi * rho_g * c_p_g))
-        self._U_hat_ext_ = self._G_w_ * self._k_g_ / math.sqrt(
-            (0.457 * self._B_prime_ + self._d_t_) ** 2 + d_p**2
+        # Periodic external heat transfer coefficient, UNE-EN ISO 13370:2017 (H_pe), per m²
+        P = self.perimeter * self.parameter("exterior_perimeter_fraction").value
+        self._U_hat_ext_ = (
+            self._G_w_ * 0.37 * P * self._k_g_ * math.log(d_p / self._d_t_ + 1) / self.area
         )
 
     def _create_openings_list_(self):
