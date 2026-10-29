@@ -3,7 +3,21 @@
 Working notes for resuming development on OpenSimula from any machine. This file is for
 the maintainer, not end users — it is not part of the published docs (`mkdocs/`).
 
-## Where things stand (2026-10-28)
+## Where things stand (2026-10-29)
+
+- **v0.8.10 released (2026-10-29)**: PyPI, GitHub release `v0.8.10`, Zenodo version DOI
+  10.5281/zenodo.23762605. All the open ASHRAE 140 items of 0.8.9 were worked on (PRs
+  #24–#27, details in the test group sections below): outdoor air volumetric flow (AE),
+  case 950 closed, exact exterior long wave radiation (heating level), DX ADP dry coil,
+  ISO 13370 periodic ground coefficient (GC45b closed as a limitation). Validation: 2,446
+  of 2,740 values inside the reference range (2,379 in 0.8.9).
+- **JOSS**: pre-review issue openjournals/joss-reviews#11495 (Managing EiC Matthew
+  Feickert, editor/reviewers pending). The EiC asked about the repository history and the
+  scope/significance (single contributor, no external interaction); answered on
+  2026-10-29. Next: wait for the scope decision; during the review update `paper/paper.md`
+  to 0.8.10 (validation figures and numbers, and the Validation sentence that blames the
+  constant interior convection for the heating level: the main cause was the exterior long
+  wave linearization, fixed in 0.8.10), then `@editorialbot generate pdf`.
 
 - **v0.8.9 released (2026-10-28)**: PyPI, GitHub release `v0.8.9`, Zenodo version DOI
   10.5281/zenodo.23731882. **Paper submitted to JOSS** the same day (subject: Mechanical
