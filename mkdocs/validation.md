@@ -1764,7 +1764,7 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 
 ## Ground-coupled slab-on-grade tests (GC30b–GC80c)
 
-Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC, TRNSYS, VA114 (example results from `Std140_GC_Results.xlsx`). **71 of 82 values inside the reference range; 7888 of 17520 profile points (hourly, monthly…).**
+Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC, TRNSYS, VA114 (example results from `Std140_GC_Results.xlsx`). **78 of 82 values inside the reference range; 8760 of 17520 profile points (hourly, monthly…).**
 
 ### Steady-state cases
 
@@ -1862,8 +1862,8 @@ Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC,
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Annual hourly maximum floor conduction (Wh/h) | 10 | 6 | 4 |
-| Annual hourly maximum zone heating load (Wh/h) | 10 | 5 | 5 |
+| Annual hourly maximum floor conduction (Wh/h) | 10 | 9 | 1 |
+| Annual hourly maximum zone heating load (Wh/h) | 10 | 9 | 1 |
 | Annual minimum outdoor dry bulb (°C) | 10 | 10 | 0 |
 | Hours at the annual minimum outdoor dry bulb (h) | 10 | 10 | 0 |
 
@@ -1873,31 +1873,31 @@ Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC,
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| GC40b | 2822.007 | 02-Feb 9 | 2710.200 | 3004.843 | 7 | ✓ inside |
-| GC45b | 3982.547 | 02-Feb 5 | 4318.000 | 4550.930 | 5 | ✗ -7.8 % below min |
-| GC50b | 40253.364 | 02-Feb 15 | 34510.160 | 39569.943 | 5 | ✗ +1.7 % above max |
-| GC55b | 4242.335 | 02-Feb 4 | 4085.000 | 4859.684 | 6 | ✓ inside |
-| GC70b | 2303.342 | 03-Feb 19 | 1905.897 | 2276.372 | 6 | ✗ +1.2 % above max |
-| GC80b | 782.161 | 07-Feb 9 | 722.400 | 793.632 | 6 | ✓ inside |
-| GC40c | 2485.875 | 03-Feb 17 | 2224.000 | 2650.387 | 7 | ✓ inside |
-| GC45c | 3429.606 | 03-Feb 9 | 3178.000 | 3826.683 | 7 | ✓ inside |
-| GC55c | 2935.670 | 03-Feb 13 | 2659.000 | 2925.849 | 7 | ✗ +0.3 % above max |
-| GC80c | 1227.278 | 05-Feb 24 | 1091.000 | 1299.782 | 7 | ✓ inside |
+| GC40b | 2886.590 | 02-Feb 9 | 2710.200 | 3004.843 | 7 | ✓ inside |
+| GC45b | 4267.537 | 02-Feb 5 | 4318.000 | 4550.930 | 5 | ✗ -1.2 % below min |
+| GC50b | 39162.621 | 02-Feb 15 | 34510.160 | 39569.943 | 5 | ✓ inside |
+| GC55b | 4339.428 | 02-Feb 4 | 4085.000 | 4859.684 | 6 | ✓ inside |
+| GC70b | 2253.322 | 03-Feb 19 | 1905.897 | 2276.372 | 6 | ✓ inside |
+| GC80b | 749.132 | 07-Feb 9 | 722.400 | 793.632 | 6 | ✓ inside |
+| GC40c | 2471.521 | 03-Feb 17 | 2224.000 | 2650.387 | 7 | ✓ inside |
+| GC45c | 3576.849 | 03-Feb 9 | 3178.000 | 3826.683 | 7 | ✓ inside |
+| GC55c | 2918.717 | 03-Feb 13 | 2659.000 | 2925.849 | 7 | ✓ inside |
+| GC80c | 1184.293 | 05-Feb 24 | 1091.000 | 1299.782 | 7 | ✓ inside |
 
 #### Annual hourly maximum zone heating load (Wh/h)
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| GC40b | 2822.762 | 02-Feb 5 | 2710.200 | 3004.843 | 3 | ✓ inside |
-| GC45b | 3983.542 | 02-Feb 4 | 4328.000 | 4414.522 | 2 | ✗ -8.0 % below min |
-| GC50b | 40273.312 | 02-Feb 5 | 36021.000 | 39569.943 | 2 | ✗ +1.8 % above max |
-| GC55b | 4243.091 | 02-Feb 4 | 4093.000 | 4859.684 | 3 | ✓ inside |
-| GC70b | 2304.088 | 04-Feb 4 | 1905.897 | 2259.000 | 3 | ✗ +2.0 % above max |
-| GC80b | 782.913 | 07-Feb 5 | 722.400 | 765.809 | 3 | ✗ +2.2 % above max |
-| GC40c | 2486.618 | 04-Feb 4 | 2261.000 | 2650.387 | 4 | ✓ inside |
-| GC45c | 3430.600 | 03-Feb 5 | 3228.000 | 3826.683 | 4 | ✓ inside |
-| GC55c | 2936.419 | 03-Feb 5 | 2690.000 | 2925.849 | 4 | ✗ +0.4 % above max |
-| GC80c | 1228.031 | 06-Feb 4 | 1122.000 | 1299.782 | 4 | ✓ inside |
+| GC40b | 2887.345 | 02-Feb 5 | 2710.200 | 3004.843 | 3 | ✓ inside |
+| GC45b | 4268.532 | 02-Feb 4 | 4328.000 | 4414.522 | 2 | ✗ -1.4 % below min |
+| GC50b | 39182.594 | 02-Feb 5 | 36021.000 | 39569.943 | 2 | ✓ inside |
+| GC55b | 4340.185 | 02-Feb 4 | 4093.000 | 4859.684 | 3 | ✓ inside |
+| GC70b | 2254.069 | 04-Feb 4 | 1905.897 | 2259.000 | 3 | ✓ inside |
+| GC80b | 749.884 | 07-Feb 5 | 722.400 | 765.809 | 3 | ✓ inside |
+| GC40c | 2472.264 | 04-Feb 4 | 2261.000 | 2650.387 | 4 | ✓ inside |
+| GC45c | 3577.842 | 03-Feb 5 | 3228.000 | 3826.683 | 4 | ✓ inside |
+| GC55c | 2919.465 | 03-Feb 5 | 2690.000 | 2925.849 | 4 | ✓ inside |
+| GC80c | 1185.046 | 06-Feb 4 | 1122.000 | 1299.782 | 4 | ✓ inside |
 
 #### Annual minimum outdoor dry bulb (°C)
 
@@ -1935,8 +1935,8 @@ Reference programs: BASECALC, EnergyPlus, ESP-r, FLUENT, GHT, MATLAB, SUNREL-GC,
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| GC40b | Hourly floor conduction, final year (Wh/h) | 8760 | 0 | 121 Wh/h |
-| GC40c | Hourly floor conduction, final year (Wh/h) | 8760 | 7888 | 12.2 Wh/h |
+| GC40b | Hourly floor conduction, final year (Wh/h) | 8760 | 0 | 172 Wh/h |
+| GC40c | Hourly floor conduction, final year (Wh/h) | 8760 | 8760 | – |
 
 ## Air-side HVAC equipment tests (AE101–AE445)
 
