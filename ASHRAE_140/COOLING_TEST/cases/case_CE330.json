@@ -536,6 +536,7 @@
         },
         {
             "type": "DX_unit",
+            "dry_coil_model": "ADP",
             "name": "HVAC_equipment",
             "nominal_air_flow": 1.888,
             "nominal_total_cooling_capacity": 33277,
