@@ -8,14 +8,14 @@ The range shows how much well-established programs differ from each other; it is
 
 ## Building thermal envelope and fabric load tests (Section 7)
 
-Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example results from `Std140_TF_Results.xlsx`). **184 of 219 values inside the reference range; 1171 of 1397 profile points (hourly, monthly…).**
+Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example results from `Std140_TF_Results.xlsx`). **195 of 219 values inside the reference range; 1213 of 1397 profile points (hourly, monthly…).**
 
 ### Annual loads
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Annual heating load (MWh) | 46 | 32 | 14 |
-| Annual cooling load (MWh) | 46 | 39 | 7 |
+| Annual heating load (MWh) | 46 | 45 | 1 |
+| Annual cooling load (MWh) | 46 | 37 | 9 |
 
 ![Annual loads](img/validation/load_test_1.png)
 
@@ -23,109 +23,109 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| 600 | 4.470 | 3.993 | 4.504 | 6 | ✓ inside |
-| 610 | 4.604 | 4.066 | 4.592 | 6 | ✗ +0.2 % above max |
-| 620 | 4.703 | 4.094 | 4.719 | 6 | ✓ inside |
-| 630 | 5.123 | 4.356 | 5.139 | 6 | ✓ inside |
-| 640 | 2.620 | 2.403 | 2.682 | 6 | ✓ inside |
+| 600 | 4.337 | 3.993 | 4.504 | 6 | ✓ inside |
+| 610 | 4.467 | 4.066 | 4.592 | 6 | ✓ inside |
+| 620 | 4.555 | 4.094 | 4.719 | 6 | ✓ inside |
+| 630 | 4.964 | 4.356 | 5.139 | 6 | ✓ inside |
+| 640 | 2.505 | 2.403 | 2.682 | 6 | ✓ inside |
 | 650 | 0.000 | 0.000 | 0.000 | 6 | ✓ inside |
-| 660 | 3.919 | 3.574 | 3.821 | 6 | ✗ +2.6 % above max |
-| 670 | 6.088 | 5.300 | 6.140 | 6 | ✓ inside |
-| 680 | 2.229 | 1.732 | 2.286 | 6 | ✓ inside |
-| 685 | 5.056 | 4.532 | 5.042 | 6 | ✗ +0.3 % above max |
-| 695 | 2.883 | 2.385 | 2.892 | 6 | ✓ inside |
-| 900 | 1.763 | 1.379 | 1.814 | 6 | ✓ inside |
-| 910 | 2.192 | 1.648 | 2.163 | 6 | ✗ +1.3 % above max |
-| 920 | 3.526 | 2.956 | 3.607 | 6 | ✓ inside |
-| 930 | 4.343 | 3.524 | 4.384 | 6 | ✓ inside |
-| 940 | 1.120 | 0.863 | 1.389 | 6 | ✓ inside |
+| 660 | 3.801 | 3.574 | 3.821 | 6 | ✓ inside |
+| 670 | 5.925 | 5.300 | 6.140 | 6 | ✓ inside |
+| 680 | 2.161 | 1.732 | 2.286 | 6 | ✓ inside |
+| 685 | 4.919 | 4.532 | 5.042 | 6 | ✓ inside |
+| 695 | 2.811 | 2.385 | 2.892 | 6 | ✓ inside |
+| 900 | 1.657 | 1.379 | 1.814 | 6 | ✓ inside |
+| 910 | 2.070 | 1.648 | 2.163 | 6 | ✓ inside |
+| 920 | 3.373 | 2.956 | 3.607 | 6 | ✓ inside |
+| 930 | 4.179 | 3.524 | 4.384 | 6 | ✓ inside |
+| 940 | 1.045 | 0.863 | 1.389 | 6 | ✓ inside |
 | 950 | 0.000 | 0.000 | 0.000 | 6 | ✓ inside |
-| 960 | 2.772 | 2.522 | 2.860 | 5 | ✓ inside |
-| 980 | 0.423 | 0.246 | 0.720 | 6 | ✓ inside |
-| 985 | 2.530 | 2.120 | 2.801 | 6 | ✓ inside |
-| 995 | 1.018 | 0.755 | 1.330 | 6 | ✓ inside |
-| 195 | 4.236 | 3.951 | 4.217 | 6 | ✗ +0.4 % above max |
-| 200 | 5.252 | 4.813 | 5.226 | 6 | ✗ +0.5 % above max |
-| 210 | 6.354 | 5.627 | 6.531 | 6 | ✓ inside |
-| 215 | 5.717 | 5.181 | 5.697 | 6 | ✗ +0.4 % above max |
-| 220 | 7.018 | 6.377 | 7.178 | 6 | ✓ inside |
-| 230 | 10.218 | 9.812 | 10.417 | 6 | ✓ inside |
-| 240 | 5.811 | 5.116 | 5.944 | 6 | ✓ inside |
-| 250 | 5.372 | 4.733 | 5.373 | 6 | ✓ inside |
-| 270 | 4.695 | 4.273 | 4.631 | 5 | ✗ +1.4 % above max |
-| 280 | 4.991 | 4.525 | 4.870 | 5 | ✗ +2.5 % above max |
-| 290 | 4.832 | 4.381 | 4.745 | 5 | ✗ +1.8 % above max |
-| 300 | 4.814 | 4.318 | 4.726 | 5 | ✗ +1.9 % above max |
-| 310 | 5.225 | 4.580 | 5.240 | 5 | ✓ inside |
-| 320 | 4.042 | 3.599 | 4.031 | 5 | ✗ +0.3 % above max |
-| 395 | 4.977 | 4.565 | 5.145 | 6 | ✓ inside |
-| 400 | 6.884 | 5.906 | 7.047 | 6 | ✓ inside |
-| 410 | 8.479 | 7.630 | 8.661 | 6 | ✓ inside |
-| 420 | 7.279 | 6.399 | 7.433 | 6 | ✓ inside |
-| 430 | 5.946 | 5.171 | 5.954 | 6 | ✓ inside |
-| 440 | 4.725 | 4.156 | 4.721 | 5 | ✓ inside |
-| 450 | 3.748 | 3.375 | 3.990 | 6 | ✓ inside |
-| 460 | 4.214 | 3.828 | 4.290 | 6 | ✓ inside |
-| 470 | 4.126 | 3.540 | 4.094 | 6 | ✗ +0.8 % above max |
-| 800 | 5.425 | 4.906 | 5.403 | 6 | ✗ +0.4 % above max |
-| 810 | 2.544 | 2.038 | 2.610 | 5 | ✓ inside |
+| 960 | 2.634 | 2.522 | 2.860 | 5 | ✓ inside |
+| 980 | 0.399 | 0.246 | 0.720 | 6 | ✓ inside |
+| 985 | 2.420 | 2.120 | 2.801 | 6 | ✓ inside |
+| 995 | 0.974 | 0.755 | 1.330 | 6 | ✓ inside |
+| 195 | 4.213 | 3.951 | 4.217 | 6 | ✓ inside |
+| 200 | 5.221 | 4.813 | 5.226 | 6 | ✓ inside |
+| 210 | 6.180 | 5.627 | 6.531 | 6 | ✓ inside |
+| 215 | 5.684 | 5.181 | 5.697 | 6 | ✓ inside |
+| 220 | 6.825 | 6.377 | 7.178 | 6 | ✓ inside |
+| 230 | 10.026 | 9.812 | 10.417 | 6 | ✓ inside |
+| 240 | 5.622 | 5.116 | 5.944 | 6 | ✓ inside |
+| 250 | 5.203 | 4.733 | 5.373 | 6 | ✓ inside |
+| 270 | 4.559 | 4.273 | 4.631 | 5 | ✓ inside |
+| 280 | 4.847 | 4.525 | 4.870 | 5 | ✓ inside |
+| 290 | 4.693 | 4.381 | 4.745 | 5 | ✓ inside |
+| 300 | 4.669 | 4.318 | 4.726 | 5 | ✓ inside |
+| 310 | 5.065 | 4.580 | 5.240 | 5 | ✓ inside |
+| 320 | 3.910 | 3.599 | 4.031 | 5 | ✓ inside |
+| 395 | 4.840 | 4.565 | 5.145 | 6 | ✓ inside |
+| 400 | 6.692 | 5.906 | 7.047 | 6 | ✓ inside |
+| 410 | 8.287 | 7.630 | 8.661 | 6 | ✓ inside |
+| 420 | 7.091 | 6.399 | 7.433 | 6 | ✓ inside |
+| 430 | 5.757 | 5.171 | 5.954 | 6 | ✓ inside |
+| 440 | 4.585 | 4.156 | 4.721 | 5 | ✓ inside |
+| 450 | 3.747 | 3.375 | 3.990 | 6 | ✓ inside |
+| 460 | 4.088 | 3.828 | 4.290 | 6 | ✓ inside |
+| 470 | 4.124 | 3.540 | 4.094 | 6 | ✗ +0.7 % above max |
+| 800 | 5.235 | 4.906 | 5.403 | 6 | ✓ inside |
+| 810 | 2.407 | 2.038 | 2.610 | 5 | ✓ inside |
 
 #### Annual cooling load (MWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| 600 | 5.942 | 5.432 | 6.162 | 6 | ✓ inside |
-| 610 | 4.135 | 4.117 | 4.382 | 6 | ✓ inside |
-| 620 | 4.111 | 3.841 | 4.404 | 6 | ✓ inside |
-| 630 | 2.745 | 2.573 | 3.074 | 6 | ✓ inside |
-| 640 | 5.625 | 5.237 | 5.893 | 6 | ✓ inside |
-| 650 | 4.773 | 4.186 | 4.945 | 6 | ✓ inside |
-| 660 | 3.230 | 2.966 | 3.340 | 6 | ✓ inside |
-| 670 | 6.059 | 5.954 | 6.623 | 6 | ✓ inside |
-| 680 | 6.511 | 5.932 | 6.529 | 6 | ✓ inside |
-| 685 | 8.929 | 8.238 | 9.130 | 6 | ✓ inside |
-| 695 | 9.168 | 8.386 | 9.172 | 6 | ✓ inside |
-| 900 | 2.573 | 2.267 | 2.714 | 6 | ✓ inside |
-| 910 | 1.360 | 1.191 | 1.490 | 6 | ✓ inside |
+| 600 | 5.971 | 5.432 | 6.162 | 6 | ✓ inside |
+| 610 | 4.162 | 4.117 | 4.382 | 6 | ✓ inside |
+| 620 | 4.115 | 3.841 | 4.404 | 6 | ✓ inside |
+| 630 | 2.740 | 2.573 | 3.074 | 6 | ✓ inside |
+| 640 | 5.654 | 5.237 | 5.893 | 6 | ✓ inside |
+| 650 | 4.803 | 4.186 | 4.945 | 6 | ✓ inside |
+| 660 | 3.245 | 2.966 | 3.340 | 6 | ✓ inside |
+| 670 | 6.022 | 5.954 | 6.623 | 6 | ✓ inside |
+| 680 | 6.542 | 5.932 | 6.529 | 6 | ✗ +0.2 % above max |
+| 685 | 8.969 | 8.238 | 9.130 | 6 | ✓ inside |
+| 695 | 9.204 | 8.386 | 9.172 | 6 | ✗ +0.4 % above max |
+| 900 | 2.603 | 2.267 | 2.714 | 6 | ✓ inside |
+| 910 | 1.377 | 1.191 | 1.490 | 6 | ✓ inside |
 | 920 | 2.805 | 2.549 | 3.128 | 6 | ✓ inside |
-| 930 | 1.857 | 1.654 | 2.161 | 6 | ✓ inside |
-| 940 | 2.496 | 2.203 | 2.613 | 6 | ✓ inside |
-| 950 | 0.771 | 0.586 | 0.707 | 6 | ✗ +9.1 % above max |
-| 960 | 0.800 | 0.789 | 0.950 | 5 | ✓ inside |
-| 980 | 3.907 | 3.501 | 3.995 | 6 | ✓ inside |
-| 985 | 6.421 | 5.880 | 7.273 | 6 | ✓ inside |
-| 995 | 7.303 | 6.771 | 7.482 | 6 | ✓ inside |
+| 930 | 1.854 | 1.654 | 2.161 | 6 | ✓ inside |
+| 940 | 2.526 | 2.203 | 2.613 | 6 | ✓ inside |
+| 950 | 0.768 | 0.586 | 0.707 | 6 | ✗ +8.6 % above max |
+| 960 | 0.789 | 0.789 | 0.950 | 5 | ✓ inside |
+| 980 | 3.967 | 3.501 | 3.995 | 6 | ✓ inside |
+| 985 | 6.489 | 5.880 | 7.273 | 6 | ✓ inside |
+| 995 | 7.367 | 6.771 | 7.482 | 6 | ✓ inside |
 | 195 | 0.653 | 0.592 | 0.712 | 6 | ✓ inside |
-| 200 | 0.855 | 0.788 | 0.839 | 6 | ✗ +1.9 % above max |
-| 210 | 0.577 | 0.459 | 0.688 | 6 | ✓ inside |
-| 215 | 0.935 | 0.850 | 0.952 | 6 | ✓ inside |
-| 220 | 0.632 | 0.498 | 0.803 | 6 | ✓ inside |
-| 230 | 1.019 | 0.897 | 1.184 | 6 | ✓ inside |
-| 240 | 0.979 | 0.834 | 1.287 | 6 | ✓ inside |
-| 250 | 3.180 | 2.904 | 3.612 | 6 | ✓ inside |
-| 270 | 7.451 | 6.698 | 7.522 | 5 | ✓ inside |
-| 280 | 5.120 | 4.215 | 5.206 | 5 | ✓ inside |
-| 290 | 5.540 | 5.310 | 5.743 | 5 | ✓ inside |
-| 300 | 5.235 | 4.805 | 5.152 | 5 | ✗ +1.6 % above max |
-| 310 | 3.590 | 3.128 | 3.752 | 5 | ✓ inside |
-| 320 | 4.996 | 4.420 | 4.986 | 5 | ✗ +0.2 % above max |
+| 200 | 0.856 | 0.788 | 0.839 | 6 | ✗ +2.0 % above max |
+| 210 | 0.581 | 0.459 | 0.688 | 6 | ✓ inside |
+| 215 | 0.936 | 0.850 | 0.952 | 6 | ✓ inside |
+| 220 | 0.637 | 0.498 | 0.803 | 6 | ✓ inside |
+| 230 | 1.024 | 0.897 | 1.184 | 6 | ✓ inside |
+| 240 | 0.988 | 0.834 | 1.287 | 6 | ✓ inside |
+| 250 | 3.136 | 2.904 | 3.612 | 6 | ✓ inside |
+| 270 | 7.508 | 6.698 | 7.522 | 5 | ✓ inside |
+| 280 | 5.171 | 4.215 | 5.206 | 5 | ✓ inside |
+| 290 | 5.593 | 5.310 | 5.743 | 5 | ✓ inside |
+| 300 | 5.280 | 4.805 | 5.152 | 5 | ✗ +2.5 % above max |
+| 310 | 3.620 | 3.128 | 3.752 | 5 | ✓ inside |
+| 320 | 5.044 | 4.420 | 4.986 | 5 | ✗ +1.2 % above max |
 | 395 | 0.010 | 0.004 | 0.021 | 6 | ✓ inside |
 | 400 | 0.030 | 0.013 | 0.063 | 6 | ✓ inside |
 | 410 | 0.059 | 0.035 | 0.096 | 6 | ✓ inside |
-| 420 | 0.150 | 0.109 | 0.228 | 6 | ✓ inside |
-| 430 | 0.853 | 0.739 | 1.084 | 6 | ✓ inside |
-| 440 | 4.023 | 3.458 | 4.414 | 5 | ✓ inside |
+| 420 | 0.151 | 0.109 | 0.228 | 6 | ✓ inside |
+| 430 | 0.830 | 0.739 | 1.084 | 6 | ✓ inside |
+| 440 | 4.045 | 3.458 | 4.414 | 5 | ✓ inside |
 | 450 | 7.055 | 5.689 | 6.613 | 6 | ✗ +6.7 % above max |
-| 460 | 6.784 | 5.929 | 6.729 | 6 | ✗ +0.8 % above max |
+| 460 | 6.811 | 5.929 | 6.729 | 6 | ✗ +1.2 % above max |
 | 470 | 6.252 | 5.644 | 6.056 | 6 | ✗ +3.2 % above max |
-| 800 | 0.332 | 0.282 | 0.473 | 6 | ✓ inside |
-| 810 | 1.541 | 1.295 | 1.606 | 5 | ✓ inside |
+| 800 | 0.321 | 0.282 | 0.473 | 6 | ✓ inside |
+| 810 | 1.546 | 1.295 | 1.606 | 5 | ✓ inside |
 
 ### Peak loads
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Annual hourly integrated peak heating load (kW) | 46 | 41 | 5 |
+| Annual hourly integrated peak heating load (kW) | 46 | 40 | 6 |
 | Annual hourly integrated peak sensible cooling load (kW) | 46 | 41 | 5 |
 
 ![Peak loads](img/validation/load_test_2.png)
@@ -134,110 +134,110 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600 | 3.249 | Dec 31 24 | 3.020 | 3.359 | 6 | ✓ inside |
-| 610 | 3.254 | Dec 31 24 | 3.021 | 3.360 | 6 | ✓ inside |
-| 620 | 3.291 | Dec 31 24 | 3.038 | 3.385 | 6 | ✓ inside |
-| 630 | 3.297 | Dec 31 24 | 3.039 | 3.388 | 6 | ✓ inside |
-| 640 | 3.892 | Feb 8 9 | 4.039 | 4.658 | 6 | ✗ -3.6 % below min |
+| 600 | 3.136 | Dec 31 24 | 3.020 | 3.359 | 6 | ✓ inside |
+| 610 | 3.141 | Dec 31 24 | 3.021 | 3.360 | 6 | ✓ inside |
+| 620 | 3.180 | Dec 31 24 | 3.038 | 3.385 | 6 | ✓ inside |
+| 630 | 3.186 | Dec 31 24 | 3.039 | 3.388 | 6 | ✓ inside |
+| 640 | 3.839 | Feb 8 9 | 4.039 | 4.658 | 6 | ✗ -4.9 % below min |
 | 650 | 0.000 | Jan 1 1 | 0.000 | 0.000 | 6 | ✓ inside |
-| 660 | 2.822 | Dec 31 24 | 2.620 | 2.955 | 6 | ✓ inside |
-| 670 | 4.085 | Dec 31 24 | 3.655 | 4.221 | 6 | ✓ inside |
-| 680 | 2.066 | Feb 9 6 | 1.778 | 2.126 | 6 | ✓ inside |
-| 685 | 3.273 | Dec 31 24 | 3.032 | 3.374 | 6 | ✓ inside |
-| 695 | 2.137 | Dec 31 24 | 1.795 | 2.138 | 6 | ✓ inside |
-| 900 | 2.691 | Feb 9 6 | 2.443 | 2.778 | 6 | ✓ inside |
-| 910 | 2.721 | Feb 9 6 | 2.469 | 2.799 | 6 | ✓ inside |
-| 920 | 2.765 | Feb 9 6 | 2.512 | 2.895 | 6 | ✓ inside |
-| 930 | 2.799 | Feb 9 6 | 2.537 | 2.968 | 6 | ✓ inside |
-| 940 | 3.249 | Dec 31 9 | 3.052 | 3.882 | 6 | ✓ inside |
+| 660 | 2.737 | Dec 31 24 | 2.620 | 2.955 | 6 | ✓ inside |
+| 670 | 3.876 | Dec 31 24 | 3.655 | 4.221 | 6 | ✓ inside |
+| 680 | 2.004 | Feb 9 6 | 1.778 | 2.126 | 6 | ✓ inside |
+| 685 | 3.162 | Dec 31 24 | 3.032 | 3.374 | 6 | ✓ inside |
+| 695 | 2.065 | Dec 31 24 | 1.795 | 2.138 | 6 | ✓ inside |
+| 900 | 2.608 | Feb 9 6 | 2.443 | 2.778 | 6 | ✓ inside |
+| 910 | 2.638 | Feb 9 6 | 2.469 | 2.799 | 6 | ✓ inside |
+| 920 | 2.682 | Feb 9 6 | 2.512 | 2.895 | 6 | ✓ inside |
+| 930 | 2.717 | Feb 9 6 | 2.537 | 2.968 | 6 | ✓ inside |
+| 940 | 3.195 | Dec 31 9 | 3.052 | 3.882 | 6 | ✓ inside |
 | 950 | 0.000 | Jan 1 1 | 0.000 | 0.000 | 6 | ✓ inside |
-| 960 | 2.003 | Feb 9 6 | 2.085 | 2.300 | 5 | ✗ -3.9 % below min |
-| 980 | 1.671 | Feb 9 6 | 1.254 | 1.693 | 6 | ✓ inside |
-| 985 | 2.696 | Feb 9 6 | 2.452 | 2.785 | 6 | ✓ inside |
-| 995 | 1.720 | Feb 9 6 | 1.370 | 1.711 | 6 | ✗ +0.5 % above max |
-| 195 | 1.820 | Dec 31 24 | 1.791 | 1.802 | 6 | ✗ +1.0 % above max |
-| 200 | 2.320 | Dec 31 24 | 2.226 | 2.353 | 6 | ✓ inside |
-| 210 | 2.557 | Dec 31 24 | 2.374 | 2.750 | 6 | ✓ inside |
-| 215 | 2.521 | Dec 31 24 | 2.390 | 2.521 | 6 | ✓ inside |
-| 220 | 2.814 | Dec 31 24 | 2.631 | 2.879 | 6 | ✓ inside |
-| 230 | 4.201 | Dec 31 24 | 4.133 | 4.316 | 6 | ✓ inside |
-| 240 | 2.637 | Dec 31 24 | 2.431 | 2.693 | 6 | ✓ inside |
-| 250 | 2.804 | Dec 31 24 | 2.631 | 2.874 | 6 | ✓ inside |
-| 270 | 2.757 | Dec 31 24 | 2.560 | 2.843 | 5 | ✓ inside |
-| 280 | 2.773 | Dec 31 24 | 2.568 | 2.849 | 5 | ✓ inside |
-| 290 | 2.759 | Dec 31 24 | 2.561 | 2.843 | 5 | ✓ inside |
-| 300 | 2.778 | Dec 31 24 | 2.589 | 2.854 | 5 | ✓ inside |
-| 310 | 2.784 | Dec 31 24 | 2.580 | 2.856 | 5 | ✓ inside |
-| 320 | 2.725 | Dec 31 24 | 2.546 | 2.834 | 5 | ✓ inside |
-| 395 | 2.008 | Dec 31 24 | 1.948 | 2.161 | 6 | ✓ inside |
-| 400 | 2.814 | Dec 31 24 | 2.559 | 2.879 | 6 | ✓ inside |
-| 410 | 3.508 | Dec 31 24 | 3.338 | 3.597 | 6 | ✓ inside |
-| 420 | 3.330 | Dec 31 24 | 3.138 | 3.411 | 6 | ✓ inside |
-| 430 | 3.324 | Dec 31 24 | 3.254 | 3.409 | 6 | ✓ inside |
-| 440 | 3.275 | Dec 31 24 | 3.027 | 3.374 | 5 | ✓ inside |
-| 450 | 3.007 | Dec 31 24 | 2.753 | 3.100 | 6 | ✓ inside |
-| 460 | 3.175 | Dec 31 24 | 2.971 | 3.160 | 6 | ✗ +0.5 % above max |
-| 470 | 3.166 | Dec 31 24 | 2.807 | 3.231 | 6 | ✓ inside |
-| 800 | 2.874 | Feb 9 6 | 2.778 | 2.967 | 6 | ✓ inside |
-| 810 | 2.746 | Feb 9 6 | 2.500 | 2.845 | 5 | ✓ inside |
+| 960 | 1.950 | Feb 9 6 | 2.085 | 2.300 | 5 | ✗ -6.5 % below min |
+| 980 | 1.612 | Feb 9 6 | 1.254 | 1.693 | 6 | ✓ inside |
+| 985 | 2.613 | Feb 9 6 | 2.452 | 2.785 | 6 | ✓ inside |
+| 995 | 1.666 | Feb 9 6 | 1.370 | 1.711 | 6 | ✓ inside |
+| 195 | 1.808 | Dec 31 24 | 1.791 | 1.802 | 6 | ✗ +0.3 % above max |
+| 200 | 2.302 | Dec 31 24 | 2.226 | 2.353 | 6 | ✓ inside |
+| 210 | 2.457 | Dec 31 24 | 2.374 | 2.750 | 6 | ✓ inside |
+| 215 | 2.502 | Dec 31 24 | 2.390 | 2.521 | 6 | ✓ inside |
+| 220 | 2.701 | Dec 31 24 | 2.631 | 2.879 | 6 | ✓ inside |
+| 230 | 4.088 | Dec 31 24 | 4.133 | 4.316 | 6 | ✗ -1.1 % below min |
+| 240 | 2.524 | Dec 31 24 | 2.431 | 2.693 | 6 | ✓ inside |
+| 250 | 2.690 | Dec 31 24 | 2.631 | 2.874 | 6 | ✓ inside |
+| 270 | 2.646 | Dec 31 24 | 2.560 | 2.843 | 5 | ✓ inside |
+| 280 | 2.662 | Dec 31 24 | 2.568 | 2.849 | 5 | ✓ inside |
+| 290 | 2.649 | Dec 31 24 | 2.561 | 2.843 | 5 | ✓ inside |
+| 300 | 2.667 | Dec 31 24 | 2.589 | 2.854 | 5 | ✓ inside |
+| 310 | 2.673 | Dec 31 24 | 2.580 | 2.856 | 5 | ✓ inside |
+| 320 | 2.613 | Dec 31 24 | 2.546 | 2.834 | 5 | ✓ inside |
+| 395 | 1.941 | Dec 31 24 | 1.948 | 2.161 | 6 | ✗ -0.4 % below min |
+| 400 | 2.701 | Dec 31 24 | 2.559 | 2.879 | 6 | ✓ inside |
+| 410 | 3.395 | Dec 31 24 | 3.338 | 3.597 | 6 | ✓ inside |
+| 420 | 3.217 | Dec 31 24 | 3.138 | 3.411 | 6 | ✓ inside |
+| 430 | 3.210 | Dec 31 24 | 3.254 | 3.409 | 6 | ✗ -1.3 % below min |
+| 440 | 3.162 | Dec 31 24 | 3.027 | 3.374 | 5 | ✓ inside |
+| 450 | 3.006 | Dec 31 24 | 2.753 | 3.100 | 6 | ✓ inside |
+| 460 | 3.064 | Dec 31 24 | 2.971 | 3.160 | 6 | ✓ inside |
+| 470 | 3.165 | Dec 31 24 | 2.807 | 3.231 | 6 | ✓ inside |
+| 800 | 2.788 | Feb 9 6 | 2.778 | 2.967 | 6 | ✓ inside |
+| 810 | 2.663 | Feb 9 6 | 2.500 | 2.845 | 5 | ✓ inside |
 
 #### Annual hourly integrated peak sensible cooling load (kW)
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600 | 5.813 | Jan 22 14 | 5.422 | 6.481 | 6 | ✓ inside |
-| 610 | 5.396 | Dec 1 14 | 5.331 | 6.432 | 6 | ✓ inside |
-| 620 | 4.400 | Jun 26 17 | 3.955 | 4.797 | 6 | ✓ inside |
-| 630 | 3.793 | Jun 26 18 | 3.526 | 4.212 | 6 | ✓ inside |
-| 640 | 5.704 | Jan 22 14 | 5.365 | 6.429 | 6 | ✓ inside |
-| 650 | 5.479 | Oct 18 14 | 5.045 | 6.290 | 6 | ✓ inside |
+| 600 | 5.847 | Jan 22 14 | 5.422 | 6.481 | 6 | ✓ inside |
+| 610 | 5.415 | Dec 1 14 | 5.331 | 6.432 | 6 | ✓ inside |
+| 620 | 4.360 | Jun 26 17 | 3.955 | 4.797 | 6 | ✓ inside |
+| 630 | 3.758 | Jun 26 18 | 3.526 | 4.212 | 6 | ✓ inside |
+| 640 | 5.740 | Jan 22 14 | 5.365 | 6.429 | 6 | ✓ inside |
+| 650 | 5.484 | Oct 18 14 | 5.045 | 6.290 | 6 | ✓ inside |
 | 660 | 3.416 | Oct 18 14 | 3.343 | 3.933 | 6 | ✓ inside |
-| 670 | 5.908 | Oct 18 14 | 5.839 | 6.925 | 6 | ✓ inside |
-| 680 | 6.242 | Jan 22 14 | 5.761 | 7.051 | 6 | ✓ inside |
-| 685 | 6.523 | Jan 22 14 | 6.071 | 7.159 | 6 | ✓ inside |
-| 695 | 6.800 | Jan 22 14 | 6.232 | 7.541 | 6 | ✓ inside |
-| 900 | 2.838 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
-| 910 | 2.028 | Oct 1 15 | 2.081 | 2.722 | 6 | ✗ -2.5 % below min |
-| 920 | 2.985 | Jun 26 18 | 2.710 | 3.481 | 6 | ✓ inside |
-| 930 | 2.507 | Jun 26 18 | 2.335 | 3.052 | 6 | ✓ inside |
-| 940 | 2.837 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
-| 950 | 2.312 | Sep 11 15 | 2.054 | 2.388 | 6 | ✓ inside |
-| 960 | 0.995 | Jun 26 17 | 1.338 | 1.480 | 5 | ✗ -25.7 % below min |
-| 980 | 3.146 | Oct 18 15 | 2.930 | 3.668 | 6 | ✓ inside |
-| 985 | 3.540 | Oct 1 14 | 3.208 | 4.225 | 6 | ✓ inside |
-| 995 | 3.645 | Jan 22 15 | 3.315 | 4.224 | 6 | ✓ inside |
-| 195 | 1.020 | Jun 26 17 | 0.944 | 1.118 | 6 | ✓ inside |
-| 200 | 1.274 | Jun 26 16 | 1.198 | 1.307 | 6 | ✓ inside |
-| 210 | 1.082 | Jun 26 16 | 0.877 | 1.193 | 6 | ✓ inside |
-| 215 | 1.384 | Jun 26 16 | 1.352 | 1.400 | 6 | ✓ inside |
-| 220 | 1.184 | Jun 26 16 | 0.968 | 1.336 | 6 | ✓ inside |
-| 230 | 1.888 | Jun 26 16 | 1.694 | 1.994 | 6 | ✓ inside |
+| 670 | 5.886 | Oct 18 14 | 5.839 | 6.925 | 6 | ✓ inside |
+| 680 | 6.264 | Jan 22 14 | 5.761 | 7.051 | 6 | ✓ inside |
+| 685 | 6.556 | Jan 22 14 | 6.071 | 7.159 | 6 | ✓ inside |
+| 695 | 6.821 | Jan 22 14 | 6.232 | 7.541 | 6 | ✓ inside |
+| 900 | 2.839 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
+| 910 | 2.039 | Oct 12 15 | 2.081 | 2.722 | 6 | ✗ -2.0 % below min |
+| 920 | 2.967 | Jun 26 18 | 2.710 | 3.481 | 6 | ✓ inside |
+| 930 | 2.491 | Jun 26 18 | 2.335 | 3.052 | 6 | ✓ inside |
+| 940 | 2.839 | Oct 1 14 | 2.556 | 3.376 | 6 | ✓ inside |
+| 950 | 2.305 | Sep 11 15 | 2.054 | 2.388 | 6 | ✓ inside |
+| 960 | 0.972 | Jun 26 17 | 1.338 | 1.480 | 5 | ✗ -27.4 % below min |
+| 980 | 3.159 | Oct 18 15 | 2.930 | 3.668 | 6 | ✓ inside |
+| 985 | 3.538 | Oct 1 14 | 3.208 | 4.225 | 6 | ✓ inside |
+| 995 | 3.669 | Jan 22 15 | 3.315 | 4.224 | 6 | ✓ inside |
+| 195 | 1.017 | Jun 26 17 | 0.944 | 1.118 | 6 | ✓ inside |
+| 200 | 1.272 | Jun 26 16 | 1.198 | 1.307 | 6 | ✓ inside |
+| 210 | 1.079 | Jun 26 16 | 0.877 | 1.193 | 6 | ✓ inside |
+| 215 | 1.383 | Jun 26 16 | 1.352 | 1.400 | 6 | ✓ inside |
+| 220 | 1.183 | Jun 26 16 | 0.968 | 1.336 | 6 | ✓ inside |
+| 230 | 1.887 | Jun 26 16 | 1.694 | 1.994 | 6 | ✓ inside |
 | 240 | 1.361 | Jun 26 16 | 1.150 | 1.534 | 6 | ✓ inside |
-| 250 | 2.616 | Sep 3 14 | 2.688 | 3.034 | 6 | ✗ -2.7 % below min |
-| 270 | 6.258 | Jan 22 14 | 5.832 | 7.011 | 5 | ✓ inside |
-| 280 | 4.304 | Jan 22 14 | 3.768 | 4.765 | 5 | ✓ inside |
-| 290 | 5.855 | Jan 22 14 | 5.739 | 6.872 | 5 | ✓ inside |
-| 300 | 4.107 | Jun 26 17 | 3.695 | 4.475 | 5 | ✓ inside |
-| 310 | 3.583 | Jun 26 18 | 3.252 | 3.970 | 5 | ✓ inside |
-| 320 | 5.671 | Jan 22 14 | 5.304 | 6.473 | 5 | ✓ inside |
-| 395 | 0.399 | Jun 26 18 | 0.265 | 0.547 | 6 | ✓ inside |
-| 400 | 0.620 | Jun 26 17 | 0.372 | 0.798 | 6 | ✓ inside |
-| 410 | 0.866 | Jun 26 17 | 0.604 | 1.011 | 6 | ✓ inside |
-| 420 | 1.063 | Jun 26 17 | 0.814 | 1.208 | 6 | ✓ inside |
-| 430 | 1.827 | Jun 26 15 | 1.704 | 2.167 | 6 | ✓ inside |
-| 440 | 4.181 | Oct 18 14 | 3.766 | 4.686 | 5 | ✓ inside |
+| 250 | 2.523 | Sep 3 14 | 2.688 | 3.034 | 6 | ✗ -6.1 % below min |
+| 270 | 6.292 | Jan 22 14 | 5.832 | 7.011 | 5 | ✓ inside |
+| 280 | 4.340 | Jan 22 14 | 3.768 | 4.765 | 5 | ✓ inside |
+| 290 | 5.889 | Jan 22 14 | 5.739 | 6.872 | 5 | ✓ inside |
+| 300 | 4.104 | Jun 26 17 | 3.695 | 4.475 | 5 | ✓ inside |
+| 310 | 3.578 | Jun 26 18 | 3.252 | 3.970 | 5 | ✓ inside |
+| 320 | 5.707 | Jan 22 14 | 5.304 | 6.473 | 5 | ✓ inside |
+| 395 | 0.390 | Jun 26 18 | 0.265 | 0.547 | 6 | ✓ inside |
+| 400 | 0.619 | Jun 26 17 | 0.372 | 0.798 | 6 | ✓ inside |
+| 410 | 0.864 | Jun 26 17 | 0.604 | 1.011 | 6 | ✓ inside |
+| 420 | 1.061 | Jun 26 17 | 0.814 | 1.208 | 6 | ✓ inside |
+| 430 | 1.780 | Jun 26 15 | 1.704 | 2.167 | 6 | ✓ inside |
+| 440 | 4.185 | Oct 18 14 | 3.766 | 4.686 | 5 | ✓ inside |
 | 450 | 6.760 | Jan 22 14 | 5.812 | 6.501 | 6 | ✗ +4.0 % above max |
-| 460 | 6.638 | Jan 22 14 | 5.804 | 6.374 | 6 | ✗ +4.1 % above max |
+| 460 | 6.670 | Jan 22 14 | 5.804 | 6.374 | 6 | ✗ +4.6 % above max |
 | 470 | 5.994 | Jan 22 14 | 5.570 | 6.444 | 6 | ✓ inside |
-| 800 | 1.063 | Aug 5 15 | 0.936 | 1.286 | 6 | ✓ inside |
-| 810 | 2.221 | Sep 11 14 | 1.940 | 2.410 | 5 | ✓ inside |
+| 800 | 1.038 | Jun 14 15 | 0.936 | 1.286 | 6 | ✓ inside |
+| 810 | 2.216 | Sep 11 14 | 1.940 | 2.410 | 5 | ✓ inside |
 
 ### Free-float zone temperatures
 
 | Output | Values | Inside range | Outside range |
 |---|--:|--:|--:|
-| Annual hourly minimum zone temperature (°C) | 7 | 5 | 2 |
-| Annual hourly average zone temperature (°C) | 7 | 7 | 0 |
+| Annual hourly minimum zone temperature (°C) | 7 | 7 | 0 |
+| Annual hourly average zone temperature (°C) | 7 | 6 | 1 |
 | Annual hourly maximum zone temperature (°C) | 7 | 6 | 1 |
 
 ![Free-float zone temperatures](img/validation/load_test_3.png)
@@ -246,37 +246,37 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600FF | -13.388 | Feb 9 7 | -13.844 | -9.900 | 6 | ✓ inside |
-| 900FF | 0.552 | Feb 9 7 | 0.600 | 2.165 | 6 | ✗ -0.05 °C below min |
-| 650FF | -17.346 | Dec 31 24 | -17.762 | -16.700 | 6 | ✓ inside |
-| 950FF | -13.126 | Dec 31 24 | -13.360 | -12.500 | 6 | ✓ inside |
-| 680FF | -8.408 | Feb 9 7 | -8.074 | -5.700 | 6 | ✗ -0.33 °C below min |
-| 980FF | 10.058 | Nov 4 7 | 7.300 | 12.536 | 6 | ✓ inside |
-| 960 | 4.428 | Feb 9 7 | 4.238 | 8.017 | 5 | ✓ inside |
+| 600FF | -12.420 | Feb 9 7 | -13.844 | -9.900 | 6 | ✓ inside |
+| 900FF | 1.260 | Feb 9 7 | 0.600 | 2.165 | 6 | ✓ inside |
+| 650FF | -17.134 | Dec 31 24 | -17.762 | -16.700 | 6 | ✓ inside |
+| 950FF | -12.956 | Dec 31 24 | -13.360 | -12.500 | 6 | ✓ inside |
+| 680FF | -7.550 | Feb 9 7 | -8.074 | -5.700 | 6 | ✓ inside |
+| 980FF | 10.419 | Nov 4 7 | 7.300 | 12.536 | 6 | ✓ inside |
+| 960 | 5.026 | Feb 9 7 | 4.238 | 8.017 | 5 | ✓ inside |
 
 #### Annual hourly average zone temperature (°C)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| 600FF | 25.161 | 24.258 | 26.100 | 6 | ✓ inside |
-| 900FF | 25.224 | 24.462 | 25.692 | 6 | ✓ inside |
-| 650FF | 18.876 | 17.600 | 18.930 | 6 | ✓ inside |
-| 950FF | 14.886 | 14.350 | 15.000 | 6 | ✓ inside |
-| 680FF | 32.061 | 30.187 | 33.300 | 6 | ✓ inside |
-| 980FF | 32.060 | 30.492 | 33.300 | 6 | ✓ inside |
-| 960 | 27.941 | 26.798 | 29.450 | 5 | ✓ inside |
+| 600FF | 25.393 | 24.258 | 26.100 | 6 | ✓ inside |
+| 900FF | 25.457 | 24.462 | 25.692 | 6 | ✓ inside |
+| 650FF | 18.963 | 17.600 | 18.930 | 6 | ✗ +0.03 °C above max |
+| 950FF | 14.969 | 14.350 | 15.000 | 6 | ✓ inside |
+| 680FF | 32.268 | 30.187 | 33.300 | 6 | ✓ inside |
+| 980FF | 32.265 | 30.492 | 33.300 | 6 | ✓ inside |
+| 960 | 28.120 | 26.798 | 29.450 | 5 | ✓ inside |
 
 #### Annual hourly maximum zone temperature (°C)
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| 600FF | 65.672 | Oct 1 15 | 62.369 | 68.361 | 6 | ✓ inside |
-| 900FF | 44.816 | Sep 12 15 | 43.252 | 46.000 | 6 | ✓ inside |
-| 650FF | 64.059 | Oct 1 15 | 61.133 | 66.846 | 6 | ✓ inside |
-| 950FF | 37.272 | Sep 11 16 | 36.127 | 37.100 | 6 | ✗ +0.17 °C above max |
-| 680FF | 74.860 | Jan 22 16 | 69.774 | 78.514 | 6 | ✓ inside |
-| 980FF | 51.504 | Oct 21 15 | 48.541 | 52.810 | 6 | ✓ inside |
-| 960 | 49.857 | Oct 21 15 | 48.097 | 53.180 | 5 | ✓ inside |
+| 600FF | 65.593 | Oct 1 15 | 62.369 | 68.361 | 6 | ✓ inside |
+| 900FF | 44.783 | Sep 12 15 | 43.252 | 46.000 | 6 | ✓ inside |
+| 650FF | 63.961 | Oct 1 15 | 61.133 | 66.846 | 6 | ✓ inside |
+| 950FF | 37.238 | Sep 11 16 | 36.127 | 37.100 | 6 | ✗ +0.14 °C above max |
+| 680FF | 75.260 | Jan 22 16 | 69.774 | 78.514 | 6 | ✓ inside |
+| 980FF | 51.704 | Oct 21 15 | 48.541 | 52.810 | 6 | ✓ inside |
+| 960 | 50.082 | Oct 21 15 | 48.097 | 53.180 | 5 | ✓ inside |
 
 ### Solar radiation
 
@@ -348,14 +348,14 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| 600 | Monthly heating load (kWh) | 12 | 6 | 9.43 kWh |
+| 600 | Monthly heating load (kWh) | 12 | 11 | 0.524 kWh |
 | 600 | Monthly cooling load (kWh) | 12 | 12 | – |
-| 600 | Monthly peak heating load (kW) | 12 | 10 | 0.0272 kW |
-| 600 | Monthly peak cooling load (kW) | 12 | 11 | 0.042 kW |
-| 900 | Monthly heating load (kWh) | 12 | 10 | 3.94 kWh |
+| 600 | Monthly peak heating load (kW) | 12 | 10 | 0.0861 kW |
+| 600 | Monthly peak cooling load (kW) | 12 | 11 | 0.0244 kW |
+| 900 | Monthly heating load (kWh) | 12 | 11 | 0.0894 kWh |
 | 900 | Monthly cooling load (kWh) | 12 | 12 | – |
-| 900 | Monthly peak heating load (kW) | 12 | 11 | 0.0604 kW |
-| 900 | Monthly peak cooling load (kW) | 12 | 9 | 0.0855 kW |
+| 900 | Monthly peak heating load (kW) | 12 | 11 | 0.0448 kW |
+| 900 | Monthly peak cooling load (kW) | 12 | 9 | 0.121 kW |
 
 ### Hourly incident solar radiation and sky temperature, case 600
 
@@ -395,28 +395,28 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| 600 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.148 kWh |
-| 640 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 16 | 0.253 kWh |
-| 660 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 13 | 0.292 kWh |
-| 670 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.159 kWh |
-| 680 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 19 | 0.137 kWh |
-| 685 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.0496 kWh |
-| 695 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.14 kWh |
-| 900 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 17 | 0.0733 kWh |
-| 940 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0267 kWh |
+| 600 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 21 | 0.259 kWh |
+| 640 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.325 kWh |
+| 660 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.413 kWh |
+| 670 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 21 | 0.163 kWh |
+| 680 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 21 | 0.191 kWh |
+| 685 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 21 | 0.129 kWh |
+| 695 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 21 | 0.185 kWh |
+| 900 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 19 | 0.0848 kWh |
+| 940 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.164 kWh |
 | 980 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 24 | – |
-| 985 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 17 | 0.0806 kWh |
-| 995 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 23 | 0.0537 kWh |
-| 600 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 21 | 0.278 kWh |
-| 660 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.183 kWh |
-| 670 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 19 | 0.183 kWh |
-| 680 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.248 kWh |
-| 685 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 14 | 0.123 kWh |
-| 695 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 14 | 0.141 kWh |
-| 900 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.118 kWh |
-| 980 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 19 | 0.129 kWh |
+| 985 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 20 | 0.0209 kWh |
+| 995 | Zone load (+ heating, − cooling), Feb 1 (kWh) | 24 | 22 | 0.0248 kWh |
+| 600 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 21 | 0.285 kWh |
+| 660 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.182 kWh |
+| 670 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.135 kWh |
+| 680 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.261 kWh |
+| 685 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 16 | 0.125 kWh |
+| 695 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 14 | 0.143 kWh |
+| 900 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.12 kWh |
+| 980 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 19 | 0.133 kWh |
 | 985 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 24 | – |
-| 995 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.055 kWh |
+| 995 | Zone load (+ heating, − cooling), Jul 14 (kWh) | 24 | 20 | 0.0573 kWh |
 
 ### Hourly zone temperatures
 
@@ -424,13 +424,13 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| 640 | Zone temperature, Feb 1 (°C) | 24 | 22 | 0.792 °C |
-| 940 | Zone temperature, Feb 1 (°C) | 24 | 19 | 0.29 °C |
-| 600FF | Zone temperature, Feb 1 (°C) | 24 | 11 | 1.08 °C |
+| 640 | Zone temperature, Feb 1 (°C) | 24 | 22 | 1.07 °C |
+| 940 | Zone temperature, Feb 1 (°C) | 24 | 23 | 0.29 °C |
+| 600FF | Zone temperature, Feb 1 (°C) | 24 | 16 | 1.95 °C |
 | 900FF | Zone temperature, Feb 1 (°C) | 24 | 24 | – |
-| 650FF | Zone temperature, Jul 14 (°C) | 24 | 5 | 1.87 °C |
-| 950FF | Zone temperature, Jul 14 (°C) | 24 | 22 | 0.0687 °C |
-| 680FF | Zone temperature, Feb 1 (°C) | 24 | 14 | 1.3 °C |
+| 650FF | Zone temperature, Jul 14 (°C) | 24 | 8 | 1.79 °C |
+| 950FF | Zone temperature, Jul 14 (°C) | 24 | 22 | 0.082 °C |
+| 680FF | Zone temperature, Feb 1 (°C) | 24 | 16 | 2.05 °C |
 | 980FF | Zone temperature, Feb 1 (°C) | 24 | 24 | – |
 
 ### Zone temperature bins, case 900FF
@@ -439,7 +439,7 @@ Reference programs: BSIMAC, CSE, DeST, EnergyPlus, ESP-r, TRNSYS (example result
 
 | Case | Output | Values | Inside range | Largest distance outside range |
 |---|---|--:|--:|--:|
-| 900FF | Annual hours per 1 °C zone temperature bin (h) | 149 | 148 | 6 h |
+| 900FF | Annual hours per 1 °C zone temperature bin (h) | 149 | 146 | 10 h |
 
 ## Fuel-fired furnace tests (HE100–HE230)
 
@@ -558,76 +558,76 @@ Reference programs: Analytical TUD, Analytical HTAL1, Analytical HTAL2, CA-SIS, 
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE100 | 1538.359 | 1511.937 | 1531.000 | 10 | ✗ +0.5 % above max |
-| CE110 | 1075.003 | 1061.196 | 1089.000 | 10 | ✓ inside |
-| CE120 | 1021.598 | 1001.664 | 1012.677 | 10 | ✗ +0.9 % above max |
-| CE130 | 109.986 | 105.419 | 110.582 | 10 | ✓ inside |
-| CE140 | 68.264 | 65.008 | 69.000 | 10 | ✓ inside |
-| CE150 | 1200.720 | 1183.000 | 1208.000 | 10 | ✓ inside |
-| CE160 | 1142.338 | 1107.000 | 1140.440 | 10 | ✗ +0.2 % above max |
-| CE165 | 1496.992 | 1470.000 | 1502.000 | 10 | ✓ inside |
-| CE170 | 634.979 | 620.000 | 641.117 | 10 | ✓ inside |
-| CE180 | 1089.838 | 1077.109 | 1083.000 | 10 | ✗ +0.6 % above max |
-| CE185 | 1548.305 | 1538.397 | 1547.000 | 10 | ✓ inside |
-| CE190 | 165.115 | 160.000 | 165.173 | 10 | ✓ inside |
-| CE195 | 250.169 | 244.919 | 252.161 | 10 | ✓ inside |
-| CE200 | 1477.637 | 1440.000 | 1479.993 | 10 | ✓ inside |
+| CE100 | 1538.297 | 1511.937 | 1531.000 | 10 | ✗ +0.5 % above max |
+| CE110 | 1074.996 | 1061.196 | 1089.000 | 10 | ✓ inside |
+| CE120 | 1021.591 | 1001.664 | 1012.677 | 10 | ✗ +0.9 % above max |
+| CE130 | 109.885 | 105.419 | 110.582 | 10 | ✓ inside |
+| CE140 | 68.253 | 65.008 | 69.000 | 10 | ✓ inside |
+| CE150 | 1200.713 | 1183.000 | 1208.000 | 10 | ✓ inside |
+| CE160 | 1142.331 | 1107.000 | 1140.440 | 10 | ✗ +0.2 % above max |
+| CE165 | 1496.953 | 1470.000 | 1502.000 | 10 | ✓ inside |
+| CE170 | 634.970 | 620.000 | 641.117 | 10 | ✓ inside |
+| CE180 | 1089.828 | 1077.109 | 1083.000 | 10 | ✗ +0.6 % above max |
+| CE185 | 1548.245 | 1538.397 | 1547.000 | 10 | ✓ inside |
+| CE190 | 165.105 | 160.000 | 165.173 | 10 | ✓ inside |
+| CE195 | 250.076 | 244.919 | 252.161 | 10 | ✓ inside |
+| CE200 | 1477.629 | 1440.000 | 1479.993 | 10 | ✓ inside |
 
 #### Compressor consumption, February (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE100 | 1324.980 | 1302.726 | 1319.000 | 9 | ✗ +0.5 % above max |
-| CE110 | 885.955 | 865.866 | 899.000 | 9 | ✓ inside |
-| CE120 | 847.012 | 831.929 | 850.068 | 9 | ✓ inside |
-| CE130 | 94.730 | 93.000 | 95.287 | 9 | ✓ inside |
-| CE140 | 56.259 | 54.799 | 57.000 | 9 | ✓ inside |
-| CE150 | 994.176 | 982.000 | 1007.094 | 9 | ✓ inside |
-| CE160 | 951.913 | 926.000 | 962.675 | 9 | ✓ inside |
-| CE165 | 1277.611 | 1256.000 | 1291.242 | 9 | ✓ inside |
-| CE170 | 528.166 | 523.000 | 538.959 | 9 | ✓ inside |
-| CE180 | 914.102 | 906.440 | 914.262 | 9 | ✓ inside |
-| CE185 | 1343.051 | 1334.391 | 1344.000 | 9 | ✓ inside |
-| CE190 | 138.443 | 137.511 | 139.423 | 9 | ✓ inside |
-| CE195 | 216.933 | 216.483 | 218.867 | 9 | ✓ inside |
-| CE200 | 1250.501 | 1218.000 | 1252.857 | 9 | ✓ inside |
+| CE100 | 1324.927 | 1302.726 | 1319.000 | 9 | ✗ +0.4 % above max |
+| CE110 | 885.949 | 865.866 | 899.000 | 9 | ✓ inside |
+| CE120 | 847.006 | 831.929 | 850.068 | 9 | ✓ inside |
+| CE130 | 94.644 | 93.000 | 95.287 | 9 | ✓ inside |
+| CE140 | 56.250 | 54.799 | 57.000 | 9 | ✓ inside |
+| CE150 | 994.170 | 982.000 | 1007.094 | 9 | ✓ inside |
+| CE160 | 951.907 | 926.000 | 962.675 | 9 | ✓ inside |
+| CE165 | 1277.578 | 1256.000 | 1291.242 | 9 | ✓ inside |
+| CE170 | 528.158 | 523.000 | 538.959 | 9 | ✓ inside |
+| CE180 | 914.094 | 906.440 | 914.262 | 9 | ✓ inside |
+| CE185 | 1342.999 | 1334.391 | 1344.000 | 9 | ✓ inside |
+| CE190 | 138.434 | 137.511 | 139.423 | 9 | ✓ inside |
+| CE195 | 216.852 | 216.483 | 218.867 | 9 | ✓ inside |
+| CE200 | 1250.493 | 1218.000 | 1252.857 | 9 | ✓ inside |
 
 #### Supply fan consumption, February (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE100 | 145.198 | 141.000 | 145.185 | 10 | ✓ inside |
-| CE110 | 128.642 | 122.000 | 132.917 | 10 | ✓ inside |
-| CE120 | 118.801 | 109.581 | 117.000 | 10 | ✗ +1.5 % above max |
-| CE130 | 10.381 | 8.000 | 10.408 | 10 | ✓ inside |
-| CE140 | 8.169 | 6.000 | 8.214 | 10 | ✓ inside |
+| CE100 | 145.193 | 141.000 | 145.185 | 10 | ✓ inside |
+| CE110 | 128.641 | 122.000 | 132.917 | 10 | ✓ inside |
+| CE120 | 118.800 | 109.581 | 117.000 | 10 | ✗ +1.5 % above max |
+| CE130 | 10.372 | 8.000 | 10.408 | 10 | ✓ inside |
+| CE140 | 8.168 | 6.000 | 8.214 | 10 | ✓ inside |
 | CE150 | 140.547 | 132.917 | 141.220 | 10 | ✓ inside |
-| CE160 | 129.579 | 119.052 | 129.310 | 10 | ✗ +0.2 % above max |
-| CE165 | 149.283 | 141.678 | 150.000 | 10 | ✓ inside |
-| CE170 | 72.684 | 61.322 | 73.592 | 10 | ✓ inside |
-| CE180 | 119.583 | 110.813 | 119.000 | 10 | ✗ +0.5 % above max |
-| CE185 | 139.670 | 135.056 | 139.400 | 10 | ✗ +0.2 % above max |
-| CE190 | 18.150 | 14.000 | 18.170 | 10 | ✓ inside |
-| CE195 | 22.616 | 17.728 | 23.000 | 10 | ✓ inside |
+| CE160 | 129.578 | 119.052 | 129.310 | 10 | ✗ +0.2 % above max |
+| CE165 | 149.279 | 141.678 | 150.000 | 10 | ✓ inside |
+| CE170 | 72.683 | 61.322 | 73.592 | 10 | ✓ inside |
+| CE180 | 119.582 | 110.813 | 119.000 | 10 | ✗ +0.5 % above max |
+| CE185 | 139.664 | 135.056 | 139.400 | 10 | ✗ +0.2 % above max |
+| CE190 | 18.149 | 14.000 | 18.170 | 10 | ✓ inside |
+| CE195 | 22.608 | 17.728 | 23.000 | 10 | ✓ inside |
 | CE200 | 154.560 | 149.151 | 154.600 | 10 | ✓ inside |
 
 #### Condenser fan consumption, February (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE100 | 68.180 | 66.849 | 68.174 | 9 | ✓ inside |
-| CE110 | 60.406 | 59.475 | 62.413 | 9 | ✓ inside |
-| CE120 | 55.785 | 51.455 | 55.000 | 9 | ✗ +1.4 % above max |
-| CE130 | 4.875 | 3.905 | 5.000 | 9 | ✓ inside |
-| CE140 | 3.836 | 3.262 | 4.000 | 9 | ✓ inside |
+| CE100 | 68.177 | 66.849 | 68.174 | 9 | ✓ inside |
+| CE110 | 60.405 | 59.475 | 62.413 | 9 | ✓ inside |
+| CE120 | 55.784 | 51.455 | 55.000 | 9 | ✗ +1.4 % above max |
+| CE130 | 4.870 | 3.905 | 5.000 | 9 | ✓ inside |
+| CE140 | 3.835 | 3.262 | 4.000 | 9 | ✓ inside |
 | CE150 | 65.996 | 62.413 | 66.312 | 9 | ✓ inside |
-| CE160 | 60.846 | 55.903 | 61.000 | 9 | ✓ inside |
-| CE165 | 70.098 | 66.527 | 70.133 | 9 | ✓ inside |
-| CE170 | 34.130 | 28.795 | 34.556 | 9 | ✓ inside |
+| CE160 | 60.845 | 55.903 | 61.000 | 9 | ✓ inside |
+| CE165 | 70.096 | 66.527 | 70.133 | 9 | ✓ inside |
+| CE170 | 34.129 | 28.795 | 34.556 | 9 | ✓ inside |
 | CE180 | 56.152 | 52.034 | 56.000 | 9 | ✗ +0.3 % above max |
-| CE185 | 65.584 | 63.418 | 66.000 | 9 | ✓ inside |
-| CE190 | 8.523 | 6.645 | 9.000 | 9 | ✓ inside |
-| CE195 | 10.620 | 8.324 | 11.000 | 9 | ✓ inside |
+| CE185 | 65.581 | 63.418 | 66.000 | 9 | ✓ inside |
+| CE190 | 8.522 | 6.645 | 9.000 | 9 | ✓ inside |
+| CE195 | 10.616 | 8.324 | 11.000 | 9 | ✓ inside |
 | CE200 | 72.576 | 70.036 | 73.000 | 9 | ✓ inside |
 
 ### Evaporator coil and zone loads (February)
@@ -647,39 +647,39 @@ Reference programs: Analytical TUD, Analytical HTAL1, Analytical HTAL2, CA-SIS, 
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE100 | 3798.274 | 3793.962 | 3841.470 | 10 | ✓ inside |
-| CE110 | 3759.050 | 3755.569 | 3803.580 | 10 | ✓ inside |
-| CE120 | 3742.505 | 3739.156 | 3763.480 | 10 | ✓ inside |
-| CE130 | 216.410 | 215.123 | 219.769 | 10 | ✓ inside |
-| CE140 | 195.527 | 194.607 | 198.564 | 10 | ✓ inside |
-| CE150 | 4512.662 | 4508.723 | 4542.780 | 10 | ✓ inside |
-| CE160 | 4494.244 | 4491.049 | 4516.378 | 10 | ✓ inside |
-| CE165 | 4535.161 | 4528.659 | 4567.458 | 10 | ✓ inside |
-| CE170 | 2220.785 | 2224.868 | 2236.518 | 10 | ✗ -0.2 % below min |
-| CE180 | 4487.867 | 4481.208 | 4534.584 | 10 | ✓ inside |
-| CE185 | 4530.761 | 4507.000 | 4582.649 | 10 | ✓ inside |
-| CE190 | 573.016 | 572.607 | 578.546 | 10 | ✓ inside |
-| CE195 | 596.025 | 595.240 | 602.000 | 10 | ✓ inside |
-| CE200 | 5497.245 | 5436.000 | 5534.200 | 10 | ✓ inside |
+| CE100 | 3798.074 | 3793.962 | 3841.470 | 10 | ✓ inside |
+| CE110 | 3759.016 | 3755.569 | 3803.580 | 10 | ✓ inside |
+| CE120 | 3742.472 | 3739.156 | 3763.480 | 10 | ✓ inside |
+| CE130 | 216.210 | 215.123 | 219.769 | 10 | ✓ inside |
+| CE140 | 195.493 | 194.607 | 198.564 | 10 | ✓ inside |
+| CE150 | 4512.628 | 4508.723 | 4542.780 | 10 | ✓ inside |
+| CE160 | 4494.211 | 4491.049 | 4516.378 | 10 | ✓ inside |
+| CE165 | 4535.015 | 4528.659 | 4567.458 | 10 | ✓ inside |
+| CE170 | 2220.751 | 2224.868 | 2236.518 | 10 | ✗ -0.2 % below min |
+| CE180 | 4487.821 | 4481.208 | 4534.584 | 10 | ✓ inside |
+| CE185 | 4530.568 | 4507.000 | 4582.649 | 10 | ✓ inside |
+| CE190 | 572.984 | 572.607 | 578.546 | 10 | ✓ inside |
+| CE195 | 595.824 | 595.240 | 602.000 | 10 | ✓ inside |
+| CE200 | 5497.154 | 5436.000 | 5534.200 | 10 | ✓ inside |
 
 #### Evaporator coil sensible load, February (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE100 | 3798.274 | 3793.962 | 3841.470 | 10 | ✓ inside |
-| CE110 | 3759.050 | 3755.569 | 3803.580 | 10 | ✓ inside |
-| CE120 | 3742.505 | 3739.156 | 3763.480 | 10 | ✓ inside |
-| CE130 | 216.410 | 215.123 | 219.769 | 10 | ✓ inside |
-| CE140 | 195.527 | 194.607 | 198.564 | 10 | ✓ inside |
-| CE150 | 3773.466 | 3775.822 | 3803.580 | 10 | ✓ inside |
-| CE160 | 3755.079 | 3759.037 | 3777.178 | 10 | ✗ -0.1 % below min |
-| CE165 | 3795.951 | 3795.493 | 3828.258 | 10 | ✓ inside |
-| CE170 | 1481.714 | 1486.857 | 1497.655 | 10 | ✗ -0.3 % below min |
-| CE180 | 1530.998 | 1537.000 | 1606.682 | 10 | ✗ -0.4 % below min |
-| CE185 | 1573.861 | 1548.000 | 1652.696 | 10 | ✓ inside |
-| CE190 | 203.532 | 203.007 | 212.192 | 10 | ✓ inside |
-| CE195 | 226.324 | 225.640 | 235.053 | 10 | ✓ inside |
-| CE200 | 4276.116 | 4215.000 | 4313.176 | 10 | ✓ inside |
+| CE100 | 3798.074 | 3793.962 | 3841.470 | 10 | ✓ inside |
+| CE110 | 3759.016 | 3755.569 | 3803.580 | 10 | ✓ inside |
+| CE120 | 3742.472 | 3739.156 | 3763.480 | 10 | ✓ inside |
+| CE130 | 216.210 | 215.123 | 219.769 | 10 | ✓ inside |
+| CE140 | 195.493 | 194.607 | 198.564 | 10 | ✓ inside |
+| CE150 | 3773.432 | 3775.822 | 3803.580 | 10 | ✓ inside |
+| CE160 | 3755.046 | 3759.037 | 3777.178 | 10 | ✗ -0.1 % below min |
+| CE165 | 3795.808 | 3795.493 | 3828.258 | 10 | ✓ inside |
+| CE170 | 1481.681 | 1486.857 | 1497.655 | 10 | ✗ -0.3 % below min |
+| CE180 | 1530.964 | 1537.000 | 1606.682 | 10 | ✗ -0.4 % below min |
+| CE185 | 1573.661 | 1548.000 | 1652.696 | 10 | ✓ inside |
+| CE190 | 203.499 | 203.007 | 212.192 | 10 | ✓ inside |
+| CE195 | 226.124 | 225.640 | 235.053 | 10 | ✓ inside |
+| CE200 | 4276.052 | 4215.000 | 4313.176 | 10 | ✓ inside |
 
 #### Evaporator coil latent load, February (kWh)
 
@@ -692,51 +692,51 @@ Reference programs: Analytical TUD, Analytical HTAL1, Analytical HTAL2, CA-SIS, 
 | CE140 | 0.000 | -0.000 | 0.001 | 10 | ✓ inside |
 | CE150 | 739.196 | 732.696 | 741.501 | 10 | ✓ inside |
 | CE160 | 739.165 | 732.012 | 740.000 | 10 | ✓ inside |
-| CE165 | 739.209 | 733.167 | 740.328 | 10 | ✓ inside |
+| CE165 | 739.208 | 733.167 | 740.328 | 10 | ✓ inside |
 | CE170 | 739.071 | 733.647 | 740.000 | 10 | ✓ inside |
-| CE180 | 2956.869 | 2927.902 | 2958.000 | 10 | ✓ inside |
-| CE185 | 2956.900 | 2929.953 | 2959.000 | 10 | ✓ inside |
-| CE190 | 369.484 | 366.354 | 370.000 | 10 | ✓ inside |
+| CE180 | 2956.857 | 2927.902 | 2958.000 | 10 | ✓ inside |
+| CE185 | 2956.907 | 2929.953 | 2959.000 | 10 | ✓ inside |
+| CE190 | 369.485 | 366.354 | 370.000 | 10 | ✓ inside |
 | CE195 | 369.701 | 366.647 | 370.000 | 10 | ✓ inside |
-| CE200 | 1221.129 | 1210.221 | 1222.000 | 10 | ✓ inside |
+| CE200 | 1221.102 | 1210.221 | 1222.000 | 10 | ✓ inside |
 
 #### Zone total load, February (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE100 | 3655.642 | 3654.127 | 3656.306 | 10 | ✓ inside |
-| CE110 | 3636.511 | 3635.534 | 3637.113 | 10 | ✓ inside |
-| CE120 | 3631.343 | 3630.472 | 3632.000 | 10 | ✓ inside |
-| CE130 | 208.282 | 206.748 | 209.371 | 10 | ✓ inside |
-| CE140 | 189.151 | 188.183 | 190.358 | 10 | ✓ inside |
-| CE150 | 4375.800 | 4374.747 | 4376.313 | 10 | ✓ inside |
-| CE160 | 4370.601 | 4369.652 | 4371.189 | 10 | ✓ inside |
-| CE165 | 4387.376 | 4385.925 | 4388.000 | 10 | ✓ inside |
-| CE170 | 2157.983 | 2157.139 | 2159.000 | 10 | ✓ inside |
-| CE180 | 4375.815 | 4374.739 | 4376.313 | 10 | ✓ inside |
-| CE185 | 4394.977 | 4393.311 | 4396.000 | 10 | ✓ inside |
-| CE190 | 558.636 | 557.000 | 559.456 | 10 | ✓ inside |
-| CE195 | 577.983 | 576.000 | 579.000 | 10 | ✓ inside |
-| CE200 | 5342.685 | 5283.000 | 5343.255 | 10 | ✓ inside |
+| CE100 | 3655.449 | 3654.127 | 3656.306 | 10 | ✓ inside |
+| CE110 | 3636.478 | 3635.534 | 3637.113 | 10 | ✓ inside |
+| CE120 | 3631.310 | 3630.472 | 3632.000 | 10 | ✓ inside |
+| CE130 | 208.089 | 206.748 | 209.371 | 10 | ✓ inside |
+| CE140 | 189.118 | 188.183 | 190.358 | 10 | ✓ inside |
+| CE150 | 4375.767 | 4374.747 | 4376.313 | 10 | ✓ inside |
+| CE160 | 4370.568 | 4369.652 | 4371.189 | 10 | ✓ inside |
+| CE165 | 4387.236 | 4385.925 | 4388.000 | 10 | ✓ inside |
+| CE170 | 2157.950 | 2157.139 | 2159.000 | 10 | ✓ inside |
+| CE180 | 4375.770 | 4374.739 | 4376.313 | 10 | ✓ inside |
+| CE185 | 4394.791 | 4393.311 | 4396.000 | 10 | ✓ inside |
+| CE190 | 558.604 | 557.000 | 559.456 | 10 | ✓ inside |
+| CE195 | 577.790 | 576.000 | 579.000 | 10 | ✓ inside |
+| CE200 | 5342.594 | 5283.000 | 5343.255 | 10 | ✓ inside |
 
 #### Zone sensible load, February (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE100 | 3655.642 | 3654.127 | 3656.306 | 10 | ✓ inside |
-| CE110 | 3636.511 | 3635.534 | 3637.113 | 10 | ✓ inside |
-| CE120 | 3631.343 | 3630.472 | 3632.000 | 10 | ✓ inside |
-| CE130 | 208.282 | 206.748 | 209.371 | 10 | ✓ inside |
-| CE140 | 189.151 | 188.183 | 190.358 | 10 | ✓ inside |
-| CE150 | 3636.604 | 3635.550 | 3637.113 | 10 | ✓ inside |
-| CE160 | 3631.436 | 3630.452 | 3632.000 | 10 | ✓ inside |
-| CE165 | 3648.167 | 3646.728 | 3649.000 | 10 | ✓ inside |
-| CE170 | 1418.912 | 1417.939 | 1420.000 | 10 | ✓ inside |
-| CE180 | 1418.946 | 1417.952 | 1420.000 | 10 | ✓ inside |
-| CE185 | 1438.077 | 1436.524 | 1439.000 | 10 | ✓ inside |
-| CE190 | 189.152 | 188.182 | 190.000 | 10 | ✓ inside |
-| CE195 | 208.282 | 206.748 | 209.000 | 10 | ✓ inside |
-| CE200 | 4121.556 | 4062.000 | 4122.231 | 10 | ✓ inside |
+| CE100 | 3655.449 | 3654.127 | 3656.306 | 10 | ✓ inside |
+| CE110 | 3636.478 | 3635.534 | 3637.113 | 10 | ✓ inside |
+| CE120 | 3631.310 | 3630.472 | 3632.000 | 10 | ✓ inside |
+| CE130 | 208.089 | 206.748 | 209.371 | 10 | ✓ inside |
+| CE140 | 189.118 | 188.183 | 190.358 | 10 | ✓ inside |
+| CE150 | 3636.571 | 3635.550 | 3637.113 | 10 | ✓ inside |
+| CE160 | 3631.403 | 3630.452 | 3632.000 | 10 | ✓ inside |
+| CE165 | 3648.029 | 3646.728 | 3649.000 | 10 | ✓ inside |
+| CE170 | 1418.879 | 1417.939 | 1420.000 | 10 | ✓ inside |
+| CE180 | 1418.914 | 1417.952 | 1420.000 | 10 | ✓ inside |
+| CE185 | 1437.884 | 1436.524 | 1439.000 | 10 | ✓ inside |
+| CE190 | 189.119 | 188.182 | 190.000 | 10 | ✓ inside |
+| CE195 | 208.089 | 206.748 | 209.000 | 10 | ✓ inside |
+| CE200 | 4121.492 | 4062.000 | 4122.231 | 10 | ✓ inside |
 
 #### Zone latent load, February (kWh)
 
@@ -749,13 +749,13 @@ Reference programs: Analytical TUD, Analytical HTAL1, Analytical HTAL2, CA-SIS, 
 | CE140 | 0.000 | 0.000 | 0.000 | 10 | ✓ inside |
 | CE150 | 739.196 | 739.000 | 739.449 | 10 | ✓ inside |
 | CE160 | 739.165 | 739.000 | 739.449 | 10 | ✓ inside |
-| CE165 | 739.209 | 739.000 | 739.449 | 10 | ✓ inside |
+| CE165 | 739.208 | 739.000 | 739.449 | 10 | ✓ inside |
 | CE170 | 739.071 | 739.000 | 739.449 | 10 | ✓ inside |
-| CE180 | 2956.869 | 2956.787 | 2957.503 | 10 | ✓ inside |
-| CE185 | 2956.900 | 2956.787 | 2957.503 | 10 | ✓ inside |
-| CE190 | 369.484 | 367.000 | 370.000 | 10 | ✓ inside |
+| CE180 | 2956.857 | 2956.787 | 2957.503 | 10 | ✓ inside |
+| CE185 | 2956.907 | 2956.787 | 2957.503 | 10 | ✓ inside |
+| CE190 | 369.485 | 367.000 | 370.000 | 10 | ✓ inside |
 | CE195 | 369.701 | 367.000 | 370.000 | 10 | ✓ inside |
-| CE200 | 1221.129 | 1220.982 | 1221.278 | 10 | ✓ inside |
+| CE200 | 1221.102 | 1220.982 | 1221.278 | 10 | ✓ inside |
 
 ### COP, indoor dry bulb and humidity ratio (February)
 
@@ -796,12 +796,12 @@ Reference programs: Analytical TUD, Analytical HTAL1, Analytical HTAL2, CA-SIS, 
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE100 | 2.377 | 2.389 | 2.432 | 9 | ✗ -0.5 % below min |
+| CE100 | 2.376 | 2.389 | 2.432 | 9 | ✗ -0.5 % below min |
 | CE110 | 3.383 | 3.357 | 3.463 | 9 | ✓ inside |
 | CE120 | 3.555 | 3.587 | 3.654 | 9 | ✗ -0.9 % below min |
 | CE130 | 1.894 | 1.890 | 2.003 | 9 | ✓ inside |
 | CE140 | 2.771 | 2.750 | 2.928 | 9 | ✓ inside |
-| CE150 | 3.645 | 3.627 | 3.709 | 9 | ✓ inside |
+| CE150 | 3.644 | 3.627 | 3.709 | 9 | ✓ inside |
 | CE160 | 3.826 | 3.833 | 3.957 | 9 | ✗ -0.2 % below min |
 | CE165 | 2.931 | 2.926 | 2.989 | 9 | ✓ inside |
 | CE170 | 3.399 | 3.367 | 3.485 | 9 | ✓ inside |
@@ -866,7 +866,7 @@ Reference programs: Analytical TUD, Analytical HTAL1, Analytical HTAL2, CA-SIS, 
 | CE185 | 22.200 | 22.200 | 22.610 | 9 | ✓ inside |
 | CE190 | 22.200 | 22.100 | 22.250 | 9 | ✓ inside |
 | CE195 | 22.200 | 22.100 | 22.260 | 9 | ✓ inside |
-| CE200 | 26.772 | 26.700 | 26.800 | 9 | ✓ inside |
+| CE200 | 26.770 | 26.700 | 26.800 | 9 | ✓ inside |
 
 #### Minimum indoor dry bulb, February (°C)
 
@@ -885,7 +885,7 @@ Reference programs: Analytical TUD, Analytical HTAL1, Analytical HTAL2, CA-SIS, 
 | CE185 | 22.200 | 22.130 | 22.333 | 9 | ✓ inside |
 | CE190 | 22.200 | 21.630 | 22.200 | 9 | ✓ inside |
 | CE195 | 22.200 | 21.760 | 22.200 | 9 | ✓ inside |
-| CE200 | 26.749 | 26.699 | 26.800 | 9 | ✓ inside |
+| CE200 | 26.744 | 26.699 | 26.800 | 9 | ✓ inside |
 
 #### Mean zone humidity ratio, February (kg/kg)
 
@@ -963,79 +963,79 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE300 | 34924.257 | 34745.638 | 35633.777 | 6 | ✓ inside |
-| CE310 | 39324.165 | 39290.364 | 39973.380 | 6 | ✓ inside |
-| CE320 | 39328.084 | 38745.000 | 40059.657 | 6 | ✓ inside |
-| CE330 | 40120.228 | 39438.000 | 40963.300 | 6 | ✓ inside |
-| CE340 | 39856.653 | 39265.000 | 40619.295 | 6 | ✓ inside |
-| CE350 | 31403.772 | 30547.000 | 32236.979 | 6 | ✓ inside |
-| CE360 | 55167.283 | 54016.000 | 55298.792 | 6 | ✓ inside |
-| CE400 | 31192.970 | 30846.000 | 32045.154 | 5 | ✓ inside |
-| CE410 | 31776.233 | 31503.000 | 32078.432 | 4 | ✓ inside |
-| CE420 | 32955.941 | 32530.000 | 33387.008 | 5 | ✓ inside |
-| CE430 | 31795.580 | 31772.397 | 32538.031 | 5 | ✓ inside |
-| CE440 | 33085.612 | 32973.000 | 33691.321 | 5 | ✓ inside |
-| CE500 | 23025.851 | 22322.953 | 23138.000 | 6 | ✓ inside |
-| CE500 May-Sep | 17987.947 | 17390.851 | 18051.000 | 6 | ✓ inside |
-| CE510 May-Sep | 35837.671 | 34608.775 | 35971.000 | 6 | ✓ inside |
-| CE520 | 26115.900 | 24986.582 | 25781.000 | 6 | ✗ +1.3 % above max |
-| CE522 | 24545.442 | 23544.161 | 24360.000 | 6 | ✗ +0.8 % above max |
-| CE525 | 20979.877 | 20241.713 | 21323.000 | 6 | ✓ inside |
-| CE530 | 17524.038 | 17281.271 | 17875.000 | 6 | ✓ inside |
-| CE540 | 20445.005 | 19061.113 | 20164.000 | 6 | ✗ +1.4 % above max |
-| CE545 | 16057.336 | 15687.080 | 16635.726 | 6 | ✓ inside |
+| CE300 | 34924.336 | 34745.638 | 35633.777 | 6 | ✓ inside |
+| CE310 | 39324.251 | 39290.364 | 39973.380 | 6 | ✓ inside |
+| CE320 | 39328.184 | 38745.000 | 40059.657 | 6 | ✓ inside |
+| CE330 | 40120.325 | 39438.000 | 40963.300 | 6 | ✓ inside |
+| CE340 | 39856.754 | 39265.000 | 40619.295 | 6 | ✓ inside |
+| CE350 | 31403.851 | 30547.000 | 32236.979 | 6 | ✓ inside |
+| CE360 | 55167.378 | 54016.000 | 55298.792 | 6 | ✓ inside |
+| CE400 | 31188.753 | 30846.000 | 32045.154 | 5 | ✓ inside |
+| CE410 | 31776.210 | 31503.000 | 32078.432 | 4 | ✓ inside |
+| CE420 | 32955.928 | 32530.000 | 33387.008 | 5 | ✓ inside |
+| CE430 | 31795.564 | 31772.397 | 32538.031 | 5 | ✓ inside |
+| CE440 | 33085.606 | 32973.000 | 33691.321 | 5 | ✓ inside |
+| CE500 | 23025.908 | 22322.953 | 23138.000 | 6 | ✓ inside |
+| CE500 May-Sep | 17987.929 | 17390.851 | 18051.000 | 6 | ✓ inside |
+| CE510 May-Sep | 35837.657 | 34608.775 | 35971.000 | 6 | ✓ inside |
+| CE520 | 26116.016 | 24986.582 | 25781.000 | 6 | ✗ +1.3 % above max |
+| CE522 | 24545.506 | 23544.161 | 24360.000 | 6 | ✗ +0.8 % above max |
+| CE525 | 20979.925 | 20241.713 | 21323.000 | 6 | ✓ inside |
+| CE530 | 17524.084 | 17281.271 | 17875.000 | 6 | ✓ inside |
+| CE540 | 20445.106 | 19061.113 | 20164.000 | 6 | ✗ +1.4 % above max |
+| CE545 | 16057.378 | 15687.080 | 16635.726 | 6 | ✓ inside |
 
 #### Annual compressor consumption (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE300 | 21723.950 | 21569.000 | 23883.546 | 6 | ✓ inside |
-| CE310 | 25757.603 | 25813.000 | 28428.272 | 6 | ✗ -0.2 % below min |
-| CE320 | 25781.905 | 25250.000 | 28217.008 | 6 | ✓ inside |
-| CE330 | 26545.058 | 25925.000 | 29281.282 | 6 | ✓ inside |
-| CE340 | 26280.910 | 25745.000 | 28920.927 | 6 | ✓ inside |
-| CE350 | 18575.791 | 17801.000 | 20283.022 | 6 | ✓ inside |
-| CE360 | 39996.860 | 38955.000 | 43842.619 | 6 | ✓ inside |
-| CE400 | 18419.435 | 18106.000 | 20150.589 | 5 | ✓ inside |
-| CE410 | 18919.675 | 18685.000 | 19204.494 | 4 | ✓ inside |
-| CE420 | 19975.879 | 19596.000 | 21873.413 | 5 | ✓ inside |
-| CE430 | 18936.380 | 18951.000 | 20910.305 | 5 | ✓ inside |
-| CE440 | 20090.185 | 19989.000 | 22169.553 | 5 | ✓ inside |
-| CE500 | 18422.109 | 17854.296 | 20406.282 | 6 | ✓ inside |
-| CE500 May-Sep | 14434.009 | 13942.148 | 15967.148 | 6 | ✓ inside |
-| CE510 May-Sep | 28697.032 | 27747.879 | 31669.181 | 6 | ✓ inside |
-| CE520 | 20421.175 | 19521.277 | 21998.508 | 6 | ✓ inside |
-| CE522 | 19407.784 | 18620.311 | 21235.168 | 6 | ✓ inside |
-| CE525 | 17088.112 | 16506.802 | 18521.664 | 6 | ✓ inside |
-| CE530 | 13900.217 | 13656.995 | 15651.726 | 6 | ✓ inside |
-| CE540 | 15851.711 | 15020.743 | 16751.867 | 6 | ✓ inside |
-| CE545 | 12958.679 | 12621.869 | 14764.824 | 6 | ✓ inside |
+| CE300 | 21724.019 | 21569.000 | 23883.546 | 6 | ✓ inside |
+| CE310 | 25757.678 | 25813.000 | 28428.272 | 6 | ✗ -0.2 % below min |
+| CE320 | 25781.994 | 25250.000 | 28217.008 | 6 | ✓ inside |
+| CE330 | 26545.144 | 25925.000 | 29281.282 | 6 | ✓ inside |
+| CE340 | 26280.999 | 25745.000 | 28920.927 | 6 | ✓ inside |
+| CE350 | 18575.861 | 17801.000 | 20283.022 | 6 | ✓ inside |
+| CE360 | 39996.944 | 38955.000 | 43842.619 | 6 | ✓ inside |
+| CE400 | 18415.568 | 18106.000 | 20150.589 | 5 | ✓ inside |
+| CE410 | 18919.654 | 18685.000 | 19204.494 | 4 | ✓ inside |
+| CE420 | 19975.867 | 19596.000 | 21873.413 | 5 | ✓ inside |
+| CE430 | 18936.366 | 18951.000 | 20910.305 | 5 | ✓ inside |
+| CE440 | 20090.179 | 19989.000 | 22169.553 | 5 | ✓ inside |
+| CE500 | 18422.152 | 17854.296 | 20406.282 | 6 | ✓ inside |
+| CE500 May-Sep | 14433.994 | 13942.148 | 15967.148 | 6 | ✓ inside |
+| CE510 May-Sep | 28697.021 | 27747.879 | 31669.181 | 6 | ✓ inside |
+| CE520 | 20421.261 | 19521.277 | 21998.508 | 6 | ✓ inside |
+| CE522 | 19407.832 | 18620.311 | 21235.168 | 6 | ✓ inside |
+| CE525 | 17088.148 | 16506.802 | 18521.664 | 6 | ✓ inside |
+| CE530 | 13900.252 | 13656.995 | 15651.726 | 6 | ✓ inside |
+| CE540 | 15851.786 | 15020.743 | 16751.867 | 6 | ✓ inside |
+| CE545 | 12958.711 | 12621.869 | 14764.824 | 6 | ✓ inside |
 
 #### Annual condenser fan consumption (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE300 | 2320.387 | 2301.000 | 2400.323 | 5 | ✓ inside |
-| CE310 | 2686.642 | 2686.000 | 2753.834 | 5 | ✓ inside |
-| CE320 | 2666.259 | 2615.000 | 2746.600 | 5 | ✓ inside |
-| CE330 | 2695.249 | 2633.000 | 2783.648 | 5 | ✓ inside |
-| CE340 | 2695.823 | 2640.000 | 2776.438 | 5 | ✓ inside |
-| CE350 | 1948.061 | 1865.000 | 2040.219 | 5 | ✓ inside |
-| CE360 | 4290.502 | 4181.000 | 4313.032 | 5 | ✓ inside |
-| CE400 | 1893.616 | 1860.000 | 1986.285 | 4 | ✓ inside |
-| CE410 | 1976.638 | 1936.000 | 1994.017 | 4 | ✓ inside |
+| CE300 | 2320.397 | 2301.000 | 2400.323 | 5 | ✓ inside |
+| CE310 | 2686.652 | 2686.000 | 2753.834 | 5 | ✓ inside |
+| CE320 | 2666.270 | 2615.000 | 2746.600 | 5 | ✓ inside |
+| CE330 | 2695.261 | 2633.000 | 2783.648 | 5 | ✓ inside |
+| CE340 | 2695.835 | 2640.000 | 2776.438 | 5 | ✓ inside |
+| CE350 | 1948.071 | 1865.000 | 2040.219 | 5 | ✓ inside |
+| CE360 | 4290.514 | 4181.000 | 4313.032 | 5 | ✓ inside |
+| CE400 | 1893.264 | 1860.000 | 1986.285 | 4 | ✓ inside |
+| CE410 | 1976.636 | 1936.000 | 1994.017 | 4 | ✓ inside |
 | CE420 | 2100.142 | 2054.000 | 2148.502 | 4 | ✓ inside |
-| CE430 | 1979.280 | 1970.000 | 2059.490 | 4 | ✓ inside |
+| CE430 | 1979.278 | 1970.000 | 2059.490 | 4 | ✓ inside |
 | CE440 | 2115.507 | 2104.000 | 2182.268 | 4 | ✓ inside |
-| CE500 | 1971.216 | 1911.869 | 1976.000 | 5 | ✓ inside |
-| CE500 May-Sep | 1521.714 | 1475.528 | 1527.000 | 5 | ✓ inside |
-| CE510 May-Sep | 3057.456 | 2937.677 | 3061.000 | 5 | ✓ inside |
-| CE520 | 2438.349 | 2340.117 | 2396.000 | 5 | ✗ +1.8 % above max |
-| CE522 | 2199.826 | 2108.278 | 2182.000 | 5 | ✗ +0.8 % above max |
-| CE525 | 1666.364 | 1599.203 | 1663.000 | 5 | ✗ +0.2 % above max |
-| CE530 | 1551.636 | 1535.684 | 1585.000 | 5 | ✓ inside |
-| CE540 | 1966.742 | 1872.336 | 1940.000 | 5 | ✗ +1.4 % above max |
-| CE545 | 1326.773 | 1301.791 | 1337.000 | 5 | ✓ inside |
+| CE500 | 1971.221 | 1911.869 | 1976.000 | 5 | ✓ inside |
+| CE500 May-Sep | 1521.712 | 1475.528 | 1527.000 | 5 | ✓ inside |
+| CE510 May-Sep | 3057.455 | 2937.677 | 3061.000 | 5 | ✓ inside |
+| CE520 | 2438.362 | 2340.117 | 2396.000 | 5 | ✗ +1.8 % above max |
+| CE522 | 2199.833 | 2108.278 | 2182.000 | 5 | ✗ +0.8 % above max |
+| CE525 | 1666.369 | 1599.203 | 1663.000 | 5 | ✗ +0.2 % above max |
+| CE530 | 1551.641 | 1535.684 | 1585.000 | 5 | ✓ inside |
+| CE540 | 1966.753 | 1872.336 | 1940.000 | 5 | ✗ +1.4 % above max |
+| CE545 | 1326.777 | 1301.791 | 1337.000 | 5 | ✓ inside |
 
 #### Annual indoor fan consumption (kWh)
 
@@ -1053,15 +1053,15 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 10879.920 | 10862.092 | 10880.000 | 5 | ✓ inside |
 | CE430 | 10879.920 | 10862.092 | 10880.000 | 5 | ✓ inside |
 | CE440 | 10879.920 | 10862.092 | 10880.000 | 5 | ✓ inside |
-| CE500 | 2632.527 | 2369.000 | 2639.000 | 6 | ✓ inside |
-| CE500 May-Sep | 2032.224 | 1837.000 | 2035.000 | 6 | ✓ inside |
-| CE510 May-Sep | 4083.183 | 3923.220 | 4099.000 | 6 | ✓ inside |
-| CE520 | 3256.376 | 2871.000 | 3200.000 | 6 | ✗ +1.8 % above max |
-| CE522 | 2937.832 | 2704.000 | 2904.000 | 6 | ✗ +1.2 % above max |
-| CE525 | 2225.402 | 1885.000 | 2221.000 | 6 | ✗ +0.2 % above max |
-| CE530 | 2072.185 | 1833.000 | 2117.000 | 6 | ✓ inside |
-| CE540 | 2626.552 | 2258.000 | 2573.000 | 6 | ✗ +2.1 % above max |
-| CE545 | 1771.884 | 1501.000 | 1870.902 | 6 | ✓ inside |
+| CE500 | 2632.534 | 2369.000 | 2639.000 | 6 | ✓ inside |
+| CE500 May-Sep | 2032.222 | 1837.000 | 2035.000 | 6 | ✓ inside |
+| CE510 May-Sep | 4083.181 | 3923.220 | 4099.000 | 6 | ✓ inside |
+| CE520 | 3256.393 | 2871.000 | 3200.000 | 6 | ✗ +1.8 % above max |
+| CE522 | 2937.842 | 2704.000 | 2904.000 | 6 | ✗ +1.2 % above max |
+| CE525 | 2225.408 | 1885.000 | 2221.000 | 6 | ✗ +0.2 % above max |
+| CE530 | 2072.191 | 1833.000 | 2117.000 | 6 | ✓ inside |
+| CE540 | 2626.567 | 2258.000 | 2573.000 | 6 | ✗ +2.1 % above max |
+| CE545 | 1771.890 | 1501.000 | 1870.902 | 6 | ✓ inside |
 
 ### Annual evaporator coil loads and COP2
 
@@ -1078,76 +1078,76 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE300 | 77695.809 | 77283.436 | 80426.867 | 6 | ✓ inside |
-| CE310 | 96579.305 | 96447.590 | 99342.132 | 6 | ✓ inside |
-| CE320 | 96980.304 | 96083.560 | 99791.678 | 6 | ✓ inside |
-| CE330 | 101777.568 | 100729.970 | 105012.871 | 6 | ✓ inside |
-| CE340 | 99785.855 | 99027.645 | 102727.979 | 6 | ✓ inside |
-| CE350 | 66419.371 | 63634.648 | 69387.998 | 6 | ✓ inside |
-| CE360 | 162810.535 | 159807.206 | 162974.063 | 6 | ✓ inside |
-| CE400 | 65958.314 | 64917.547 | 68792.822 | 5 | ✓ inside |
-| CE410 | 66928.280 | 66175.000 | 68672.854 | 4 | ✓ inside |
-| CE420 | 70847.282 | 69610.957 | 72609.307 | 5 | ✓ inside |
-| CE430 | 66973.942 | 67141.352 | 69756.312 | 5 | ✗ -0.2 % below min |
-| CE440 | 71368.638 | 71181.094 | 73711.363 | 5 | ✓ inside |
-| CE500 | 65391.284 | 63105.366 | 65995.861 | 6 | ✓ inside |
-| CE500 May-Sep | 50207.250 | 48439.570 | 50692.817 | 6 | ✓ inside |
-| CE510 May-Sep | 112933.911 | 108974.310 | 114017.952 | 6 | ✓ inside |
-| CE520 | 66127.584 | 63212.102 | 66571.217 | 6 | ✓ inside |
-| CE522 | 65746.734 | 63157.030 | 66373.081 | 6 | ✓ inside |
-| CE525 | 64897.312 | 63001.558 | 65399.110 | 6 | ✓ inside |
-| CE530 | 46622.101 | 44875.414 | 47002.000 | 6 | ✓ inside |
-| CE540 | 47255.052 | 44979.842 | 47462.000 | 6 | ✓ inside |
-| CE545 | 46247.057 | 44775.110 | 46668.000 | 6 | ✓ inside |
+| CE300 | 77696.087 | 77283.436 | 80426.867 | 6 | ✓ inside |
+| CE310 | 96579.608 | 96447.590 | 99342.132 | 6 | ✓ inside |
+| CE320 | 96980.647 | 96083.560 | 99791.678 | 6 | ✓ inside |
+| CE330 | 101777.890 | 100729.970 | 105012.871 | 6 | ✓ inside |
+| CE340 | 99786.198 | 99027.645 | 102727.979 | 6 | ✓ inside |
+| CE350 | 66419.648 | 63634.648 | 69387.998 | 6 | ✓ inside |
+| CE360 | 162810.874 | 159807.206 | 162974.063 | 6 | ✓ inside |
+| CE400 | 65940.153 | 64917.547 | 68792.822 | 5 | ✓ inside |
+| CE410 | 66928.197 | 66175.000 | 68672.854 | 4 | ✓ inside |
+| CE420 | 70847.234 | 69610.957 | 72609.307 | 5 | ✓ inside |
+| CE430 | 66973.881 | 67141.352 | 69756.312 | 5 | ✗ -0.2 % below min |
+| CE440 | 71368.612 | 71181.094 | 73711.363 | 5 | ✓ inside |
+| CE500 | 65391.489 | 63105.366 | 65995.861 | 6 | ✓ inside |
+| CE500 May-Sep | 50207.203 | 48439.570 | 50692.817 | 6 | ✓ inside |
+| CE510 May-Sep | 112933.872 | 108974.310 | 114017.952 | 6 | ✓ inside |
+| CE520 | 66127.890 | 63212.102 | 66571.217 | 6 | ✓ inside |
+| CE522 | 65746.951 | 63157.030 | 66373.081 | 6 | ✓ inside |
+| CE525 | 64897.501 | 63001.558 | 65399.110 | 6 | ✓ inside |
+| CE530 | 46622.260 | 44875.414 | 47002.000 | 6 | ✓ inside |
+| CE540 | 47255.318 | 44979.842 | 47462.000 | 6 | ✓ inside |
+| CE545 | 46247.215 | 44775.110 | 46668.000 | 6 | ✓ inside |
 
 #### Annual evaporator coil sensible load (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE300 | 55439.790 | 55191.000 | 56661.748 | 6 | ✓ inside |
-| CE310 | 55441.826 | 55083.000 | 56312.717 | 6 | ✓ inside |
-| CE320 | 62391.595 | 62008.804 | 62859.205 | 6 | ✓ inside |
-| CE330 | 63330.979 | 61822.000 | 63778.656 | 6 | ✓ inside |
-| CE340 | 63046.360 | 61406.000 | 63110.585 | 6 | ✓ inside |
-| CE350 | 48700.678 | 47676.525 | 50370.830 | 6 | ✓ inside |
-| CE360 | 135268.377 | 134205.707 | 135287.196 | 6 | ✓ inside |
-| CE400 | 40757.433 | 40687.747 | 41952.360 | 5 | ✓ inside |
-| CE410 | 47139.009 | 45585.000 | 47659.819 | 4 | ✓ inside |
-| CE420 | 49988.137 | 49523.928 | 50612.215 | 5 | ✓ inside |
-| CE430 | 46724.891 | 46143.000 | 47863.346 | 5 | ✓ inside |
-| CE440 | 50088.793 | 49785.000 | 50876.072 | 5 | ✓ inside |
-| CE500 | 47157.461 | 44874.225 | 47649.853 | 6 | ✓ inside |
-| CE500 May-Sep | 36215.038 | 34443.234 | 36595.587 | 6 | ✓ inside |
-| CE510 May-Sep | 81455.157 | 77489.432 | 82305.704 | 6 | ✓ inside |
-| CE520 | 47889.080 | 44976.724 | 48101.520 | 6 | ✓ inside |
-| CE522 | 47511.145 | 44924.113 | 47962.298 | 6 | ✓ inside |
-| CE525 | 46666.119 | 44775.105 | 47217.531 | 6 | ✓ inside |
-| CE530 | 46622.101 | 44874.225 | 47002.000 | 6 | ✓ inside |
-| CE540 | 47255.050 | 44976.747 | 47460.000 | 6 | ✓ inside |
-| CE545 | 46247.057 | 44775.105 | 46668.000 | 6 | ✓ inside |
+| CE300 | 55440.029 | 55191.000 | 56661.748 | 6 | ✓ inside |
+| CE310 | 55442.064 | 55083.000 | 56312.717 | 6 | ✓ inside |
+| CE320 | 62391.885 | 62008.804 | 62859.205 | 6 | ✓ inside |
+| CE330 | 63331.280 | 61822.000 | 63778.656 | 6 | ✓ inside |
+| CE340 | 63046.656 | 61406.000 | 63110.585 | 6 | ✓ inside |
+| CE350 | 48700.917 | 47676.525 | 50370.830 | 6 | ✓ inside |
+| CE360 | 135268.656 | 134205.707 | 135287.196 | 6 | ✓ inside |
+| CE400 | 40757.361 | 40687.747 | 41952.360 | 5 | ✓ inside |
+| CE410 | 47138.933 | 45585.000 | 47659.819 | 4 | ✓ inside |
+| CE420 | 49988.092 | 49523.928 | 50612.215 | 5 | ✓ inside |
+| CE430 | 46724.829 | 46143.000 | 47863.346 | 5 | ✓ inside |
+| CE440 | 50088.764 | 49785.000 | 50876.072 | 5 | ✓ inside |
+| CE500 | 47157.621 | 44874.225 | 47649.853 | 6 | ✓ inside |
+| CE500 May-Sep | 36214.987 | 34443.234 | 36595.587 | 6 | ✓ inside |
+| CE510 May-Sep | 81455.106 | 77489.432 | 82305.704 | 6 | ✓ inside |
+| CE520 | 47889.341 | 44976.724 | 48101.520 | 6 | ✓ inside |
+| CE522 | 47511.311 | 44924.113 | 47962.298 | 6 | ✓ inside |
+| CE525 | 46666.278 | 44775.105 | 47217.531 | 6 | ✓ inside |
+| CE530 | 46622.260 | 44874.225 | 47002.000 | 6 | ✓ inside |
+| CE540 | 47255.316 | 44976.747 | 47460.000 | 6 | ✓ inside |
+| CE545 | 46247.215 | 44775.105 | 46668.000 | 6 | ✓ inside |
 
 #### Annual evaporator coil latent load (kWh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE300 | 22256.020 | 21486.575 | 23765.119 | 6 | ✓ inside |
-| CE310 | 41137.480 | 41093.792 | 43085.754 | 6 | ✓ inside |
-| CE320 | 34588.709 | 33659.311 | 36932.473 | 6 | ✓ inside |
-| CE330 | 38446.589 | 37418.905 | 41929.495 | 6 | ✓ inside |
-| CE340 | 36739.495 | 35974.215 | 39695.373 | 6 | ✓ inside |
-| CE350 | 17718.693 | 15958.123 | 19017.167 | 6 | ✓ inside |
-| CE360 | 27542.158 | 24887.414 | 27997.227 | 6 | ✓ inside |
-| CE400 | 25200.881 | 23498.413 | 26840.463 | 5 | ✓ inside |
-| CE410 | 19789.271 | 19120.965 | 22996.208 | 4 | ✓ inside |
-| CE420 | 20859.145 | 19944.869 | 22219.483 | 5 | ✓ inside |
-| CE430 | 20249.050 | 19765.199 | 21892.966 | 5 | ✓ inside |
-| CE440 | 21279.845 | 20689.050 | 22835.291 | 5 | ✓ inside |
-| CE500 | 18233.824 | 18079.943 | 18346.301 | 6 | ✓ inside |
-| CE500 May-Sep | 13992.212 | 13877.000 | 14097.231 | 6 | ✓ inside |
-| CE510 May-Sep | 31478.754 | 31217.000 | 31712.248 | 6 | ✓ inside |
-| CE520 | 18238.503 | 18087.000 | 18469.697 | 6 | ✓ inside |
-| CE522 | 18235.589 | 18092.976 | 18410.783 | 6 | ✓ inside |
-| CE525 | 18231.193 | 18043.574 | 18313.935 | 6 | ✓ inside |
+| CE300 | 22256.059 | 21486.575 | 23765.119 | 6 | ✓ inside |
+| CE310 | 41137.544 | 41093.792 | 43085.754 | 6 | ✓ inside |
+| CE320 | 34588.762 | 33659.311 | 36932.473 | 6 | ✓ inside |
+| CE330 | 38446.610 | 37418.905 | 41929.495 | 6 | ✓ inside |
+| CE340 | 36739.542 | 35974.215 | 39695.373 | 6 | ✓ inside |
+| CE350 | 17718.732 | 15958.123 | 19017.167 | 6 | ✓ inside |
+| CE360 | 27542.219 | 24887.414 | 27997.227 | 6 | ✓ inside |
+| CE400 | 25182.791 | 23498.413 | 26840.463 | 5 | ✓ inside |
+| CE410 | 19789.264 | 19120.965 | 22996.208 | 4 | ✓ inside |
+| CE420 | 20859.142 | 19944.869 | 22219.483 | 5 | ✓ inside |
+| CE430 | 20249.052 | 19765.199 | 21892.966 | 5 | ✓ inside |
+| CE440 | 21279.849 | 20689.050 | 22835.291 | 5 | ✓ inside |
+| CE500 | 18233.867 | 18079.943 | 18346.301 | 6 | ✓ inside |
+| CE500 May-Sep | 13992.216 | 13877.000 | 14097.231 | 6 | ✓ inside |
+| CE510 May-Sep | 31478.766 | 31217.000 | 31712.248 | 6 | ✓ inside |
+| CE520 | 18238.549 | 18087.000 | 18469.697 | 6 | ✓ inside |
+| CE522 | 18235.640 | 18092.976 | 18410.783 | 6 | ✓ inside |
+| CE525 | 18231.223 | 18043.574 | 18313.935 | 6 | ✓ inside |
 | CE530 | 0.000 | 0.000 | 60.672 | 6 | ✓ inside |
 | CE540 | 0.002 | 0.980 | 106.982 | 6 | ✗ -99.8 % below min |
 | CE545 | 0.000 | 0.000 | 25.500 | 6 | ✓ inside |
@@ -1201,18 +1201,18 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE360 | 25.430 | 25.323 | 25.611 | 6 | ✓ inside |
 | CE400 | 24.072 | 23.990 | 24.126 | 5 | ✓ inside |
 | CE410 | 24.061 | 23.990 | 24.122 | 4 | ✓ inside |
-| CE420 | 24.061 | 23.926 | 24.091 | 5 | ✓ inside |
-| CE430 | 24.058 | 23.990 | 24.091 | 5 | ✓ inside |
+| CE420 | 24.062 | 23.926 | 24.091 | 5 | ✓ inside |
+| CE430 | 24.059 | 23.990 | 24.091 | 5 | ✓ inside |
 | CE440 | 24.063 | 23.912 | 24.091 | 5 | ✓ inside |
-| CE500 | 20.794 | 20.234 | 22.860 | 6 | ✓ inside |
+| CE500 | 20.829 | 20.234 | 22.860 | 6 | ✓ inside |
 | CE500 May-Sep | 25.000 | 24.572 | 25.000 | 6 | ✓ inside |
 | CE510 May-Sep | 25.000 | 24.960 | 25.817 | 6 | ✓ inside |
-| CE520 | 13.974 | 13.517 | 14.890 | 6 | ✓ inside |
-| CE522 | 17.482 | 16.946 | 18.700 | 6 | ✓ inside |
-| CE525 | 27.410 | 26.844 | 30.690 | 6 | ✓ inside |
-| CE530 | 20.794 | 20.025 | 22.860 | 6 | ✓ inside |
-| CE540 | 13.948 | 13.289 | 14.980 | 6 | ✓ inside |
-| CE545 | 27.410 | 26.605 | 30.690 | 6 | ✓ inside |
+| CE520 | 14.004 | 13.517 | 14.890 | 6 | ✓ inside |
+| CE522 | 17.517 | 16.946 | 18.700 | 6 | ✓ inside |
+| CE525 | 27.445 | 26.844 | 30.690 | 6 | ✓ inside |
+| CE530 | 20.829 | 20.025 | 22.860 | 6 | ✓ inside |
+| CE540 | 13.978 | 13.289 | 14.980 | 6 | ✓ inside |
+| CE545 | 27.445 | 26.605 | 30.690 | 6 | ✓ inside |
 
 #### Annual mean zone humidity ratio (kg/kg)
 
@@ -1235,7 +1235,7 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE510 May-Sep | 0.011 | 0.011 | 0.011 | 6 | ✓ inside |
 | CE520 | 0.006 | 0.006 | 0.008 | 4 | ✓ inside |
 | CE522 | 0.008 | 0.008 | 0.009 | 4 | ✓ inside |
-| CE525 | 0.013 | 0.014 | 0.015 | 4 | ✗ -5.8 % below min |
+| CE525 | 0.013 | 0.014 | 0.015 | 4 | ✗ -5.7 % below min |
 | CE530 | 0.005 | 0.006 | 0.007 | 4 | ✗ -11.0 % below min |
 | CE540 | 0.003 | 0.004 | 0.005 | 4 | ✗ -34.2 % below min |
 | CE545 | 0.006 | 0.006 | 0.007 | 4 | ✗ -10.2 % below min |
@@ -1244,27 +1244,27 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE300 | 47.716 | 47.826 | 48.615 | 6 | ✗ -0.2 % below min |
+| CE300 | 47.715 | 47.826 | 48.615 | 6 | ✗ -0.2 % below min |
 | CE310 | 58.349 | 57.800 | 58.551 | 6 | ✓ inside |
 | CE320 | 51.159 | 49.940 | 52.005 | 6 | ✓ inside |
 | CE330 | 50.364 | 50.085 | 51.176 | 6 | ✓ inside |
 | CE340 | 50.457 | 50.297 | 51.148 | 6 | ✓ inside |
-| CE350 | 43.721 | 44.316 | 45.550 | 6 | ✗ -1.3 % below min |
-| CE360 | 40.340 | 40.871 | 42.369 | 6 | ✗ -1.3 % below min |
+| CE350 | 43.720 | 44.316 | 45.550 | 6 | ✗ -1.3 % below min |
+| CE360 | 40.339 | 40.871 | 42.369 | 6 | ✗ -1.3 % below min |
 | CE400 | 51.970 | 50.771 | 52.549 | 5 | ✓ inside |
 | CE410 | 49.304 | 49.630 | 50.497 | 4 | ✗ -0.7 % below min |
 | CE420 | 48.628 | 48.760 | 49.398 | 5 | ✗ -0.3 % below min |
 | CE430 | 49.061 | 48.822 | 49.600 | 5 | ✓ inside |
 | CE440 | 48.213 | 48.230 | 48.829 | 5 | ✓ inside |
-| CE500 | 64.488 | 59.198 | 66.526 | 4 | ✓ inside |
+| CE500 | 64.548 | 59.198 | 66.526 | 4 | ✓ inside |
 | CE500 May-Sep | 56.349 | 55.130 | 57.470 | 6 | ✓ inside |
 | CE510 May-Sep | 56.345 | 54.700 | 57.436 | 6 | ✓ inside |
-| CE520 | 65.351 | 61.405 | 72.170 | 4 | ✓ inside |
-| CE522 | 64.814 | 60.752 | 68.677 | 4 | ✓ inside |
-| CE525 | 56.854 | 54.994 | 61.467 | 4 | ✓ inside |
-| CE530 | 37.015 | 39.600 | 48.973 | 4 | ✗ -6.5 % below min |
-| CE540 | 26.087 | 40.051 | 48.521 | 4 | ✗ -34.9 % below min |
-| CE545 | 31.643 | 29.200 | 38.631 | 4 | ✓ inside |
+| CE520 | 65.168 | 61.405 | 72.170 | 4 | ✓ inside |
+| CE522 | 64.816 | 60.752 | 68.677 | 4 | ✓ inside |
+| CE525 | 56.917 | 54.994 | 61.467 | 4 | ✓ inside |
+| CE530 | 36.877 | 39.600 | 48.973 | 4 | ✗ -6.9 % below min |
+| CE540 | 26.024 | 40.051 | 48.521 | 4 | ✗ -35.0 % below min |
+| CE545 | 31.496 | 29.200 | 38.631 | 4 | ✓ inside |
 
 ### Annual hourly maxima of consumption and loads
 
@@ -1281,73 +1281,73 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| CE300 | 11748.488 | 20-Jul 15 | 11548.000 | 11932.000 | 6 | ✓ inside |
-| CE310 | 12629.802 | 20-Jul 15 | 12162.000 | 12653.000 | 6 | ✓ inside |
-| CE320 | 13095.665 | 20-Jul 15 | 12875.000 | 13104.000 | 6 | ✓ inside |
+| CE300 | 11748.460 | 20-Jul 15 | 11548.000 | 11932.000 | 6 | ✓ inside |
+| CE310 | 12629.797 | 20-Jul 15 | 12162.000 | 12653.000 | 6 | ✓ inside |
+| CE320 | 13095.663 | 20-Jul 15 | 12875.000 | 13104.000 | 6 | ✓ inside |
 | CE330 | 13428.331 | 20-Jul 15 | 13212.000 | 13467.000 | 6 | ✓ inside |
-| CE340 | 13250.092 | 20-Jul 15 | 13101.000 | 13277.000 | 6 | ✓ inside |
-| CE350 | 11748.490 | 20-Jul 15 | 11546.000 | 11932.000 | 6 | ✓ inside |
-| CE360 | 12896.248 | 20-Jul 15 | 12726.000 | 12863.000 | 6 | ✗ +0.3 % above max |
+| CE340 | 13250.091 | 20-Jul 15 | 13101.000 | 13277.000 | 6 | ✓ inside |
+| CE350 | 11748.461 | 20-Jul 15 | 11546.000 | 11932.000 | 6 | ✓ inside |
+| CE360 | 12896.239 | 20-Jul 15 | 12726.000 | 12863.000 | 6 | ✗ +0.3 % above max |
 | CE400 | 12109.718 | 17-Sep 15 | 11519.000 | 11899.860 | 5 | ✗ +1.8 % above max |
-| CE410 | 11748.624 | 20-Jul 15 | 11549.000 | 11627.868 | 4 | ✗ +1.0 % above max |
-| CE420 | 11749.228 | 20-Jul 15 | 11548.000 | 11899.860 | 5 | ✓ inside |
-| CE430 | 11748.624 | 20-Jul 15 | 11548.000 | 11899.860 | 5 | ✓ inside |
-| CE440 | 11748.488 | 20-Jul 15 | 11461.000 | 11899.860 | 5 | ✓ inside |
-| CE500 | 10498.410 | 20-Jul 15 | 10166.483 | 10431.000 | 6 | ✗ +0.6 % above max |
-| CE510 | 11525.149 | 20-Jul 15 | 11186.000 | 11590.000 | 6 | ✓ inside |
-| CE520 | 11175.055 | 20-Jul 15 | 10684.000 | 11100.525 | 6 | ✗ +0.7 % above max |
-| CE522 | 11040.590 | 20-Jul 15 | 10430.779 | 10972.000 | 6 | ✗ +0.6 % above max |
-| CE525 | 9731.006 | 20-Jul 15 | 9366.748 | 9585.000 | 6 | ✗ +1.5 % above max |
-| CE530 | 7991.194 | 20-Jul 15 | 7992.000 | 8171.048 | 6 | ✓ inside |
-| CE540 | 9150.880 | 20-Jul 15 | 8677.402 | 8985.000 | 6 | ✗ +1.8 % above max |
-| CE545 | 7426.513 | 20-Jul 15 | 7204.827 | 7762.756 | 6 | ✓ inside |
+| CE410 | 11748.595 | 20-Jul 15 | 11549.000 | 11627.868 | 4 | ✗ +1.0 % above max |
+| CE420 | 11749.199 | 20-Jul 15 | 11548.000 | 11899.860 | 5 | ✓ inside |
+| CE430 | 11748.595 | 20-Jul 15 | 11548.000 | 11899.860 | 5 | ✓ inside |
+| CE440 | 11748.460 | 20-Jul 15 | 11461.000 | 11899.860 | 5 | ✓ inside |
+| CE500 | 10498.379 | 20-Jul 15 | 10166.483 | 10431.000 | 6 | ✗ +0.6 % above max |
+| CE510 | 11525.119 | 20-Jul 15 | 11186.000 | 11590.000 | 6 | ✓ inside |
+| CE520 | 11175.045 | 20-Jul 15 | 10684.000 | 11100.525 | 6 | ✗ +0.7 % above max |
+| CE522 | 11040.557 | 20-Jul 15 | 10430.779 | 10972.000 | 6 | ✗ +0.6 % above max |
+| CE525 | 9730.975 | 20-Jul 15 | 9366.748 | 9585.000 | 6 | ✗ +1.5 % above max |
+| CE530 | 7991.158 | 20-Jul 15 | 7992.000 | 8171.048 | 6 | ✓ inside |
+| CE540 | 9150.840 | 20-Jul 15 | 8677.402 | 8985.000 | 6 | ✗ +1.8 % above max |
+| CE545 | 7426.478 | 20-Jul 15 | 7204.827 | 7762.756 | 6 | ✓ inside |
 
 #### Maximum hourly coil sensible load (Wh)
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| CE300 | 23308.090 | 20-Jul 15 | 22908.000 | 23530.807 | 6 | ✓ inside |
-| CE310 | 23082.325 | 11-Jul 15 | 22649.000 | 23276.459 | 6 | ✓ inside |
-| CE320 | 31426.940 | 24-Apr 16 | 30967.000 | 31972.085 | 6 | ✓ inside |
-| CE330 | 33303.448 | 24-Apr 16 | 33226.100 | 34764.779 | 6 | ✓ inside |
-| CE340 | 33592.284 | 24-Apr 16 | 32086.000 | 32940.000 | 6 | ✗ +2.0 % above max |
-| CE350 | 23308.090 | 20-Jul 15 | 22876.000 | 23530.807 | 6 | ✓ inside |
-| CE360 | 32089.058 | 24-Apr 16 | 31981.000 | 32620.913 | 6 | ✓ inside |
-| CE400 | 23308.121 | 20-Jul 15 | 22877.000 | 23530.807 | 5 | ✓ inside |
-| CE410 | 23308.079 | 20-Jul 15 | 22893.000 | 23265.700 | 4 | ✗ +0.2 % above max |
-| CE420 | 23308.121 | 20-Jul 15 | 22893.000 | 23530.807 | 5 | ✓ inside |
-| CE430 | 23308.079 | 20-Jul 15 | 22893.000 | 23530.807 | 5 | ✓ inside |
-| CE440 | 23308.090 | 20-Jul 15 | 22875.000 | 23530.807 | 5 | ✓ inside |
-| CE500 | 19809.171 | 20-Jul 15 | 18776.000 | 20009.000 | 6 | ✓ inside |
-| CE510 | 22283.255 | 20-Jul 15 | 21121.000 | 22513.000 | 6 | ✓ inside |
-| CE520 | 20255.396 | 29-Jun 16 | 18969.000 | 20378.000 | 6 | ✓ inside |
-| CE522 | 19960.303 | 20-Jul 15 | 18785.000 | 20137.000 | 6 | ✓ inside |
-| CE525 | 19608.937 | 20-Jul 15 | 18759.000 | 19850.000 | 6 | ✓ inside |
-| CE530 | 19552.024 | 20-Jul 15 | 18776.000 | 19834.100 | 6 | ✓ inside |
-| CE540 | 19824.312 | 20-Jul 15 | 18794.000 | 19799.000 | 6 | ✗ +0.1 % above max |
-| CE545 | 19410.684 | 20-Jul 15 | 18759.000 | 20075.200 | 6 | ✓ inside |
+| CE300 | 23307.989 | 20-Jul 15 | 22908.000 | 23530.807 | 6 | ✓ inside |
+| CE310 | 23082.234 | 11-Jul 15 | 22649.000 | 23276.459 | 6 | ✓ inside |
+| CE320 | 31426.914 | 24-Apr 16 | 30967.000 | 31972.085 | 6 | ✓ inside |
+| CE330 | 33303.364 | 24-Apr 16 | 33226.100 | 34764.779 | 6 | ✓ inside |
+| CE340 | 33592.272 | 24-Apr 16 | 32086.000 | 32940.000 | 6 | ✗ +2.0 % above max |
+| CE350 | 23307.989 | 20-Jul 15 | 22876.000 | 23530.807 | 6 | ✓ inside |
+| CE360 | 32088.999 | 24-Apr 16 | 31981.000 | 32620.913 | 6 | ✓ inside |
+| CE400 | 23308.020 | 20-Jul 15 | 22877.000 | 23530.807 | 5 | ✓ inside |
+| CE410 | 23307.978 | 20-Jul 15 | 22893.000 | 23265.700 | 4 | ✗ +0.2 % above max |
+| CE420 | 23308.020 | 20-Jul 15 | 22893.000 | 23530.807 | 5 | ✓ inside |
+| CE430 | 23307.978 | 20-Jul 15 | 22893.000 | 23530.807 | 5 | ✓ inside |
+| CE440 | 23307.989 | 20-Jul 15 | 22875.000 | 23530.807 | 5 | ✓ inside |
+| CE500 | 19809.066 | 20-Jul 15 | 18776.000 | 20009.000 | 6 | ✓ inside |
+| CE510 | 22283.150 | 20-Jul 15 | 21121.000 | 22513.000 | 6 | ✓ inside |
+| CE520 | 20255.197 | 29-Jun 16 | 18969.000 | 20378.000 | 6 | ✓ inside |
+| CE522 | 19960.197 | 20-Jul 15 | 18785.000 | 20137.000 | 6 | ✓ inside |
+| CE525 | 19608.832 | 20-Jul 15 | 18759.000 | 19850.000 | 6 | ✓ inside |
+| CE530 | 19551.919 | 20-Jul 15 | 18776.000 | 19834.100 | 6 | ✓ inside |
+| CE540 | 19824.206 | 20-Jul 15 | 18794.000 | 19799.000 | 6 | ✗ +0.1 % above max |
+| CE545 | 19410.579 | 20-Jul 15 | 18759.000 | 20075.200 | 6 | ✓ inside |
 
 #### Maximum hourly coil latent load (Wh)
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| CE300 | 9719.774 | 03-Sep 15 | 9304.000 | 10392.000 | 6 | ✓ inside |
-| CE310 | 15505.089 | 03-Sep 15 | 15139.000 | 16274.838 | 6 | ✓ inside |
-| CE320 | 21938.037 | 02-Oct 9 | 21697.000 | 31503.000 | 6 | ✓ inside |
+| CE300 | 9719.770 | 03-Sep 15 | 9304.000 | 10392.000 | 6 | ✓ inside |
+| CE310 | 15505.107 | 03-Sep 15 | 15139.000 | 16274.838 | 6 | ✓ inside |
+| CE320 | 21938.043 | 02-Oct 9 | 21697.000 | 31503.000 | 6 | ✓ inside |
 | CE330 | 27593.838 | 18-Sep 15 | 26941.000 | 40809.000 | 6 | ✓ inside |
-| CE340 | 23603.086 | 02-Oct 9 | 23794.000 | 36011.000 | 6 | ✗ -0.8 % below min |
-| CE350 | 10615.053 | 02-Oct 9 | 9303.000 | 11603.000 | 6 | ✓ inside |
-| CE360 | 8799.820 | 02-Oct 9 | 8520.318 | 10336.000 | 6 | ✓ inside |
+| CE340 | 23603.091 | 02-Oct 9 | 23794.000 | 36011.000 | 6 | ✗ -0.8 % below min |
+| CE350 | 10615.047 | 02-Oct 9 | 9303.000 | 11603.000 | 6 | ✓ inside |
+| CE360 | 8799.824 | 02-Oct 9 | 8520.318 | 10336.000 | 6 | ✓ inside |
 | CE400 | 27593.838 | 18-Sep 15 | 25578.000 | 32396.000 | 5 | ✓ inside |
-| CE410 | 9719.951 | 03-Sep 15 | 9304.000 | 11138.900 | 4 | ✓ inside |
-| CE420 | 9719.130 | 03-Sep 15 | 9304.000 | 10394.000 | 5 | ✓ inside |
-| CE430 | 9719.951 | 03-Sep 15 | 9635.700 | 11105.000 | 5 | ✓ inside |
-| CE440 | 9719.774 | 03-Sep 15 | 9304.000 | 10234.822 | 5 | ✓ inside |
-| CE500 | 7706.828 | 29-Jun 16 | 7733.000 | 7965.460 | 6 | ✗ -0.3 % below min |
-| CE510 | 8703.996 | 17-Jun 14 | 8723.000 | 8954.792 | 6 | ✗ -0.2 % below min |
-| CE520 | 7771.679 | 29-Jun 16 | 7698.534 | 7964.000 | 6 | ✓ inside |
-| CE522 | 7671.315 | 29-Jun 16 | 7743.000 | 7906.700 | 6 | ✗ -0.9 % below min |
-| CE525 | 7765.875 | 29-Jun 16 | 7663.000 | 8037.070 | 6 | ✓ inside |
+| CE410 | 9719.948 | 03-Sep 15 | 9304.000 | 11138.900 | 4 | ✓ inside |
+| CE420 | 9719.126 | 03-Sep 15 | 9304.000 | 10394.000 | 5 | ✓ inside |
+| CE430 | 9719.948 | 03-Sep 15 | 9635.700 | 11105.000 | 5 | ✓ inside |
+| CE440 | 9719.770 | 03-Sep 15 | 9304.000 | 10234.822 | 5 | ✓ inside |
+| CE500 | 7706.822 | 29-Jun 16 | 7733.000 | 7965.460 | 6 | ✗ -0.3 % below min |
+| CE510 | 8704.000 | 17-Jun 14 | 8723.000 | 8954.792 | 6 | ✗ -0.2 % below min |
+| CE520 | 7771.682 | 29-Jun 16 | 7698.534 | 7964.000 | 6 | ✓ inside |
+| CE522 | 7671.309 | 29-Jun 16 | 7743.000 | 7906.700 | 6 | ✗ -0.9 % below min |
+| CE525 | 7765.864 | 29-Jun 16 | 7663.000 | 8037.070 | 6 | ✓ inside |
 | CE530 | 0.000 | 01-Jan 1 | 0.000 | 179.000 | 6 | ✓ inside |
 | CE540 | 1.925 | 01-Jan 1 | 0.000 | 1654.951 | 6 | ✓ inside |
 | CE545 | 0.000 | 01-Jan 1 | 0.000 | 4.000 | 6 | ✓ inside |
@@ -1356,26 +1356,26 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| CE300 | 31846.698 | 20-Jul 15 | 31401.000 | 32733.256 | 6 | ✓ inside |
-| CE310 | 36994.946 | 03-Sep 15 | 36750.000 | 37328.000 | 6 | ✓ inside |
-| CE320 | 40083.310 | 03-Sep 15 | 39765.183 | 53823.000 | 6 | ✓ inside |
+| CE300 | 31846.590 | 20-Jul 15 | 31401.000 | 32733.256 | 6 | ✓ inside |
+| CE310 | 36994.938 | 03-Sep 15 | 36750.000 | 37328.000 | 6 | ✓ inside |
+| CE320 | 40083.305 | 03-Sep 15 | 39765.183 | 53823.000 | 6 | ✓ inside |
 | CE330 | 43643.481 | 02-Oct 9 | 42415.000 | 64572.000 | 6 | ✓ inside |
-| CE340 | 41601.507 | 02-Oct 9 | 41132.000 | 59549.000 | 6 | ✓ inside |
-| CE350 | 31846.703 | 20-Jul 15 | 31401.000 | 32733.265 | 6 | ✓ inside |
-| CE360 | 38563.821 | 02-Oct 9 | 38322.000 | 41019.000 | 6 | ✓ inside |
+| CE340 | 41601.506 | 02-Oct 9 | 41132.000 | 59549.000 | 6 | ✓ inside |
+| CE350 | 31846.595 | 20-Jul 15 | 31401.000 | 32733.265 | 6 | ✓ inside |
+| CE360 | 38563.812 | 02-Oct 9 | 38322.000 | 41019.000 | 6 | ✓ inside |
 | CE400 | 42045.693 | 18-Sep 15 | 40543.000 | 49838.000 | 5 | ✓ inside |
-| CE410 | 31847.289 | 20-Jul 15 | 31401.000 | 32091.730 | 4 | ✓ inside |
-| CE420 | 31849.646 | 20-Jul 15 | 31401.000 | 32733.256 | 5 | ✓ inside |
-| CE430 | 31847.289 | 20-Jul 15 | 31401.000 | 32733.256 | 5 | ✓ inside |
-| CE440 | 31846.698 | 20-Jul 15 | 31401.000 | 32733.256 | 5 | ✓ inside |
-| CE500 | 27440.917 | 20-Jul 16 | 26567.000 | 27707.000 | 6 | ✓ inside |
-| CE510 | 30865.439 | 20-Jul 16 | 29948.000 | 31188.000 | 6 | ✓ inside |
-| CE520 | 28027.075 | 29-Jun 16 | 26675.000 | 28343.000 | 6 | ✓ inside |
-| CE522 | 27573.628 | 20-Jul 15 | 26514.000 | 27868.000 | 6 | ✓ inside |
-| CE525 | 27312.172 | 29-Jun 16 | 26683.000 | 27739.770 | 6 | ✓ inside |
-| CE530 | 19552.024 | 20-Jul 15 | 18776.000 | 19834.100 | 6 | ✓ inside |
-| CE540 | 19824.312 | 20-Jul 15 | 18794.000 | 19799.000 | 6 | ✗ +0.1 % above max |
-| CE545 | 19410.684 | 20-Jul 15 | 18764.000 | 20075.200 | 6 | ✓ inside |
+| CE410 | 31847.181 | 20-Jul 15 | 31401.000 | 32091.730 | 4 | ✓ inside |
+| CE420 | 31849.538 | 20-Jul 15 | 31401.000 | 32733.256 | 5 | ✓ inside |
+| CE430 | 31847.181 | 20-Jul 15 | 31401.000 | 32733.256 | 5 | ✓ inside |
+| CE440 | 31846.590 | 20-Jul 15 | 31401.000 | 32733.256 | 5 | ✓ inside |
+| CE500 | 27440.714 | 20-Jul 16 | 26567.000 | 27707.000 | 6 | ✓ inside |
+| CE510 | 30865.271 | 20-Jul 16 | 29948.000 | 31188.000 | 6 | ✓ inside |
+| CE520 | 28026.879 | 29-Jun 16 | 26675.000 | 28343.000 | 6 | ✓ inside |
+| CE522 | 27573.526 | 20-Jul 15 | 26514.000 | 27868.000 | 6 | ✓ inside |
+| CE525 | 27311.909 | 29-Jun 16 | 26683.000 | 27739.770 | 6 | ✓ inside |
+| CE530 | 19551.919 | 20-Jul 15 | 18776.000 | 19834.100 | 6 | ✓ inside |
+| CE540 | 19824.206 | 20-Jul 15 | 18794.000 | 19799.000 | 6 | ✗ +0.1 % above max |
+| CE545 | 19410.579 | 20-Jul 15 | 18764.000 | 20075.200 | 6 | ✓ inside |
 
 ### Annual hourly maxima and minima of COP2 and zone conditions
 
@@ -1460,37 +1460,37 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE440 | 25.002 | 21-Apr 2 | 25.003 | 27.045 | 5 | ✓ inside |
 | CE500 | 25.007 | 04-Apr 17 | 25.000 | 25.805 | 6 | ✓ inside |
 | CE510 | 25.007 | 04-Apr 17 | 25.000 | 26.100 | 6 | ✓ inside |
-| CE520 | 17.240 | 04-Jun 16 | 15.000 | 18.620 | 6 | ✓ inside |
-| CE522 | 20.020 | 17-Apr 22 | 20.000 | 21.009 | 6 | ✓ inside |
+| CE520 | 17.239 | 04-Jun 16 | 15.000 | 18.620 | 6 | ✓ inside |
+| CE522 | 20.021 | 17-Apr 22 | 20.000 | 21.009 | 6 | ✓ inside |
 | CE525 | 35.000 | 11-Mar 10 | 34.999 | 36.080 | 6 | ✓ inside |
 | CE530 | 25.007 | 04-Apr 17 | 25.000 | 26.116 | 6 | ✓ inside |
-| CE540 | 15.044 | 10-Apr 4 | 15.000 | 16.146 | 6 | ✓ inside |
+| CE540 | 15.047 | 10-Apr 4 | 15.000 | 16.146 | 6 | ✓ inside |
 | CE545 | 35.000 | 11-Mar 10 | 35.000 | 35.672 | 6 | ✓ inside |
 
 #### Minimum indoor dry bulb (°C)
 
 | Case | OpenSimula | Date | Min | Max | Programs | Result |
 |---|--:|---|--:|--:|--:|---|
-| CE300 | 7.472 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
-| CE310 | 7.472 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
-| CE320 | 8.187 | 06-Jan 5 | 6.990 | 10.830 | 6 | ✓ inside |
-| CE330 | 7.472 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
-| CE340 | 7.472 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
-| CE350 | 7.472 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
-| CE360 | 7.473 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
-| CE400 | 7.472 | 06-Jan 5 | 6.990 | 8.890 | 5 | ✓ inside |
-| CE410 | 7.472 | 06-Jan 5 | 6.990 | 8.890 | 4 | ✓ inside |
-| CE420 | 7.472 | 06-Jan 5 | 6.990 | 8.890 | 5 | ✓ inside |
-| CE430 | 7.472 | 06-Jan 5 | 6.990 | 8.890 | 5 | ✓ inside |
-| CE440 | 7.472 | 06-Jan 5 | 7.000 | 8.890 | 5 | ✓ inside |
-| CE500 | 7.482 | 20-Dec 12 | 7.940 | 24.040 | 6 | ✗ -0.46 °C below min |
-| CE510 | 7.482 | 20-Dec 12 | 7.940 | 24.040 | 6 | ✗ -0.46 °C below min |
-| CE520 | 7.460 | 20-Dec 12 | 7.890 | 13.570 | 6 | ✗ -0.43 °C below min |
-| CE522 | 7.481 | 20-Dec 12 | 7.940 | 15.980 | 6 | ✗ -0.46 °C below min |
-| CE525 | 7.483 | 20-Dec 12 | 7.940 | 33.010 | 6 | ✗ -0.46 °C below min |
-| CE530 | 7.482 | 20-Dec 12 | 7.940 | 24.040 | 6 | ✗ -0.46 °C below min |
-| CE540 | 7.460 | 20-Dec 12 | 7.890 | 14.950 | 6 | ✗ -0.43 °C below min |
-| CE545 | 7.483 | 20-Dec 12 | 7.940 | 33.010 | 6 | ✗ -0.46 °C below min |
+| CE300 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
+| CE310 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
+| CE320 | 8.189 | 06-Jan 5 | 6.990 | 10.830 | 6 | ✓ inside |
+| CE330 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
+| CE340 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
+| CE350 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
+| CE360 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 6 | ✓ inside |
+| CE400 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 5 | ✓ inside |
+| CE410 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 4 | ✓ inside |
+| CE420 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 5 | ✓ inside |
+| CE430 | 7.475 | 06-Jan 5 | 6.990 | 8.890 | 5 | ✓ inside |
+| CE440 | 7.475 | 06-Jan 5 | 7.000 | 8.890 | 5 | ✓ inside |
+| CE500 | 7.652 | 20-Dec 12 | 7.940 | 24.040 | 6 | ✗ -0.29 °C below min |
+| CE510 | 7.652 | 20-Dec 12 | 7.940 | 24.040 | 6 | ✗ -0.29 °C below min |
+| CE520 | 7.630 | 20-Dec 12 | 7.890 | 13.570 | 6 | ✗ -0.26 °C below min |
+| CE522 | 7.652 | 20-Dec 12 | 7.940 | 15.980 | 6 | ✗ -0.29 °C below min |
+| CE525 | 7.653 | 20-Dec 12 | 7.940 | 33.010 | 6 | ✗ -0.29 °C below min |
+| CE530 | 7.652 | 20-Dec 12 | 7.940 | 24.040 | 6 | ✗ -0.29 °C below min |
+| CE540 | 7.630 | 20-Dec 12 | 7.890 | 14.950 | 6 | ✗ -0.26 °C below min |
+| CE545 | 7.653 | 20-Dec 12 | 7.940 | 33.010 | 6 | ✗ -0.29 °C below min |
 
 #### Maximum zone humidity ratio (kg/kg)
 
@@ -1533,11 +1533,11 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 0.002 | 11-Jan 2 | 0.002 | 0.002 | 5 | ✓ inside |
 | CE430 | 0.002 | 11-Jan 2 | 0.002 | 0.002 | 5 | ✓ inside |
 | CE440 | 0.002 | 11-Jan 2 | 0.002 | 0.002 | 5 | ✓ inside |
-| CE500 | 0.006 | 20-Dec 12 | 0.007 | 0.010 | 4 | ✗ -5.9 % below min |
-| CE510 | 0.006 | 20-Dec 12 | 0.007 | 0.011 | 4 | ✗ -5.9 % below min |
-| CE520 | 0.006 | 27-Nov 23 | 0.006 | 0.007 | 4 | ✗ -2.8 % below min |
-| CE522 | 0.006 | 20-Dec 13 | 0.007 | 0.008 | 4 | ✗ -5.8 % below min |
-| CE525 | 0.006 | 20-Dec 12 | 0.007 | 0.015 | 4 | ✗ -6.0 % below min |
+| CE500 | 0.006 | 20-Dec 12 | 0.007 | 0.010 | 4 | ✗ -4.8 % below min |
+| CE510 | 0.006 | 20-Dec 12 | 0.007 | 0.011 | 4 | ✗ -4.8 % below min |
+| CE520 | 0.006 | 27-Nov 23 | 0.006 | 0.007 | 4 | ✗ -3.2 % below min |
+| CE522 | 0.006 | 20-Dec 12 | 0.007 | 0.008 | 4 | ✗ -4.7 % below min |
+| CE525 | 0.007 | 20-Dec 12 | 0.007 | 0.015 | 4 | ✗ -4.9 % below min |
 | CE530 | 0.005 | 01-Apr 1 | 0.005 | 0.007 | 4 | ✗ -5.4 % below min |
 | CE540 | 0.003 | 01-Apr 1 | 0.003 | 0.004 | 4 | ✗ -22.0 % below min |
 | CE545 | 0.006 | 01-Apr 1 | 0.006 | 0.007 | 4 | ✗ -10.0 % below min |
@@ -1558,14 +1558,14 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE420 | 70.560 | 17-Apr 3 | 70.841 | 74.510 | 5 | ✗ -0.4 % below min |
 | CE430 | 83.935 | 02-Apr 5 | 78.430 | 80.743 | 5 | ✗ +4.0 % above max |
 | CE440 | 69.344 | 16-Nov 16 | 67.510 | 69.350 | 5 | ✓ inside |
-| CE500 | 100.000 | 13-Jan 3 | 60.080 | 100.000 | 4 | ✓ inside |
-| CE510 | 100.000 | 13-Jan 3 | 57.510 | 100.000 | 4 | ✓ inside |
-| CE520 | 92.564 | 20-Dec 12 | 71.770 | 95.000 | 4 | ✓ inside |
-| CE522 | 100.000 | 13-Jan 3 | 71.320 | 100.000 | 4 | ✓ inside |
-| CE525 | 100.000 | 13-Jan 3 | 51.120 | 100.000 | 4 | ✓ inside |
-| CE530 | 83.836 | 14-Jan 8 | 36.010 | 96.160 | 4 | ✓ inside |
-| CE540 | 42.240 | 14-Jan 8 | 39.960 | 61.275 | 4 | ✓ inside |
-| CE545 | 90.743 | 14-Jan 8 | 24.140 | 97.000 | 4 | ✓ inside |
+| CE500 | 100.000 | 13-Jan 5 | 60.080 | 100.000 | 4 | ✓ inside |
+| CE510 | 100.000 | 13-Jan 5 | 57.510 | 100.000 | 4 | ✓ inside |
+| CE520 | 91.134 | 20-Dec 12 | 71.770 | 95.000 | 4 | ✓ inside |
+| CE522 | 100.000 | 13-Jan 5 | 71.320 | 100.000 | 4 | ✓ inside |
+| CE525 | 100.000 | 18-Dec 16 | 51.120 | 100.000 | 4 | ✓ inside |
+| CE530 | 82.768 | 14-Jan 8 | 36.010 | 96.160 | 4 | ✓ inside |
+| CE540 | 41.701 | 14-Jan 8 | 39.960 | 61.275 | 4 | ✓ inside |
+| CE545 | 89.587 | 14-Jan 8 | 24.140 | 97.000 | 4 | ✓ inside |
 
 #### Minimum zone relative humidity (%)
 
@@ -1585,11 +1585,11 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE440 | 13.313 | 06-Nov 5 | 11.970 | 14.540 | 5 | ✓ inside |
 | CE500 | 54.195 | 05-Oct 1 | 52.830 | 55.167 | 4 | ✓ inside |
 | CE510 | 54.134 | 04-Oct 24 | 52.088 | 55.288 | 4 | ✓ inside |
-| CE520 | 56.124 | 27-Nov 23 | 61.000 | 61.900 | 4 | ✗ -8.0 % below min |
-| CE522 | 57.007 | 05-Oct 1 | 57.970 | 60.000 | 4 | ✗ -1.7 % below min |
+| CE520 | 55.902 | 27-Nov 23 | 61.000 | 61.900 | 4 | ✗ -8.4 % below min |
+| CE522 | 57.006 | 05-Oct 1 | 57.970 | 60.000 | 4 | ✗ -1.7 % below min |
 | CE525 | 42.048 | 05-Oct 2 | 44.000 | 47.852 | 4 | ✗ -4.4 % below min |
-| CE530 | 26.291 | 04-Apr 17 | 28.000 | 34.028 | 4 | ✗ -6.1 % below min |
-| CE540 | 24.066 | 10-Apr 4 | 31.000 | 39.740 | 4 | ✗ -22.4 % below min |
+| CE530 | 26.292 | 04-Apr 17 | 28.000 | 34.028 | 4 | ✗ -6.1 % below min |
+| CE540 | 24.060 | 10-Apr 4 | 31.000 | 39.740 | 4 | ✗ -22.4 % below min |
 | CE545 | 16.032 | 01-Apr 10 | 17.124 | 20.140 | 4 | ✗ -6.4 % below min |
 
 ### Weather checks, case CE300
@@ -1636,7 +1636,7 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 | CE300 | Compressor consumption, June 28 (Wh) | 24 | 21 | 38 Wh |
 | CE300 | Condenser fan consumption, June 28 (Wh) | 24 | 19 | 3.57 Wh |
 | CE300 | Coil total load, June 28 (Wh) | 24 | 20 | 148 Wh |
-| CE300 | Coil sensible load, June 28 (Wh) | 24 | 23 | 77.3 Wh |
+| CE300 | Coil sensible load, June 28 (Wh) | 24 | 23 | 77.4 Wh |
 | CE300 | Coil latent load, June 28 (Wh) | 24 | 22 | 53.6 Wh |
 | CE300 | Zone humidity ratio, June 28 (kg/kg) | 24 | 17 | 0.000461 kg/kg |
 | CE300 | COP2, June 28 (-) | 24 | 24 | – |
@@ -1667,62 +1667,62 @@ Reference programs: TRNSYS-TUD, DOE-2.2, DOE-2.1E, EnergyPlus, CODYRUN, HOT3000 
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE500 Apr 30 | 4010.886 | 3892.939 | 4073.000 | 6 | ✓ inside |
-| CE500 Jun 25 | 5231.519 | 5044.922 | 5230.000 | 6 | ✓ inside |
-| CE530 Apr 30 | 3112.503 | 3022.773 | 3144.000 | 6 | ✓ inside |
-| CE530 Jun 25 | 3946.516 | 3894.123 | 4043.000 | 6 | ✓ inside |
+| CE500 Apr 30 | 4010.897 | 3892.939 | 4073.000 | 6 | ✓ inside |
+| CE500 Jun 25 | 5231.494 | 5044.922 | 5230.000 | 6 | ✓ inside |
+| CE530 Apr 30 | 3112.514 | 3022.773 | 3144.000 | 6 | ✓ inside |
+| CE530 Jun 25 | 3946.491 | 3894.123 | 4043.000 | 6 | ✓ inside |
 
 #### Daily average compressor consumption (Wh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE500 Apr 30 | 3104.611 | 3014.619 | 3509.897 | 6 | ✓ inside |
-| CE500 Jun 25 | 4239.761 | 4083.883 | 4663.240 | 6 | ✓ inside |
-| CE530 Apr 30 | 2389.070 | 2311.472 | 2689.040 | 6 | ✓ inside |
-| CE530 Jun 25 | 3171.343 | 3118.095 | 3578.620 | 6 | ✓ inside |
+| CE500 Apr 30 | 3104.619 | 3014.619 | 3509.897 | 6 | ✓ inside |
+| CE500 Jun 25 | 4239.741 | 4083.883 | 4663.240 | 6 | ✓ inside |
+| CE530 Apr 30 | 2389.079 | 2311.472 | 2689.040 | 6 | ✓ inside |
+| CE530 Jun 25 | 3171.323 | 3118.095 | 3578.620 | 6 | ✓ inside |
 
 #### Daily average condenser fan consumption (Wh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE500 Apr 30 | 388.046 | 376.076 | 391.000 | 5 | ✓ inside |
-| CE500 Jun 25 | 424.648 | 411.333 | 426.333 | 5 | ✓ inside |
-| CE530 Apr 30 | 309.757 | 304.562 | 314.000 | 5 | ✓ inside |
-| CE530 Jun 25 | 331.911 | 329.250 | 340.000 | 5 | ✓ inside |
+| CE500 Apr 30 | 388.047 | 376.076 | 391.000 | 5 | ✓ inside |
+| CE500 Jun 25 | 424.646 | 411.333 | 426.333 | 5 | ✓ inside |
+| CE530 Apr 30 | 309.758 | 304.562 | 314.000 | 5 | ✓ inside |
+| CE530 Jun 25 | 331.909 | 329.250 | 340.000 | 5 | ✓ inside |
 
 #### Daily average indoor fan consumption (Wh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE500 Apr 30 | 518.229 | 466.417 | 522.000 | 6 | ✓ inside |
-| CE500 Jun 25 | 567.110 | 514.333 | 566.000 | 6 | ✗ +0.2 % above max |
-| CE530 Apr 30 | 413.676 | 360.750 | 419.000 | 6 | ✓ inside |
-| CE530 Jun 25 | 443.262 | 395.500 | 454.000 | 6 | ✓ inside |
+| CE500 Apr 30 | 518.230 | 466.417 | 522.000 | 6 | ✓ inside |
+| CE500 Jun 25 | 567.108 | 514.333 | 566.000 | 6 | ✗ +0.2 % above max |
+| CE530 Apr 30 | 413.677 | 360.750 | 419.000 | 6 | ✓ inside |
+| CE530 Jun 25 | 443.259 | 395.500 | 454.000 | 6 | ✓ inside |
 
 #### Daily average coil total load (Wh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE500 Apr 30 | 13619.363 | 13169.542 | 13732.907 | 6 | ✓ inside |
-| CE500 Jun 25 | 13692.548 | 13188.050 | 13837.532 | 6 | ✓ inside |
-| CE530 Apr 30 | 9713.436 | 9353.163 | 9798.000 | 6 | ✓ inside |
-| CE530 Jun 25 | 9762.706 | 9376.296 | 9835.136 | 6 | ✓ inside |
+| CE500 Apr 30 | 13619.399 | 13169.542 | 13732.907 | 6 | ✓ inside |
+| CE500 Jun 25 | 13692.480 | 13188.050 | 13837.532 | 6 | ✓ inside |
+| CE530 Apr 30 | 9713.472 | 9353.163 | 9798.000 | 6 | ✓ inside |
+| CE530 Jun 25 | 9762.637 | 9376.296 | 9835.136 | 6 | ✓ inside |
 
 #### Daily average coil sensible load (Wh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
-| CE500 Apr 30 | 9811.996 | 9365.458 | 9925.025 | 6 | ✓ inside |
-| CE500 Jun 25 | 9881.868 | 9377.687 | 9981.240 | 6 | ✓ inside |
-| CE530 Apr 30 | 9713.436 | 9353.163 | 9798.000 | 6 | ✓ inside |
-| CE530 Jun 25 | 9762.706 | 9376.296 | 9835.136 | 6 | ✓ inside |
+| CE500 Apr 30 | 9812.032 | 9365.458 | 9925.025 | 6 | ✓ inside |
+| CE500 Jun 25 | 9881.799 | 9377.687 | 9981.240 | 6 | ✓ inside |
+| CE530 Apr 30 | 9713.472 | 9353.163 | 9798.000 | 6 | ✓ inside |
+| CE530 Jun 25 | 9762.637 | 9376.296 | 9835.136 | 6 | ✓ inside |
 
 #### Daily average coil latent load (Wh)
 
 | Case | OpenSimula | Min | Max | Programs | Result |
 |---|--:|--:|--:|--:|---|
 | CE500 Apr 30 | 3807.367 | 3770.000 | 3810.890 | 6 | ✓ inside |
-| CE500 Jun 25 | 3810.680 | 3780.000 | 3856.292 | 6 | ✓ inside |
+| CE500 Jun 25 | 3810.681 | 3780.000 | 3856.292 | 6 | ✓ inside |
 | CE530 Apr 30 | 0.000 | -0.000 | 0.000 | 6 | ✓ inside |
 | CE530 Jun 25 | 0.000 | 0.000 | 0.024 | 6 | ✓ inside |
 
