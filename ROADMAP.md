@@ -202,8 +202,17 @@ Next steps, one PR each:
     **Studied 2026-10-28:** the vent flow is right — Table 7-16: 1700 m³/h = 13.12 ach for
     programs that correct the mass flow for altitude (OpenSimula does, with the weather
     file altitude; 1409 m³/h only for sea-level programs). Interior convection ×2 lowers
-    950 cooling only 0.771 → 0.744 MWh. Open: how the heavy mass charges/discharges at
-    night (650, light mass, is inside).
+    950 cooling only 0.771 → 0.744 MWh. **Closed 2026-10-29: the night ventilation is
+    right.** Its effect, 950 − 900 annual cooling, is −1.801 MWh in OpenSimula vs −1.626 to
+    −2.128 (mean −1.833) in the references (650 − 600: −1.168 vs −1.147 to −1.259). The
+    excess of 950 (+0.137 MWh over the references' mean) is the base cooling level of 900
+    (+0.105 MWh, inside its range), which is out of range only because 950's cooling is
+    small. See the systematic heating level below.
+  - *Systematic level, found 2026-10-29:* annual heating is above the references' mean in
+    almost every case, typically +4 to +8 % (600 +6.1 %, 900 +8.4 %, 910 +11 %), also in
+    the conduction-only diagnostic cases (195 +3.8 %, 200 +4.2 %, which are also +4 to +5 %
+    in cooling). Many heating values sit at or just above the upper edge of the range.
+    Worth investigating (envelope conductance, surface coefficients, sky radiation).
   - *CE520–CE540 fan energy and consumption 0.2–2 % above* (coil loads inside): longer run
     time from a lower total capacity, because the zone humidity is below the range in those
     cases (CE540 −34 % → fans +2.1 %, CE525 −6 % → +0.2 %). Consequence of the known
