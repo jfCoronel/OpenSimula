@@ -228,8 +228,12 @@ class Opening(Component):
         T_rm = surface.variable("T_rm").values[time_i]
         self.variable("T_rm").values[time_i] = T_rm
         h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+        T_s0 = self.variable("T_s0").values[time_i - 1] if time_i > 0 else self._T_ext
+        self._q_lw_corr = surface.long_wave_correction(
+            T_s0, self.radiant_property("alpha", "long_wave", 0)
+        )
         self.f_0 = self.area * (
-            -self.parameter("h_cv").value[0] * self._T_ext - h_rd * T_rm
+            -self.parameter("h_cv").value[0] * self._T_ext - h_rd * T_rm - self._q_lw_corr
         )
         # q_sol0 will be corrected by the building
 
@@ -312,7 +316,7 @@ class Opening(Component):
             self.variable("q_lwt0").values[time_i] = h_rd * (
                 self.variable("T_rm").values[time_i]
                 - self.variable("T_s0").values[time_i]
-            )
+            ) + self._q_lw_corr
             self.variable("q_lwt1").values[time_i] = (
                 +self.variable("q_cd").values[time_i]
                 - self.variable("q_cv1").values[time_i]

@@ -208,11 +208,21 @@ Next steps, one PR each:
     excess of 950 (+0.137 MWh over the references' mean) is the base cooling level of 900
     (+0.105 MWh, inside its range), which is out of range only because 950's cooling is
     small. See the systematic heating level below.
-  - *Systematic level, found 2026-10-29:* annual heating is above the references' mean in
-    almost every case, typically +4 to +8 % (600 +6.1 %, 900 +8.4 %, 910 +11 %), also in
-    the conduction-only diagnostic cases (195 +3.8 %, 200 +4.2 %, which are also +4 to +5 %
-    in cooling). Many heating values sit at or just above the upper edge of the range.
-    Worth investigating (envelope conductance, surface coefficients, sky radiation).
+  - *Systematic heating level, found and mostly fixed 2026-10-29 (branch
+    `fix/case-950-night-vent`):* annual heating was above the references' mean in almost
+    every case, typically +4 to +8 % (600 +6.1 %, 900 +8.4 %, 910 +11 %). Cause: the
+    exterior long wave exchange with sky and ground (`Building_surface` and `Opening`) was
+    linearized with H_RD = 4σ·293³ = 5.7 W/m²K, which in winter (surface and sky at −20…0 °C,
+    4σT³ ≈ 4.1–4.6) overestimates the loss to the sky by 25–35 %. The building matrices keep
+    the linearized term and the difference with the exact εσ(F_sky·T_sky⁴ + (1−F_sky)·T_ext⁴
+    − T_s⁴) is added explicitly to f_0, with the surface temperature of the previous time
+    step (`Building_surface.long_wave_correction`). Interior exchange stays linearized at
+    20 °C. LOAD 184 → 195/219, profile points 1171 → 1213/1397; the other suites unchanged.
+    Heating now +2 to +4 % over the mean (600 +2.9 %, 900 +1.9 %); the remaining part is not
+    the film coefficients (195, conduction only and ε = 0.1, is +3.3 % but inside its
+    range; the exterior film is < 4 % of the wall resistance). Possible feature: exterior
+    convection depending on wind speed. Regression values: 600FF mean +0.9 %, min −7 %;
+    610 heating −3 %; DX tests −2 to −3.4 %; fan coil heating −9 % (small values).
   - *CE520–CE540 fan energy and consumption 0.2–2 % above* (coil loads inside): longer run
     time from a lower total capacity, because the zone humidity is below the range in those
     cases (CE540 −34 % → fans +2.1 %, CE525 −6 % → +0.2 %). Consequence of the known

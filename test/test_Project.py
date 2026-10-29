@@ -1,3 +1,4 @@
+import pytest
 import opensimula as osim
 
 p1_dic = {
@@ -241,3 +242,20 @@ def test_outdoor_air_flow_or_fraction():
         system.parameter("outdoor_air_fraction").value = 0
     mzw.parameter("vav").value = True
     assert len(outdoor_air_errors()) == 1
+
+
+def test_long_wave_correction():
+    sim = osim.Simulation()
+    p1 = sim.new_project("Project 1")
+    wall = p1.new_component("Building_surface", "wall")
+    wall._F_sky = 0.5
+    # Around 20 °C the linearized exchange is exact
+    wall._T_sky, wall._T_ext = 19.0, 20.0
+    assert abs(wall.long_wave_correction(20.5, 0.9)) < 0.01
+    # In winter the linearized exchange (H_RD at 20 °C) overestimates the loss to the sky
+    wall._T_sky, wall._T_ext = -20.0, 0.0
+    T_s0 = -2.0
+    T_rm = 0.5 * -20.0 + 0.5 * 0.0
+    linear = wall.H_RD * 0.9 * (T_rm - T_s0)
+    assert wall.long_wave_correction(T_s0, 0.9) > 0
+    assert wall.long_wave_correction(T_s0, 0.9) / -linear == pytest.approx(0.29, abs=0.02)

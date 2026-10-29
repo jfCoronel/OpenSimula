@@ -12,6 +12,8 @@ from opensimula.Parameters import (
 from opensimula.Variable import Variable
 from opensimula.visual_3D.Polygon_3D import Polygon_3D
 
+SIGMA = 5.670374419e-8  # Stefan-Boltzmann constant, W/m²K⁴
+
 
 class Building_surface(Surface):
     def __init__(self, name, project):
@@ -331,7 +333,7 @@ class Building_surface(Surface):
         # Meterological data
         hor_sol_dif = self._file_met.variable("sol_diffuse").values[time_i]
         hor_sol_dir = self._file_met.variable("sol_direct").values[time_i]
-        T_sky = self._file_met.variable("sky_temperature").values[time_i]
+        self._T_sky = self._file_met.variable("sky_temperature").values[time_i]
 
         # Diffuse solar radiation
         E_dif_sunny = self._file_met.solar_diffuse_rad(
@@ -360,16 +362,43 @@ class Building_surface(Surface):
         q_sol0 = self.radiant_property("alpha", "solar_diffuse", 0) * (E_dif + E_dir)
         self.variable("q_sol0").values[time_i] = q_sol0
         # Mean radiant temperature
-        T_rm = self._F_sky * T_sky + (1 - self._F_sky) * self._T_ext
+        T_rm = self._F_sky * self._T_sky + (1 - self._F_sky) * self._T_ext
         self.variable("T_rm").values[time_i] = T_rm
-        # f_0
         h_rd = self.H_RD * self.radiant_property("alpha", "long_wave", 0)
+        T_s0 = self.variable("T_s0").values[time_i - 1] if time_i > 0 else self._T_ext
+        self._q_lw_corr = self.long_wave_correction(
+            T_s0, self.radiant_property("alpha", "long_wave", 0)
+        )
+        # f_0
         self.f_0 = self.area * (
             -self._p_0_
             - self.parameter("h_cv").value[0] * self._T_ext
             - h_rd * T_rm
             - q_sol0
+            - self._q_lw_corr
         )
+
+    def long_wave_correction(self, T_s0, epsilon):
+        """Exterior long wave gain (W/m²) not included in the linearized exchange
+
+        The building matrices linearize the long wave exchange with the sky and the ground
+        with H_RD (20 °C); the difference with the exact exchange is added explicitly, with
+        the surface temperature of the previous time step.
+
+        Args:
+            T_s0 (float): exterior surface temperature (°C)
+            epsilon (float): long wave emissivity of the exterior surface
+
+        Returns:
+            float: exact minus linearized long wave gain (W/m²)
+        """
+        T_rm = self._F_sky * self._T_sky + (1 - self._F_sky) * self._T_ext
+        exact = epsilon * SIGMA * (
+            self._F_sky * (self._T_sky + 273.15) ** 4
+            + (1 - self._F_sky) * (self._T_ext + 273.15) ** 4
+            - (T_s0 + 273.15) ** 4
+        )
+        return exact - self.H_RD * epsilon * (T_rm - T_s0)
 
     def _calculate_direct_sunny_fraction_(self, time_i):
         if self.project().parameter("shadow_calculation").value == "INSTANT":
@@ -426,7 +455,7 @@ class Building_surface(Surface):
             self.variable("q_lwt0").values[time_i] = h_rd * (
                 self.variable("T_rm").values[time_i]
                 - self.variable("T_s0").values[time_i]
-            )
+            ) + self._q_lw_corr
             self.variable("q_lwt1").values[time_i] = (
                 -self.variable("q_cd1").values[time_i]
                 - self.variable("q_cv1").values[time_i]
