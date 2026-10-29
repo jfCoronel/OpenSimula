@@ -282,10 +282,18 @@ Next steps, one PR each:
     inlet* conditions (return air, zone temperature), while `outdoor_air_fraction` of
     `HVAC_SZW_system`/`HVAC_MZW_system` is a fraction of the supply *mass* flow. So the
     outdoor air is short when heating (warm supply) and slightly high when cooling (AE104
-    0.1 % above). **Decision: documented as a convention difference for now.** Possible
-    feature (own PR): an outdoor air volumetric flow at return air conditions, without
-    changing the meaning of `outdoor_air_fraction`, which the economizer takes to 1 as a
-    mass fraction. Also AE301 coil outlet RH and reheat loads.
+    0.1 % above). **Done (2026-10-29, branch `feat/outdoor-air-flow`):** new parameter
+    `outdoor_air_flow` (m³/s at zone air conditions, the air exhausted from the zone) in
+    `HVAC_SZW_system` and CV `HVAC_MZW_system`, an alternative to `outdoor_air_fraction`
+    (`check()` rejects both, and `outdoor_air_flow` in VAV); the economizer can still take
+    the fraction up to 1. The return air flow is now the zone mass balance, supply − minimum
+    outdoor air (it was the return fan volume × zone density, or 0 in the extraction with
+    100 % outdoor air). AE100–AE300 cases use 200 cfm (0.09439) and 500 cfm (0.23597).
+    AIR_SIDE 1201 → 1219/1371: outdoor air flows of AE101–AE306 and the return flows of the
+    economizer cases now inside; a few tight mixed-air humidity/enthalpy values of AE303/305
+    moved just outside. VAV (AE400) unchanged: its outdoor air (supply − return volumes at
+    different densities) is still ~1.5 % high in AE403–AE406, but computing it as a mass
+    balance at zone conditions lost more values than it gained (1188), so left as is.
 - [x] WEATHER_TEST (branch `feat/ashrae140-validation-weather`): `weather_test.py`, six cases
   WD100–WD600 (same building, different weather file, 10 min steps), annual averages of the
   weather variables and of total/beam/diffuse radiation on the horizontal and nine surfaces,

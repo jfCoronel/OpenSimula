@@ -220,3 +220,24 @@ def test_opening_surface_type():
     assert surface_type_errors() == []
     wall.parameter("surface_type").value = "UNDERGROUND"
     assert len(surface_type_errors()) == 1
+
+
+def test_outdoor_air_flow_or_fraction():
+    sim = osim.Simulation()
+    sim.console_print = False
+    p1 = sim.new_project("Project 1")
+    szw = p1.new_component("HVAC_SZW_system", "szw")
+    mzw = p1.new_component("HVAC_MZW_system", "mzw")
+
+    def outdoor_air_errors():
+        return [e for e in p1.check() if "outdoor_air" in e.text]
+
+    assert outdoor_air_errors() == []
+    for system in (szw, mzw):
+        system.parameter("outdoor_air_fraction").value = "0.3"
+        system.parameter("outdoor_air_flow").value = 0.1
+    assert len(outdoor_air_errors()) == 2
+    for system in (szw, mzw):
+        system.parameter("outdoor_air_fraction").value = 0
+    mzw.parameter("vav").value = True
+    assert len(outdoor_air_errors()) == 1

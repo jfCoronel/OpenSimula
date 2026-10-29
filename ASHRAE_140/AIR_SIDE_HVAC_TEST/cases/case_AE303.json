@@ -370,7 +370,7 @@
             "supply_fan": "supply_fan",
             "air_flow": 0.61353,
             "return_air_flow": 0.37756,
-            "outdoor_air_fraction": 0.38461,
+            "outdoor_air_flow": 0.23597,
             "cooling_water_flow": 0.683,
             "heating_water_flow": 0,
             "supply_cooling_setpoint": "12.78",

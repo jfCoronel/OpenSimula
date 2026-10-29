@@ -125,6 +125,7 @@ def extract(case, project):
 
     m_su = s("m_air_flow")
     m_oa = s("outdoor_air_fraction") * m_su
+    m_ra = s("m_return_air_flow")  # supply - minimum outdoor air (relieved with the economizer)
     w_oa = sicro.GetHumRatioFromTWetBulb(s("T_OA"), s("T_OAwb"), p)
     w_ma = sicro.GetHumRatioFromTWetBulb(s("T_MA"), s("T_MAwb"), p)
     coil = state(s("T_CA"), s("w_CA") / 1000, m_su)
@@ -151,10 +152,10 @@ def extract(case, project):
         zone_state = state(last("spaces_1", "temperature"), zone_w, None)
         states.update({"hco": coil, "cco": coil, "z1": zone_state})
         if series == "100":
-            states["ra"] = state(zone_state["T"], zone_w, m_su - m_oa)
+            states["ra"] = state(zone_state["T"], zone_w, m_ra)
         else:
-            states["rfi"] = state(zone_state["T"], zone_w, m_su - m_oa)
-            states["rfo"] = state(s("T_RA"), zone_w, m_su - m_oa)
+            states["rfi"] = state(zone_state["T"], zone_w, m_ra)
+            states["rfo"] = state(s("T_RA"), zone_w, m_ra)
     else:
         for n, space in [("1", "spaces_1"), ("2", "spaces_2")]:
             sen, lat = zone(space)
@@ -168,8 +169,8 @@ def extract(case, project):
             "z2s": state(s("T_SA_1"), supply_w, s("m_air_flow_1")),
             "z1": state(last("spaces_1", "temperature"), last("spaces_1", "abs_humidity") / 1000, None),
             "z2": state(last("spaces_2", "temperature"), last("spaces_2", "abs_humidity") / 1000, None),
-            "rfi": state(s("T_ZA"), return_w, m_su - m_oa),
-            "rfo": state(s("T_RA"), return_w, m_su - m_oa),
+            "rfi": state(s("T_ZA"), return_w, m_ra),
+            "rfo": state(s("T_RA"), return_w, m_ra),
         })
     for location in SERIES[series][2]:
         for variable, value in states[location].items():

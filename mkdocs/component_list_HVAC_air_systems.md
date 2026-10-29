@@ -286,7 +286,8 @@ Component for the simulation of single zone water air-conditioning system. It ca
 - **return_fan** [_component_, default = "not_defined", component type = Fan]: Reference to the "Fan" component used as return fan by this system (if present).
 - **air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Coil inlet air flow used for all the simulation.
 - **return_air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Return air flow used if return fan present.
-- **outdoor_air_fraction** [_math_exp_, unit = "frac", default = 0]: Outdoor air flow fraction at the coil inlet used for the simulation.
+- **outdoor_air_fraction** [_math_exp_, unit = "frac", default = 0]: Outdoor air flow fraction at the coil inlet used for the simulation (fraction of the supply mass flow).
+- **outdoor_air_flow** [_math_exp_, unit = "m³/s", default = 0]: Minimum outdoor air volumetric flow at return air conditions (where the air is exhausted), as an alternative to "outdoor_air_fraction" (only one of them can be used). The economizer can increase it.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
 - **heating_setpoint** [_math_exp_, unit = "°C", default = "20"]: Space heating setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
 - **cooling_setpoint** [_math_exp_, unit = "°C", default = "25"]: Space cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
@@ -372,7 +373,8 @@ Component for the simulation of multi-zone water air-conditioning system. It can
 - **return_air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Total return air flow at design conditions, used if return fan present.
 - **return_air_flow_fractions** [_float_list_, unit = "frac", default = [0.5, 0.5], min = 0, max = 1]: Fraction of return air flow from each space. The sum of all fractions must equal 1.
 - **min_air_flow_fractions** [_float_list_, unit = "frac", default = [0.3333, 0.4286], min = 0, max = 1]: Minimum air flow fraction for each space when VAV is enabled.
-- **outdoor_air_fraction** [_math_exp_, unit = "frac", default = "0"]: Outdoor air flow fraction at the coil inlet used for the simulation.
+- **outdoor_air_fraction** [_math_exp_, unit = "frac", default = "0"]: Outdoor air flow fraction at the coil inlet used for the simulation (fraction of the supply mass flow). In VAV systems the outdoor air is obtained from the mass balance of supply, return and zone exhaust flows, and this parameter is not used.
+- **outdoor_air_flow** [_math_exp_, unit = "m³/s", default = "0"]: Minimum outdoor air volumetric flow at return air conditions (where the air is exhausted), as an alternative to "outdoor_air_fraction" (only one of them can be used). Not available in VAV systems.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
 - **supply_heating_setpoint** [_math_exp_, unit = "°C", default = "10"]: Supply air heating setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
 - **supply_cooling_setpoint** [_math_exp_, unit = "°C", default = "15"]: Supply air cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
