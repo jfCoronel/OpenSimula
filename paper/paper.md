@@ -22,7 +22,7 @@ affiliations:
     index: 1
   - name: Departamento de Máquinas y Motores Térmicos, Escuela Politécnica Superior de Algeciras, Universidad de Cádiz, Spain
     index: 2
-date: 28 October 2026
+date: 12 November 2026
 bibliography: paper.bib
 ---
 
@@ -126,12 +126,14 @@ reference programs; it also generates the validation page of the documentation. 
 comparison runs in continuous integration on every change to the code, so that any change in
 the results of the 135 test projects is detected.
 
-With version 0.8.9, 2,379 of the 2,740 single-valued outputs (87 %) lie inside the range of
+With version 0.8.10, 2,446 of the 2,740 single-valued outputs (89 %) lie inside the range of
 the reference programs, and almost half of the remaining ones are within 1 % of the nearest
 bound. \autoref{fig:loads} shows the annual heating and cooling loads of the building
-envelope cases. The cases outside the range and their probable causes, such as the constant
-interior convection coefficients that produce a small, systematic overestimation of heating
-loads, are documented in the repository. The range of the reference programs is not the
+envelope cases. The comparison also guides the development of the models: in version 0.8.10
+it revealed, for instance, that linearizing the exterior long-wave exchange with the sky at
+20 °C overestimated the heating loads, and that the dry-coil criterion of the direct-expansion
+units needed an apparatus dew point model. The cases still outside the range and their
+probable causes are documented in the repository. The range of the reference programs is not the
 Standard's acceptance criterion, but it shows that the results of OpenSimula are of the same
 quality as those of established simulation programs.
 
