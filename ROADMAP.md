@@ -3,7 +3,22 @@
 Working notes for resuming development on OpenSimula from any machine. This file is for
 the maintainer, not end users — it is not part of the published docs (`mkdocs/`).
 
-## Where things stand (2026-10-29)
+## Where things stand (2026-11-12)
+
+- **Graphical interface, plan agreed 2026-11-12**, in four phases: (1) results viewer as
+  an anywidget for notebooks, (2) link it to the 3D view, (3) graph view of the components
+  (boxes with their parameters) in the editor, (4) app through Marimo (`opensimula gui`).
+  **Phase 1 done** (branch `feat/results-widget`): `pro.results()` →
+  `editor/results.py` + `vendor/results.src.js` (uPlot 1.6.32 bundled with esbuild, no
+  runtime imports). One chart per unit, fixed 8-colour palette, resampling and interval in
+  Python, table and CSV, drag zoom / Shift+drag pan shared by all charts, configurable
+  heights. Test notebook `jupyter_test/RESULTS_VIEWER.ipynb`. Note: uPlot's `setScale`
+  hooks fire deferred, so syncing the range between charts must skip charts already at
+  that range or they bounce it forever.
+- **Paper updated to 0.8.10** (PR #30) and PDF regenerated in the JOSS issue; still
+  waiting for the EiC's scope decision.
+
+## Where things stood (2026-10-29)
 
 - **v0.8.10 released (2026-10-29)**: PyPI, GitHub release `v0.8.10`, Zenodo version DOI
   10.5281/zenodo.23762605. All the open ASHRAE 140 items of 0.8.9 were worked on (PRs

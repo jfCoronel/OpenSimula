@@ -675,6 +675,30 @@ class Project(Parameter_container):
 
         return ProjectEditor(self)
 
+    def results(self, *variables, height=600, chart_height=300):
+        """Interactive viewer of the simulation results.
+
+        Returns an anywidget that works in Jupyter and, wrapped in
+        mo.ui.anywidget(), in Marimo: the variables of the components are listed
+        on the left and the selected ones plotted on the right, one chart per
+        unit, with the frequency, aggregation and interval chosen in its toolbar.
+
+        Args:
+            *variables (str): variables to show from the start, as
+                "component.variable", e.g. "spaces_1.temperature".
+            height (int, optional): height of the whole widget, in pixels. Defaults to 600.
+            chart_height (int, optional): height of each chart, in pixels. Defaults to 300.
+
+        Returns:
+            ResultsViewer: widget; its dataframe() method returns what it shows.
+        """
+        from opensimula.editor import ResultsViewer
+
+        viewer = ResultsViewer(self, height=height, chart_height=chart_height)
+        if variables:
+            viewer.select(*variables)
+        return viewer
+
     def create_3D_environment(self, env_3D):
         """Add the polygons of the project's surfaces and openings to a 3D environment
 

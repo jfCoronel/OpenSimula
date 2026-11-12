@@ -152,6 +152,34 @@ A value that does not satisfy the schema never reaches the project either. It st
 
 ![Project editor example](img/editor.png)
 
+- **results(\*variables, height=600, chart_height=300)**: Returns an interactive viewer of the results of a simulated project, displayed directly in Jupyter or wrapped in `mo.ui.anywidget(...)` in Marimo. The components with results are listed on the left, grouped by type, with a filter box; clicking a variable adds it to the charts and clicking it again removes it. The variables can also be given as arguments, as `"component.variable"`. Up to 8 variables are shown at the same time, one chart per unit (temperatures together, powers together), and each variable keeps its colour while it stays selected.
+
+```python
+pro.simulate()
+viewer = pro.results("spaces_1.temperature", "Denver.temperature", "system.Q_sensible")
+viewer
+```
+
+![Results viewer](img/results_viewer.png)
+
+The toolbar sets the **Frequency** ("Time step", hourly, daily, monthly or yearly) and the **Aggregation** used to resample (mean, sum, max or min; each period is labelled by its start), the **From/To** dates of the interval shown, and the **Height** of each chart. **Table** switches to a table of the values shown, and **CSV** downloads them.
+
+In the charts, the legend gives the values under the cursor, and clicking a legend entry hides or shows that variable. Drag horizontally to zoom in on a period, **Shift + drag** to move it in time, and double-click to go back to the whole interval; zooming or moving one chart applies to all of them.
+
+Everything can also be set from Python, and the viewer updates itself:
+
+```python
+viewer.select("spaces_1.rel_humidity")       # add variables
+viewer.frequency = "daily"                   # "none", "hourly", "daily", "monthly", "yearly"
+viewer.aggregation = "max"                   # "mean", "sum", "max", "min"
+viewer.interval = ["2001-07-01", "2001-07-31"]  # [] for the whole simulation
+viewer.chart_height = 400                    # pixels of each chart
+viewer.height = 750                          # pixels of the whole viewer
+df = viewer.dataframe()                      # the values shown, as a pandas DataFrame
+```
+
+After simulating the project again, `viewer.refresh()` reloads the variables.
+
 - **geometry_dict()**: Returns the geometry of the project as plain data, `{"meshes": [...], "spaces": [...]}`, with one mesh per polygon: its triangles, its outline, its colour, and the component and the spaces it belongs to. It is what feeds the 3D view of the editor, and it is available on its own for any other viewer.
 
 - **show_3D()**: Displays an interactive 3D Plotly visualization of all the components with 3D representation, like Buildings: rendered inline when called from a Jupyter notebook, or opened in a browser tab otherwise.
