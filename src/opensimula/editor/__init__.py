@@ -5,11 +5,13 @@ from opensimula.editor.schema import (
     project_json_schema,
 )
 from opensimula.editor.validation import format_errors, validate_document
+from opensimula.editor.results import ResultsViewer
 from opensimula.editor.widget import ProjectEditor, default_schema
 
 __all__ = [
     "SCHEMA_DIALECT",
     "ProjectEditor",
+    "ResultsViewer",
     "component_types",
     "default_schema",
     "format_errors",
