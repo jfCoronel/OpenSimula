@@ -24,6 +24,13 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
 - **GUI phase 2, step 2 (branch `feat/results-3d-color`)**: colour the 3D model by a
   surface variable (`color_variable`, `color_statistic` mean/max/min over the interval;
   sequential or diverging scale by sign). Next: link the chart cursor time to the 3D view.
+- **Fix: surface temperatures of openings (branch `fix/opening-surface-temperatures`)**,
+  found with the 3D colouring of the results viewer: `Building._store_surfaces_values_()`
+  skipped Openings, so their T_s1 stayed 0 and T_s0, q_cd, q_cv1, q_lwt1 (outputs) were
+  wrong. Since 0.8.10 it also reached the simulation: the exact exterior long-wave
+  correction of a window uses its T_s0 of the previous step (~6 K too cold in case 600).
+  Effect: annual heating of the LOAD cases -0.5 to -1.5 %, cooling +0.1 %; LOAD 195/219
+  values unchanged, profile points 1213 → 1219 of 1397; other suites unchanged.
 - **Paper updated to 0.8.10** (PR #30) and PDF regenerated in the JOSS issue; still
   waiting for the EiC's scope decision.
 

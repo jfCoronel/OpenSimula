@@ -498,8 +498,14 @@ class Building(Component):
         self.TS_vector = np.matmul(self.KS_inv_matrix, self.FS_vector) - np.matmul(self.KS_inv_matrix, np.matmul(self.KSZ_matrix,T_spaces))
         
         # Store TS
+        # Openings too: their T_s1 (and, for interior ones, T_s0) is only known here,
+        # and Opening.post_iteration() computes T_s0 and the heat fluxes from it.
         for i in range(self._n_surfaces):
-            if self.surfaces[i].parameter("type").value == "Building_surface" and self.surfaces[i].parameter("surface_type").value != "VIRTUAL":
+            surface = self.surfaces[i]
+            s_type = surface.parameter("type").value
+            if s_type == "Opening" or (
+                s_type == "Building_surface" and surface.parameter("surface_type").value != "VIRTUAL"
+            ):
                 if self.sides[i] == 0:
                     self.surfaces[i].variable("T_s0").values[time_i] = self.TS_vector[i]
                 else:

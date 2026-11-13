@@ -319,6 +319,14 @@ def test_ff_temperature():
 
     T = pro.component("spaces_1").variable("temperature").values
 
-    assert T.mean() == pytest.approx(25.393174594921604)
-    assert T.max() == pytest.approx(65.59282242450941)
-    assert T.min() == pytest.approx(-12.419790814021622)
+    assert T.mean() == pytest.approx(25.419290848410284)
+    assert T.max() == pytest.approx(65.50850859175931)
+    assert T.min() == pytest.approx(-12.534842723682017)
+
+    # The surface temperatures of the windows are stored like those of the walls:
+    # T_s1 (inside face) follows the room, and the convective flow uses it
+    window = pro.component("south_window_1")
+    T_s1 = window.variable("T_s1").values
+    assert abs(T_s1.mean() - T.mean()) < 10
+    q_cv1 = window.variable("q_cv1").values
+    assert q_cv1 == pytest.approx(2.4 * (T - T_s1))  # h_cv of the inside face
