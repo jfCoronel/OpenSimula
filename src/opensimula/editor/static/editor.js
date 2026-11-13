@@ -7524,6 +7524,400 @@ function highlightGeometry(mesh) {
   };
 }
 
+// graph.js
+var SVG = "http://www.w3.org/2000/svg";
+var BOX_WIDTH = 200;
+var HEADER = 36;
+var ROW = 18;
+var FOOTER = 20;
+var COLUMN_GAP = 90;
+var ROW_GAP = 16;
+var MARGIN = 24;
+var ROW_CHARS = 30;
+var MIN_FIT = 0.8;
+var GROUP_ABOVE = 6;
+var FAMILIES = [
+  ["data", "Weather and data", "#2a78d6", ["File_met", "File_data"]],
+  ["schedule", "Schedules", "#eda100", ["Day_schedule", "Week_schedule", "Year_schedule"]],
+  ["construction", "Constructions", "#1baf7a", ["Material", "Glazing", "Frame", "Construction", "Opening_type"]],
+  ["building", "Building", "#eb6834", ["Building", "Space_type", "Space", "Building_surface", "Solar_surface", "Opening", "Surface"]],
+  ["hvac", "HVAC", "#6250d6", []],
+  // any type starting with HVAC_, and the equipment
+  ["other", "Other", "#8c959f", []]
+];
+var EQUIPMENT = ["DX_unit", "Water_coil", "Fan", "Pump", "Chiller_heat_pump"];
+function familyOf(type) {
+  for (const [key, , , types] of FAMILIES) if (types.includes(type)) return key;
+  if (type.startsWith("HVAC_") || EQUIPMENT.includes(type)) return "hvac";
+  return "other";
+}
+var familyLegend = () => FAMILIES.map(([key, label, colour]) => ({ key, label, colour }));
+var familyColour = (type) => FAMILIES.find(([key]) => key === familyOf(type))[2];
+var isRefList = (sch) => sch?.["x-list"] === true;
+var refSchema = (sch) => isRefList(sch) ? sch.anyOf[1] : sch;
+function short(text, room = ROW_CHARS - 2) {
+  const s = String(text);
+  return s.length > room ? `${s.slice(0, Math.max(4, room - 1))}\u2026` : s;
+}
+function buildGraph(components, defs) {
+  const byName = new Map(components.map((c, index) => [c.name, { comp: c, index }]));
+  const nodes = [];
+  const edges = [];
+  components.forEach((comp, index) => {
+    const def = defs[comp.type] || { properties: {} };
+    const refs = [];
+    let modified = 0;
+    let total = 0;
+    for (const [key, sch] of Object.entries(def.properties || {})) {
+      if (key === "type" || key === "name") continue;
+      const item = refSchema(sch);
+      if (item && item["x-ref"]) {
+        const raw = comp[key];
+        const values = (Array.isArray(raw) ? raw : raw === void 0 ? [] : [raw]).map(String);
+        const targets = values.filter((v) => byName.has(v) && v !== comp.name);
+        if (values.length === 0 || values.every((v) => v === "not_defined" || v === "")) continue;
+        refs.push({ key, values, targets });
+        for (const target of targets) edges.push({ from: comp.name, key, to: target });
+      } else {
+        total += 1;
+        if (comp[key] !== void 0 && JSON.stringify(comp[key]) !== JSON.stringify(sch.default)) modified += 1;
+      }
+    }
+    nodes.push({ id: comp.name, name: comp.name, type: comp.type, index, refs, modified, total });
+  });
+  return { nodes, edges };
+}
+function neighbourhood(graph, name) {
+  const keep = /* @__PURE__ */ new Set([name]);
+  const uses = /* @__PURE__ */ new Map();
+  for (const e of graph.edges) {
+    if (!uses.has(e.from)) uses.set(e.from, []);
+    uses.get(e.from).push(e.to);
+  }
+  const stack = [name];
+  while (stack.length) {
+    for (const next of uses.get(stack.pop()) || []) {
+      if (!keep.has(next)) {
+        keep.add(next);
+        stack.push(next);
+      }
+    }
+  }
+  for (const e of graph.edges) if (e.to === name) keep.add(e.from);
+  return keep;
+}
+function withoutFamilies(graph, hidden, pinned) {
+  if (!hidden || hidden.size === 0) return graph;
+  const shown = (n) => n.id === pinned || !hidden.has(familyOf(n.type));
+  const nodes = graph.nodes.filter(shown);
+  const ids = new Set(nodes.map((n) => n.id));
+  return { nodes, edges: graph.edges.filter((e) => ids.has(e.from) && ids.has(e.to)) };
+}
+function fold(graph, expanded, pinned) {
+  const count = /* @__PURE__ */ new Map();
+  for (const n of graph.nodes) count.set(n.type, (count.get(n.type) || 0) + 1);
+  const folded = (n) => count.get(n.type) > GROUP_ABOVE && !expanded.has(n.type) && n.id !== pinned;
+  const nodeOf = /* @__PURE__ */ new Map();
+  const nodes = [];
+  const groups = /* @__PURE__ */ new Map();
+  for (const n of graph.nodes) {
+    if (!folded(n)) {
+      nodes.push(n);
+      nodeOf.set(n.id, n.id);
+      continue;
+    }
+    const id = `group:${n.type}`;
+    nodeOf.set(n.id, id);
+    if (!groups.has(id)) {
+      const group = { id, group: true, name: `${count.get(n.type)} \xD7 ${n.type}`, type: n.type, refs: [], members: 0 };
+      groups.set(id, group);
+      nodes.push(group);
+    }
+    groups.get(id).members += 1;
+  }
+  for (const n of graph.nodes) {
+    const group = groups.get(nodeOf.get(n.id));
+    if (!group) continue;
+    for (const r of n.refs) if (!group.refs.some((g) => g.key === r.key)) group.refs.push({ key: r.key, values: [], targets: [] });
+  }
+  const seen = /* @__PURE__ */ new Set();
+  const edges = [];
+  for (const e of graph.edges) {
+    const from = nodeOf.get(e.from);
+    const to = nodeOf.get(e.to);
+    if (from === to) continue;
+    const key = `${from}|${e.key}|${to}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    edges.push({ from, key: e.key, to });
+  }
+  return { nodes, edges };
+}
+function layout(graph) {
+  const uses = new Map(graph.nodes.map((n) => [n.id, []]));
+  const usedBy = new Map(graph.nodes.map((n) => [n.id, []]));
+  for (const e of graph.edges) {
+    uses.get(e.from)?.push(e.to);
+    usedBy.get(e.to)?.push(e.from);
+  }
+  const depth = /* @__PURE__ */ new Map();
+  const visiting = /* @__PURE__ */ new Set();
+  const depthOf = (id) => {
+    if (depth.has(id)) return depth.get(id);
+    if (visiting.has(id)) return 0;
+    visiting.add(id);
+    const d = Math.max(-1, ...uses.get(id).map(depthOf)) + 1;
+    visiting.delete(id);
+    depth.set(id, d);
+    return d;
+  };
+  graph.nodes.forEach((n) => depthOf(n.id));
+  const columns = [];
+  for (const n of graph.nodes) {
+    const d = depth.get(n.id);
+    (columns[d] ||= []).push(n);
+  }
+  for (const column2 of columns) {
+    column2.sort((a, b) => familyOf(a.type).localeCompare(familyOf(b.type)) || a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+  }
+  const position = /* @__PURE__ */ new Map();
+  const index = () => columns.forEach((column2) => column2.forEach((n, i) => position.set(n.id, i)));
+  index();
+  const barycentre = (column2, neighbours) => {
+    const value = /* @__PURE__ */ new Map();
+    for (const n of column2) {
+      const near = neighbours.get(n.id).filter((id) => position.has(id));
+      value.set(n.id, near.length ? near.reduce((s, id) => s + position.get(id), 0) / near.length : position.get(n.id));
+    }
+    column2.sort((a, b) => value.get(a.id) - value.get(b.id));
+  };
+  for (let sweep = 0; sweep < 4; sweep += 1) {
+    for (let c = 1; c < columns.length; c += 1) if (columns[c]) barycentre(columns[c], uses);
+    index();
+    for (let c = columns.length - 2; c >= 0; c -= 1) if (columns[c]) barycentre(columns[c], usedBy);
+    index();
+  }
+  const boxes = /* @__PURE__ */ new Map();
+  let width = 0;
+  let height = 0;
+  columns.forEach((column2, c) => {
+    if (!column2) return;
+    let y = MARGIN;
+    const x = MARGIN + c * (BOX_WIDTH + COLUMN_GAP);
+    for (const n of column2) {
+      const h = HEADER + n.refs.length * ROW + FOOTER;
+      boxes.set(n.id, { x, y, w: BOX_WIDTH, h, node: n });
+      y += h + ROW_GAP;
+    }
+    width = Math.max(width, x + BOX_WIDTH + MARGIN);
+    height = Math.max(height, y + MARGIN - ROW_GAP);
+  });
+  return { boxes, width, height };
+}
+function el(tag, attrs = {}, text) {
+  const node = document.createElementNS(SVG, tag);
+  for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+  if (text !== void 0) node.textContent = text;
+  return node;
+}
+function createGraphView(container, { onSelect }) {
+  const svg = el("svg", { class: "osm-graph-svg" });
+  const scene = el("g");
+  const edgeLayer = el("g", { class: "osm-graph-edges" });
+  const boxLayer = el("g");
+  scene.append(edgeLayer, boxLayer);
+  svg.appendChild(scene);
+  container.appendChild(svg);
+  let view = { x: 0, y: 0, k: 1 };
+  const markerId = `osm-arrow-${Math.random().toString(36).slice(2)}`;
+  let laid = null;
+  let fitted = false;
+  let state = { components: [], defs: {}, selected: null, focus: false, hidden: /* @__PURE__ */ new Set() };
+  const expanded = /* @__PURE__ */ new Set();
+  const apply = () => scene.setAttribute("transform", `translate(${view.x},${view.y}) scale(${view.k})`);
+  function fit() {
+    if (!laid) return;
+    const { width, height } = container.getBoundingClientRect();
+    if (!width || !height) return;
+    const k = Math.max(MIN_FIT, Math.min(1, width / laid.width, height / laid.height));
+    const x = laid.width * k <= width ? (width - laid.width * k) / 2 : 0;
+    const y = laid.height * k <= height ? (height - laid.height * k) / 2 : 0;
+    view = { k, x, y };
+    apply();
+    fitted = true;
+  }
+  function zoom(factor, cx, cy) {
+    const { width, height } = container.getBoundingClientRect();
+    const [px, py] = [cx ?? width / 2, cy ?? height / 2];
+    const k = Math.min(3, Math.max(0.1, view.k * factor));
+    view = { k, x: px - (px - view.x) * k / view.k, y: py - (py - view.y) * k / view.k };
+    apply();
+  }
+  function reveal(id) {
+    const box = laid && laid.boxes.get(id);
+    if (!box) return;
+    const { width, height } = container.getBoundingClientRect();
+    const [left, top] = [view.x + box.x * view.k, view.y + box.y * view.k];
+    const [right, bottom] = [left + box.w * view.k, top + box.h * view.k];
+    if (left >= 0 && top >= 0 && right <= width && bottom <= height) return;
+    view.x = width / 2 - (box.x + box.w / 2) * view.k;
+    view.y = Math.min(height / 2, height - 20) - (box.y + Math.min(box.h, height / 2) / 2) * view.k;
+    apply();
+  }
+  function draw() {
+    const full = withoutFamilies(buildGraph(state.components, state.defs), state.hidden, state.selected);
+    let graph = full;
+    let kept = null;
+    if (state.focus && state.selected && full.nodes.some((n) => n.id === state.selected)) {
+      kept = neighbourhood(full, state.selected);
+      graph = {
+        nodes: full.nodes.filter((n) => kept.has(n.id)),
+        edges: full.edges.filter((e) => kept.has(e.from) && kept.has(e.to))
+      };
+    } else {
+      graph = fold(full, expanded, state.selected);
+    }
+    laid = layout(graph);
+    const lit = /* @__PURE__ */ new Set();
+    if (state.selected) {
+      lit.add(state.selected);
+      for (const e of graph.edges) {
+        if (e.from === state.selected) lit.add(e.to);
+        if (e.to === state.selected) lit.add(e.from);
+      }
+    }
+    const dim = (id) => !kept && state.selected && laid.boxes.has(state.selected) && !lit.has(id);
+    edgeLayer.textContent = "";
+    boxLayer.textContent = "";
+    for (const e of graph.edges) {
+      const from = laid.boxes.get(e.from);
+      const to = laid.boxes.get(e.to);
+      if (!from || !to) continue;
+      const row = from.node.refs.findIndex((r) => r.key === e.key);
+      const y1 = from.y + HEADER + (row + 0.5) * ROW;
+      const x1 = from.x;
+      const x2 = to.x + to.w;
+      const y2 = to.y + HEADER / 2;
+      const bend = Math.max(40, Math.abs(x1 - x2) / 2);
+      const active = state.selected && (e.from === state.selected || e.to === state.selected);
+      const cls = active ? "osm-graph-edge active" : dim(e.from) || dim(e.to) ? "osm-graph-edge dim" : "osm-graph-edge";
+      edgeLayer.appendChild(
+        el("path", {
+          class: cls,
+          d: `M${x1},${y1} C${x1 - bend},${y1} ${x2 + bend},${y2} ${x2},${y2}`,
+          "marker-end": `url(#${active ? markerId + "-active" : markerId})`
+        })
+      );
+    }
+    for (const box of laid.boxes.values()) boxLayer.appendChild(drawBox(box, dim(box.node.id)));
+    const defs = el("defs");
+    for (const [id, cls] of [[markerId, "osm-graph-arrow"], [`${markerId}-active`, "osm-graph-arrow active"]]) {
+      const marker = el("marker", { id, viewBox: "0 0 8 8", refX: "7", refY: "4", markerWidth: "7", markerHeight: "7", orient: "auto" });
+      marker.appendChild(el("path", { d: "M0,0 L8,4 L0,8 z", class: cls }));
+      defs.appendChild(marker);
+    }
+    edgeLayer.prepend(defs);
+    if (!fitted) fit();
+  }
+  function drawBox(box, dimmed) {
+    const n = box.node;
+    const classes = ["osm-graph-box"];
+    if (n.group) classes.push("group");
+    if (n.id === state.selected) classes.push("selected");
+    if (dimmed) classes.push("dim");
+    const g = el("g", { class: classes.join(" "), transform: `translate(${box.x},${box.y})` });
+    g.appendChild(el("rect", { class: "osm-graph-frame", width: box.w, height: box.h, rx: 4 }));
+    g.appendChild(el("rect", { class: "osm-graph-band", width: 4, height: box.h, rx: 2, fill: familyColour(n.type) }));
+    g.appendChild(el("text", { class: "osm-graph-name", x: 12, y: 15 }, short(n.name)));
+    g.appendChild(el("text", { class: "osm-graph-type", x: 12, y: 29 }, n.group ? "click to expand" : n.type));
+    n.refs.forEach((r, i) => {
+      const y = HEADER + i * ROW;
+      g.appendChild(el("line", { class: "osm-graph-sep", x1: 8, x2: box.w, y1: y, y2: y }));
+      const value = n.group ? "" : r.values.length > 1 ? `${r.values.length} items` : r.values[0];
+      const text = el("text", { class: "osm-graph-row", x: 12, y: y + 13 });
+      text.appendChild(el("tspan", { class: "osm-graph-key" }, r.key));
+      if (value) text.appendChild(el("tspan", { dx: 6 }, short(value, ROW_CHARS - r.key.length - 1)));
+      if (value && String(value).length > ROW_CHARS - r.key.length - 1) text.appendChild(el("title", {}, String(value)));
+      g.appendChild(text);
+      if (r.values.length > 1) text.appendChild(el("title", {}, r.values.join(", ")));
+    });
+    const foot = n.group ? `${n.members} components` : `${n.total} parameters${n.modified ? `, ${n.modified} changed` : ""}`;
+    g.appendChild(el("text", { class: "osm-graph-foot", x: 12, y: box.h - 6 }, foot));
+    g.appendChild(el("title", {}, n.group ? `${n.name}: click to show them one by one` : `${n.type}: ${n.name}`));
+    g.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (moved) return;
+      if (n.group) {
+        expanded.add(n.type);
+        draw();
+      } else {
+        onSelect(n.index);
+      }
+    });
+    return g;
+  }
+  let drag = null;
+  let moved = false;
+  svg.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    drag = { x: event.clientX, y: event.clientY, vx: view.x, vy: view.y };
+    moved = false;
+  });
+  const onMove = (event) => {
+    if (!drag) return;
+    const [dx, dy] = [event.clientX - drag.x, event.clientY - drag.y];
+    if (!moved && Math.hypot(dx, dy) < 4) return;
+    moved = true;
+    svg.classList.add("dragging");
+    view.x = drag.vx + dx;
+    view.y = drag.vy + dy;
+    apply();
+  };
+  window.addEventListener("pointermove", onMove);
+  const endDrag = () => {
+    drag = null;
+    svg.classList.remove("dragging");
+    setTimeout(() => moved = false, 0);
+  };
+  window.addEventListener("pointerup", endDrag);
+  svg.addEventListener("click", () => {
+    if (!moved && state.selected) onSelect(null);
+  });
+  svg.addEventListener(
+    "wheel",
+    (event) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      const r = svg.getBoundingClientRect();
+      zoom(Math.exp(-event.deltaY * 2e-3), event.clientX - r.left, event.clientY - r.top);
+    },
+    { passive: false }
+  );
+  return {
+    update(next) {
+      const before = state;
+      state = { ...state, ...next };
+      if (before.focus !== state.focus || state.focus && before.selected !== state.selected) fitted = false;
+      if ([...before.hidden].sort().join() !== [...state.hidden].sort().join()) fitted = false;
+      draw();
+      if (state.selected) reveal(state.selected);
+    },
+    fit() {
+      fit();
+    },
+    zoom,
+    collapseAll() {
+      expanded.clear();
+      fitted = false;
+      draw();
+    },
+    destroy() {
+      window.removeEventListener("pointerup", endDrag);
+      window.removeEventListener("pointermove", onMove);
+    }
+  };
+}
+
 // editor.src.js
 var DEBOUNCE_MS = 400;
 var isList = (sch) => sch?.["x-list"] === true;
@@ -7665,7 +8059,7 @@ var parseList = (kind, raw) => raw.split(",").map((part) => parseScalar(kind, pa
 );
 var formatList = (value) => Array.isArray(value) ? value.join(", ") : String(value ?? "");
 var editor_src_default = {
-  render({ model, el }) {
+  render({ model, el: el2 }) {
     let doc = structuredClone(model.get("value"));
     let schema = model.get("schema");
     let { validate, schemaError } = buildValidator(schema);
@@ -7697,16 +8091,35 @@ var editor_src_default = {
           </div>
           <div class="osm-plot"></div>
         </div>
+        <div class="osm-graph" hidden>
+          <div class="osm-view-bar">
+            <label>Show
+              <select class="osm-graph-filter">
+                <option value="all">all</option>
+                <option value="focus">selected and what it uses</option>
+              </select>
+            </label>
+            <span class="osm-graph-buttons">
+              <button type="button" class="osm-graph-out" title="Zoom out (or Ctrl/\u2318 + wheel)">\u2212</button>
+              <button type="button" class="osm-graph-in" title="Zoom in (or Ctrl/\u2318 + wheel)">+</button>
+              <button type="button" class="osm-graph-fit" title="Fit the graph in the panel">Fit</button>
+              <button type="button" class="osm-graph-fold" title="Fold again the types with many components">Fold</button>
+            </span>
+            <span class="osm-graph-legend"></span>
+          </div>
+          <div class="osm-graph-canvas"></div>
+        </div>
       </div>`;
-    el.appendChild(root);
+    el2.appendChild(root);
     const bar = document.createElement("div");
     bar.className = "osm-bar";
     bar.innerHTML = `
       <div class="osm-status"></div>
       <button class="osm-toggle osm-apply" type="button" disabled>Apply</button>
       <button class="osm-toggle osm-form-toggle" type="button">Hide parameters</button>
-      <button class="osm-toggle osm-view-toggle" type="button">Show 3D</button>`;
-    el.appendChild(bar);
+      <button class="osm-toggle osm-view-toggle" type="button">Show 3D</button>
+      <button class="osm-toggle osm-graph-toggle" type="button">Show graph</button>`;
+    el2.appendChild(bar);
     const status = bar.querySelector(".osm-status");
     const view = root.querySelector(".osm-view");
     const viewToggle = bar.querySelector(".osm-view-toggle");
@@ -7716,6 +8129,29 @@ var editor_src_default = {
     const spaceFilter = view.querySelector(".osm-space-filter");
     const openingsToggle = view.querySelector(".osm-openings");
     const viewCount = view.querySelector(".osm-view-count");
+    const graphPanel = root.querySelector(".osm-graph");
+    const graphToggle = bar.querySelector(".osm-graph-toggle");
+    const graphFilter = graphPanel.querySelector(".osm-graph-filter");
+    const legend = graphPanel.querySelector(".osm-graph-legend");
+    const hiddenFamilies = /* @__PURE__ */ new Set();
+    for (const family of familyLegend()) {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "osm-graph-family";
+      item.title = `Show or hide ${family.label.toLowerCase()} in the graph`;
+      item.setAttribute("aria-pressed", "true");
+      item.innerHTML = `<i style="background:${family.colour}"></i>`;
+      item.append(family.label);
+      item.onclick = () => {
+        const off = !hiddenFamilies.has(family.key);
+        if (off) hiddenFamilies.add(family.key);
+        else hiddenFamilies.delete(family.key);
+        item.classList.toggle("off", off);
+        item.setAttribute("aria-pressed", String(!off));
+        renderGraph();
+      };
+      legend.appendChild(item);
+    }
     const tree = root.querySelector(".osm-tree");
     const detail = root.querySelector(".osm-detail");
     const newType = root.querySelector(".osm-new-type");
@@ -7887,9 +8323,9 @@ var editor_src_default = {
       if (kind === "enum" && !isList(sch)) {
         input = document.createElement("select");
         for (const option of item.enum) {
-          const el2 = document.createElement("option");
-          el2.value = el2.textContent = option;
-          input.appendChild(el2);
+          const el3 = document.createElement("option");
+          el3.value = el3.textContent = option;
+          input.appendChild(el3);
         }
         input.value = value ?? "";
         input.onchange = () => onCommit(input.value);
@@ -7901,9 +8337,9 @@ var editor_src_default = {
         const names = components().filter((c) => allowed.length === 0 || allowed.includes(c.type)).map((c) => c.name);
         if (value !== void 0 && !names.includes(value)) names.unshift(value);
         for (const name of names) {
-          const el2 = document.createElement("option");
-          el2.value = el2.textContent = name;
-          input.appendChild(el2);
+          const el3 = document.createElement("option");
+          el3.value = el3.textContent = name;
+          input.appendChild(el3);
         }
         input.value = value ?? "";
         input.onchange = () => onCommit(input.value);
@@ -8100,17 +8536,17 @@ var editor_src_default = {
       viewCount.textContent = ghost.length ? `${active.length} of ${geometry.meshes.length}` : `${active.length} surfaces`;
       try {
         const plotly = await loadPlotly();
-        const layout = { ...VIEW_LAYOUT, scene: { ...VIEW_LAYOUT.scene } };
+        const layout2 = { ...VIEW_LAYOUT, scene: { ...VIEW_LAYOUT.scene } };
         const bounds = modelBounds(geometry);
         if (bounds) {
           const [x, y, z] = axisRanges(bounds);
-          layout.scene.xaxis = { ...layout.scene.xaxis, range: x };
-          layout.scene.yaxis = { ...layout.scene.yaxis, range: y };
-          layout.scene.zaxis = { ...layout.scene.zaxis, range: z };
-          layout.scene.camera = viewCamera || defaultCamera(bounds);
-          viewCamera = layout.scene.camera;
+          layout2.scene.xaxis = { ...layout2.scene.xaxis, range: x };
+          layout2.scene.yaxis = { ...layout2.scene.yaxis, range: y };
+          layout2.scene.zaxis = { ...layout2.scene.zaxis, range: z };
+          layout2.scene.camera = viewCamera || defaultCamera(bounds);
+          viewCamera = layout2.scene.camera;
         }
-        await plotly.react(plot, traces, layout, {
+        await plotly.react(plot, traces, layout2, {
           responsive: true,
           displaylogo: false
         });
@@ -8202,12 +8638,15 @@ var editor_src_default = {
       });
     }
     function updatePanels() {
+      const lower = !view.hidden || !graphPanel.hidden;
       root.classList.toggle("show-form", !detail.hidden);
-      root.classList.toggle("show-view", !view.hidden);
+      root.classList.toggle("show-view", lower);
       formToggle.textContent = detail.hidden ? "Show parameters" : "Hide parameters";
       viewToggle.textContent = view.hidden ? "Show 3D" : "Hide 3D";
-      formToggle.disabled = !detail.hidden && view.hidden;
+      graphToggle.textContent = graphPanel.hidden ? "Show graph" : "Hide graph";
+      formToggle.disabled = !detail.hidden && !lower;
       viewToggle.disabled = !view.hidden && detail.hidden;
+      graphToggle.disabled = !graphPanel.hidden && detail.hidden;
     }
     formToggle.onclick = () => {
       detail.hidden = !detail.hidden;
@@ -8216,14 +8655,49 @@ var editor_src_default = {
     };
     viewToggle.onclick = () => {
       view.hidden = !view.hidden;
+      if (!view.hidden) graphPanel.hidden = true;
       updatePanels();
       renderView();
     };
+    const graphView = createGraphView(graphPanel.querySelector(".osm-graph-canvas"), {
+      onSelect(index) {
+        if (index === null) {
+          if (selection.kind !== "component") return;
+          selection = { kind: "project" };
+        } else {
+          if (selection.kind === "component" && selection.index === index) return;
+          selection = { kind: "component", index };
+        }
+        render();
+      }
+    });
+    function renderGraph() {
+      if (graphPanel.hidden) return;
+      graphView.update({
+        components: components(),
+        defs: defs(),
+        selected: selectedComponentName(),
+        focus: graphFilter.value === "focus",
+        hidden: new Set(hiddenFamilies)
+      });
+    }
+    graphToggle.onclick = () => {
+      graphPanel.hidden = !graphPanel.hidden;
+      if (!graphPanel.hidden) view.hidden = true;
+      updatePanels();
+      requestAnimationFrame(renderGraph);
+    };
+    graphFilter.onchange = renderGraph;
+    graphPanel.querySelector(".osm-graph-fit").onclick = () => graphView.fit();
+    graphPanel.querySelector(".osm-graph-in").onclick = () => graphView.zoom(1.25);
+    graphPanel.querySelector(".osm-graph-out").onclick = () => graphView.zoom(0.8);
+    graphPanel.querySelector(".osm-graph-fold").onclick = () => graphView.collapseAll();
     function render() {
       refreshErrors();
       renderTree();
       renderDetail();
       highlightSelection();
+      renderGraph();
     }
     fillTypes();
     fillSpaceFilter(model.get("geometry") || {});
@@ -8263,6 +8737,7 @@ var editor_src_default = {
       model.off("change:value", onValueChange);
       model.off("change:schema", onSchemaChange);
       model.off("change:geometry", onGeometryChange);
+      graphView.destroy();
       if (plotlyPromise) {
         plotlyPromise.then((plotly) => plotly.purge(plot)).catch(() => {
         });

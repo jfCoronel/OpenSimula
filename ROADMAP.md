@@ -26,7 +26,13 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   sequential or diverging scale by sign). Merged (PR #33).
 - **GUI phase 2, step 3 (branch `feat/results-3d-time`)**: "At cursor" colouring, the 3D
   model follows the time under the chart cursor (series of all surfaces sent as float32
-  bytes, `surface_series`; restyle() per frame). Closes phase 2. Plan: phase 3 (graph view
+  bytes, `surface_series`; restyle() per frame). Closes phase 2 (merged, PR #35).
+- **GUI phase 3 (branch `feat/editor-graph`)**: graph view of the components in the
+  editor (`vendor/graph.js`, plain SVG): boxes with their reference parameters, arrows to
+  the referenced components, layered layout (barycentre ordering), types with > 6 components
+  folded, selection linked with the list/form/3D (a click on the background clears it),
+  "selected and what it uses" filter, families of the legend switch their components on/off.
+  Plan was: phase 3 (graph view
   of the components in the editor), then release **0.9.0** with phases 1–3 and the opening fix.
 - **Fix: surface temperatures of openings (branch `fix/opening-surface-temperatures`)**,
   found with the 3D colouring of the results viewer: `Building._store_surfaces_values_()`

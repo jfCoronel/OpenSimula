@@ -127,6 +127,12 @@ The *Space* dropdown shows one space at a time, which is the way to see interior
 
 The selection is linked both ways: picking a component in the list paints it orange in the view, and clicking a surface in the view selects it in the list and shows its parameters.
 
+The **Show graph** button shows, in the same place, a graph of the components: one box per component, with its name and type, a row for every parameter that refers to other components (`construction`, `spaces`, `materials`…) and how many of its parameters differ from the default. An arrow goes from each of those rows to the component it names, and the boxes are laid out in layers, so that what a component uses is always to its left: materials, schedules and weather on the left, then constructions, spaces, surfaces and openings, and the systems on the right. The colour of the left edge of a box tells its family (legend in the bar); clicking a family in the legend hides its components and their arrows, and clicking it again shows them (the selected component is always shown).
+
+The graph shows the **document** being edited, so it follows every change at once. A type with more than six components is folded into one box ("64 × Building_surface"); clicking it shows them one by one, and **Fold** folds them again. Clicking a box selects the component in the list and in the form, and lights up its arrows and the components at their ends; selecting a component in the list or in the 3D view does the same in the graph. Clicking the empty background clears the selection. **Show: selected and what it uses** keeps only the selected component, everything it uses down to the materials, and the components that use it. Drag to move the graph; the − / + buttons, or Ctrl/⌘ + wheel (pinch on a trackpad), zoom it, and **Fit** brings it all back into the panel.
+
+![Project editor with the graph of the components](img/editor_graph.png)
+
 The view shows the **project**, not the document being edited: geometry needs a built model, with references resolved and origins placed relative to the building, which the document alone does not give. Moving a vertex is a plain change of value, so it reaches the project and the view straight away; adding or removing a surface waits for `apply()`. `refresh_geometry()` reloads the view after changing the project from code.
 
 The edited definition is available as `editor.value`, and not every edit reaches the project the same way.

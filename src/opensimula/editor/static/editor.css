@@ -301,7 +301,8 @@
 
 /* On its own it takes the whole column, and there is nothing above to divide
    it from. */
-.osm-editor:not(.show-form) .osm-view {
+.osm-editor:not(.show-form) .osm-view,
+.osm-editor:not(.show-form) .osm-graph {
     flex: 1;
     border-top: none;
 }
@@ -314,6 +315,7 @@
 }
 
 .osm-view[hidden],
+.osm-graph[hidden],
 .osm-detail[hidden] {
     display: none;
 }
@@ -385,4 +387,178 @@
 .osm-status[data-state="error"] {
     color: #cf222e;
     background: #ffebe9;
+}
+
+/* ---------- graph view of the components ---------- */
+
+/* The lower panel, like the 3D view: one or the other. */
+.osm-graph {
+    flex: 0 0 400px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #d0d7de;
+    background: #fff;
+}
+
+.osm-graph-buttons {
+    display: flex;
+    gap: 0.2rem;
+}
+
+.osm-graph-buttons button {
+    padding: 0 0.45rem;
+    border: 1px solid #d0d7de;
+    border-radius: 3px;
+    background: #fff;
+    font: inherit;
+    font-size: 0.8rem;
+    color: #1f2328;
+    cursor: pointer;
+}
+
+.osm-graph-buttons button:hover {
+    background: #eaeef2;
+}
+
+.osm-graph-legend {
+    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.1rem 0.7rem;
+}
+
+.osm-graph-family {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.05rem 0.3rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.osm-graph-family:hover {
+    border-color: #d0d7de;
+}
+
+.osm-graph-family.off {
+    opacity: 0.4;
+    text-decoration: line-through;
+}
+
+.osm-graph-family i {
+    width: 4px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.osm-graph-canvas {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.osm-graph-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    user-select: none;
+    font-family: inherit;
+}
+
+.osm-graph-svg.dragging {
+    cursor: grabbing;
+}
+
+.osm-graph-box {
+    cursor: pointer;
+}
+
+.osm-graph-frame {
+    fill: #fff;
+    stroke: #d0d7de;
+    stroke-width: 1;
+}
+
+.osm-graph-box:hover .osm-graph-frame {
+    stroke: #8c959f;
+}
+
+.osm-graph-box.selected .osm-graph-frame {
+    stroke: #1f2328;
+    stroke-width: 2;
+}
+
+.osm-graph-box.group .osm-graph-frame {
+    fill: #ddf4ff;
+    stroke: #54aeff;
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+}
+
+.osm-graph-box.group:hover .osm-graph-frame {
+    stroke: #0969da;
+}
+
+.osm-graph-box.group .osm-graph-type,
+.osm-graph-box.group .osm-graph-foot {
+    fill: #0969da;
+}
+
+.osm-graph-box.dim {
+    opacity: 0.35;
+}
+
+.osm-graph-name {
+    font-size: 12px;
+    font-weight: 600;
+    fill: #1f2328;
+}
+
+.osm-graph-type,
+.osm-graph-foot {
+    font-size: 10.5px;
+    fill: #57606a;
+}
+
+.osm-graph-sep {
+    stroke: #eaeef2;
+}
+
+.osm-graph-row {
+    font-size: 11px;
+    fill: #1f2328;
+}
+
+.osm-graph-key {
+    fill: #57606a;
+}
+
+.osm-graph-edge {
+    fill: none;
+    stroke: #8c959f;
+    stroke-width: 1.2;
+}
+
+.osm-graph-edge.active {
+    stroke: #1f2328;
+    stroke-width: 2;
+}
+
+.osm-graph-edge.dim {
+    opacity: 0.2;
+}
+
+.osm-graph-arrow {
+    fill: #8c959f;
+}
+
+.osm-graph-arrow.active {
+    fill: #1f2328;
 }
