@@ -27,6 +27,13 @@ dependencies = [
     "tqdm>=4.67.1",
 ]
 
+[project.optional-dependencies]
+# the app started by `opensimula gui`
+gui = ["marimo>=0.19.0"]
+
+[project.scripts]
+opensimula = "opensimula.gui:main"
+
 [dependency-groups]
 dev = [
     "ipykernel>=6.30.1",
