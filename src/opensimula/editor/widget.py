@@ -241,6 +241,16 @@ class ProjectEditor(anywidget.AnyWidget):
             self.refresh_geometry()
 
     def _handle_message_(self, widget, content, buffers):
-        """The Apply button. The frontend cannot call a method, only send."""
-        if isinstance(content, dict) and content.get("type") == "apply":
+        """Requests of the frontend, which cannot call a method, only send.
+
+        "apply" is the Apply button. "plotly" asks for the plotly bundle the
+        first time the 3D view is opened: it is shipped with the package and
+        sent from here, so the view works offline and under the notebook CSP of
+        VS Code, which blocks fetching it from a CDN.
+        """
+        if not isinstance(content, dict):
+            return
+        if content.get("type") == "apply":
             self.apply()
+        elif content.get("type") == "plotly":
+            self.send({"type": "plotly"}, [(_STATIC / "plotly3d.js").read_bytes()])

@@ -83,10 +83,10 @@ def test_frontend_assets_are_present_and_loadable():
     # The form is built from the schema metadata, not from hardcoded fields.
     for keyword in ("x-ref", "x-unit", "x-list", "x-format"):
         assert keyword in source, f"{keyword} not used by the form builder"
-    # The 3D view: loaded on demand, and framed for the model rather than for
-    # plotly's unit cube, whose default camera crops a building.
-    assert "plotly.js-gl3d-dist-min" in source
-    assert "import(PLOTLY_URL)" in source
+    # The 3D view: plotly loaded on demand (sent by Python, see below), and
+    # framed for the model rather than for plotly's unit cube, whose default
+    # camera crops a building.
+    assert "receivePlotly" in source
     assert "defaultCamera" in source
     # Filtering by space is what brings interior partitions into view. The rest
     # of the building stays as a wireframe, which keeps the scene bounds and
@@ -112,6 +112,10 @@ def test_frontend_assets_are_present_and_loadable():
     # the bar has to say so and offer the button that asks for it.
     assert 'model.send({ type: "apply" })' in source
     assert "pendingChanges" in source
+    # plotly comes from Python, not from a CDN: offline and under the CSP of
+    # the VS Code notebooks, which blocks third-party scripts
+    assert "esm.sh/plotly" not in source
+    assert 'model.send({ type: "plotly" })' in source
 
 
 def test_document_is_json_serialisable(project):
@@ -531,3 +535,18 @@ def test_deleting_a_surface_that_has_openings(building):
 
     assert len(editor.geometry["meshes"]) < before
     assert any(surface in m.text for m in building.check())
+
+
+def test_the_plotly_request_is_answered_with_the_bundle(building, monkeypatch):
+    """The 3D view asks for plotly the first time; it is sent from the package."""
+    editor = building.editor()
+    sent = []
+    monkeypatch.setattr(editor, "send", lambda content, buffers=None: sent.append((content, buffers)))
+
+    editor._handle_message_(editor, {"type": "plotly"}, None)
+
+    assert len(sent) == 1
+    content, buffers = sent[0]
+    assert content == {"type": "plotly"}
+    bundle = (widget_module._STATIC / "plotly3d.js").read_bytes()
+    assert buffers == [bundle] and len(bundle) > 1_000_000
