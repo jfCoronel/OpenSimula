@@ -19,8 +19,11 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   (`show_3d`). Click a surface → opened in the variable list with its spaces; plotted
   surfaces drawn in their series colour, plotted spaces in the outline. plotly is shipped
   as `static/plotly3d.js` and sent by Python on first use (blob import, VS Code safe);
-  3D helpers shared with the editor in `vendor/view3d.js`. Next in phase 2: colour the
-  model by the value of a variable, and link the chart cursor time to the 3D view.
+  3D helpers shared with the editor in `vendor/view3d.js`. Merged (PR #32), with × to close a chart and
+  Shift+click on the legend to remove a variable.
+- **GUI phase 2, step 2 (branch `feat/results-3d-color`)**: colour the 3D model by a
+  surface variable (`color_variable`, `color_statistic` mean/max/min over the interval;
+  sequential or diverging scale by sign). Next: link the chart cursor time to the 3D view.
 - **Paper updated to 0.8.10** (PR #30) and PDF regenerated in the JOSS issue; still
   waiting for the EiC's scope decision.
 
