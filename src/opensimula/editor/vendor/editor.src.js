@@ -12,6 +12,8 @@ import {
   defaultCamera,
   highlightGeometry,
   modelBounds,
+  plotlyLoaded,
+  receivePlotly,
 } from "./view3d.js";
 import { createGraphView, familyLegend } from "./graph.js";
 
@@ -54,16 +56,30 @@ const sameValue = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 // ____________________ 3D view ____________________
 
-// The gl3d bundle only, 1.7MB against the 4.5MB of full plotly, and loaded on
-// first use so opening the editor does not pay for a view that may stay shut.
-const PLOTLY_URL = "https://esm.sh/plotly.js-gl3d-dist-min@3.7.0";
-let plotlyPromise = null;
+// plotly (the gl3d bundle, static/plotly3d.js) is sent by Python the first
+// time a 3D view is opened, as in the results viewer, so opening the editor
+// does not pay for a view that may stay shut. It used to be imported from
+// esm.sh, which needs internet and is blocked by VS Code's notebook CSP. Once
+// received it is shared by every widget of the page (view3d.js).
+let plotlyRequest = null;
 
-function loadPlotly() {
-  if (!plotlyPromise) {
-    plotlyPromise = import(PLOTLY_URL).then((module) => module.default || module);
+function loadPlotly(model) {
+  const loaded = plotlyLoaded();
+  if (loaded) return loaded;
+  if (!plotlyRequest) {
+    let resolve, reject;
+    const promise = new Promise((ok, fail) => ([resolve, reject] = [ok, fail]));
+    plotlyRequest = { promise, resolve, reject };
+    model.send({ type: "plotly" });
   }
-  return plotlyPromise;
+  return plotlyRequest.promise;
+}
+
+function plotlyReceived(buffer) {
+  const request = plotlyRequest;
+  plotlyRequest = null; // a failed load can be asked for again
+  const loading = receivePlotly(buffer);
+  if (request) loading.then(request.resolve, request.reject);
 }
 
 // The selected component, so it can be picked out of a wall of white surfaces.
@@ -768,7 +784,7 @@ export default {
         : `${active.length} surfaces`;
 
       try {
-        const plotly = await loadPlotly();
+        const plotly = await loadPlotly(model);
         const layout = { ...VIEW_LAYOUT, scene: { ...VIEW_LAYOUT.scene } };
         const bounds = modelBounds(geometry);
         if (bounds) {
@@ -854,7 +870,7 @@ export default {
     }
 
     async function highlightSelection() {
-      if (view.hidden || !plotlyPromise || viewInfos.length === 0) return;
+      if (view.hidden || !plotlyLoaded() || viewInfos.length === 0) return;
       const index = viewInfos.findIndex((info) => info.kind === "highlight");
       if (index < 0) return;
       const selected = selectedComponentName();
@@ -863,7 +879,7 @@ export default {
       );
       const shape = highlightGeometry(mesh ? mesh.mesh : null);
       try {
-        const plotly = await loadPlotly();
+        const plotly = await loadPlotly(model);
         // plotly decides what to apply by diffing against gd.layout, so handing
         // it the camera already recorded there counts as no change and it is
         // skipped, leaving whatever a rebuild put in its place. Forgetting the
@@ -904,8 +920,9 @@ export default {
     function resizeView() {
       // The view keeps its plot when the panel changes size; only plotly has
       // to be told. Never load it just to resize a plot that is not there.
-      if (view.hidden || !plotlyPromise) return;
-      plotlyPromise.then((plotly) => plotly.Plots.resize(plot)).catch(() => {});
+      const plotly = plotlyLoaded();
+      if (view.hidden || !plotly) return;
+      plotly.then((P) => P.Plots.resize(plot)).catch(() => {});
     }
 
     function updatePanels() {
@@ -1026,6 +1043,10 @@ export default {
     model.on("change:value", onValueChange);
     model.on("change:schema", onSchemaChange);
     model.on("change:geometry", onGeometryChange);
+    const onCustom = (msg, buffers) => {
+      if (msg && msg.type === "plotly" && buffers && buffers.length) plotlyReceived(buffers[0]);
+    };
+    model.on("msg:custom", onCustom);
 
     return () => {
       clearTimeout(timer);
@@ -1034,11 +1055,11 @@ export default {
       model.off("change:value", onValueChange);
       model.off("change:schema", onSchemaChange);
       model.off("change:geometry", onGeometryChange);
+      model.off("msg:custom", onCustom);
       graphView.destroy();
       // Only if it was ever loaded: purging must not pull in 1.7MB to do it.
-      if (plotlyPromise) {
-        plotlyPromise.then((plotly) => plotly.purge(plot)).catch(() => {});
-      }
+      const plotly = plotlyLoaded();
+      if (plotly) plotly.then((P) => P.purge(plot)).catch(() => {});
     };
   },
 };

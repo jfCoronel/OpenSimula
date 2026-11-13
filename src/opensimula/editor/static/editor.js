@@ -7523,6 +7523,29 @@ function highlightGeometry(mesh) {
     k: column(faces, 2)
   };
 }
+var PLOTLY_KEY = "__opensimula_plotly__";
+function plotlyLoaded() {
+  return globalThis[PLOTLY_KEY] || null;
+}
+function receivePlotly(buffer) {
+  if (globalThis[PLOTLY_KEY]) return globalThis[PLOTLY_KEY];
+  const bytes = buffer instanceof DataView ? new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength) : buffer;
+  const url = URL.createObjectURL(new Blob([bytes], { type: "text/javascript" }));
+  globalThis[PLOTLY_KEY] = import(
+    /* webpackIgnore: true */
+    url
+  ).then(
+    (module) => {
+      URL.revokeObjectURL(url);
+      return module.default || module;
+    },
+    (err) => {
+      delete globalThis[PLOTLY_KEY];
+      throw err;
+    }
+  );
+  return globalThis[PLOTLY_KEY];
+}
 
 // graph.js
 var SVG = "http://www.w3.org/2000/svg";
@@ -7940,13 +7963,23 @@ function widthClass(kind, sch) {
   return "osm-w-wide";
 }
 var sameValue = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-var PLOTLY_URL = "https://esm.sh/plotly.js-gl3d-dist-min@3.7.0";
-var plotlyPromise = null;
-function loadPlotly() {
-  if (!plotlyPromise) {
-    plotlyPromise = import(PLOTLY_URL).then((module) => module.default || module);
+var plotlyRequest = null;
+function loadPlotly(model) {
+  const loaded = plotlyLoaded();
+  if (loaded) return loaded;
+  if (!plotlyRequest) {
+    let resolve, reject;
+    const promise = new Promise((ok, fail) => [resolve, reject] = [ok, fail]);
+    plotlyRequest = { promise, resolve, reject };
+    model.send({ type: "plotly" });
   }
-  return plotlyPromise;
+  return plotlyRequest.promise;
+}
+function plotlyReceived(buffer) {
+  const request = plotlyRequest;
+  plotlyRequest = null;
+  const loading = receivePlotly(buffer);
+  if (request) loading.then(request.resolve, request.reject);
 }
 var HIGHLIGHT = "rgb(255, 127, 14)";
 var GHOST = "rgb(176, 176, 176)";
@@ -8535,7 +8568,7 @@ var editor_src_default = {
       viewInfos = infos;
       viewCount.textContent = ghost.length ? `${active.length} of ${geometry.meshes.length}` : `${active.length} surfaces`;
       try {
-        const plotly = await loadPlotly();
+        const plotly = await loadPlotly(model);
         const layout2 = { ...VIEW_LAYOUT, scene: { ...VIEW_LAYOUT.scene } };
         const bounds = modelBounds(geometry);
         if (bounds) {
@@ -8597,7 +8630,7 @@ var editor_src_default = {
       await plotly.relayout(plot, { "scene.camera": viewCamera });
     }
     async function highlightSelection() {
-      if (view.hidden || !plotlyPromise || viewInfos.length === 0) return;
+      if (view.hidden || !plotlyLoaded() || viewInfos.length === 0) return;
       const index = viewInfos.findIndex((info) => info.kind === "highlight");
       if (index < 0) return;
       const selected = selectedComponentName();
@@ -8606,7 +8639,7 @@ var editor_src_default = {
       );
       const shape = highlightGeometry(mesh ? mesh.mesh : null);
       try {
-        const plotly = await loadPlotly();
+        const plotly = await loadPlotly(model);
         if (plot.layout && plot.layout.scene) delete plot.layout.scene.camera;
         await plotly.update(
           plot,
@@ -8633,8 +8666,9 @@ var editor_src_default = {
       renderView();
     };
     function resizeView() {
-      if (view.hidden || !plotlyPromise) return;
-      plotlyPromise.then((plotly) => plotly.Plots.resize(plot)).catch(() => {
+      const plotly = plotlyLoaded();
+      if (view.hidden || !plotly) return;
+      plotly.then((P) => P.Plots.resize(plot)).catch(() => {
       });
     }
     function updatePanels() {
@@ -8730,6 +8764,10 @@ var editor_src_default = {
     model.on("change:value", onValueChange);
     model.on("change:schema", onSchemaChange);
     model.on("change:geometry", onGeometryChange);
+    const onCustom = (msg, buffers) => {
+      if (msg && msg.type === "plotly" && buffers && buffers.length) plotlyReceived(buffers[0]);
+    };
+    model.on("msg:custom", onCustom);
     return () => {
       clearTimeout(timer);
       clearTimeout(wheelTimer);
@@ -8737,11 +8775,11 @@ var editor_src_default = {
       model.off("change:value", onValueChange);
       model.off("change:schema", onSchemaChange);
       model.off("change:geometry", onGeometryChange);
+      model.off("msg:custom", onCustom);
       graphView.destroy();
-      if (plotlyPromise) {
-        plotlyPromise.then((plotly) => plotly.purge(plot)).catch(() => {
-        });
-      }
+      const plotly = plotlyLoaded();
+      if (plotly) plotly.then((P) => P.purge(plot)).catch(() => {
+      });
     };
   }
 };

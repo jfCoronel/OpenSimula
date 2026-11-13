@@ -9,8 +9,12 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   10.5281/zenodo.24194954. Graphical interface (phases 1–4 below: results viewer with 3D
   view, graph view in the editor, `opensimula gui` app with the `gui` extra) and the fix of
   the surface temperatures of openings (PRs #31–#38). `validate.py --check`: 0 values
-  changed. Next ideas for the app: the editor still loads plotly from esm.sh (needs
-  internet for its 3D view); the JOSS paper could mention the GUI during the review.
+  changed. The JOSS paper could mention the GUI during the review.
+- **Editor's plotly bundled (branch `fix/editor-plotly-bundled`)**: the editor no longer
+  imports plotly from esm.sh; it asks Python (`{"type": "plotly"}`) and gets
+  `static/plotly3d.js`, as the results viewer does, shared through `view3d.js`. Checked in
+  Chrome with every request outside localhost blocked. Closes the "Known follow-up" on the
+  VS Code CSP. Next session: progressive examples gallery (teaching, item 4).
 
 - **Graphical interface, plan agreed 2026-11-12**, in four phases: (1) results viewer as
   an anywidget for notebooks, (2) link it to the 3D view, (3) graph view of the components
@@ -457,15 +461,6 @@ Next steps, one PR each:
 
 Concrete, verified items — not ideas, things already identified as needing attention:
 
-- **Editor's lazy Plotly import may hit the same VS Code CSP as the Ajv bug.**
-  `src/opensimula/editor/vendor/editor.src.js` does `import(PLOTLY_URL)` (from esm.sh) on
-  demand when the 3D view is opened, separate from the Ajv static import that was bundled in
-  PR #2. This dynamic import was not implicated in issue #1 (which failed at initial widget
-  load), but it fetches from a remote origin the same way the old Ajv import did, so it may
-  fail under VS Code's notebook CSP the first time someone opens the 3D view there. Not
-  reproduced or confirmed either way — needs checking in an actual VS Code notebook. If it
-  does fail, the fix is the same shape as PR #2: vendor `plotly.js-gl3d-dist-min` into the
-  esbuild bundle instead of fetching it at runtime (trade-off: bundle size).
 - **`HVAC_DX_system.py:14`** — the `spaces` parameter's comment notes it should eventually
   also accept `Air_distribution` and `Energy_load` component types, neither of which exists
   yet in the codebase.

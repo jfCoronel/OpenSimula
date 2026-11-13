@@ -125,7 +125,7 @@ with mo.status.progress_bar(total=100, title="Simulating") as bar:
 
 - **editor()**: Returns an interactive editor for the whole project definition. Displayed directly in Jupyter, or wrapped in `mo.ui.anywidget(...)` in Marimo. The components appear grouped by type on the left, and the parameters of the selected one as a form on the right. The form is generated from the project JSON Schema, so every field carries its unit and its limits, options become dropdowns, and a parameter referring to another component becomes a dropdown of the components of the accepted types. Values that differ from the default of the component class are shown in bold, with a button to reset them. Errors are reported under the offending field, together with references pointing at a component name that does not exist.
 
-The **Show 3D** button at the bottom opens a 3D view of the building under the form, and **Hide parameters** leaves the view on its own. The view is built with Plotly and its library is downloaded the first time it is opened, so it costs nothing until it is used.
+The **Show 3D** button at the bottom opens a 3D view of the building under the form, and **Hide parameters** leaves the view on its own. The view is built with Plotly, which is shipped with opensimula and sent to the page the first time the view is opened, so it costs nothing until it is used and needs no internet connection.
 
 ![Project editor with the 3D view](img/editor_3d.png)
 
