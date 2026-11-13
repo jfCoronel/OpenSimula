@@ -499,13 +499,21 @@ class Project(Parameter_container):
 
         return errors
 
-    def simulate(self):
+    def simulate(self, progress=None):
         """Run the time simulation of the project
 
         Orders the components, runs pre_simulation() on them and then, for each of the
         `n_time_steps` time steps, the pre-iteration, the iterations until every component
         converges (at most `n_max_iteration`) and the post-iteration. Results are stored in
         the variables of the components.
+
+        The progress is printed with a tqdm bar; `progress` reports it elsewhere as well,
+        such as a progress bar of a notebook or an app.
+
+        Args:
+            progress (callable, optional): called after each time step as
+                `progress(step, n_time_steps)`, with step from 1 to n_time_steps.
+                Defaults to None.
         """
         n = self.parameter("n_time_steps").value
         date = dt.datetime.strptime(
@@ -585,6 +593,8 @@ class Project(Parameter_container):
             self._sim_df.at[i, "converged"] = converge
             self._post_iteration_(i, date, daylight_saving, converge)
             date = date + dt.timedelta(0, delta_t)
+            if progress is not None:
+                progress(i + 1, n)
 
         n_not_converged = (
             len(self._sim_df["converged"]) - self._sim_df["converged"].sum()

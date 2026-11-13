@@ -259,3 +259,19 @@ def test_long_wave_correction():
     linear = wall.H_RD * 0.9 * (T_rm - T_s0)
     assert wall.long_wave_correction(T_s0, 0.9) > 0
     assert wall.long_wave_correction(T_s0, 0.9) / -linear == pytest.approx(0.29, abs=0.02)
+
+
+def test_simulate_reports_progress():
+    sim = osim.Simulation()
+    pro = sim.new_project("progress")
+    pro.read_dict({
+        "name": "progress",
+        "time_step": 3600,
+        "n_time_steps": 24,
+        "components": [
+            {"type": "Day_schedule", "name": "day", "time_steps": [], "values": [1]},
+        ],
+    })
+    steps = []
+    pro.simulate(progress=lambda step, n: steps.append((step, n)))
+    assert steps == [(i, 24) for i in range(1, 25)]

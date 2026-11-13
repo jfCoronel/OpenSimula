@@ -32,8 +32,20 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   the referenced components, layered layout (barycentre ordering), types with > 6 components
   folded, selection linked with the list/form/3D (a click on the background clears it),
   "selected and what it uses" filter, families of the legend switch their components on/off.
-  Plan was: phase 3 (graph view
-  of the components in the editor), then release **0.9.0** with phases 1–3 and the opening fix.
+  Merged (PR #36).
+- **GUI phase 4 (branch `feat/gui-app`)**: `opensimula gui [project.json]` (entry point in
+  `opensimula/gui/__init__.py`, `gui` extra with marimo) runs `gui/app.py`, a marimo notebook
+  as an app: open/new project, editor, Simulate (apply + check + simulate, problems listed),
+  Save (the document, to JSON), results viewer rebuilt after each run. Only the cell that
+  creates a wrapped widget names it: a cell naming a marimo UI element reruns on every edit.
+  Relative paths in the project resolve from the working folder (as in notebooks). Tested in
+  Chrome with Playwright (case 600: open, simulate, plot, 3D). Decided to include it in
+  **0.9.0** (phases 1–4 and the opening fix). `simulate(progress=None)`: callback
+  `progress(step, n)` after each step (tqdm kept), drives `mo.status.progress_bar` in the
+  app (≤ 100 updates). The results viewer is created once per project and `refresh()`ed
+  after each run, so plotted variables, frequency, interval and 3D stay and show the new
+  values. Pending idea: the editor still loads plotly from esm.sh (the results viewer
+  ships it), so the app needs internet for the editor's 3D view.
 - **Fix: surface temperatures of openings (branch `fix/opening-surface-temperatures`)**,
   found with the 3D colouring of the results viewer: `Building._store_surfaces_values_()`
   skipped Openings, so their T_s1 stayed 0 and T_s0, q_cd, q_cv1, q_lwt1 (outputs) were

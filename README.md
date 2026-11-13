@@ -103,6 +103,14 @@ each component's own schema, together with an interactive 3D view of the buildin
 
 ![Project editor example](https://jfcoronel.github.io/OpenSimula/img/editor_3d.png)
 
+The editor, a results viewer and a Simulate button also come together in an app that opens in
+the browser, with no notebook to write ([details](https://jfcoronel.github.io/OpenSimula/user_guide/#opensimula-app)):
+
+```bash
+pip install "opensimula[gui]"
+opensimula gui project.json
+```
+
 ## Component types
 
 Components are grouped by what they define:

@@ -35,6 +35,12 @@ uv build
 uv run mkdocs build --clean
 ```
 
+### App
+```bash
+# Browser app (marimo notebook src/opensimula/gui/app.py): editor, simulate, results
+uv run opensimula gui path/to/project.json
+```
+
 ### Documentation
 ```bash
 # Build MkDocs documentation

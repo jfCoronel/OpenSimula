@@ -1164,6 +1164,11 @@ dependencies = [
     { name = "tqdm" },
 ]
 
+[package.optional-dependencies]
+gui = [
+    { name = "marimo" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "ipykernel" },
@@ -1177,6 +1182,7 @@ dev = [
 requires-dist = [
     { name = "anywidget", specifier = ">=0.11.0" },
     { name = "jsonschema", specifier = ">=4.26.0" },
+    { name = "marimo", marker = "extra == 'gui'", specifier = ">=0.19.0" },
     { name = "matplotlib", specifier = ">=3.10.0" },
     { name = "nbformat", specifier = ">=5.10.4" },
     { name = "numpy", specifier = ">=2.3.3" },
@@ -1188,6 +1194,7 @@ requires-dist = [
     { name = "shapely", specifier = ">=2.1.1" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
+provides-extras = ["gui"]
 
 [package.metadata.requires-dev]
 dev = [

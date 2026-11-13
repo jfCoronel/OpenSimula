@@ -10,6 +10,12 @@ To install opensimula you can use any of the methods that Python makes possible.
 pip install opensimula
 </pre>
 
+To use the app that opens in the browser (`opensimula gui`, see the [User guide](user_guide.md#opensimula-app)), install it with the `gui` extra, which adds [marimo](https://marimo.io):
+
+<pre>
+pip install "opensimula[gui]"
+</pre>
+
 opensimula uses in different parts of the code the following Python packages, which will be installed automatically when opensimula is installed:
 
 - numPy
