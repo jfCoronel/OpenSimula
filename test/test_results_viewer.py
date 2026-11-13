@@ -147,3 +147,32 @@ def test_viewer_surface_colours(monkeypatch):
     assert "south_window_1" not in viewer.surface_values["values"]
     viewer.color_variable = ""
     assert viewer.surface_values == {}
+
+
+def test_viewer_surface_colours_at_cursor(monkeypatch):
+    import numpy as np
+
+    monkeypatch.chdir("ASHRAE_140/LOAD_TEST")
+    sim = osim.Simulation()
+    sim.console_print = False
+    project = sim.new_project("600")
+    project.read_json("cases/case_600.json")
+    project.set_parameters({"n_time_steps": 48})
+    project.simulate()
+    viewer = project.results(show_3d=True)
+    viewer._on_message_(viewer, {"type": "load-3d", "has_plotly": True}, [])
+    viewer.color_variable = "T_s1"
+    viewer.color_statistic = "instant"
+    values = viewer.surface_values
+    names, x = values["names"], values["x"]
+    assert "south_window_1" in names and len(x) == 48
+    matrix = np.frombuffer(viewer.surface_series, dtype=np.float32).reshape(len(names), len(x))
+    wall = project.component("south_wall").variable("T_s1").values
+    assert matrix[names.index("south_wall")] == pytest.approx(wall, abs=1e-4)
+    # resampled like the charts
+    viewer.frequency = "daily"
+    assert len(viewer.surface_values["x"]) == 2
+    assert len(viewer.surface_series) == 4 * len(names) * 2
+    # back to a statistic: no series sent
+    viewer.color_statistic = "mean"
+    assert viewer.surface_series == b""

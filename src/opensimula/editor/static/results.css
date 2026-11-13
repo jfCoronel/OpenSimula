@@ -348,3 +348,13 @@
     background: var(--surface);
     color: var(--text-primary);
 }
+
+.osm-results .osm-r-instant {
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.osm-results .osm-r-instant:empty {
+    display: none;
+}

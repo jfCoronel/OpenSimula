@@ -23,7 +23,11 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   Shift+click on the legend to remove a variable.
 - **GUI phase 2, step 2 (branch `feat/results-3d-color`)**: colour the 3D model by a
   surface variable (`color_variable`, `color_statistic` mean/max/min over the interval;
-  sequential or diverging scale by sign). Next: link the chart cursor time to the 3D view.
+  sequential or diverging scale by sign). Merged (PR #33).
+- **GUI phase 2, step 3 (branch `feat/results-3d-time`)**: "At cursor" colouring, the 3D
+  model follows the time under the chart cursor (series of all surfaces sent as float32
+  bytes, `surface_series`; restyle() per frame). Closes phase 2. Plan: phase 3 (graph view
+  of the components in the editor), then release **0.9.0** with phases 1–3 and the opening fix.
 - **Fix: surface temperatures of openings (branch `fix/opening-surface-temperatures`)**,
   found with the 3D colouring of the results viewer: `Building._store_surfaces_values_()`
   skipped Openings, so their T_s1 stayed 0 and T_s0, q_cd, q_cv1, q_lwt1 (outputs) were
