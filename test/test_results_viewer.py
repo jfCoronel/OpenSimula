@@ -107,3 +107,19 @@ def test_viewer_unknown_variable():
     with pytest.raises(ValueError):
         viewer.select("year.value")
     assert viewer.selection == []
+
+
+def test_viewer_3d_view():
+    project = simulated_project()
+    viewer = project.results(show_3d=True)
+    assert viewer.show_3d
+    assert viewer.geometry == {}  # nothing is sent until the view asks for it
+    sent = []
+    viewer.send = lambda content, buffers=None: sent.append((content, buffers))
+    viewer._on_message_(viewer, {"type": "load-3d", "has_plotly": False}, [])
+    assert viewer.geometry == {"meshes": [], "spaces": []}  # schedules only
+    assert sent[0][0] == {"type": "plotly"}
+    assert len(sent[0][1][0]) > 1_000_000  # the plotly bundle
+    # a page that already has plotly gets only the geometry
+    viewer._on_message_(viewer, {"type": "load-3d", "has_plotly": True}, [])
+    assert len(sent) == 1

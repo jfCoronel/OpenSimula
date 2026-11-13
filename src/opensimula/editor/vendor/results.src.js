@@ -9,6 +9,15 @@
 
 import uPlot from "uplot";
 import uplotCss from "uplot/dist/uPlot.min.css";
+import {
+  VIEW_LAYOUT,
+  axisRanges,
+  column,
+  defaultCamera,
+  modelBounds,
+  plotlyLoaded,
+  receivePlotly,
+} from "./view3d.js";
 
 // Categorical palette, fixed order: a series keeps its slot (colour) while it
 // stays selected, whatever else is added or removed.
@@ -16,6 +25,8 @@ const PALETTE = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300
 const MAX_SERIES = PALETTE.length;
 const MAX_TABLE_ROWS = 2000;
 const CHART_HEIGHTS = [200, 300, 400, 500];
+const VIEW_HEIGHT = 340; // the 3D view, added to the height of the widget
+const INK = "#1f2328"; // outline of the surface clicked in the 3D view
 
 const FREQUENCIES = [
   ["none", "Time step"],
@@ -99,6 +110,7 @@ function render({ model, el }) {
   const from = h("input", { type: "date" });
   const to = h("input", { type: "date" });
   const chartHeight = h("select");
+  const view3dButton = h("button", { type: "button", text: "3D", title: "Show the geometry of the project" });
   const viewButton = h("button", { type: "button", text: "Table" });
   const csvButton = h("button", { type: "button", text: "CSV" });
   const clearButton = h("button", { type: "button", text: "Clear" });
@@ -109,20 +121,30 @@ function render({ model, el }) {
     h("label", { text: "To" }, [to]),
     h("label", { text: "Height" }, [chartHeight]),
     h("span", { class: "osm-r-spacer" }),
+    view3dButton,
     viewButton,
     csvButton,
     clearButton,
   ]);
   const content = h("div", { class: "osm-r-content" });
-  const main = h("div", { class: "osm-r-main" }, [toolbar, content]);
+  const plot = h("div", { class: "osm-r-plot" });
+  const view = h("div", { class: "osm-r-view" }, [plot]);
+  view.style.height = `${VIEW_HEIGHT}px`;
+  view.hidden = true;
+  const main = h("div", { class: "osm-r-main" }, [toolbar, view, content]);
   const root = h("div", { class: "osm-results" }, [list, main]);
-  root.style.height = `${model.get("height")}px`;
   el.appendChild(root);
+
+  function setHeight() {
+    root.style.height = `${model.get("height") + (model.get("show_3d") ? VIEW_HEIGHT : 0)}px`;
+  }
+  setHeight();
 
   let showTable = false;
   const expanded = new Set(); // "type" and "type/component" rows that are open
   let charts = [];
   let timeRange = null; // [min, max] shown, kept when the charts are drawn again
+  let focused = null; // component clicked in the 3D view, or opened in the list
 
   // The charts share the time axis: a zoom or a pan of one is applied to all.
   // uPlot runs the setScale hooks later, not inside setScale, so a chart that
@@ -222,12 +244,16 @@ function render({ model, el }) {
         const hasSelected = component.variables.some((v) => selected(component.name, v.name));
         const open = filter !== "" || expanded.has(key);
         const componentRow = h("div", {
-          class: "osm-r-component",
+          class: component.name === focused ? "osm-r-component focused" : "osm-r-component",
           text: `${open ? "▾" : "▸"} ${component.name}${hasSelected ? " ●" : ""}`,
         });
+        componentRow.dataset.component = component.name;
         componentRow.addEventListener("click", () => {
           expanded.has(key) ? expanded.delete(key) : expanded.add(key);
+          // the component is also picked out in the 3D view, if it is drawn there
+          if (expanded.has(key) && hasMesh(component.name)) focused = component.name;
           renderTree();
+          renderView();
         });
         rows.push(componentRow);
         if (!open) continue;
@@ -335,6 +361,214 @@ function render({ model, el }) {
       charts.push(chart);
     }
   }
+
+
+  // ____________________ 3D view ____________________
+
+  // Where the user has turned the model to: react() puts back the camera of
+  // the layout, so it is captured on real input and handed back on every
+  // redraw (the same as the 3D view of the editor).
+  let viewCamera = null;
+  let viewInfos = [];
+  let viewBound = false;
+  let wheelTimer = null;
+
+  function geometry() {
+    return model.get("geometry") || {};
+  }
+
+  function hasMesh(name) {
+    return (geometry().meshes || []).some((mesh) => mesh.component === name);
+  }
+
+  // Lowest slot (first colour) of the variables of each component plotted
+  function componentSlots() {
+    const slots = new Map();
+    for (const s of selection()) {
+      if (!slots.has(s.component) || s.slot < slots.get(s.component)) slots.set(s.component, s.slot);
+    }
+    return slots;
+  }
+
+  function viewMessage(text) {
+    plot.textContent = text;
+    plot.classList.add("osm-r-view-empty");
+  }
+
+  function requestView() {
+    // the geometry and plotly are sent by Python only when first needed
+    const needGeometry = Object.keys(geometry()).length === 0;
+    if (needGeometry || !plotlyLoaded()) {
+      viewMessage("Loading the 3D view…");
+      model.send({ type: "load-3d", has_plotly: Boolean(plotlyLoaded()) });
+    }
+    renderView();
+  }
+
+  function traces(meshes) {
+    const slots = componentSlots();
+    const out = [];
+    const infos = [];
+    for (const mesh of meshes) {
+      const own = slots.get(mesh.component);
+      out.push({
+        type: "mesh3d",
+        x: column(mesh.points, 0),
+        y: column(mesh.points, 1),
+        z: column(mesh.points, 2),
+        i: column(mesh.faces, 0),
+        j: column(mesh.faces, 1),
+        k: column(mesh.faces, 2),
+        color: own === undefined ? mesh.color : PALETTE[own],
+        opacity: mesh.opacity,
+        name: mesh.name,
+        hovertemplate: `<b>${mesh.name}</b><br>${mesh.component_type}<extra></extra>`,
+        flatshading: true,
+        lighting: { ambient: 0.85, diffuse: 0.5, specular: 0.05 },
+      });
+      infos.push(mesh);
+      const outline = mesh.outline || [];
+      if (!outline.length) continue;
+      // the outline tells the space: in the colour of its series if plotted
+      const space = (mesh.spaces || []).map((name) => slots.get(name)).find((slot) => slot !== undefined);
+      let line = { color: "black", width: 2 };
+      if (space !== undefined) line = { color: PALETTE[space], width: 4 };
+      if (mesh.component === focused) line = { color: INK, width: 7 };
+      const closed = [...outline, outline[0]];
+      out.push({
+        type: "scatter3d",
+        mode: "lines",
+        x: column(closed, 0),
+        y: column(closed, 1),
+        z: column(closed, 2),
+        line,
+        hoverinfo: "skip",
+        showlegend: false,
+      });
+      infos.push(null);
+    }
+    return { out, infos };
+  }
+
+  // The panel is wider and lower than the editor's: the default eye of the
+  // editor leaves the building small in it.
+  function closerCamera(bounds) {
+    const { eye } = defaultCamera(bounds);
+    return { eye: { x: 0.85 * eye.x, y: 0.85 * eye.y, z: 0.85 * eye.z } };
+  }
+
+  function readCamera() {
+    const scene = plot._fullLayout && plot._fullLayout.scene;
+    if (!scene) return null;
+    const live = scene._scene && typeof scene._scene.getCamera === "function" ? scene._scene.getCamera() : scene.camera;
+    return live && live.eye ? JSON.parse(JSON.stringify(live)) : null;
+  }
+
+  function rememberCamera() {
+    const camera = readCamera();
+    if (camera) viewCamera = camera;
+  }
+
+  // A surface clicked in the 3D view is opened in the list, with its spaces
+  function reveal(name) {
+    const catalog = model.get("catalog") || [];
+    const mesh = (geometry().meshes || []).find((m) => m.component === name);
+    focused = name;
+    search.value = "";
+    for (const target of [name, ...(mesh ? mesh.spaces : [])]) {
+      const component = catalog.find((c) => c.name === target);
+      if (!component) continue;
+      expanded.add(component.type);
+      expanded.add(`${component.type}/${component.name}`);
+    }
+    renderTree();
+    const row = [...tree.querySelectorAll(".osm-r-component")].find((r) => r.dataset.component === name);
+    // scrolled inside the list only: scrollIntoView() would also move the page
+    if (row) tree.scrollTop += row.getBoundingClientRect().top - tree.getBoundingClientRect().top;
+    renderView();
+  }
+
+  async function renderView() {
+    if (view.hidden) return;
+    const geo = geometry();
+    const plotly = plotlyLoaded();
+    if (!plotly || Object.keys(geo).length === 0) return; // still loading
+    if ((geo.meshes || []).length === 0) {
+      viewMessage("This project has no geometry to show.");
+      return;
+    }
+    try {
+      const Plotly = await plotly;
+      if (view.hidden) return;
+      if (plot.classList.contains("osm-r-view-empty")) {
+        plot.textContent = ""; // the "Loading" text, before plotly draws here
+        plot.classList.remove("osm-r-view-empty");
+      }
+      const { out, infos } = traces(geo.meshes);
+      viewInfos = infos;
+      const layout = { ...VIEW_LAYOUT, scene: { ...VIEW_LAYOUT.scene } };
+      const bounds = modelBounds(geo);
+      if (bounds) {
+        const [x, y, z] = axisRanges(bounds);
+        layout.scene.xaxis = { ...layout.scene.xaxis, range: x };
+        layout.scene.yaxis = { ...layout.scene.yaxis, range: y };
+        layout.scene.zaxis = { ...layout.scene.zaxis, range: z };
+        layout.scene.camera = viewCamera || closerCamera(bounds);
+        viewCamera = layout.scene.camera;
+      }
+      await Plotly.react(plot, out, layout, { responsive: true, displaylogo: false });
+      if (viewCamera) await Plotly.relayout(plot, { "scene.camera": viewCamera });
+      if (!viewBound) {
+        plot.addEventListener("mouseup", rememberCamera);
+        plot.addEventListener("pointerup", rememberCamera);
+        plot.addEventListener(
+          "wheel",
+          () => {
+            clearTimeout(wheelTimer);
+            wheelTimer = setTimeout(rememberCamera, 200);
+          },
+          { passive: true },
+        );
+        plot.on("plotly_click", (event) => {
+          const point = event.points && event.points[0];
+          const mesh = point && viewInfos[point.curveNumber];
+          if (!mesh) return;
+          // Out of plotly's own dispatch: redrawing from inside it tears the
+          // WebGL scene down while it is in use. A click also arrives once per
+          // trace under the pointer; only the first does anything.
+          setTimeout(() => {
+            if (focused !== mesh.component) reveal(mesh.component);
+          }, 0);
+        });
+        viewBound = true;
+      }
+    } catch (err) {
+      viewMessage(`Could not load the 3D view: ${err.message || err}`);
+    }
+  }
+
+  function updateView() {
+    const show = Boolean(model.get("show_3d"));
+    view.hidden = !show;
+    view3dButton.classList.toggle("active", show);
+    view3dButton.title = show ? "Hide the 3D view" : "Show the geometry of the project";
+    setHeight();
+    if (show) requestView();
+  }
+
+  // model.set() fires change:show_3d, which updates the view
+  view3dButton.addEventListener("click", () => {
+    model.set("show_3d", !model.get("show_3d"));
+    model.save_changes();
+  });
+
+  model.on("msg:custom", (msg, buffers) => {
+    if (msg && msg.type === "plotly" && buffers && buffers.length) {
+      receivePlotly(buffers[0]).then(renderView, (err) => viewMessage(`Could not load the 3D view: ${err.message || err}`));
+    }
+  });
+  model.on("change:geometry", renderView);
+  model.on("change:show_3d", updateView);
 
   // ____________________ table ____________________
 
@@ -472,6 +706,7 @@ function render({ model, el }) {
   model.on("change:selection", () => {
     renderTree();
     renderContent();
+    renderView(); // the colours of the surfaces plotted
   });
   // a new frequency or interval changes the data: start again from all of it
   model.on("change:frequency", () => (timeRange = null));
@@ -486,22 +721,30 @@ function render({ model, el }) {
     renderToolbar();
     renderContent();
   });
-  model.on("change:height", () => {
-    root.style.height = `${model.get("height")}px`;
-  });
+  model.on("change:height", setHeight);
 
   const resize = new ResizeObserver(() => {
     for (const chart of charts) chart.setSize({ width: chartWidth(), height: model.get("chart_height") });
   });
   resize.observe(content);
+  const resizeView = new ResizeObserver(() => {
+    const plotly = plotlyLoaded();
+    if (!view.hidden && plotly && viewBound) plotly.then((P) => P.Plots.resize(plot)).catch(() => {});
+  });
+  resizeView.observe(view);
 
   renderTree();
   renderToolbar();
   renderContent();
+  updateView();
 
   return () => {
     resize.disconnect();
+    resizeView.disconnect();
+    clearTimeout(wheelTimer);
     destroyCharts();
+    const plotly = plotlyLoaded();
+    if (plotly && viewBound) plotly.then((P) => P.purge(plot)).catch(() => {});
   };
 }
 

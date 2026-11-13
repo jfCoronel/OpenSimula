@@ -178,6 +178,8 @@ viewer.height = 750                          # pixels of the whole viewer
 df = viewer.dataframe()                      # the values shown, as a pandas DataFrame
 ```
 
+The **3D** button (or `pro.results(..., show_3d=True)`, or `viewer.show_3d = True`) shows the geometry of the project above the charts. Clicking a surface or a window there opens it, and the spaces it belongs to, in the list on the left, ready to pick its variables. The surfaces whose variables are plotted are drawn in the colour of their series, and the outline of a space whose variables are plotted takes its colour too, so the charts and the model can be read together.
+
 After simulating the project again, `viewer.refresh()` reloads the variables.
 
 - **geometry_dict()**: Returns the geometry of the project as plain data, `{"meshes": [...], "spaces": [...]}`, with one mesh per polygon: its triangles, its outline, its colour, and the component and the spaces it belongs to. It is what feeds the 3D view of the editor, and it is available on its own for any other viewer.

@@ -675,7 +675,7 @@ class Project(Parameter_container):
 
         return ProjectEditor(self)
 
-    def results(self, *variables, height=600, chart_height=300):
+    def results(self, *variables, height=600, chart_height=300, show_3d=False):
         """Interactive viewer of the simulation results.
 
         Returns an anywidget that works in Jupyter and, wrapped in
@@ -688,13 +688,15 @@ class Project(Parameter_container):
                 "component.variable", e.g. "spaces_1.temperature".
             height (int, optional): height of the whole widget, in pixels. Defaults to 600.
             chart_height (int, optional): height of each chart, in pixels. Defaults to 300.
+            show_3d (bool, optional): show the 3D view of the project above the
+                charts; clicking a surface there opens its variables. Defaults to False.
 
         Returns:
             ResultsViewer: widget; its dataframe() method returns what it shows.
         """
         from opensimula.editor import ResultsViewer
 
-        viewer = ResultsViewer(self, height=height, chart_height=chart_height)
+        viewer = ResultsViewer(self, height=height, chart_height=chart_height, show_3d=show_3d)
         if variables:
             viewer.select(*variables)
         return viewer

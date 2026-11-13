@@ -15,6 +15,12 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   heights. Test notebook `jupyter_test/RESULTS_VIEWER.ipynb`. Note: uPlot's `setScale`
   hooks fire deferred, so syncing the range between charts must skip charts already at
   that range or they bounce it forever.
+- **GUI phase 2 (branch `feat/results-3d`)**: 3D view in the results viewer
+  (`show_3d`). Click a surface → opened in the variable list with its spaces; plotted
+  surfaces drawn in their series colour, plotted spaces in the outline. plotly is shipped
+  as `static/plotly3d.js` and sent by Python on first use (blob import, VS Code safe);
+  3D helpers shared with the editor in `vendor/view3d.js`. Next in phase 2: colour the
+  model by the value of a variable, and link the chart cursor time to the 3D view.
 - **Paper updated to 0.8.10** (PR #30) and PDF regenerated in the JOSS issue; still
   waiting for the EiC's scope decision.
 

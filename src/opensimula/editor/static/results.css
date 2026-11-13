@@ -260,3 +260,34 @@
     color: var(--text-muted);
     margin-top: 0.4rem;
 }
+
+/* ---------- 3D view ---------- */
+
+.osm-results .osm-r-view {
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--border);
+    background: rgb(235, 235, 235);  /* the scene's own background */
+}
+
+.osm-results .osm-r-plot {
+    width: 100%;
+    height: 100%;
+}
+
+.osm-results .osm-r-view-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.osm-results button.active {
+    background: var(--hover);
+    border-color: var(--text-muted);
+    font-weight: 600;
+}
+
+.osm-results .osm-r-component.focused {
+    background: var(--hover);
+    box-shadow: inset 3px 0 0 var(--text-primary);
+}

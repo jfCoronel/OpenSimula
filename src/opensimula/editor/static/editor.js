@@ -7440,35 +7440,8 @@ var require__ = __commonJS({
 
 // editor.src.js
 var import__ = __toESM(require__());
-var DEBOUNCE_MS = 400;
-var isList = (sch) => sch?.["x-list"] === true;
-var itemSchema = (sch) => isList(sch) ? sch.anyOf[1] : sch;
-function fieldKind(sch) {
-  const item = itemSchema(sch);
-  if (item["x-ref"]) return "ref";
-  if (item.enum) return "enum";
-  if (item.type === "boolean") return "boolean";
-  if (item.type === "integer") return "integer";
-  if (item.type === "number") return "number";
-  if (item["x-format"] === "math-exp") return "math";
-  return "string";
-}
-function widthClass(kind, sch) {
-  if (kind === "boolean" && !isList(sch)) return "osm-w-auto";
-  if (isList(sch)) return "osm-w-wide";
-  if (kind === "integer" || kind === "number") return "osm-w-num";
-  if (kind === "enum" || kind === "ref") return "osm-w-mid";
-  return "osm-w-wide";
-}
-var sameValue = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-var PLOTLY_URL = "https://esm.sh/plotly.js-gl3d-dist-min@3.7.0";
-var plotlyPromise = null;
-function loadPlotly() {
-  if (!plotlyPromise) {
-    plotlyPromise = import(PLOTLY_URL).then((module) => module.default || module);
-  }
-  return plotlyPromise;
-}
+
+// view3d.js
 var AXIS_STYLE = {
   showbackground: true,
   backgroundcolor: "rgb(220, 220, 220)",
@@ -7488,7 +7461,6 @@ var VIEW_LAYOUT = {
   showlegend: false
 };
 var column = (rows, index) => rows.map((row) => row[index]);
-var HIGHLIGHT = "rgb(255, 127, 14)";
 function modelBounds(geometry) {
   const low = [Infinity, Infinity, Infinity];
   const high = [-Infinity, -Infinity, -Infinity];
@@ -7514,17 +7486,6 @@ function defaultCamera(bounds) {
   const unit = Math.cbrt(bounds.size[0] * bounds.size[1] * bounds.size[2]);
   const reach = Math.max(...bounds.size.map((value) => value / unit));
   return { eye: { x: 1.1 * reach, y: -1.1 * reach, z: 0.76 * reach } };
-}
-var GHOST = "rgb(176, 176, 176)";
-function splitMeshes(geometry, filters) {
-  const active = [];
-  const ghost = [];
-  for (const mesh of geometry.meshes || []) {
-    if (!filters.openings && mesh.component_type === "Opening") continue;
-    const inSpace = !filters.space || mesh.spaces.includes(filters.space);
-    (inSpace ? active : ghost).push(mesh);
-  }
-  return { active, ghost };
 }
 function faceNormal(points, faces) {
   const [a, b, c] = faces[0].map((index) => points[index]);
@@ -7561,6 +7522,49 @@ function highlightGeometry(mesh) {
     j: column(faces, 1),
     k: column(faces, 2)
   };
+}
+
+// editor.src.js
+var DEBOUNCE_MS = 400;
+var isList = (sch) => sch?.["x-list"] === true;
+var itemSchema = (sch) => isList(sch) ? sch.anyOf[1] : sch;
+function fieldKind(sch) {
+  const item = itemSchema(sch);
+  if (item["x-ref"]) return "ref";
+  if (item.enum) return "enum";
+  if (item.type === "boolean") return "boolean";
+  if (item.type === "integer") return "integer";
+  if (item.type === "number") return "number";
+  if (item["x-format"] === "math-exp") return "math";
+  return "string";
+}
+function widthClass(kind, sch) {
+  if (kind === "boolean" && !isList(sch)) return "osm-w-auto";
+  if (isList(sch)) return "osm-w-wide";
+  if (kind === "integer" || kind === "number") return "osm-w-num";
+  if (kind === "enum" || kind === "ref") return "osm-w-mid";
+  return "osm-w-wide";
+}
+var sameValue = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+var PLOTLY_URL = "https://esm.sh/plotly.js-gl3d-dist-min@3.7.0";
+var plotlyPromise = null;
+function loadPlotly() {
+  if (!plotlyPromise) {
+    plotlyPromise = import(PLOTLY_URL).then((module) => module.default || module);
+  }
+  return plotlyPromise;
+}
+var HIGHLIGHT = "rgb(255, 127, 14)";
+var GHOST = "rgb(176, 176, 176)";
+function splitMeshes(geometry, filters) {
+  const active = [];
+  const ghost = [];
+  for (const mesh of geometry.meshes || []) {
+    if (!filters.openings && mesh.component_type === "Opening") continue;
+    const inSpace = !filters.space || mesh.spaces.includes(filters.space);
+    (inSpace ? active : ghost).push(mesh);
+  }
+  return { active, ghost };
 }
 function ghostTrace(mesh) {
   const outline = mesh.outline || [];

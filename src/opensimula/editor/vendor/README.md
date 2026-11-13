@@ -1,8 +1,10 @@
-# Building the editor widget
+# Building the editor widgets
 
-`static/editor.js` (what anywidget actually ships to the front end) is a
-generated file. `editor.src.js` here is the source: edit that one, then
-rebuild:
+`static/editor.js`, `static/results.js` and `static/plotly3d.js` are
+generated files. Their sources are here: `editor.src.js` (project editor),
+`results.src.js` (results viewer), `view3d.js` (3D view helpers shared by
+both) and `plotly3d.src.js` (plotly's gl3d bundle as an ES module). Edit
+those, then rebuild:
 
 ```bash
 cd src/opensimula/editor/vendor
@@ -28,3 +30,11 @@ The only import that survives both constraints is none at all: `npm run
 build` bundles `editor.src.js` and `ajv` into one dependency-free ESM
 module. Rebuild after editing `editor.src.js` or bumping the `ajv` version,
 and commit the resulting `static/editor.js`.
+
+## plotly for the 3D views
+
+The results viewer does not fetch plotly from a CDN either: `static/plotly3d.js`
+ships with the package and Python sends it as a message buffer the first time a
+3D view is opened (`receivePlotly()` in `view3d.js` imports it from a `blob:`
+URL, the same way anywidget loads the widget itself). The project editor still
+imports plotly from esm.sh, see the ROADMAP follow-up.
