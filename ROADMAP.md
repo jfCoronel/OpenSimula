@@ -3,7 +3,14 @@
 Working notes for resuming development on OpenSimula from any machine. This file is for
 the maintainer, not end users — it is not part of the published docs (`mkdocs/`).
 
-## Where things stand (2026-11-12)
+## Where things stand (2026-11-13)
+
+- **v0.9.0 released (2026-11-13)**: PyPI, GitHub release `v0.9.0`, Zenodo version DOI
+  10.5281/zenodo.24194954. Graphical interface (phases 1–4 below: results viewer with 3D
+  view, graph view in the editor, `opensimula gui` app with the `gui` extra) and the fix of
+  the surface temperatures of openings (PRs #31–#38). `validate.py --check`: 0 values
+  changed. Next ideas for the app: the editor still loads plotly from esm.sh (needs
+  internet for its 3D view); the JOSS paper could mention the GUI during the review.
 
 - **Graphical interface, plan agreed 2026-11-12**, in four phases: (1) results viewer as
   an anywidget for notebooks, (2) link it to the 3D view, (3) graph view of the components
