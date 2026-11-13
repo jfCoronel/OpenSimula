@@ -13,6 +13,7 @@ import {
   highlightGeometry,
   modelBounds,
 } from "./view3d.js";
+import { createGraphView, familyLegend } from "./graph.js";
 
 // How long to wait after the last keystroke before pushing the document to the
 // kernel. Syncing on every keystroke would round-trip a whole building on each
@@ -241,6 +242,24 @@ export default {
           </div>
           <div class="osm-plot"></div>
         </div>
+        <div class="osm-graph" hidden>
+          <div class="osm-view-bar">
+            <label>Show
+              <select class="osm-graph-filter">
+                <option value="all">all</option>
+                <option value="focus">selected and what it uses</option>
+              </select>
+            </label>
+            <span class="osm-graph-buttons">
+              <button type="button" class="osm-graph-out" title="Zoom out (or Ctrl/⌘ + wheel)">−</button>
+              <button type="button" class="osm-graph-in" title="Zoom in (or Ctrl/⌘ + wheel)">+</button>
+              <button type="button" class="osm-graph-fit" title="Fit the graph in the panel">Fit</button>
+              <button type="button" class="osm-graph-fold" title="Fold again the types with many components">Fold</button>
+            </span>
+            <span class="osm-graph-legend"></span>
+          </div>
+          <div class="osm-graph-canvas"></div>
+        </div>
       </div>`;
     el.appendChild(root);
 
@@ -250,7 +269,8 @@ export default {
       <div class="osm-status"></div>
       <button class="osm-toggle osm-apply" type="button" disabled>Apply</button>
       <button class="osm-toggle osm-form-toggle" type="button">Hide parameters</button>
-      <button class="osm-toggle osm-view-toggle" type="button">Show 3D</button>`;
+      <button class="osm-toggle osm-view-toggle" type="button">Show 3D</button>
+      <button class="osm-toggle osm-graph-toggle" type="button">Show graph</button>`;
     el.appendChild(bar);
 
     const status = bar.querySelector(".osm-status");
@@ -262,6 +282,31 @@ export default {
     const spaceFilter = view.querySelector(".osm-space-filter");
     const openingsToggle = view.querySelector(".osm-openings");
     const viewCount = view.querySelector(".osm-view-count");
+    const graphPanel = root.querySelector(".osm-graph");
+    const graphToggle = bar.querySelector(".osm-graph-toggle");
+    const graphFilter = graphPanel.querySelector(".osm-graph-filter");
+    const legend = graphPanel.querySelector(".osm-graph-legend");
+    // the families of the legend are switches: a family switched off is left
+    // out of the graph
+    const hiddenFamilies = new Set();
+    for (const family of familyLegend()) {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "osm-graph-family";
+      item.title = `Show or hide ${family.label.toLowerCase()} in the graph`;
+      item.setAttribute("aria-pressed", "true");
+      item.innerHTML = `<i style="background:${family.colour}"></i>`;
+      item.append(family.label);
+      item.onclick = () => {
+        const off = !hiddenFamilies.has(family.key);
+        if (off) hiddenFamilies.add(family.key);
+        else hiddenFamilies.delete(family.key);
+        item.classList.toggle("off", off);
+        item.setAttribute("aria-pressed", String(!off));
+        renderGraph();
+      };
+      legend.appendChild(item);
+    }
 
     const tree = root.querySelector(".osm-tree");
     const detail = root.querySelector(".osm-detail");
@@ -865,15 +910,19 @@ export default {
 
     function updatePanels() {
       // The classes drive the sizing: the widget only grows when both panels
-      // are up, and the view takes the whole column when it is alone.
+      // are up, and the view takes the whole column when it is alone. The 3D
+      // view and the graph share the lower panel: one at a time.
+      const lower = !view.hidden || !graphPanel.hidden;
       root.classList.toggle("show-form", !detail.hidden);
-      root.classList.toggle("show-view", !view.hidden);
+      root.classList.toggle("show-view", lower);
       formToggle.textContent = detail.hidden ? "Show parameters" : "Hide parameters";
       viewToggle.textContent = view.hidden ? "Show 3D" : "Hide 3D";
+      graphToggle.textContent = graphPanel.hidden ? "Show graph" : "Hide graph";
       // Closing the last open panel would leave an empty half, so whichever is
       // on its own cannot be closed.
-      formToggle.disabled = !detail.hidden && view.hidden;
+      formToggle.disabled = !detail.hidden && !lower;
       viewToggle.disabled = !view.hidden && detail.hidden;
+      graphToggle.disabled = !graphPanel.hidden && detail.hidden;
     }
 
     formToggle.onclick = () => {
@@ -884,9 +933,49 @@ export default {
 
     viewToggle.onclick = () => {
       view.hidden = !view.hidden;
+      if (!view.hidden) graphPanel.hidden = true;
       updatePanels();
       renderView();
     };
+
+    // ____________________ graph view ____________________
+
+    const graphView = createGraphView(graphPanel.querySelector(".osm-graph-canvas"), {
+      onSelect(index) {
+        if (index === null) {
+          if (selection.kind !== "component") return;
+          selection = { kind: "project" };
+        } else {
+          if (selection.kind === "component" && selection.index === index) return;
+          selection = { kind: "component", index };
+        }
+        render();
+      },
+    });
+
+    function renderGraph() {
+      if (graphPanel.hidden) return;
+      graphView.update({
+        components: components(),
+        defs: defs(),
+        selected: selectedComponentName(),
+        focus: graphFilter.value === "focus",
+        hidden: new Set(hiddenFamilies),
+      });
+    }
+
+    graphToggle.onclick = () => {
+      graphPanel.hidden = !graphPanel.hidden;
+      if (!graphPanel.hidden) view.hidden = true;
+      updatePanels();
+      // drawn once the panel has its size, so that the first fit is right
+      requestAnimationFrame(renderGraph);
+    };
+    graphFilter.onchange = renderGraph;
+    graphPanel.querySelector(".osm-graph-fit").onclick = () => graphView.fit();
+    graphPanel.querySelector(".osm-graph-in").onclick = () => graphView.zoom(1.25);
+    graphPanel.querySelector(".osm-graph-out").onclick = () => graphView.zoom(0.8);
+    graphPanel.querySelector(".osm-graph-fold").onclick = () => graphView.collapseAll();
 
     function render() {
       refreshErrors();
@@ -894,6 +983,7 @@ export default {
       renderDetail();
       // The highlighted surface follows whatever is selected in the tree.
       highlightSelection();
+      renderGraph();
     }
 
     fillTypes();
@@ -944,6 +1034,7 @@ export default {
       model.off("change:value", onValueChange);
       model.off("change:schema", onSchemaChange);
       model.off("change:geometry", onGeometryChange);
+      graphView.destroy();
       // Only if it was ever loaded: purging must not pull in 1.7MB to do it.
       if (plotlyPromise) {
         plotlyPromise.then((plotly) => plotly.purge(plot)).catch(() => {});
