@@ -28,7 +28,7 @@ identifiers:
     description: "Concept DOI: all versions, resolves to the latest one"
   - type: doi
     value: 10.5281/zenodo.24194954
-    description: "Version 0.8.10"
+    description: "Version 0.9.0"
 repository-code: "https://github.com/jfCoronel/OpenSimula"
 url: "https://jfcoronel.github.io/OpenSimula/"
 license: MIT
