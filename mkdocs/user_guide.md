@@ -164,7 +164,7 @@ viewer
 
 The toolbar sets the **Frequency** ("Time step", hourly, daily, monthly or yearly) and the **Aggregation** used to resample (mean, sum, max or min; each period is labelled by its start), the **From/To** dates of the interval shown, and the **Height** of each chart. **Table** switches to a table of the values shown, and **CSV** downloads them.
 
-In the charts, the legend gives the values under the cursor, and clicking a legend entry hides or shows that variable. Drag horizontally to zoom in on a period, **Shift + drag** to move it in time, and double-click to go back to the whole interval; zooming or moving one chart applies to all of them.
+In the charts, the legend gives the values under the cursor; clicking a legend entry hides or shows that variable, and **Shift + click** removes it. The **×** at the top right of a chart removes all its variables. Drag horizontally to zoom in on a period, **Shift + drag** to move it in time, and double-click to go back to the whole interval; zooming or moving one chart applies to all of them.
 
 Everything can also be set from Python, and the viewer updates itself:
 

@@ -216,6 +216,13 @@ function render({ model, el }) {
     model.save_changes();
   }
 
+  // Removes variables from the selection, from the charts themselves
+  function remove(items) {
+    const gone = new Set(items.map((s) => `${s.component}.${s.variable}`));
+    model.set("selection", selection().filter((s) => !gone.has(`${s.component}.${s.variable}`)));
+    model.save_changes();
+  }
+
   // ____________________ tree ____________________
 
   function renderTree() {
@@ -307,7 +314,16 @@ function render({ model, el }) {
       byUnit.get(unit).push(s);
     }
     for (const [unit, group] of byUnit) {
-      const box = h("div", { class: "osm-r-chart" }, [h("div", { class: "osm-r-chart-title", text: unit })]);
+      const close = h("button", {
+        type: "button",
+        class: "osm-r-close",
+        text: "×",
+        title: group.length > 1 ? `Remove the ${group.length} variables of this chart` : "Remove this variable",
+        "aria-label": "Close chart",
+      });
+      close.addEventListener("click", () => remove(group));
+      const head = h("div", { class: "osm-r-chart-head" }, [h("div", { class: "osm-r-chart-title", text: unit }), close]);
+      const box = h("div", { class: "osm-r-chart" }, [head]);
       content.appendChild(box);
       const data = [group[0].x, ...group.map((s) => s.y)];
       const points = group[0].x.length;
@@ -359,6 +375,27 @@ function render({ model, el }) {
       // the zoom of the charts already drawn, when one more variable is added
       if (timeRange) chart.setScale("x", { min: timeRange[0], max: timeRange[1] });
       charts.push(chart);
+      // Legend: click hides or shows a variable (uPlot), Shift+click removes it.
+      // Caught on the way down, before uPlot's own click on the row.
+      const legend = chart.root.querySelector(".u-legend");
+      if (legend) {
+        const rows = [...legend.querySelectorAll(".u-series")];
+        rows.forEach((row, i) => {
+          if (i > 0) row.title = "Click: hide or show · Shift+click: remove";
+        });
+        legend.addEventListener(
+          "click",
+          (event) => {
+            if (!event.shiftKey) return;
+            const i = rows.indexOf(event.target.closest(".u-series"));
+            if (i < 1) return;
+            event.stopPropagation();
+            event.preventDefault();
+            remove([group[i - 1]]);
+          },
+          true,
+        );
+      }
     }
   }
 

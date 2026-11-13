@@ -291,3 +291,25 @@
     background: var(--hover);
     box-shadow: inset 3px 0 0 var(--text-primary);
 }
+
+/* ---------- chart header: unit and close button ---------- */
+
+.osm-results .osm-r-chart-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.osm-results button.osm-r-close {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.1rem 0.4rem;
+}
+
+.osm-results button.osm-r-close:hover {
+    background: var(--hover);
+    color: var(--text-primary);
+}
