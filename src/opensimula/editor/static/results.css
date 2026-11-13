@@ -313,3 +313,38 @@
     background: var(--hover);
     color: var(--text-primary);
 }
+
+/* ---------- 3D view: colour selector over the scene ---------- */
+
+.osm-results .osm-r-view {
+    position: relative;
+}
+
+.osm-results .osm-r-view-bar {
+    position: absolute;
+    top: 0.4rem;
+    left: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.osm-results .osm-r-view-bar label {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--text-secondary);
+}
+
+.osm-results .osm-r-view-bar select {
+    font: inherit;
+    padding: 0.1rem 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--text-primary);
+}

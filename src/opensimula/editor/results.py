@@ -27,6 +27,7 @@ _STATIC = pathlib.Path(__file__).parent / "static"
 # Periods labelled by their start, so a month is drawn on its first day
 FREQUENCIES = {"none": None, "hourly": "h", "daily": "D", "monthly": "MS", "yearly": "YS"}
 AGGREGATIONS = ["mean", "sum", "max", "min"]
+STATISTICS = ["mean", "max", "min"]  # of the colour variable of the 3D view
 MAX_SERIES = 8  # one per hue of the categorical palette
 
 
@@ -46,6 +47,10 @@ class ResultsViewer(anywidget.AnyWidget):
         height (int): height of the whole widget, in pixels.
         chart_height (int): height of each chart, in pixels.
         show_3d (bool): whether the 3D view of the project is shown.
+        color_variable (str): variable of the surfaces that colours the 3D
+            view ("T_s0", "q_sol1"...), or "" for the colours of the series.
+        color_statistic (str): "mean", "max" or "min" of that variable over
+            the interval shown.
     """
 
     _esm = _STATIC / "results.js"
@@ -64,6 +69,10 @@ class ResultsViewer(anywidget.AnyWidget):
     show_3d = traitlets.Bool(False).tag(sync=True)
     # filled the first time the 3D view is opened, not before
     geometry = traitlets.Dict({}).tag(sync=True)
+    color_variable = traitlets.Unicode("").tag(sync=True)
+    color_statistic = traitlets.Unicode("mean").tag(sync=True)
+    # {"variable", "statistic", "unit", "values": {component: value}}
+    surface_values = traitlets.Dict({}).tag(sync=True)
 
     def __init__(self, project, **kwargs):
         super().__init__(**kwargs)
@@ -71,6 +80,7 @@ class ResultsViewer(anywidget.AnyWidget):
         self.refresh()
         self.observe(self._update_series_, names=["selection", "frequency", "aggregation", "interval"])
         self.on_msg(self._on_message_)
+        self.observe(self._update_surface_values_, names=["color_variable", "color_statistic", "interval", "geometry"])
 
     @property
     def project(self):
@@ -100,6 +110,7 @@ class ResultsViewer(anywidget.AnyWidget):
             self.message = "No results: simulate the project first."
         if self.geometry:
             self.geometry = self._project_.geometry_dict()
+            self._update_surface_values_()
         names = {(c["name"], v["name"]) for c in catalog for v in c["variables"]}
         kept = [s for s in self.selection if (s["component"], s["variable"]) in names]
         if kept != self.selection:
@@ -157,25 +168,64 @@ class ResultsViewer(anywidget.AnyWidget):
         if not content.get("has_plotly"):
             self.send({"type": "plotly"}, [(_STATIC / "plotly3d.js").read_bytes()])
 
+    def _update_surface_values_(self, change=None):
+        """One value per surface of the 3D view: the statistic of the colour
+        variable over the interval shown."""
+        if self.color_statistic not in STATISTICS:
+            self.color_statistic = "mean"
+            return
+        variable = self.color_variable
+        if not variable or not self.geometry:
+            if self.surface_values:
+                self.surface_values = {}
+            return
+        values, unit = {}, ""
+        for name in sorted({mesh["component"] for mesh in self.geometry.get("meshes", [])}):
+            data = self._raw_(name, variable)
+            if data is None:
+                continue
+            series, unit = data
+            series = series[pd.notna(series)]
+            if len(series):
+                values[name] = float(getattr(series, self.color_statistic)())
+        self.surface_values = {
+            "variable": variable,
+            "statistic": self.color_statistic,
+            "unit": unit,
+            "values": values,
+        }
+
     # ____________________ data ____________________
 
     def _dates_(self):
         return pd.Series(pd.to_datetime(self._project_.dates()))
 
-    def _data_(self, component_name, variable_name):
-        """Resampled values of one variable and its unit, or None if missing."""
+    def _raw_(self, component_name, variable_name):
+        """Values of one variable in the interval, not resampled, and its unit,
+        or None if missing."""
         component = self._project_.component(component_name)
         if component is None or variable_name not in component.variable_dict():
             return None
         variable = component.variable(variable_name)
+        n = self._project_.parameter("n_time_steps").value
+        if variable.values is None or len(variable.values) != n:
+            return None
         values = pd.Series(variable.values, index=pd.DatetimeIndex(self._dates_()), dtype=float)
         if len(self.interval) == 2:
             start, end = pd.Timestamp(self.interval[0]), pd.Timestamp(self.interval[1])
             values = values[(values.index >= start) & (values.index < end + pd.Timedelta(days=1))]
+        return values, variable.unit
+
+    def _data_(self, component_name, variable_name):
+        """Resampled values of one variable and its unit, or None if missing."""
+        data = self._raw_(component_name, variable_name)
+        if data is None:
+            return None
+        values, unit = data
         rule = FREQUENCIES.get(self.frequency)
         if rule is not None and len(values):
             values = getattr(values.resample(rule), self.aggregation)()
-        return values, variable.unit
+        return values, unit
 
     def _update_series_(self, change=None):
         if self.frequency not in FREQUENCIES:

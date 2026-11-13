@@ -27,6 +27,18 @@ const MAX_TABLE_ROWS = 2000;
 const CHART_HEIGHTS = [200, 300, 400, 500];
 const VIEW_HEIGHT = 340; // the 3D view, added to the height of the widget
 const INK = "#1f2328"; // outline of the surface clicked in the 3D view
+// Colour of the surfaces by a variable: one hue when the values have one sign,
+// two hues around a neutral grey at zero when they have both (heat flows).
+const SEQUENTIAL = [[0, "#d4e4f8"], [0.5, "#5b9be6"], [1, "#0b3d7a"]];
+const DIVERGING = [[0, "#1d5fb0"], [0.5, "#e5e5e5"], [1, "#c0392b"]];
+// The rest of the building when one space is shown, and the surfaces that
+// have no value of the colour variable: outline only, like the editor's filter.
+const GHOST = "rgb(130, 130, 130)";
+const STATISTICS = [
+  ["mean", "Mean"],
+  ["max", "Maximum"],
+  ["min", "Minimum"],
+];
 
 const FREQUENCIES = [
   ["none", "Time step"],
@@ -75,6 +87,7 @@ function formatDate(seconds, frequency) {
 
 function formatValue(value) {
   if (value === null || value === undefined || Number.isNaN(value)) return "–";
+  if (value === 0) return "0"; // also -0, which toLocaleString() writes "-0"
   const abs = Math.abs(value);
   if (abs !== 0 && (abs >= 1e6 || abs < 1e-3)) return value.toExponential(3);
   return value.toLocaleString("en-US", { maximumFractionDigits: abs >= 100 ? 1 : 3 });
@@ -128,7 +141,16 @@ function render({ model, el }) {
   ]);
   const content = h("div", { class: "osm-r-content" });
   const plot = h("div", { class: "osm-r-plot" });
-  const view = h("div", { class: "osm-r-view" }, [plot]);
+  const colorVariable = h("select");
+  const colorStatistic = h("select");
+  for (const [value, label] of STATISTICS) colorStatistic.appendChild(h("option", { value, text: label }));
+  const spaceSelect = h("select");
+  const viewBar = h("div", { class: "osm-r-view-bar" }, [
+    h("label", { text: "Space" }, [spaceSelect]),
+    h("label", { text: "Colour" }, [colorVariable]),
+    colorStatistic,
+  ]);
+  const view = h("div", { class: "osm-r-view" }, [plot, viewBar]);
   view.style.height = `${VIEW_HEIGHT}px`;
   view.hidden = true;
   const main = h("div", { class: "osm-r-main" }, [toolbar, view, content]);
@@ -145,6 +167,7 @@ function render({ model, el }) {
   let charts = [];
   let timeRange = null; // [min, max] shown, kept when the charts are drawn again
   let focused = null; // component clicked in the 3D view, or opened in the list
+  let viewSpace = ""; // the space shown alone in the 3D view, or "" for all
 
   // The charts share the time axis: a zoom or a pan of one is applied to all.
   // uPlot runs the setScale hooks later, not inside setScale, so a chart that
@@ -427,6 +450,36 @@ function render({ model, el }) {
     return slots;
   }
 
+  // Variables of the components drawn in the 3D view, for the colour selector
+  function fillSpaceOptions() {
+    const spaces = geometry().spaces || [];
+    spaceSelect.textContent = "";
+    for (const [value, label] of [["", "all"], ...spaces.map((s) => [s, s])]) {
+      spaceSelect.appendChild(h("option", { value, text: label }));
+    }
+    // a space that no longer exists cannot stay selected
+    if (!spaces.includes(viewSpace)) viewSpace = "";
+    spaceSelect.value = viewSpace;
+  }
+
+  function fillColourOptions() {
+    const drawn = new Set((geometry().meshes || []).map((m) => m.component));
+    const names = new Map();
+    for (const component of model.get("catalog") || []) {
+      if (!drawn.has(component.name)) continue;
+      for (const v of component.variables) names.set(v.name, v.unit);
+    }
+    const current = model.get("color_variable");
+    colorVariable.textContent = "";
+    colorVariable.appendChild(h("option", { value: "", text: "Series" }));
+    for (const [name, unit] of [...names].sort((a, b) => a[0].localeCompare(b[0]))) {
+      colorVariable.appendChild(h("option", { value: name, text: unit ? `${name} [${unit}]` : name }));
+    }
+    colorVariable.value = names.has(current) ? current : "";
+    colorStatistic.value = model.get("color_statistic");
+    colorStatistic.disabled = !colorVariable.value;
+  }
+
   function viewMessage(text) {
     plot.textContent = text;
     plot.classList.add("osm-r-view-empty");
@@ -442,11 +495,76 @@ function render({ model, el }) {
     renderView();
   }
 
-  function traces(meshes) {
+  // The surface values sent by Python for the colour variable chosen, if any
+  // The scale spans the values of the surfaces drawn, not of the whole model
+  function colouring(meshes) {
+    const sv = model.get("surface_values") || {};
+    if (!model.get("color_variable") || sv.variable !== model.get("color_variable")) return null;
+    const all = sv.values || {};
+    const values = meshes.map((m) => all[m.component]).filter((v) => v !== undefined);
+    if (values.length === 0) return { ...sv, values: {} };
+    let low = Math.min(...values);
+    let high = Math.max(...values);
+    let scale = SEQUENTIAL;
+    if (low < 0 && high > 0) {
+      const m = Math.max(-low, high);
+      [low, high, scale] = [-m, m, DIVERGING];
+    }
+    if (high - low < 1e-9) [low, high] = [low - 1, high + 1];
+    return { ...sv, low, high, scale };
+  }
+
+  function colourTrace(trace, mesh, colour, first) {
+    const value = colour.values[mesh.component];
+    const label = `${colour.variable} (${colour.statistic})`;
+    delete trace.color;
+    trace.opacity = 1; // a translucent glass would mix its colour with what is behind
+    trace.intensity = mesh.points.map(() => value);
+    trace.cmin = colour.low;
+    trace.cmax = colour.high;
+    trace.colorscale = colour.scale;
+    trace.showscale = first;
+    if (first) {
+      trace.colorbar = {
+        title: { text: colour.unit, side: "top" },
+        thickness: 12,
+        len: 0.85,
+        tickfont: { size: 10 },
+      };
+    }
+    trace.hovertemplate = `<b>${mesh.name}</b><br>${label}: ${formatValue(value)} ${colour.unit}<extra></extra>`;
+  }
+
+  function ghostTrace(mesh) {
+    const closed = [...mesh.outline, mesh.outline[0]];
+    return {
+      type: "scatter3d",
+      mode: "lines",
+      x: column(closed, 0),
+      y: column(closed, 1),
+      z: column(closed, 2),
+      line: { color: GHOST, width: 2 },
+      hoverinfo: "skip",
+      showlegend: false,
+    };
+  }
+
+  function traces(allMeshes) {
     const slots = componentSlots();
+    const inSpace = (mesh) => !viewSpace || (mesh.spaces || []).includes(viewSpace);
+    const colour = colouring(allMeshes.filter(inSpace));
+    let scaleShown = false;
     const out = [];
     const infos = [];
-    for (const mesh of meshes) {
+    for (const mesh of allMeshes) {
+      const noValue = colour && colour.values[mesh.component] === undefined;
+      if (!inSpace(mesh) || noValue) {
+        if ((mesh.outline || []).length) {
+          out.push(ghostTrace(mesh));
+          infos.push(null);
+        }
+        continue;
+      }
       const own = slots.get(mesh.component);
       out.push({
         type: "mesh3d",
@@ -463,13 +581,17 @@ function render({ model, el }) {
         flatshading: true,
         lighting: { ambient: 0.85, diffuse: 0.5, specular: 0.05 },
       });
+      if (colour) {
+        colourTrace(out[out.length - 1], mesh, colour, !scaleShown);
+        scaleShown = true;
+      }
       infos.push(mesh);
       const outline = mesh.outline || [];
       if (!outline.length) continue;
       // the outline tells the space: in the colour of its series if plotted
       const space = (mesh.spaces || []).map((name) => slots.get(name)).find((slot) => slot !== undefined);
       let line = { color: "black", width: 2 };
-      if (space !== undefined) line = { color: PALETTE[space], width: 4 };
+      if (space !== undefined && !colour) line = { color: PALETTE[space], width: 4 };
       if (mesh.component === focused) line = { color: INK, width: 7 };
       const closed = [...outline, outline[0]];
       out.push({
@@ -604,7 +726,29 @@ function render({ model, el }) {
       receivePlotly(buffers[0]).then(renderView, (err) => viewMessage(`Could not load the 3D view: ${err.message || err}`));
     }
   });
-  model.on("change:geometry", renderView);
+  spaceSelect.addEventListener("change", () => {
+    viewSpace = spaceSelect.value;
+    renderView();
+  });
+  model.on("change:geometry", () => {
+    fillSpaceOptions();
+    fillColourOptions();
+    renderView();
+  });
+  model.on("change:surface_values", renderView);
+  model.on("change:color_statistic", fillColourOptions);
+  model.on("change:color_variable", () => {
+    fillColourOptions();
+    renderView(); // back to the series colours at once, without waiting for Python
+  });
+  colorVariable.addEventListener("change", () => {
+    model.set("color_variable", colorVariable.value);
+    model.save_changes();
+  });
+  colorStatistic.addEventListener("change", () => {
+    model.set("color_statistic", colorStatistic.value);
+    model.save_changes();
+  });
   model.on("change:show_3d", updateView);
 
   // ____________________ table ____________________
@@ -739,7 +883,10 @@ function render({ model, el }) {
   });
   search.addEventListener("input", renderTree);
 
-  model.on("change:catalog", renderTree);
+  model.on("change:catalog", () => {
+    renderTree();
+    fillColourOptions();
+  });
   model.on("change:selection", () => {
     renderTree();
     renderContent();
@@ -773,6 +920,8 @@ function render({ model, el }) {
   renderTree();
   renderToolbar();
   renderContent();
+  fillSpaceOptions();
+  fillColourOptions();
   updateView();
 
   return () => {

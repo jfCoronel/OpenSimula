@@ -123,3 +123,27 @@ def test_viewer_3d_view():
     # a page that already has plotly gets only the geometry
     viewer._on_message_(viewer, {"type": "load-3d", "has_plotly": True}, [])
     assert len(sent) == 1
+
+
+def test_viewer_surface_colours(monkeypatch):
+    monkeypatch.chdir("ASHRAE_140/LOAD_TEST")  # weather path of the case file
+    sim = osim.Simulation()
+    sim.console_print = False
+    project = sim.new_project("600")
+    project.read_json("cases/case_600.json")
+    project.set_parameters({"n_time_steps": 48})
+    project.simulate()
+    viewer = project.results()
+    viewer.color_variable = "T_s0"
+    assert viewer.surface_values == {}  # no geometry until the 3D view is opened
+    viewer._on_message_(viewer, {"type": "load-3d", "has_plotly": True}, [])
+    values = viewer.surface_values
+    assert values["variable"] == "T_s0" and values["unit"] == "°C"
+    assert {"south_wall", "south_window_1", "roof_wall"} <= set(values["values"])
+    t_mean = values["values"]["south_wall"]
+    viewer.color_statistic = "max"
+    assert viewer.surface_values["values"]["south_wall"] >= t_mean
+    viewer.color_variable = "q_cd0"  # walls only: windows have no value
+    assert "south_window_1" not in viewer.surface_values["values"]
+    viewer.color_variable = ""
+    assert viewer.surface_values == {}
