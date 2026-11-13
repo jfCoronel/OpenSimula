@@ -38,6 +38,7 @@ const STATISTICS = [
   ["mean", "Mean"],
   ["max", "Maximum"],
   ["min", "Minimum"],
+  ["instant", "At cursor"], // the value at the time under the cursor of the charts
 ];
 
 const FREQUENCIES = [
@@ -52,6 +53,7 @@ const AGGREGATIONS = [
   ["sum", "Sum"],
   ["max", "Maximum"],
   ["min", "Minimum"],
+  ["instant", "At cursor"],
 ];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -145,10 +147,12 @@ function render({ model, el }) {
   const colorStatistic = h("select");
   for (const [value, label] of STATISTICS) colorStatistic.appendChild(h("option", { value, text: label }));
   const spaceSelect = h("select");
+  const instantLabel = h("span", { class: "osm-r-instant" });
   const viewBar = h("div", { class: "osm-r-view-bar" }, [
     h("label", { text: "Space" }, [spaceSelect]),
     h("label", { text: "Colour" }, [colorVariable]),
     colorStatistic,
+    instantLabel,
   ]);
   const view = h("div", { class: "osm-r-view" }, [plot, viewBar]);
   view.style.height = `${VIEW_HEIGHT}px`;
@@ -168,6 +172,8 @@ function render({ model, el }) {
   let timeRange = null; // [min, max] shown, kept when the charts are drawn again
   let focused = null; // component clicked in the 3D view, or opened in the list
   let viewSpace = ""; // the space shown alone in the 3D view, or "" for all
+  let instantIndex = 0; // "At cursor": index of the time shown in the 3D view
+  let instantFrame = null;
 
   // The charts share the time axis: a zoom or a pan of one is applied to all.
   // uPlot runs the setScale hooks later, not inside setScale, so a chart that
@@ -361,7 +367,10 @@ function render({ model, el }) {
           focus: { prox: 16 },
           bind: { mousedown: panHandler },
         },
-        hooks: { setScale: [(u, key) => key === "x" && shareTimeRange(u)] },
+        hooks: {
+          setScale: [(u, key) => key === "x" && shareTimeRange(u)],
+          setCursor: [onChartCursor],
+        },
         focus: { alpha: 0.3 },
         legend: { live: true },
         scales: { x: { time: true } },
@@ -497,26 +506,82 @@ function render({ model, el }) {
 
   // The surface values sent by Python for the colour variable chosen, if any
   // The scale spans the values of the surfaces drawn, not of the whole model
+  // "At cursor": the series of every surface, one row per name (float32)
+  let seriesCache = { source: null, rows: null };
+  function surfaceRows() {
+    const view = model.get("surface_series");
+    if (seriesCache.source !== view) {
+      const sv = model.get("surface_values") || {};
+      const n = (sv.x || []).length;
+      const rows = new Map();
+      if (view && view.byteLength && n) {
+        // copied: a Float32Array needs an offset multiple of 4
+        const bytes = view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength);
+        const all = new Float32Array(bytes);
+        (sv.names || []).forEach((name, i) => rows.set(name, all.subarray(i * n, (i + 1) * n)));
+      }
+      seriesCache = { source: view, rows };
+    }
+    return seriesCache.rows;
+  }
+
+  function instantValues() {
+    const values = {};
+    for (const [name, row] of surfaceRows()) {
+      const v = row[instantIndex];
+      if (Number.isFinite(v)) values[name] = v;
+    }
+    return values;
+  }
+
   function colouring(meshes) {
     const sv = model.get("surface_values") || {};
     if (!model.get("color_variable") || sv.variable !== model.get("color_variable")) return null;
+    if (sv.statistic === "instant") {
+      // one scale for the whole interval, so that the colours of two instants compare
+      const rows = surfaceRows();
+      let [low, high] = [Infinity, -Infinity];
+      for (const mesh of meshes) {
+        const row = rows.get(mesh.component);
+        if (!row) continue;
+        for (const v of row) {
+          if (v < low) low = v;
+          if (v > high) high = v;
+        }
+      }
+      const values = {};
+      for (const name of rows.keys()) values[name] = 0; // decides which surfaces are drawn
+      if (!Number.isFinite(low)) return { ...sv, values: {} };
+      return { ...sv, ...scaleOf(low, high), values };
+    }
     const all = sv.values || {};
     const values = meshes.map((m) => all[m.component]).filter((v) => v !== undefined);
     if (values.length === 0) return { ...sv, values: {} };
-    let low = Math.min(...values);
-    let high = Math.max(...values);
+    return { ...sv, ...scaleOf(Math.min(...values), Math.max(...values)), values: all };
+  }
+
+  function scaleOf(low, high) {
     let scale = SEQUENTIAL;
     if (low < 0 && high > 0) {
       const m = Math.max(-low, high);
       [low, high, scale] = [-m, m, DIVERGING];
     }
     if (high - low < 1e-9) [low, high] = [low - 1, high + 1];
-    return { ...sv, low, high, scale };
+    return { low, high, scale };
+  }
+
+  function instantText() {
+    const x = (model.get("surface_values") || {}).x || [];
+    return x.length ? formatDate(x[Math.min(instantIndex, x.length - 1)], model.get("frequency")) : "";
+  }
+
+  function hoverText(mesh, colour, value) {
+    const when = colour.statistic === "instant" ? `at ${instantText()}` : `(${colour.statistic})`;
+    return `<b>${mesh.name}</b><br>${colour.variable} ${when}: ${formatValue(value)} ${colour.unit}<extra></extra>`;
   }
 
   function colourTrace(trace, mesh, colour, first) {
-    const value = colour.values[mesh.component];
-    const label = `${colour.variable} (${colour.statistic})`;
+    const value = colour.statistic === "instant" ? instantValues()[mesh.component] : colour.values[mesh.component];
     delete trace.color;
     trace.opacity = 1; // a translucent glass would mix its colour with what is behind
     trace.intensity = mesh.points.map(() => value);
@@ -532,7 +597,61 @@ function render({ model, el }) {
         tickfont: { size: 10 },
       };
     }
-    trace.hovertemplate = `<b>${mesh.name}</b><br>${label}: ${formatValue(value)} ${colour.unit}<extra></extra>`;
+    trace.hovertemplate = hoverText(mesh, colour, value);
+  }
+
+  // "At cursor": only the colours change, not the scene, so restyle() the
+  // surfaces instead of drawing everything again. Once per frame at most.
+  function showInstant(index) {
+    if (index === instantIndex) return;
+    instantIndex = index;
+    instantLabel.textContent = instantText();
+    if (instantFrame) return;
+    instantFrame = requestAnimationFrame(async () => {
+      instantFrame = null;
+      const plotly = plotlyLoaded();
+      if (view.hidden || !plotly || !viewBound) return;
+      const geo = geometry();
+      const colour = colouring((geo.meshes || []).filter((m) => !viewSpace || (m.spaces || []).includes(viewSpace)));
+      if (!colour || colour.statistic !== "instant") return;
+      const values = instantValues();
+      const indices = [];
+      const intensity = [];
+      const hover = [];
+      viewInfos.forEach((mesh, i) => {
+        if (!mesh || !(mesh.component in colour.values)) return;
+        const value = values[mesh.component];
+        indices.push(i);
+        intensity.push(mesh.points.map(() => value));
+        hover.push(hoverText(mesh, colour, value));
+      });
+      if (indices.length === 0) return;
+      try {
+        const Plotly = await plotly;
+        await Plotly.restyle(plot, { intensity, hovertemplate: hover }, indices);
+      } catch (err) {
+        /* caught up on the next full redraw */
+      }
+    });
+  }
+
+  // The time under the cursor of any chart, when the 3D view follows it
+  function onChartCursor(u) {
+    const idx = u.cursor.idx;
+    if (idx === null || idx === undefined || view.hidden) return;
+    const sv = model.get("surface_values") || {};
+    if (sv.statistic !== "instant" || !(sv.x || []).length) return;
+    const t = u.data[0][idx];
+    // nearest time of the surface series (the same times as the charts)
+    const x = sv.x;
+    let [lo, hi] = [0, x.length - 1];
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (x[mid] < t) lo = mid + 1;
+      else hi = mid;
+    }
+    if (lo > 0 && Math.abs(x[lo - 1] - t) < Math.abs(x[lo] - t)) lo -= 1;
+    showInstant(lo);
   }
 
   function ghostTrace(mesh) {
@@ -735,7 +854,15 @@ function render({ model, el }) {
     fillColourOptions();
     renderView();
   });
-  model.on("change:surface_values", renderView);
+  const onSurfaceValues = () => {
+    const sv = model.get("surface_values") || {};
+    const n = (sv.x || []).length;
+    if (instantIndex >= n) instantIndex = 0;
+    instantLabel.textContent = sv.statistic === "instant" ? instantText() : "";
+    renderView();
+  };
+  model.on("change:surface_values", onSurfaceValues);
+  model.on("change:surface_series", onSurfaceValues);
   model.on("change:color_statistic", fillColourOptions);
   model.on("change:color_variable", () => {
     fillColourOptions();
@@ -928,6 +1055,7 @@ function render({ model, el }) {
     resize.disconnect();
     resizeView.disconnect();
     clearTimeout(wheelTimer);
+    if (instantFrame) cancelAnimationFrame(instantFrame);
     destroyCharts();
     const plotly = plotlyLoaded();
     if (plotly && viewBound) plotly.then((P) => P.purge(plot)).catch(() => {});

@@ -19,6 +19,7 @@ import math
 import pathlib
 
 import anywidget
+import numpy as np
 import pandas as pd
 import traitlets
 
@@ -27,7 +28,8 @@ _STATIC = pathlib.Path(__file__).parent / "static"
 # Periods labelled by their start, so a month is drawn on its first day
 FREQUENCIES = {"none": None, "hourly": "h", "daily": "D", "monthly": "MS", "yearly": "YS"}
 AGGREGATIONS = ["mean", "sum", "max", "min"]
-STATISTICS = ["mean", "max", "min"]  # of the colour variable of the 3D view
+# of the colour variable of the 3D view; "instant" follows the cursor of the charts
+STATISTICS = ["mean", "max", "min", "instant"]
 MAX_SERIES = 8  # one per hue of the categorical palette
 
 
@@ -50,7 +52,8 @@ class ResultsViewer(anywidget.AnyWidget):
         color_variable (str): variable of the surfaces that colours the 3D
             view ("T_s0", "q_sol1"...), or "" for the colours of the series.
         color_statistic (str): "mean", "max" or "min" of that variable over
-            the interval shown.
+            the interval shown, or "instant" for its value at the time under
+            the cursor of the charts.
     """
 
     _esm = _STATIC / "results.js"
@@ -71,8 +74,12 @@ class ResultsViewer(anywidget.AnyWidget):
     geometry = traitlets.Dict({}).tag(sync=True)
     color_variable = traitlets.Unicode("").tag(sync=True)
     color_statistic = traitlets.Unicode("mean").tag(sync=True)
-    # {"variable", "statistic", "unit", "values": {component: value}}
+    # {"variable", "statistic", "unit", "values": {component: value}}, or for
+    # "instant" {"variable", "statistic", "unit", "names": [...], "x": [...]}
+    # with the series in surface_series: float32, one row per name, NaN where
+    # missing, at the frequency of the charts. Binary, as it can be large.
     surface_values = traitlets.Dict({}).tag(sync=True)
+    surface_series = traitlets.Bytes(b"").tag(sync=True)
 
     def __init__(self, project, **kwargs):
         super().__init__(**kwargs)
@@ -80,7 +87,10 @@ class ResultsViewer(anywidget.AnyWidget):
         self.refresh()
         self.observe(self._update_series_, names=["selection", "frequency", "aggregation", "interval"])
         self.on_msg(self._on_message_)
-        self.observe(self._update_surface_values_, names=["color_variable", "color_statistic", "interval", "geometry"])
+        self.observe(
+            self._update_surface_values_,
+            names=["color_variable", "color_statistic", "interval", "geometry", "frequency", "aggregation"],
+        )
 
     @property
     def project(self):
@@ -178,7 +188,13 @@ class ResultsViewer(anywidget.AnyWidget):
         if not variable or not self.geometry:
             if self.surface_values:
                 self.surface_values = {}
+                self.surface_series = b""
             return
+        if self.color_statistic == "instant":
+            self._update_surface_series_(variable)
+            return
+        if change is not None and change["name"] in ("frequency", "aggregation"):
+            return  # the statistics are of the values not resampled
         values, unit = {}, ""
         for name in sorted({mesh["component"] for mesh in self.geometry.get("meshes", [])}):
             data = self._raw_(name, variable)
@@ -188,11 +204,36 @@ class ResultsViewer(anywidget.AnyWidget):
             series = series[pd.notna(series)]
             if len(series):
                 values[name] = float(getattr(series, self.color_statistic)())
+        self.surface_series = b""
         self.surface_values = {
             "variable": variable,
             "statistic": self.color_statistic,
             "unit": unit,
             "values": values,
+        }
+
+    def _update_surface_series_(self, variable):
+        """The series of the colour variable of every surface, resampled like the
+        charts, for the 3D view to follow the cursor."""
+        names, rows, unit, index = [], [], "", None
+        for name in sorted({mesh["component"] for mesh in self.geometry.get("meshes", [])}):
+            data = self._data_(name, variable)
+            if data is None:
+                continue
+            series, unit = data
+            names.append(name)
+            rows.append(series.to_numpy(dtype=float))
+            index = series.index
+        x = [t.timestamp() for t in index.tz_localize("UTC")] if index is not None else []
+        matrix = np.array(rows, dtype=np.float32).reshape(len(rows), len(x))
+        # bytes before the dict: the front end redraws on the change of the dict
+        self.surface_series = matrix.tobytes()
+        self.surface_values = {
+            "variable": variable,
+            "statistic": "instant",
+            "unit": unit,
+            "names": names,
+            "x": x,
         }
 
     # ____________________ data ____________________
