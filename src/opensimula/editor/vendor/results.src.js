@@ -29,9 +29,11 @@ const VIEW_HEIGHT = 340; // the 3D view, added to the height of the widget
 const INK = "#1f2328"; // outline of the surface clicked in the 3D view
 // Colour of the surfaces by a variable: one hue when the values have one sign,
 // two hues around a neutral grey at zero when they have both (heat flows).
-const SEQUENTIAL = [[0, "#eef4fc"], [0.5, "#5b9be6"], [1, "#0b3d7a"]];
+const SEQUENTIAL = [[0, "#d4e4f8"], [0.5, "#5b9be6"], [1, "#0b3d7a"]];
 const DIVERGING = [[0, "#1d5fb0"], [0.5, "#e5e5e5"], [1, "#c0392b"]];
-const NO_VALUE = "rgb(200, 200, 200)";
+// The rest of the building when one space is shown, and the surfaces that
+// have no value of the colour variable: outline only, like the editor's filter.
+const GHOST = "rgb(130, 130, 130)";
 const STATISTICS = [
   ["mean", "Mean"],
   ["max", "Maximum"],
@@ -142,7 +144,9 @@ function render({ model, el }) {
   const colorVariable = h("select");
   const colorStatistic = h("select");
   for (const [value, label] of STATISTICS) colorStatistic.appendChild(h("option", { value, text: label }));
+  const spaceSelect = h("select");
   const viewBar = h("div", { class: "osm-r-view-bar" }, [
+    h("label", { text: "Space" }, [spaceSelect]),
     h("label", { text: "Colour" }, [colorVariable]),
     colorStatistic,
   ]);
@@ -163,6 +167,7 @@ function render({ model, el }) {
   let charts = [];
   let timeRange = null; // [min, max] shown, kept when the charts are drawn again
   let focused = null; // component clicked in the 3D view, or opened in the list
+  let viewSpace = ""; // the space shown alone in the 3D view, or "" for all
 
   // The charts share the time axis: a zoom or a pan of one is applied to all.
   // uPlot runs the setScale hooks later, not inside setScale, so a chart that
@@ -446,6 +451,17 @@ function render({ model, el }) {
   }
 
   // Variables of the components drawn in the 3D view, for the colour selector
+  function fillSpaceOptions() {
+    const spaces = geometry().spaces || [];
+    spaceSelect.textContent = "";
+    for (const [value, label] of [["", "all"], ...spaces.map((s) => [s, s])]) {
+      spaceSelect.appendChild(h("option", { value, text: label }));
+    }
+    // a space that no longer exists cannot stay selected
+    if (!spaces.includes(viewSpace)) viewSpace = "";
+    spaceSelect.value = viewSpace;
+  }
+
   function fillColourOptions() {
     const drawn = new Set((geometry().meshes || []).map((m) => m.component));
     const names = new Map();
@@ -480,10 +496,12 @@ function render({ model, el }) {
   }
 
   // The surface values sent by Python for the colour variable chosen, if any
-  function colouring() {
+  // The scale spans the values of the surfaces drawn, not of the whole model
+  function colouring(meshes) {
     const sv = model.get("surface_values") || {};
     if (!model.get("color_variable") || sv.variable !== model.get("color_variable")) return null;
-    const values = Object.values(sv.values || {});
+    const all = sv.values || {};
+    const values = meshes.map((m) => all[m.component]).filter((v) => v !== undefined);
     if (values.length === 0) return { ...sv, values: {} };
     let low = Math.min(...values);
     let high = Math.max(...values);
@@ -499,12 +517,8 @@ function render({ model, el }) {
   function colourTrace(trace, mesh, colour, first) {
     const value = colour.values[mesh.component];
     const label = `${colour.variable} (${colour.statistic})`;
-    if (value === undefined) {
-      trace.color = NO_VALUE;
-      trace.hovertemplate = `<b>${mesh.name}</b><br>${label}: no value<extra></extra>`;
-      return false;
-    }
     delete trace.color;
+    trace.opacity = 1; // a translucent glass would mix its colour with what is behind
     trace.intensity = mesh.points.map(() => value);
     trace.cmin = colour.low;
     trace.cmax = colour.high;
@@ -519,16 +533,38 @@ function render({ model, el }) {
       };
     }
     trace.hovertemplate = `<b>${mesh.name}</b><br>${label}: ${formatValue(value)} ${colour.unit}<extra></extra>`;
-    return true;
   }
 
-  function traces(meshes) {
+  function ghostTrace(mesh) {
+    const closed = [...mesh.outline, mesh.outline[0]];
+    return {
+      type: "scatter3d",
+      mode: "lines",
+      x: column(closed, 0),
+      y: column(closed, 1),
+      z: column(closed, 2),
+      line: { color: GHOST, width: 2 },
+      hoverinfo: "skip",
+      showlegend: false,
+    };
+  }
+
+  function traces(allMeshes) {
     const slots = componentSlots();
-    const colour = colouring();
+    const inSpace = (mesh) => !viewSpace || (mesh.spaces || []).includes(viewSpace);
+    const colour = colouring(allMeshes.filter(inSpace));
     let scaleShown = false;
     const out = [];
     const infos = [];
-    for (const mesh of meshes) {
+    for (const mesh of allMeshes) {
+      const noValue = colour && colour.values[mesh.component] === undefined;
+      if (!inSpace(mesh) || noValue) {
+        if ((mesh.outline || []).length) {
+          out.push(ghostTrace(mesh));
+          infos.push(null);
+        }
+        continue;
+      }
       const own = slots.get(mesh.component);
       out.push({
         type: "mesh3d",
@@ -545,7 +581,10 @@ function render({ model, el }) {
         flatshading: true,
         lighting: { ambient: 0.85, diffuse: 0.5, specular: 0.05 },
       });
-      if (colour && colourTrace(out[out.length - 1], mesh, colour, !scaleShown)) scaleShown = true;
+      if (colour) {
+        colourTrace(out[out.length - 1], mesh, colour, !scaleShown);
+        scaleShown = true;
+      }
       infos.push(mesh);
       const outline = mesh.outline || [];
       if (!outline.length) continue;
@@ -687,7 +726,12 @@ function render({ model, el }) {
       receivePlotly(buffers[0]).then(renderView, (err) => viewMessage(`Could not load the 3D view: ${err.message || err}`));
     }
   });
+  spaceSelect.addEventListener("change", () => {
+    viewSpace = spaceSelect.value;
+    renderView();
+  });
   model.on("change:geometry", () => {
+    fillSpaceOptions();
     fillColourOptions();
     renderView();
   });
@@ -876,6 +920,7 @@ function render({ model, el }) {
   renderTree();
   renderToolbar();
   renderContent();
+  fillSpaceOptions();
   fillColourOptions();
   updateView();
 
