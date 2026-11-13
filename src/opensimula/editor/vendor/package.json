@@ -1,15 +1,16 @@
 {
   "name": "opensimula-editor-vendor",
   "private": true,
-  "description": "Builds the anywidget front ends, static/editor.js (editor.src.js with Ajv) and static/results.js (results.src.js with uPlot): each bundled with its dependencies into one self-contained ESM module with no runtime imports of any kind, since anywidget loads it from a blob URL where relative/bare imports can't resolve, and VS Code's notebook webview CSP additionally blocks fetching third-party scripts.",
+  "description": "Builds the anywidget front ends, static/editor.js (editor.src.js with Ajv) static/results.js (results.src.js with uPlot) and static/plotly3d.js (plotly gl3d as an ES module, sent by Python when a 3D view is opened): each bundled with its dependencies into one self-contained ESM module with no runtime imports of any kind, since anywidget loads it from a blob URL where relative/bare imports can't resolve, and VS Code's notebook webview CSP additionally blocks fetching third-party scripts.",
   "scripts": {
-    "build": "esbuild editor.src.js --bundle --format=esm --outfile=../static/editor.js && esbuild results.src.js --bundle --format=esm --minify --loader:.css=text --outfile=../static/results.js"
+    "build": "esbuild editor.src.js --bundle --format=esm --outfile=../static/editor.js && esbuild results.src.js --bundle --format=esm --minify --loader:.css=text --outfile=../static/results.js && esbuild plotly3d.src.js --bundle --format=esm --minify --outfile=../static/plotly3d.js"
   },
   "devDependencies": {
     "esbuild": "^0.24.0"
   },
   "dependencies": {
     "ajv": "8.17.1",
+    "plotly.js-gl3d-dist-min": "3.7.0",
     "uplot": "1.6.32"
   }
 }

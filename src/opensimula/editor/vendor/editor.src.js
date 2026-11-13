@@ -5,6 +5,14 @@
 // fetching third-party scripts, and modules loaded by anywidget from a blob
 // URL can't resolve relative/bare imports either, so bundling is required.
 import Ajv2020 from "ajv/dist/2020.js";
+import {
+  VIEW_LAYOUT,
+  axisRanges,
+  column,
+  defaultCamera,
+  highlightGeometry,
+  modelBounds,
+} from "./view3d.js";
 
 // How long to wait after the last keystroke before pushing the document to the
 // kernel. Syncing on every keystroke would round-trip a whole building on each
@@ -57,71 +65,8 @@ function loadPlotly() {
   return plotlyPromise;
 }
 
-// Same look as Project.show_3D(jupyter=True); see _plotly_scene_layout_().
-const AXIS_STYLE = {
-  showbackground: true,
-  backgroundcolor: "rgb(220, 220, 220)",
-  tickfont: { size: 9, color: "gray" },
-  title: { font: { size: 10, color: "gray" } },
-};
-
-const VIEW_LAYOUT = {
-  paper_bgcolor: "rgb(235, 235, 235)",
-  scene: {
-    xaxis: { title: { text: "X [m]" }, ...AXIS_STYLE },
-    yaxis: { title: { text: "Y [m]" }, ...AXIS_STYLE },
-    zaxis: { title: { text: "Z [m]" }, ...AXIS_STYLE },
-    aspectmode: "data",
-    bgcolor: "rgb(235, 235, 235)",
-  },
-  margin: { l: 0, r: 0, t: 0, b: 0 },
-  showlegend: false,
-};
-
-const column = (rows, index) => rows.map((row) => row[index]);
-
 // The selected component, so it can be picked out of a wall of white surfaces.
 const HIGHLIGHT = "rgb(255, 127, 14)";
-
-function modelBounds(geometry) {
-  const low = [Infinity, Infinity, Infinity];
-  const high = [-Infinity, -Infinity, -Infinity];
-  for (const mesh of geometry.meshes || []) {
-    for (const point of mesh.points) {
-      for (let axis = 0; axis < 3; axis += 1) {
-        if (point[axis] < low[axis]) low[axis] = point[axis];
-        if (point[axis] > high[axis]) high[axis] = point[axis];
-      }
-    }
-  }
-  if (!Number.isFinite(low[0])) return null;
-  return { low, high, size: high.map((value, axis) => Math.max(value - low[axis], 1e-6)) };
-}
-
-function axisRanges(bounds) {
-  // Pinned to the whole model, not to what a filter leaves visible. Otherwise
-  // aspectmode "data" rebuilds the scene box around one space, which blows it
-  // up to fill the panel and leaves the camera pointing at the wrong place.
-  // Held fixed, an isolated space stays where it belongs, at its real size.
-  const margin = Math.max(...bounds.size) * 0.05;
-  return [0, 1, 2].map((axis) => [
-    bounds.low[axis] - margin,
-    bounds.high[axis] + margin,
-  ]);
-}
-
-function defaultCamera(bounds) {
-  // With aspectmode "data" plotly stretches the scene box to the shape of the
-  // model, normalised to unit volume, so a building wider than it is tall gets
-  // a box bigger than the unit cube. Its default eye is placed for that cube
-  // and ends up inside the building; the distance has to follow the box.
-  const unit = Math.cbrt(bounds.size[0] * bounds.size[1] * bounds.size[2]);
-  const reach = Math.max(...bounds.size.map((value) => value / unit));
-  // Looking down from the south east, the usual angle to read a building from.
-  // The distance was set by eye against the HULC model: closer than this and a
-  // building of its proportions starts to touch the bottom of the panel.
-  return { eye: { x: 1.1 * reach, y: -1.1 * reach, z: 0.76 * reach } };
-}
 
 // The colour of the building around the space being looked at.
 const GHOST = "rgb(176, 176, 176)";
@@ -138,51 +83,6 @@ function splitMeshes(geometry, filters) {
     (inSpace ? active : ghost).push(mesh);
   }
   return { active, ghost };
-}
-
-function faceNormal(points, faces) {
-  const [a, b, c] = faces[0].map((index) => points[index]);
-  const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
-  const v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
-  const n = [
-    u[1] * v[2] - u[2] * v[1],
-    u[2] * v[0] - u[0] * v[2],
-    u[0] * v[1] - u[1] * v[0],
-  ];
-  const length = Math.hypot(n[0], n[1], n[2]) || 1;
-  return n.map((value) => value / length);
-}
-
-// Lifted off the surface it covers, or the two coplanar faces fight for depth
-// and the highlight speckles.
-const HIGHLIGHT_LIFT = 0.006;
-
-function highlightGeometry(mesh) {
-  if (!mesh) return { x: [], y: [], z: [], i: [], j: [], k: [] };
-  const n = faceNormal(mesh.points, mesh.faces);
-  // One sheet on each side. Lifting to one side only hides the highlight
-  // behind the surface itself when looked at from the other: a floor is
-  // normally seen from below, and the sheet was going on top of it.
-  const shift = (sign) =>
-    mesh.points.map((p) => [
-      p[0] + sign * n[0] * HIGHLIGHT_LIFT,
-      p[1] + sign * n[1] * HIGHLIGHT_LIFT,
-      p[2] + sign * n[2] * HIGHLIGHT_LIFT,
-    ]);
-  const points = [...shift(1), ...shift(-1)];
-  const behind = mesh.points.length;
-  const faces = [
-    ...mesh.faces,
-    ...mesh.faces.map((face) => face.map((index) => index + behind)),
-  ];
-  return {
-    x: column(points, 0),
-    y: column(points, 1),
-    z: column(points, 2),
-    i: column(faces, 0),
-    j: column(faces, 1),
-    k: column(faces, 2),
-  };
 }
 
 function ghostTrace(mesh) {

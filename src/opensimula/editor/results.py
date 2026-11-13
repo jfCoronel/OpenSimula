@@ -9,6 +9,10 @@ The components and their variables are listed on the left; the selected
 variables are plotted on the right, one chart per unit, after resampling them
 to the chosen frequency. The data is prepared here in Python and only the
 points to draw are sent to the browser.
+
+The "3D" button shows the geometry of the project above the charts: clicking a
+surface opens it, and its spaces, in the list of variables, and the surfaces
+and spaces whose variables are plotted are drawn in the colour of their series.
 """
 
 import math
@@ -41,6 +45,7 @@ class ResultsViewer(anywidget.AnyWidget):
             the whole simulation.
         height (int): height of the whole widget, in pixels.
         chart_height (int): height of each chart, in pixels.
+        show_3d (bool): whether the 3D view of the project is shown.
     """
 
     _esm = _STATIC / "results.js"
@@ -56,12 +61,16 @@ class ResultsViewer(anywidget.AnyWidget):
     message = traitlets.Unicode("").tag(sync=True)
     height = traitlets.Int(600).tag(sync=True)
     chart_height = traitlets.Int(300).tag(sync=True)
+    show_3d = traitlets.Bool(False).tag(sync=True)
+    # filled the first time the 3D view is opened, not before
+    geometry = traitlets.Dict({}).tag(sync=True)
 
     def __init__(self, project, **kwargs):
         super().__init__(**kwargs)
         self._project_ = project
         self.refresh()
         self.observe(self._update_series_, names=["selection", "frequency", "aggregation", "interval"])
+        self.on_msg(self._on_message_)
 
     @property
     def project(self):
@@ -89,6 +98,8 @@ class ResultsViewer(anywidget.AnyWidget):
         self.period = [dates.iloc[0].isoformat(), dates.iloc[-1].isoformat()] if len(dates) else []
         if not catalog:
             self.message = "No results: simulate the project first."
+        if self.geometry:
+            self.geometry = self._project_.geometry_dict()
         names = {(c["name"], v["name"]) for c in catalog for v in c["variables"]}
         kept = [s for s in self.selection if (s["component"], s["variable"]) in names]
         if kept != self.selection:
@@ -133,6 +144,18 @@ class ResultsViewer(anywidget.AnyWidget):
                 label = f"{item['component']}.{item['variable']}"
                 columns[f"{label} [{unit}]" if unit else label] = values
         return pd.DataFrame(columns)
+
+    # ____________________ 3D view ____________________
+
+    def _on_message_(self, widget, content, buffers):
+        """The front end asks for the 3D view when it is first opened: the
+        geometry, and the plotly bundle if the page does not have it yet."""
+        if not isinstance(content, dict) or content.get("type") != "load-3d":
+            return
+        if not self.geometry:
+            self.geometry = self._project_.geometry_dict()
+        if not content.get("has_plotly"):
+            self.send({"type": "plotly"}, [(_STATIC / "plotly3d.js").read_bytes()])
 
     # ____________________ data ____________________
 
