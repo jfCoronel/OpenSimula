@@ -20,7 +20,7 @@ authors:
 affiliations:
   - name: Departamento de Ingeniería Energética, Escuela Técnica Superior de Ingeniería, Universidad de Sevilla, Spain
     index: 1
-  - name: Departamento de Máquinas y Motores Térmicos, Escuela Politécnica Superior de Algeciras, Universidad de Cádiz, Spain
+  - name: Departamento de Máquinas y Motores Térmicos, Escuela Técnica Superior de Ingeniería de Algeciras, Universidad de Cádiz, Spain
     index: 2
 date: 12 November 2026
 bibliography: paper.bib
