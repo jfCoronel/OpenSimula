@@ -248,3 +248,32 @@ def test_HVAC_water_system_losses():
     assert T_WGO.min() == pytest.approx(7.0)
     assert T_WGI.max() == pytest.approx(49.711445727)
     assert T_WGI.min() == pytest.approx(7.215906440)
+
+
+def test_water_system_stores_the_load_of_the_coils(monkeypatch):
+    """Q_coils was reset to 0 at the end of every iteration, before it was
+    stored, so the variable was always 0 (the balance of the loop used it)."""
+    import json
+    import pathlib
+
+    import numpy as np
+
+    import opensimula
+
+    folder = pathlib.Path(opensimula.__file__).parent / "examples"
+    data = json.loads((folder / "07_fan_coil.json").read_text(encoding="utf-8"))
+    data["n_time_steps"] = 24 * 14  # two weeks of January: heating and cooling
+    monkeypatch.chdir(folder)
+    sim = opensimula.Simulation()
+    sim.console_print = False
+    pro = sim.new_project("fan coil")
+    pro.read_dict(data)
+    pro.simulate()
+    Q_coils = pro.component("water_system").variable("Q_coils").values
+    state = pro.component("fan_coil").variable("state").values
+    cooling = np.isin(state, [-1, -2])
+    heating = np.isin(state, [1, 2])
+    assert cooling.sum() > 0 and heating.sum() > 0
+    # the coils heat the water when they cool the air, and cool it when they heat
+    assert np.all(Q_coils[cooling] > 0)
+    assert np.all(Q_coils[heating] < 0)

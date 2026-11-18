@@ -133,6 +133,7 @@ class HVAC_water_system(Component):  # HVAC Water system
 
         # Q_coils load
         self.Q_coils = 0
+        self.Q_coils_used = 0  # the one of the last iteration, the value stored
 
         # Pump defined
         if self.pump is None: # Pump defined
@@ -205,7 +206,9 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.T_WCO = self.T_WCI + (self.Q_coils + self.Q_process)/(self.rho_cp * self.water_flow)
             self.T_WGI = self.T_WCO + (self.Q_loss/2+self.Q_pump)/(self.rho_cp * self.water_flow)
 
-        # Colocar de nuevo Q_coils = 0 al inicio de cada iteración.
+        # The coils add their load again in the next iteration: keep the one
+        # of this iteration to store it, then start again from 0
+        self.Q_coils_used = self.Q_coils
         self.Q_coils = 0
         # Test convergence
         return self.itera_T.converged() 
@@ -295,7 +298,7 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.variable("generator_part_load").values[time_index] = 0
         else:
             self.variable("Q_gen").values[time_index] = self.Q_gen
-            self.variable("Q_coils").values[time_index] = self.Q_coils
+            self.variable("Q_coils").values[time_index] = self.Q_coils_used
             self.variable("Q_process").values[time_index] = self.Q_process
             self.variable("Q_pump").values[time_index] = self.Q_pump
             self.variable("pump_power").values[time_index] = self.pump.get_power(self.water_flow)
