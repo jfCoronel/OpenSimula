@@ -1,0 +1,70 @@
+{
+    "name": "01 Schedules",
+    "description": "Office hours as a day, week and year schedule. No building and no weather: simulate and plot office_hours.values",
+    "time_step": 3600,
+    "n_time_steps": 8760,
+    "initial_time": "01/01/2001 00:00:00",
+    "components": [
+        {
+            "type": "Day_schedule",
+            "name": "working_day",
+            "description": "Office hours: 0 until 8:00, 1 from 8:00 to 18:00, 0 after",
+            "time_steps": [
+                28800,
+                36000
+            ],
+            "values": [
+                0,
+                1,
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Day_schedule",
+            "name": "closed_day",
+            "description": "Closed all day",
+            "time_steps": [],
+            "values": [
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Week_schedule",
+            "name": "working_week",
+            "description": "Monday to Friday open, Saturday and Sunday closed",
+            "days_schedules": [
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "closed_day",
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Week_schedule",
+            "name": "holiday_week",
+            "description": "Closed all week",
+            "days_schedules": [
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Year_schedule",
+            "name": "office_hours",
+            "description": "Working weeks all year except August (holidays). Its variable 'values' is 1 when the office is open",
+            "periods": [
+                "01/08",
+                "01/09"
+            ],
+            "weeks_schedules": [
+                "working_week",
+                "holiday_week",
+                "working_week"
+            ]
+        }
+    ]
+}

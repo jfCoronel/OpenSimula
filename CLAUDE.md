@@ -39,6 +39,8 @@ uv run mkdocs build --clean
 ```bash
 # Browser app (marimo notebook src/opensimula/gui/app.py): editor, simulate, results
 uv run opensimula gui path/to/project.json
+# Copy the progressive examples (src/opensimula/examples: JSON + sevilla.met) to a folder
+uv run opensimula examples [folder]
 ```
 
 ### Documentation

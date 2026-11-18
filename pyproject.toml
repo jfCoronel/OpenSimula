@@ -52,6 +52,8 @@ where = ["src"]
 [tool.setuptools.package-data]
 # The widget loads these at runtime; without this they are left out of the wheel.
 "opensimula.editor" = ["static/*.js", "static/*.css"]
+# the examples copied by `opensimula examples`
+"opensimula.examples" = ["*.json", "*.met"]
 
 [build-system]
 requires = ["setuptools>=61.2", "wheel"]

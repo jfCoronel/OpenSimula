@@ -111,6 +111,10 @@ pip install "opensimula[gui]"
 opensimula gui project.json
 ```
 
+To start, seven progressive [examples](https://jfcoronel.github.io/OpenSimula/examples/), from a
+schedule to an office with a fan coil, come with the package: `opensimula examples` copies them to
+a folder, ready to open with `opensimula gui`.
+
 ## Component types
 
 Components are grouped by what they define:

@@ -174,7 +174,7 @@ viewer
 
 ![Results viewer](img/results_viewer.png)
 
-The toolbar sets the **Frequency** ("Time step", hourly, daily, monthly or yearly) and the **Aggregation** used to resample (mean, sum, max or min; each period is labelled by its start), the **From/To** dates of the interval shown, and the **Height** of each chart. **Table** switches to a table of the values shown, and **CSV** downloads them.
+The toolbar sets the **Frequency** ("Time step", hourly, daily, monthly or yearly) and the **Aggregation** used to resample (mean, mean without zeros, sum, sum of positives, sum of negatives, max or min; each period is labelled by its start; the sums of positives and of negatives tell apart heating and cooling in a variable with sign, and the mean without zeros leaves out the hours a variable is 0, such as the EER of a unit while it is off), the **From/To** dates of the interval shown, and the **Height** of each chart. Monthly and yearly values are drawn as bars, one per period, side by side when a chart has several variables. **Table** switches to a table of the values shown, and **CSV** downloads them.
 
 In the charts, the legend gives the values under the cursor; clicking a legend entry hides or shows that variable, and **Shift + click** removes it. The **×** at the top right of a chart removes all its variables. Drag horizontally to zoom in on a period, **Shift + drag** to move it in time, and double-click to go back to the whole interval; zooming or moving one chart applies to all of them.
 
@@ -183,7 +183,7 @@ Everything can also be set from Python, and the viewer updates itself:
 ```python
 viewer.select("spaces_1.rel_humidity")       # add variables
 viewer.frequency = "daily"                   # "none", "hourly", "daily", "monthly", "yearly"
-viewer.aggregation = "max"                   # "mean", "sum", "max", "min"
+viewer.aggregation = "max"                   # "mean", "mean_nonzero", "sum", "sum_pos", "sum_neg", "max", "min"
 viewer.interval = ["2001-07-01", "2001-07-31"]  # [] for the whole simulation
 viewer.chart_height = 400                    # pixels of each chart
 viewer.height = 750                          # pixels of the whole viewer
@@ -219,7 +219,7 @@ pip install "opensimula[gui]"
 opensimula gui project.json
 </pre>
 
-The project file is optional: without it the app starts with an empty project, and **Open or create a project** opens another JSON file or starts a new one. The page has, from top to bottom:
+The [Examples](examples.md) are a good place to start: `opensimula examples` copies them to a folder, ready to open. The project file is optional: without it the app starts with an empty project, and **Open or create a project** opens another JSON file or starts a new one. The page has, from top to bottom:
 
 - The **editor** of the project, with its 3D view and its graph, exactly as `pro.editor()`.
 - **Simulate**, which applies every edit to the project, checks it and simulates it, with a progress bar. Problems found by the check are listed instead of simulating, and the warnings of the simulation (time steps that did not converge…) under the time it took.

@@ -1,0 +1,8 @@
+/* One line for the top bar at medium widths: there the container is 940 px and
+   the default padding of the links pushes the icons to a second line. */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .navbar-nav > li > a {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
+}

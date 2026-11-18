@@ -31,6 +31,8 @@ opensimula uses in different parts of the code the following Python packages, wh
 - nbformat
 - tqdm
 
+The quickest way to see OpenSimula working is the gallery of [Examples](examples.md): seven projects, from a schedule to an office with a fan coil, that `opensimula examples` copies to a folder and `opensimula gui` opens in the browser.
+
 ### First example
 
 First we are going to define a Python dictionary that contains the information of our project:

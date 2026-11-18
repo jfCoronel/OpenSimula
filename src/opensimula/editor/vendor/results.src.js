@@ -50,11 +50,47 @@ const FREQUENCIES = [
 ];
 const AGGREGATIONS = [
   ["mean", "Mean"],
+  ["mean_nonzero", "Mean without zeros"],
   ["sum", "Sum"],
+  ["sum_pos", "Sum of positives"],
+  ["sum_neg", "Sum of negatives"],
   ["max", "Maximum"],
   ["min", "Minimum"],
-  ["instant", "At cursor"],
 ];
+// Monthly and yearly values are drawn as bars, one per period
+const BAR_FREQUENCIES = ["monthly", "yearly"];
+// Bars of one series of a chart with `count` series: each value fills its
+// period (from its date to the next one), shared side by side by the series,
+// from zero up or down. x holds the start of each period.
+function barPaths(index, count, periodEnd) {
+  return (u, seriesIdx, idx0, idx1) => {
+    const xs = u.data[0];
+    const ys = u.data[seriesIdx];
+    const fill = new Path2D();
+    const zero = u.valToPos(0, "y", true);
+    for (let i = idx0; i <= idx1; i++) {
+      const y = ys[i];
+      if (y == null || !Number.isFinite(y)) continue;
+      const start = u.valToPos(xs[i], "x", true);
+      const end = u.valToPos(i + 1 < xs.length ? xs[i + 1] : periodEnd, "x", true);
+      const gap = Math.max(1, (end - start) * 0.12); // between periods
+      const width = (end - start - 2 * gap) / count;
+      const left = start + gap + index * width;
+      const top = u.valToPos(y, "y", true);
+      // a hairline between the bars of the same period
+      fill.rect(left + (count > 1 ? 1 : 0), Math.min(top, zero), Math.max(1, width - (count > 1 ? 2 : 0)), Math.abs(zero - top));
+    }
+    return { stroke: fill, fill };
+  };
+}
+
+// End of the last period of a monthly or yearly series: one more step
+function lastPeriodEnd(x, frequency) {
+  const last = new Date(x[x.length - 1] * 1000);
+  if (frequency === "yearly") return Date.UTC(last.getUTCFullYear() + 1, 0, 1) / 1000;
+  return Date.UTC(last.getUTCFullYear(), last.getUTCMonth() + 1, 1) / 1000;
+}
+
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function h(tag, attrs = {}, children = []) {
@@ -89,8 +125,10 @@ function formatDate(seconds, frequency) {
 
 function formatValue(value) {
   if (value === null || value === undefined || Number.isNaN(value)) return "–";
-  if (value === 0) return "0"; // also -0, which toLocaleString() writes "-0"
   const abs = Math.abs(value);
+  // also -0, which toLocaleString() writes "-0", and rounding noise of the
+  // solvers (1e-14 W where there is no load)
+  if (abs < 1e-9) return "0";
   if (abs !== 0 && (abs >= 1e6 || abs < 1e-3)) return value.toExponential(3);
   return value.toLocaleString("en-US", { maximumFractionDigits: abs >= 100 ? 1 : 3 });
 }
@@ -356,6 +394,8 @@ function render({ model, el }) {
       content.appendChild(box);
       const data = [group[0].x, ...group.map((s) => s.y)];
       const points = group[0].x.length;
+      const asBars = BAR_FREQUENCIES.includes(freq) && points > 0;
+      const periodEnd = asBars ? lastPeriodEnd(group[0].x, freq) : null;
       const opts = {
         width: chartWidth(),
         height: model.get("chart_height"),
@@ -366,6 +406,8 @@ function render({ model, el }) {
           drag: { x: true, y: false },
           focus: { prox: 16 },
           bind: { mousedown: panHandler },
+          // the cursor dots sit at the start of the period, not on the bars
+          ...(asBars ? { points: { show: false } } : {}),
         },
         hooks: {
           setScale: [(u, key) => key === "x" && shareTimeRange(u)],
@@ -373,7 +415,19 @@ function render({ model, el }) {
         },
         focus: { alpha: 0.3 },
         legend: { live: true },
-        scales: { x: { time: true } },
+        // bars: the last one ends at the end of its period, and zero is in sight
+        scales: asBars
+          ? {
+              x: { time: true, range: (u, min, max) => [min, Math.max(max, periodEnd)] },
+              y: {
+                range: (u, min, max) => {
+                  const [lo, hi] = [Math.min(0, min), Math.max(0, max)];
+                  const pad = (hi - lo || 1) * 0.05;
+                  return [lo < 0 ? lo - pad : 0, hi > 0 ? hi + pad : 0];
+                },
+              },
+            }
+          : { x: { time: true } },
         axes: [
           {
             stroke: "#57606a",
@@ -392,15 +446,27 @@ function render({ model, el }) {
         ],
         series: [
           { label: "Date", value: (u, v) => (v === null ? "–" : formatDate(v, freq)) },
-          ...group.map((s) => ({
-            label: seriesLabel(s),
-            stroke: PALETTE[s.slot],
-            width: 2,
-            // markers only when there are few points, so they can be hovered
-            points: { show: points <= 60, size: 8 },
-            value: (u, v) => formatValue(v),
-            spanGaps: false,
-          })),
+          ...group.map((s, i) =>
+            asBars
+              ? {
+                  label: seriesLabel(s),
+                  stroke: PALETTE[s.slot],
+                  fill: PALETTE[s.slot],
+                  width: 0,
+                  paths: barPaths(i, group.length, periodEnd),
+                  points: { show: false },
+                  value: (u, v) => formatValue(v),
+                }
+              : {
+                  label: seriesLabel(s),
+                  stroke: PALETTE[s.slot],
+                  width: 2,
+                  // markers only when there are few points, so they can be hovered
+                  points: { show: points <= 60, size: 8 },
+                  value: (u, v) => formatValue(v),
+                  spanGaps: false,
+                },
+          ),
         ],
       };
       const chart = new uPlot(opts, data, box);

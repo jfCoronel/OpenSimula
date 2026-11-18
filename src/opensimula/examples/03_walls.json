@@ -1,0 +1,310 @@
+{
+    "name": "03 Walls",
+    "description": "A closed box of lightweight walls in Sevilla, with no windows, gains or system: its temperature follows the outdoor one, damped and delayed by the walls",
+    "time_step": 3600,
+    "n_time_steps": 8760,
+    "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "sevilla",
+    "components": [
+        {
+            "type": "Day_schedule",
+            "name": "working_day",
+            "description": "Office hours: 0 until 8:00, 1 from 8:00 to 18:00, 0 after",
+            "time_steps": [
+                28800,
+                36000
+            ],
+            "values": [
+                0,
+                1,
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Day_schedule",
+            "name": "closed_day",
+            "description": "Closed all day",
+            "time_steps": [],
+            "values": [
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Week_schedule",
+            "name": "working_week",
+            "description": "Monday to Friday open, Saturday and Sunday closed",
+            "days_schedules": [
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "closed_day",
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Week_schedule",
+            "name": "holiday_week",
+            "description": "Closed all week",
+            "days_schedules": [
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Year_schedule",
+            "name": "office_hours",
+            "description": "Working weeks all year except August (holidays). Its variable 'values' is 1 when the office is open",
+            "periods": [
+                "01/08",
+                "01/09"
+            ],
+            "weeks_schedules": [
+                "working_week",
+                "holiday_week",
+                "working_week"
+            ]
+        },
+        {
+            "type": "File_met",
+            "name": "sevilla",
+            "description": "Hourly weather of Sevilla (Spain), MET format. The file is read from the folder the app is started from",
+            "file_type": "MET",
+            "file_name": "sevilla.met"
+        },
+        {
+            "type": "Calculator",
+            "name": "degree_hours",
+            "description": "Heating and cooling degree-hours, base 18 °C and 25 °C, from the outdoor temperature",
+            "input_variables": [
+                "T = sevilla.temperature"
+            ],
+            "output_variables": [
+                "heating_degree_hours",
+                "cooling_degree_hours"
+            ],
+            "output_units": [
+                "K·h",
+                "K·h"
+            ],
+            "output_expressions": [
+                "max(18 - T, 0)",
+                "max(T - 25, 0)"
+            ]
+        },
+        {
+            "type": "Material",
+            "name": "plasterboard",
+            "conductivity": 0.16,
+            "density": 950,
+            "specific_heat": 840
+        },
+        {
+            "type": "Material",
+            "name": "fiberglass_quilt",
+            "conductivity": 0.04,
+            "density": 12,
+            "specific_heat": 840
+        },
+        {
+            "type": "Material",
+            "name": "wood_siding",
+            "conductivity": 0.14,
+            "density": 530,
+            "specific_heat": 900
+        },
+        {
+            "type": "Material",
+            "name": "floor_insulation",
+            "conductivity": 0.04,
+            "density": 0.1,
+            "specific_heat": 0.1
+        },
+        {
+            "type": "Material",
+            "name": "timber_flooring",
+            "conductivity": 0.14,
+            "density": 650,
+            "specific_heat": 1200
+        },
+        {
+            "type": "Material",
+            "name": "roofdeck",
+            "conductivity": 0.14,
+            "density": 530,
+            "specific_heat": 900
+        },
+        {
+            "type": "Construction",
+            "name": "wall",
+            "description": "Lightweight wall, layers from outside to inside",
+            "solar_alpha": [
+                0.6,
+                0.6
+            ],
+            "materials": [
+                "wood_siding",
+                "fiberglass_quilt",
+                "plasterboard"
+            ],
+            "thicknesses": [
+                0.009,
+                0.066,
+                0.012
+            ]
+        },
+        {
+            "type": "Construction",
+            "name": "roof",
+            "description": "Lightweight roof, layers from outside to inside",
+            "solar_alpha": [
+                0.6,
+                0.6
+            ],
+            "materials": [
+                "roofdeck",
+                "fiberglass_quilt",
+                "plasterboard"
+            ],
+            "thicknesses": [
+                0.019,
+                0.1118,
+                0.01
+            ]
+        },
+        {
+            "type": "Construction",
+            "name": "floor",
+            "description": "Floor over a thick insulation, so that it loses almost no heat (as in ASHRAE 140)",
+            "solar_alpha": [
+                0,
+                0.6
+            ],
+            "materials": [
+                "floor_insulation",
+                "timber_flooring"
+            ],
+            "thicknesses": [
+                1.003,
+                0.025
+            ]
+        },
+        {
+            "type": "Space_type",
+            "name": "empty",
+            "description": "No people, lights or equipment; outdoor air leaks in at 0.5 air changes per hour",
+            "people_density": "0",
+            "light_density": "0",
+            "other_gains_density": "0",
+            "infiltration": "0.5"
+        },
+        {
+            "type": "Building",
+            "name": "building",
+            "description": "The building; azimuth 0: the x axis looks south",
+            "azimuth": 0
+        },
+        {
+            "type": "Space",
+            "name": "office",
+            "description": "The only space: 8 x 6 m and 2.7 m high",
+            "building": "building",
+            "spaces_type": "empty",
+            "floor_area": 48,
+            "volume": 129.6,
+            "furniture_weight": 10
+        },
+        {
+            "type": "Building_surface",
+            "name": "south_wall",
+            "construction": "wall",
+            "spaces": "office",
+            "ref_point": [
+                0,
+                0,
+                0
+            ],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 0,
+            "altitude": 0
+        },
+        {
+            "type": "Building_surface",
+            "name": "east_wall",
+            "construction": "wall",
+            "spaces": "office",
+            "ref_point": [
+                8,
+                0,
+                0
+            ],
+            "width": 6,
+            "height": 2.7,
+            "azimuth": 90,
+            "altitude": 0
+        },
+        {
+            "type": "Building_surface",
+            "name": "north_wall",
+            "construction": "wall",
+            "spaces": "office",
+            "ref_point": [
+                8,
+                6,
+                0
+            ],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 180,
+            "altitude": 0
+        },
+        {
+            "type": "Building_surface",
+            "name": "west_wall",
+            "construction": "wall",
+            "spaces": "office",
+            "ref_point": [
+                0,
+                6,
+                0
+            ],
+            "width": 6,
+            "height": 2.7,
+            "azimuth": -90,
+            "altitude": 0
+        },
+        {
+            "type": "Building_surface",
+            "name": "roof_surface",
+            "construction": "roof",
+            "spaces": "office",
+            "ref_point": [
+                0,
+                0,
+                2.7
+            ],
+            "width": 8,
+            "height": 6,
+            "azimuth": 0,
+            "altitude": 90
+        },
+        {
+            "type": "Building_surface",
+            "name": "floor_surface",
+            "construction": "floor",
+            "spaces": "office",
+            "ref_point": [
+                0,
+                6,
+                0
+            ],
+            "width": 8,
+            "height": 6,
+            "azimuth": 0,
+            "altitude": -90
+        }
+    ]
+}

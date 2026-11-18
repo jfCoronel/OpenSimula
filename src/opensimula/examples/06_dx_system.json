@@ -1,0 +1,423 @@
+{
+    "name": "06 DX system",
+    "description": "The ideal system replaced by a real air-to-air heat pump: capacity, power and efficiency change with the weather",
+    "time_step": 3600,
+    "n_time_steps": 8760,
+    "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "sevilla",
+    "components": [
+        {
+            "type": "Day_schedule",
+            "name": "working_day",
+            "description": "Office hours: 0 until 8:00, 1 from 8:00 to 18:00, 0 after",
+            "time_steps": [
+                28800,
+                36000
+            ],
+            "values": [
+                0,
+                1,
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Day_schedule",
+            "name": "closed_day",
+            "description": "Closed all day",
+            "time_steps": [],
+            "values": [
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Week_schedule",
+            "name": "working_week",
+            "description": "Monday to Friday open, Saturday and Sunday closed",
+            "days_schedules": [
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "closed_day",
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Week_schedule",
+            "name": "holiday_week",
+            "description": "Closed all week",
+            "days_schedules": [
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Year_schedule",
+            "name": "office_hours",
+            "description": "Working weeks all year except August (holidays). Its variable 'values' is 1 when the office is open",
+            "periods": [
+                "01/08",
+                "01/09"
+            ],
+            "weeks_schedules": [
+                "working_week",
+                "holiday_week",
+                "working_week"
+            ]
+        },
+        {
+            "type": "File_met",
+            "name": "sevilla",
+            "description": "Hourly weather of Sevilla (Spain), MET format. The file is read from the folder the app is started from",
+            "file_type": "MET",
+            "file_name": "sevilla.met"
+        },
+        {
+            "type": "Calculator",
+            "name": "degree_hours",
+            "description": "Heating and cooling degree-hours, base 18 °C and 25 °C, from the outdoor temperature",
+            "input_variables": [
+                "T = sevilla.temperature"
+            ],
+            "output_variables": [
+                "heating_degree_hours",
+                "cooling_degree_hours"
+            ],
+            "output_units": [
+                "K·h",
+                "K·h"
+            ],
+            "output_expressions": [
+                "max(18 - T, 0)",
+                "max(T - 25, 0)"
+            ]
+        },
+        {
+            "type": "Material",
+            "name": "plasterboard",
+            "conductivity": 0.16,
+            "density": 950,
+            "specific_heat": 840
+        },
+        {
+            "type": "Material",
+            "name": "fiberglass_quilt",
+            "conductivity": 0.04,
+            "density": 12,
+            "specific_heat": 840
+        },
+        {
+            "type": "Material",
+            "name": "wood_siding",
+            "conductivity": 0.14,
+            "density": 530,
+            "specific_heat": 900
+        },
+        {
+            "type": "Material",
+            "name": "floor_insulation",
+            "conductivity": 0.04,
+            "density": 0.1,
+            "specific_heat": 0.1
+        },
+        {
+            "type": "Material",
+            "name": "timber_flooring",
+            "conductivity": 0.14,
+            "density": 650,
+            "specific_heat": 1200
+        },
+        {
+            "type": "Material",
+            "name": "roofdeck",
+            "conductivity": 0.14,
+            "density": 530,
+            "specific_heat": 900
+        },
+        {
+            "type": "Construction",
+            "name": "wall",
+            "description": "Lightweight wall, layers from outside to inside",
+            "solar_alpha": [
+                0.6,
+                0.6
+            ],
+            "materials": [
+                "wood_siding",
+                "fiberglass_quilt",
+                "plasterboard"
+            ],
+            "thicknesses": [
+                0.009,
+                0.066,
+                0.012
+            ]
+        },
+        {
+            "type": "Construction",
+            "name": "roof",
+            "description": "Lightweight roof, layers from outside to inside",
+            "solar_alpha": [
+                0.6,
+                0.6
+            ],
+            "materials": [
+                "roofdeck",
+                "fiberglass_quilt",
+                "plasterboard"
+            ],
+            "thicknesses": [
+                0.019,
+                0.1118,
+                0.01
+            ]
+        },
+        {
+            "type": "Construction",
+            "name": "floor",
+            "description": "Floor over a thick insulation, so that it loses almost no heat (as in ASHRAE 140)",
+            "solar_alpha": [
+                0,
+                0.6
+            ],
+            "materials": [
+                "floor_insulation",
+                "timber_flooring"
+            ],
+            "thicknesses": [
+                1.003,
+                0.025
+            ]
+        },
+        {
+            "type": "Building",
+            "name": "building",
+            "description": "The building; azimuth 0: the x axis looks south",
+            "azimuth": 0
+        },
+        {
+            "type": "Space",
+            "name": "office",
+            "description": "The only space: 8 x 6 m and 2.7 m high",
+            "building": "building",
+            "spaces_type": "office_use",
+            "floor_area": 48,
+            "volume": 129.6,
+            "furniture_weight": 10
+        },
+        {
+            "type": "Building_surface",
+            "name": "south_wall",
+            "construction": "wall",
+            "spaces": "office",
+            "ref_point": [
+                0,
+                0,
+                0
+            ],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 0,
+            "altitude": 0
+        },
+        {
+            "type": "Building_surface",
+            "name": "east_wall",
+            "construction": "wall",
+            "spaces": "office",
+            "ref_point": [
+                8,
+                0,
+                0
+            ],
+            "width": 6,
+            "height": 2.7,
+            "azimuth": 90,
+            "altitude": 0
+        },
+        {
+            "type": "Building_surface",
+            "name": "north_wall",
+            "construction": "wall",
+            "spaces": "office",
+            "ref_point": [
+                8,
+                6,
+                0
+            ],
+            "width": 8,
+            "height": 2.7,
+            "azimuth": 180,
+            "altitude": 0
+        },
+        {
+            "type": "Building_surface",
+            "name": "west_wall",
+            "construction": "wall",
+            "spaces": "office",
+            "ref_point": [
+                0,
+                6,
+                0
+            ],
+            "width": 6,
+            "height": 2.7,
+            "azimuth": -90,
+            "altitude": 0
+        },
+        {
+            "type": "Building_surface",
+            "name": "roof_surface",
+            "construction": "roof",
+            "spaces": "office",
+            "ref_point": [
+                0,
+                0,
+                2.7
+            ],
+            "width": 8,
+            "height": 6,
+            "azimuth": 0,
+            "altitude": 90
+        },
+        {
+            "type": "Building_surface",
+            "name": "floor_surface",
+            "construction": "floor",
+            "spaces": "office",
+            "ref_point": [
+                0,
+                6,
+                0
+            ],
+            "width": 8,
+            "height": 6,
+            "azimuth": 0,
+            "altitude": -90
+        },
+        {
+            "type": "Glazing",
+            "name": "double_glazing",
+            "description": "Clear double glazing",
+            "solar_tau": 0.703,
+            "solar_rho": [
+                0.128,
+                0.128
+            ],
+            "g": [
+                0.769,
+                0.769
+            ],
+            "lw_epsilon": [
+                0.84,
+                0.84
+            ],
+            "U": 2.722,
+            "f_tau_nor": "-0.1175 * cos_theta**3 - 1.0295 * cos_theta**2 + 2.1354 * cos_theta",
+            "f_1_minus_rho_nor": [
+                "1.114 * cos_theta**3 - 3.209 * cos_theta**2 + 3.095 * cos_theta",
+                "1.114 * cos_theta**3 - 3.209 * cos_theta**2 + 3.095 * cos_theta"
+            ]
+        },
+        {
+            "type": "Opening_type",
+            "name": "window",
+            "description": "Window without frame",
+            "glazing": "double_glazing",
+            "frame_fraction": 0,
+            "glazing_fraction": 1
+        },
+        {
+            "type": "Opening",
+            "name": "south_window_1",
+            "surface": "south_wall",
+            "opening_type": "window",
+            "ref_point": [
+                0.5,
+                0.2
+            ],
+            "width": 3,
+            "height": 2
+        },
+        {
+            "type": "Opening",
+            "name": "south_window_2",
+            "surface": "south_wall",
+            "opening_type": "window",
+            "ref_point": [
+                4.5,
+                0.2
+            ],
+            "width": 3,
+            "height": 2
+        },
+        {
+            "type": "Space_type",
+            "name": "office_use",
+            "description": "Office: one person per 10 m², 10 W/m² of lights and 8 W/m² of computers while open (f = 1). The system brings in outdoor air while open, so the infiltration (0.5 air changes per hour) is only there while closed",
+            "input_variables": [
+                "f = office_hours.values"
+            ],
+            "people_density": "0.1 * f",
+            "light_density": "10 * f",
+            "other_gains_density": "8 * f",
+            "infiltration": "0.5 * (1 - f)"
+        },
+        {
+            "type": "Calculator",
+            "name": "loads",
+            "description": "Heating and cooling load of the office in kW, both positive: with hourly steps, their monthly sum is the energy in kWh",
+            "input_variables": [
+                "Q = office.system_sensible_heat"
+            ],
+            "output_variables": [
+                "heating_load",
+                "cooling_load"
+            ],
+            "output_units": [
+                "kW",
+                "kW"
+            ],
+            "output_expressions": [
+                "max(Q, 0) / 1000",
+                "max(-Q, 0) / 1000"
+            ]
+        },
+        {
+            "type": "DX_unit",
+            "name": "heat_pump",
+            "description": "Air-to-air heat pump: rated capacities and their curves with the indoor and outdoor conditions; at part load it cycles on and off, which lowers its EER and COP by 15 % x (1 - F_load)",
+            "nominal_air_flow": 0.417,
+            "nominal_total_cooling_capacity": 6900,
+            "nominal_sensible_cooling_capacity": 4800,
+            "nominal_cooling_power": 2400,
+            "indoor_fan_power": 240,
+            "total_cooling_capacity_expression": "0.88078 + 0.014248 * T_iwb + 0.00055436 * T_iwb**2 - 0.0075581 * T_odb + 3.2983E-05 * T_odb**2 - 0.00019171 * T_odb * T_iwb",
+            "sensible_cooling_capacity_expression": "0.50060 - 0.046438 * T_iwb - 0.00032472 * T_iwb**2 - 0.013202 * T_odb + 7.9307E-05 * T_odb**2 + 0.069958 * T_idb - 3.4276E-05 * T_idb**2",
+            "cooling_power_expression": "0.11178 + 0.028493 * T_iwb - 0.00041116 * T_iwb**2 + 0.021414 * T_odb + 0.00016113 * T_odb**2 - 0.00067910 * T_odb * T_iwb",
+            "EER_expression": "0.85 + 0.15 * F_load",
+            "nominal_heating_capacity": 6500,
+            "nominal_heating_power": 2825,
+            "heating_capacity_expression": "0.81474 + 0.030682602 * T_owb + 3.2303E-05 * T_owb**2",
+            "heating_power_expression": "1.2012 - 0.040063 * T_owb + 0.0010877 * T_owb**2",
+            "COP_expression": "0.85 + 0.15 * F_load"
+        },
+        {
+            "type": "HVAC_DX_system",
+            "name": "dx_system",
+            "description": "Single-zone system with the heat pump, working while the office is open: 20-25 °C and 15 % of outdoor air",
+            "spaces": "office",
+            "equipment": "heat_pump",
+            "air_flow": 0.417,
+            "input_variables": [
+                "f = office_hours.values"
+            ],
+            "outdoor_air_fraction": "0.15",
+            "heating_setpoint": "20",
+            "cooling_setpoint": "25",
+            "system_on_off": "f"
+        }
+    ]
+}
