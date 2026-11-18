@@ -493,6 +493,88 @@ Concrete, verified items — not ideas, things already identified as needing att
   also accept `Air_distribution` and `Energy_load` component types, neither of which exists
   yet in the codebase.
 
+## Planned: several generators and pumps in a water loop (discussed 2026-11-18)
+
+Today an `HVAC_water_system` is one loop with one generator (`water_thermal_generator`, only
+`Chiller_heat_pump`) and one pump (`pump`); there is no `Boiler` yet. Goal: more than one
+generator per loop, more than one pump, and the usual primary/secondary separation.
+
+- **Name decided: `HVAC_water_generator`** — a simulated component (variables, `HVAC_` prefix
+  like the other systems) that uses an equipment component as the manufacturer's data and
+  is what connects to `HVAC_water_system`.
+- Equipment (data only, like `DX_unit`): `Chiller_heat_pump` and a new **`Boiler`** (nominal
+  capacity, efficiency vs part load and return temperature for condensing boilers, fuel type
+  for primary energy / CO₂ later).
+- `HVAC_water_generator`: `equipment` (Chiller_heat_pump or Boiler),
+  `number_of_units`, its own primary `pump`, availability (`system_on_off` expression).
+  Priority = order in the plant's `generators` list; heating/cooling ability = type of
+  equipment (decisions 1-2 below). Variables: decision 9.
+- `HVAC_water_system`: `generators` (component list) instead of
+  `water_thermal_generator`; `pumps` (list) that move the water of the coils connected
+  directly to the plant, as its own secondary (replaces `pump` and `design_water_flow`;
+  same staging as a circuit's pumps); loop volume as the buffer tank / header; setpoints;
+  sequencing strategy.
+- **Design closed (2026-11-18)** — no decisions left for the implementation:
+  1. **Mode:** one mode at a time per plant (two-pipe), from the load or a schedule as
+     today; only the generators able to serve it run (a `Boiler` only heats; a
+     `Chiller_heat_pump` according to its existing `chiller_type`). Heating and cooling at
+     the same time: two plants (four-pipe).
+  2. **Sequencing:** `PRIORITY` by the order of the `generators` list (the next one starts
+     when the previous one is at 100 %); `EQUAL_LOAD` as an option (same fraction for all
+     those that can run). `number_of_units` = N identical units sequenced the same way. No
+     minimum part load: cycling is in the part-load degradation curves.
+  3. **Setpoint:** each generator tries to give the plant setpoint at its own outlet; the
+     header temperature results from the mixing (bypass when secondary flow > primary).
+  4. **Flows:** coils report their water flow too, `add_coil_load(Q, flow)` instead of
+     `add_coil_load(Q)` (changes `HVAC_SZW_system`, `HVAC_MZW_system` and reheat once). First
+     version: constant-flow secondary pumps (three-way valves); variable flow later.
+  5. **Pumps:** one primary pump per generator (`HVAC_water_generator.pump`, constant flow =
+     generator nominal, only while it runs; a stopped generator lets no water through).
+     `pumps` list per `HVAC_water_circuit`, in parallel, staged by flow (next one when the
+     previous exceeds its nominal flow). No standby pumps. Heat of the pumps to the water
+     (`power_to_heat_fraction`) in the circuit where each pump is. `Pump` already allows VSD
+     through `power_expression(F_water)`.
+  6. **Circuit:** optional `supply_setpoint` (expression) with a mixing valve that can only
+     lower the temperature in heating / raise it in cooling; without it, or if the header
+     cannot reach it, the header temperature. Own `system_on_off`. Optional `water_volume`
+     and `Q_loss` (default 0). Mode inherited from the plant.
+  7. **Compatibility broken in 0.10:** `water_thermal_generator`, `pump` and
+     `design_water_flow` of `HVAC_water_system` are removed; example 07, the test notebooks
+     (`jupyter_test/test_HVAC_FAN-COIL_water_system.ipynb`, `test_process_water_system`) and
+     the docs are migrated (few cases use water systems; ASHRAE 140 none).
+  8. **`Boiler`:** nominal capacity and efficiency on the lower heating value (LHV);
+     efficiency expression of `F_load` and return water temperature `T_wi` (condensing
+     boilers); `fuel` (natural gas, oil, biomass, electricity…) informative for now, for
+     primary energy / CO₂ later; maximum supply temperature. Same expression pattern as
+     `DX_unit` and `Chiller_heat_pump`.
+  9. **Outputs:** per `HVAC_water_generator` (load, electric or fuel power, efficiency, part
+     load, flow, supply/return temperatures, pump power); per `HVAC_water_circuit` (load,
+     flow, supply/return, pump power, mixing flow); totals in `HVAC_water_system` (load,
+     total electric power of generators and pumps, total fuel power, header temperature).
+- **Secondary circuits decided: new `HVAC_water_circuit`** (option A, 2026-11-18), so that a
+  plant can feed several secondaries, each with its own air systems and pumps:
+  - `HVAC_water_system` becomes the plant: generators, header / buffer tank, production
+    setpoints, sequencing.
+  - `HVAC_water_circuit`: `water_system` (the plant it hangs from), `pumps` (list, in
+    parallel, staged by flow), flow control (constant / variable with VSD), supply
+    temperature (that of the header, or its own setpoint with a mixing valve, e.g. radiators
+    at 70 °C and radiant floor at 35 °C from the same boiler), volume and losses. Variables:
+    flow, supply/return temperatures, load, pump power, bypass / mixing flow.
+  - Towards the coils a circuit offers what the plant offers today
+    (`get_*_coil_inlet_T()`, `add_coil_load()`); towards the plant it behaves as one more
+    coil (takes water from the header, returns its load). Order: air systems → circuits →
+    plant; the existing iteration loop makes them converge.
+  - Air systems (`HVAC_SZW_system`, `HVAC_MZW_system`) refer with `heating_water_system` /
+    `cooling_water_system` to a circuit or, as today, directly to the plant: without
+    circuits nothing changes (example 07 stays as it is).
+  - Rejected: a recursive `HVAC_water_system` fed by another one (two very different roles in
+    one component, harder to teach).
+- Four-pipe installations: two `HVAC_water_system` (hot and cold). A polyvalent heat pump
+  serving both loops at once is a later step.
+- Order of work: `Boiler` → `HVAC_water_generator` with one generator → several generators
+  and sequencing → primary/secondary (header) → `HVAC_water_circuit` secondaries → variable
+  secondary flow.
+
 ## Growth plan (agreed 2026-10-07)
 
 Strategy: grow first in the **academic** world (research and teaching), then move to
