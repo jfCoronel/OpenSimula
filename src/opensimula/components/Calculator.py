@@ -40,10 +40,22 @@ class Calculator(Component):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        # variables dictonary
+        # Already here, for the components that use the outputs during the
+        # time step (e.g. a schedule built from the weather)
+        self._calculate_(time_index)
+
+    def post_iteration(self, time_index, date, daylight_saving, converged):
+        super().post_iteration(time_index, date, daylight_saving, converged)
+        # Again with the final values of the time step: the variables that the
+        # other components compute during it (the loads of a space, the power
+        # of a system...) were not there yet in pre_iteration. The calculators
+        # are the last in the simulation order, so they are all final now.
+        # The base pre_iteration copies the input variables again.
+        Component.pre_iteration(self, time_index, date, daylight_saving)
+        self._calculate_(time_index)
+
+    def _calculate_(self, time_index):
         var_dic = self.get_parameter_variable_dictionary(time_index)
-        
-        # Output variables
         for i in range(len(self.parameter("output_variables").value)):
             calculated_value = self.parameter(
                 "output_expressions").evaluate(i, var_dic)

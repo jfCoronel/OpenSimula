@@ -27,10 +27,24 @@ _STATIC = pathlib.Path(__file__).parent / "static"
 
 # Periods labelled by their start, so a month is drawn on its first day
 FREQUENCIES = {"none": None, "hourly": "h", "daily": "D", "monthly": "MS", "yearly": "YS"}
-AGGREGATIONS = ["mean", "sum", "max", "min"]
+# "sum_pos" and "sum_neg": sums of the positive and of the negative values only,
+# to tell apart heating and cooling in a variable with sign; "mean_nonzero":
+# mean of the values other than 0, e.g. the EER of a unit only while it runs
+AGGREGATIONS = ["mean", "mean_nonzero", "sum", "sum_pos", "sum_neg", "max", "min"]
 # of the colour variable of the 3D view; "instant" follows the cursor of the charts
 STATISTICS = ["mean", "max", "min", "instant"]
 MAX_SERIES = 8  # one per hue of the categorical palette
+
+
+def _resample_(values, rule, aggregation):
+    """Values resampled to the periods of rule with one of AGGREGATIONS."""
+    if aggregation == "mean_nonzero":
+        return values.where(values != 0).resample(rule).mean()
+    if aggregation == "sum_pos":
+        return values.clip(lower=0).resample(rule).sum(min_count=1)
+    if aggregation == "sum_neg":
+        return values.clip(upper=0).resample(rule).sum(min_count=1)
+    return getattr(values.resample(rule), aggregation)()
 
 
 class ResultsViewer(anywidget.AnyWidget):
@@ -43,7 +57,10 @@ class ResultsViewer(anywidget.AnyWidget):
         selection (list): selected variables, each a dict with "component",
             "variable" and "slot" (its colour, kept while it stays selected).
         frequency (str): "none", "hourly", "daily", "monthly" or "yearly".
-        aggregation (str): "mean", "sum", "max" or "min", used when resampling.
+        aggregation (str): "mean", "mean_nonzero", "sum", "sum_pos", "sum_neg",
+            "max" or "min", used when resampling; "sum_pos" and "sum_neg" add
+            only the positive or the negative values, e.g. heating and cooling,
+            and "mean_nonzero" leaves out the zeros, e.g. the hours a unit is off.
         interval (list): [start, end] as ISO dates ("2001-06-01"), or empty for
             the whole simulation.
         height (int): height of the whole widget, in pixels.
@@ -265,7 +282,7 @@ class ResultsViewer(anywidget.AnyWidget):
         values, unit = data
         rule = FREQUENCIES.get(self.frequency)
         if rule is not None and len(values):
-            values = getattr(values.resample(rule), self.aggregation)()
+            values = _resample_(values, rule, self.aggregation)
         return values, unit
 
     def _update_series_(self, change=None):

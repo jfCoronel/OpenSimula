@@ -14,7 +14,35 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   imports plotly from esm.sh; it asks Python (`{"type": "plotly"}`) and gets
   `static/plotly3d.js`, as the results viewer does, shared through `view3d.js`. Checked in
   Chrome with every request outside localhost blocked. Closes the "Known follow-up" on the
-  VS Code CSP. Next session: progressive examples gallery (teaching, item 4).
+  VS Code CSP. Merged (PR #40).
+- **Examples gallery (branch `feat/examples-gallery`)**: seven progressive projects in
+  `src/opensimula/examples/` (01 schedules, 02 weather + Calculator, 03 walls, 04 windows and
+  gains, 05 ideal system, 06 DX, 07 fan coil), case 600 box in Sevilla (`sevilla.met` shipped),
+  each one the previous plus one idea, every component with a description. `opensimula
+  examples [folder]` copies them (never overwrites). Docs page `mkdocs/examples.md` with one
+  figure each (`mkdocs/img/examples/`, made by a one-off matplotlib script). Systems (05-07) work
+  in office hours at 20/25 °C, with outdoor air, and the office use of 05-07 has infiltration
+  only while closed (`0.5 * (1 - f)`); hours above 25.5 °C while open: ideal 0, DX 18, fan
+  coil 2. The water loop uses LOAD_CONTROL: with SCHEDULE_CONTROL (two-pipe) the office
+  overheats on sunny winter days. The box needs cooling all year (12 m² south glass), said in
+  the docs. Tests in `test/test_examples.py`.
+  Same branch: results viewer draws monthly/yearly values as bars (`barPaths` in
+  `results.src.js`, grouped per period) and has the aggregations `sum_pos`/`sum_neg`; example
+  05 adds a Calculator `loads` (heating_load/cooling_load, kW). **Core fix found here
+  (own commit):** `Calculator` evaluated only in `pre_iteration`, so any variable computed
+  during the time step (space loads, system power) was read as 0 (or the previous value);
+  it now evaluates again in `post_iteration` (calculators are last in the order). No
+  ASHRAE 140 case uses a Calculator. The DX unit of example 06 uses a cycling degradation
+  `0.85 + 0.15 * F_load` (Cd = 0.15, EnergyPlus default) instead of the ASHRAE 140 CE curves,
+  which made EER ~ F_load (mean EER 1.7, COP 0.6). The viewer has the aggregation
+  `mean_nonzero` ("Mean without zeros"): EER/COP are 0 while the unit is off. Considered and
+  left for later: storing NaN instead of 0 in HVAC_DX_system when off. The air-to-water heat
+  pump of 07 has nominal EER 3.0 / COP 3.2 (was 2.0 / 2.0) and the same degradation; running
+  EER 2.9, COP 2.4.
+  **Second core fix found here (own commit):** `HVAC_water_system` reset `Q_coils` to 0 at the
+  end of each iteration and then stored it, so the variable was always 0; the balance of the
+  loop did use it, so no other result changes (ASHRAE 140 has no water systems: 0 changed).
+  It now stores the load of the last iteration (`Q_coils_used`).
 
 - **Graphical interface, plan agreed 2026-11-12**, in four phases: (1) results viewer as
   an anywidget for notebooks, (2) link it to the 3D view, (3) graph view of the components
@@ -522,7 +550,8 @@ from several groups. Work is done step by step; tick items off as they ship.
 
 - [ ] Open course in marimo notebooks exported to WASM (runs in the browser, no install),
   reusing the CYTEF and HULC course material.
-- [ ] Progressive examples gallery (wall → free-floating zone → ideal system → DX → water).
+- [x] Progressive examples gallery: schedules → weather → walls → windows and gains → ideal
+  system → DX → fan coil (2026-11-18, `opensimula examples`, docs page Examples).
 - [ ] Spanish and English documentation.
 
 ### 5. Research-oriented features

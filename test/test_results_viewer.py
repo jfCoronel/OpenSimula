@@ -176,3 +176,58 @@ def test_viewer_surface_colours_at_cursor(monkeypatch):
     # back to a statistic: no series sent
     viewer.color_statistic = "mean"
     assert viewer.surface_series == b""
+
+
+def test_viewer_sums_of_positives_and_negatives():
+    """sum_pos and sum_neg tell apart heating and cooling in a variable with sign."""
+    data = {**project_dic, "components": project_dic["components"] + [{
+        "type": "Calculator",
+        "name": "signed",
+        "input_variables": ["v = year.values"],
+        "output_variables": ["x"],
+        "output_units": ["W"],
+        "output_expressions": ["v - 50"],
+    }]}
+    sim = osim.Simulation()
+    sim.console_print = False
+    project = sim.new_project("p")
+    project.read_dict(data)
+    project.simulate()
+    viewer = project.results("signed.x")
+    viewer.frequency = "monthly"
+    sums = {}
+    for aggregation in ("sum", "sum_pos", "sum_neg"):
+        viewer.aggregation = aggregation
+        assert viewer.aggregation == aggregation  # accepted, not reset to "mean"
+        sums[aggregation] = viewer.series[0]["y"]
+    for total, pos, neg in zip(sums["sum"], sums["sum_pos"], sums["sum_neg"]):
+        assert pos >= 0 and neg <= 0
+        assert pos + neg == pytest.approx(total)
+    assert sums["sum_pos"][7] == 0  # August: always 0 - 50
+    assert sums["sum_neg"][7] == pytest.approx(-50 * 744)
+
+
+def test_viewer_bundle_has_bars_and_the_new_aggregations():
+    import pathlib
+
+    import opensimula.editor.results as results
+
+    source = (pathlib.Path(results.__file__).parent / "static" / "results.js").read_text()
+    assert "Sum of positives" in source and "Sum of negatives" in source
+    assert '"monthly","yearly"' in source.replace(" ", "")  # frequencies drawn as bars
+    assert '["instant","At cursor"]' not in source.split("Sum of positives")[1][:200].replace(" ", "")
+
+
+def test_viewer_mean_without_zeros():
+    """The mean of the hours with a value, e.g. the EER of a unit while it runs."""
+    project = simulated_project()
+    viewer = project.results("year.values")
+    viewer.frequency = "monthly"
+    viewer.aggregation = "mean_nonzero"
+    assert viewer.aggregation == "mean_nonzero"
+    y = viewer.series[0]["y"]
+    # working days: 5 h at 100 and 4 h at 80, the rest of the day 0
+    assert y[0] == pytest.approx((5 * 100 + 4 * 80) / 9)
+    assert y[7] is None  # August: only zeros, no mean
+    viewer.aggregation = "mean"
+    assert viewer.series[0]["y"][0] < 40  # the zeros of nights and weekends count

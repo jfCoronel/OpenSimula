@@ -12,7 +12,7 @@ Component to perform calculations with the variables of other components.
 - **output_expressions** [_math_exp_list_, default = []]: List of output variable mathematical expressions.
 
 #### Variables
-The component will generate a variable for each of the input variables specified in "input_variables" and "output_variables" using the mathematical expressions for the calculation in each time step.
+The component will generate a variable for each of the input variables specified in "input_variables" and "output_variables" using the mathematical expressions for the calculation in each time step. The expressions are evaluated at the start of each time step, so that other components can use the outputs during it, and again at its end, with the final values of the time step: the outputs stored can use the variables that other components compute during the time step, such as the loads of a space or the power of a system.
 
 **Example:**
 <pre><code class="python">
