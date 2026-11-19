@@ -43,12 +43,12 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         )
         self.add_parameter(
             Parameter_component(
-                "cooling_water_system", "not_defined", ["HVAC_water_system"]
+                "cooling_water_system", "not_defined", ["HVAC_water_system", "HVAC_water_circuit"]
             )
         )
         self.add_parameter(
             Parameter_component(
-                "heating_water_system", "not_defined", ["HVAC_water_system"]
+                "heating_water_system", "not_defined", ["HVAC_water_system", "HVAC_water_circuit"]
             )
         )
         self.add_parameter(Parameter_float("cooling_water_flow", 1, "dm³/s", min=0))
