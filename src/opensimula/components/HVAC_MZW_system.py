@@ -80,10 +80,10 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             Parameter_options("water_source", "UNKNOWN", ["UNKNOWN", "WATER_SYSTEM"])
         )
         self.add_parameter(
-            Parameter_component("cooling_water_system", "not_defined", ["HVAC_water_system"])
+            Parameter_component("cooling_water_system", "not_defined", ["HVAC_water_system", "HVAC_water_circuit"])
         )
         self.add_parameter(
-            Parameter_component("heating_water_system", "not_defined", ["HVAC_water_system"])
+            Parameter_component("heating_water_system", "not_defined", ["HVAC_water_system", "HVAC_water_circuit"])
         )
         self.add_parameter(Parameter_float("cooling_water_flow", 1, "dm³/s", min=0))
         self.add_parameter(Parameter_float("heating_water_flow", 1, "dm³/s", min=0))
@@ -122,7 +122,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             Parameter_options("reheat_water_source", "UNKNOWN", ["UNKNOWN", "WATER_SYSTEM"])
         )
         self.add_parameter(
-            Parameter_component("reheat_water_system", "not_defined", ["HVAC_water_system"])
+            Parameter_component("reheat_water_system", "not_defined", ["HVAC_water_system", "HVAC_water_circuit"])
         )
 
 

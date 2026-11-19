@@ -175,7 +175,7 @@ After the simulation we will have the following variables of this component:
 
 Component for the simulation of a water plant that supplies chilled and/or hot water to one or more coils (used by the air side HVAC systems, `HVAC_SZW_system` and `HVAC_MZW_system`) from its generators ("HVAC_water_generator").
 
-The coils of the air systems connected to it (parameters `water_source`, `cooling_water_system`, `heating_water_system` and, for the reheat coils of `HVAC_MZW_system`, `reheat_water_source` and `reheat_water_system`) take from it their inlet water temperature and add their load and water flow to it in each iteration.
+The coils of the air systems connected to it (parameters `water_source`, `cooling_water_system`, `heating_water_system` and, for the reheat coils of `HVAC_MZW_system`, `reheat_water_source` and `reheat_water_system`) take from it their inlet water temperature and add their load and water flow to it in each iteration. They can also hang from an `HVAC_water_circuit` fed by the plant, which for the plant is one more coil.
 
 The water of the plant (`total_water_volume`) is considered as one volume at one temperature: the heat of the generators, the coils, the process load, the losses and the pumps changes it. In heating only the generators able to heat run (boilers and heat pumps), in cooling only those able to cool, and they share the load with the `sequencing`: "PRIORITY" in the order of the `generators` list, the next one when the previous is at full load (e.g. a heat pump first and a boiler as backup), or "EQUAL_LOAD", all of them at the same part load.
 
@@ -255,3 +255,55 @@ After the simulation we will have the following variables of this component:
 - __electric_power__ [W]: Electric power of the plant: generators and pumps.
 - __heating_water_setpoint__ [°C]: Heating water setpoint temperature.
 - __cooling_water_setpoint__ [°C]: Cooling water setpoint temperature.
+
+### HVAC_water_circuit
+
+A secondary water circuit fed by an HVAC_water_system (the plant). The coils of the air systems (`HVAC_SZW_system`, `HVAC_MZW_system`) can hang from a circuit instead of from the plant: in their parameters `heating_water_system`, `cooling_water_system` and `reheat_water_system` they refer to the circuit. A plant can feed several circuits, each with its own pumps, its own availability and, with a mixing valve, its own supply temperature: e.g. the fan coils at 40 °C and the coils of an air handling unit at 60 °C from the same boiler.
+
+Towards the coils the circuit offers what a plant offers: the inlet water temperature and the place to add their load. Towards the plant it is one more coil: it takes water from it and gives it back its load, that of its coils plus its losses, the heat of its pumps and, with a water volume, the change of the energy stored in its water. The mode, heating or cooling, is that of the plant.
+
+The pumps of the circuit move their nominal water flow while it is on. The mixing valve mixes the water of the plant with the return of the circuit, so that the supply is never above `heating_supply_setpoint` nor below `cooling_supply_setpoint`; without them (the default, empty) the supply is the water of the plant. The water taken from the plant (`plant_flow`) is then the part of the flow of the circuit that the mixing needs.
+
+#### Parameters
+- **water_system** [_component_, default = "not_defined", component type = HVAC_water_system]: The plant that feeds the circuit.
+- **pumps** [_component_list_, default = [], component type = Pump]: Pumps of the circuit, in parallel, at their nominal water flow.
+- **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
+- **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: If 0 the circuit is off: its pumps stop and its coils get no heat or cold. It is also off while its plant is off.
+- **pump_operation** [_option_, default = "ALLWAYS_ON", options = ["ALLWAYS_ON", "ON_LOAD"]]: If "ALLWAYS_ON" the pumps run whenever the circuit is on; if "ON_LOAD" only when its coils have a load.
+- **heating_supply_setpoint** [_math_exp_, unit = "°C", default = ""]: Maximum supply temperature (mixing valve). Empty: no limit.
+- **cooling_supply_setpoint** [_math_exp_, unit = "°C", default = ""]: Minimum supply temperature (mixing valve). Empty: no limit.
+- **Q_loss** [_math_exp_, unit = "W", default = "0"]: Heat losses (negative) or gains (positive) of the water of the circuit; may use `T_w`, its supply temperature, and `m_w`, its water flow.
+- **water_volume** [_float_, unit = "dm³", default = 0, min = 0]: Water volume of the circuit: the plant also gives the heat to warm it up or cool it down.
+
+**Example:**
+<pre><code class="python">
+...
+
+floor_circuit = osm.components.HVAC_water_circuit("floor_circuit", project)
+param = {
+        "water_system": "hot_water",
+        "pumps": ["floor_pump"],
+        "heating_supply_setpoint": "35",
+        "water_volume": 300
+}
+floor_circuit.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component:
+
+- __on_off__ [flag]: Availability of the circuit (system_on_off).
+- __T_plant__ [°C]: Temperature of the water from the plant.
+- __T_supply__ [°C]: Supply water temperature of the circuit, to its coils.
+- __T_return__ [°C]: Return water temperature of the circuit.
+- __water_flow__ [dm³/s]: Water flow moved by its pumps.
+- __plant_flow__ [dm³/s]: Water flow taken from the plant.
+- __mixing_flow__ [dm³/s]: Water flow of the return mixed into the supply by the mixing valve.
+- __coils_flow__ [dm³/s]: Sum of the water flows the coils report.
+- __Q_coils__ [W]: Heat exchanged with the coils, positive when they heat the water, negative when they cool it.
+- __Q_loss__ [W]: Heat losses (negative) or gains of the circuit.
+- __Q_pump__ [W]: Heat given to the water by its pumps.
+- __delta_U__ [W]: Rate of change of the energy stored in its water.
+- __Q_plant__ [W]: Load given to the plant: Q_coils + Q_loss + Q_pump - delta_U.
+- __pumps_power__ [W]: Electric power of its pumps.

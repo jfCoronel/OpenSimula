@@ -628,6 +628,18 @@ generator per loop, more than one pump, and the usual primary/secondary separati
   `generators_power`, `generators_fuel_power`, `pumps_power`, `secondary_pumps_power`, new
   `electric_power`; `water_flow`, `generator_efficiency`, `generator_part_load` removed
   (per generator). Tests, notebooks (run fully) and docs updated.
+- **B5 done (branch `feat/water-circuit`)**: `HVAC_water_circuit` (water_system, pumps at
+  nominal flow, system_on_off, pump_operation, heating/cooling_supply_setpoint mixing valve
+  = max / min supply whatever the plant mode (first version depended on the mode: the
+  supply jumped when the plant left standby and the stored energy of the circuit made the
+  plant mode oscillate), Q_loss, water_volume). Towards the plant one more coil
+  (`add_coil_load(Q_plant, plant_flow)`), towards the coils the plant interface
+  (`get_*_coil_inlet_T`, `add_coil_load`, `on_off` property: circuit and plant on). SZW
+  and MZW accept a circuit in their water system parameters. Order: air systems →
+  circuits → generators → plant. Tests `test_HVAC_water_circuit.py` (exact mixing with a
+  loss as load, two circuits at 35 / 55 °C, off, volume, fan coil of 07 on a circuit at
+  40 °C). Test project `~/Desktop/opensimula_0.10/B5_two_circuits.json` (plant 60 °C, AHU
+  circuit 60 °C, reheat circuit 40 °C: takes 0.003 of its 0.2 dm³/s from the plant).
 - **Scope of 0.10 (agreed 2026-11-19)**: B3, B4, B5 + the coil mode check and the
   generator capacity at the actual temperature; B6 (variable secondary flow, pump staging)
   moved to 0.11.
