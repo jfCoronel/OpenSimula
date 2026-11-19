@@ -23,7 +23,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         self.parameter("description").value = "HVAC Multizone Water system"
         self.add_parameter(
             Parameter_component_list(
-                "spaces", ["not_defined", "not_defined"], ["Space"]
+                "spaces", ["not_defined", "not_defined"], ["Space", "Load_space"]
             )
         )
         self.add_parameter(
