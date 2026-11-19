@@ -575,6 +575,70 @@ generator per loop, more than one pump, and the usual primary/secondary separati
   and sequencing → primary/secondary (header) → `HVAC_water_circuit` secondaries → variable
   secondary flow.
 
+## Planned: `Load_space`, air systems against load records (discussed 2026-11-19)
+
+Goal: simulate an HVAC installation without the building, from precalculated load records
+(a column of `File_data`, a schedule, a `Calculator`…). A new component **`Load_space`**
+takes the place of a `Space` in `HVAC_DX_system`, `HVAC_SZW_system`, `HVAC_MZW_system` and
+`HVAC_perfect_system`. Fully backwards compatible: nothing existing changes behaviour.
+
+- **What the systems use of a space** (checked 2026-11-19): `variable("temperature")`,
+  `variable("abs_humidity")`, `get_thermal_equation(bool)` → `(K, F)` with
+  `K·T = F + Q_sys`, `get_humidity_equation(bool)` (perfect system), `set_control_system`,
+  `add_uncontrol_system` / `del_uncontrol_system` (MZW). Nothing of the building. A
+  `Load_space` offering these works with the four systems unchanged.
+- **Base class `Thermal_zone`** (decided): taken out of `Space`, holds the control /
+  uncontrolled systems bookkeeping, `get_thermal_equation`, `get_humidity_equation`,
+  `get_Q_required`, `get_M_required`, the iteration with `Iterative_process` and the
+  `system_*_heat` outputs. `Space` provides its `K_F` from the building, `Load_space` its own.
+  Own commit, `validate.py --check` must give 0 changes.
+- **Allowed types**: `["Space"]` → `["Space", "Load_space"]` in the four systems (the check
+  is by class name, `type(comp).__name__`, inheritance is not enough). Parameter names
+  unchanged. `Load_space` goes after `Space` in `DEFAULT_COMPONENTS_ORDER` (projects with
+  their own `simulation_order` get it first, also valid).
+- **Inputs**: `input_variables` + expressions `sensible_load` (W, positive heating, as
+  `system_sensible_heat`) and `latent_load` (W), as `Space_type` / `Calculator`.
+  `reference_temperature` (expression, default `"24"`) and `reference_humidity` (relative
+  humidity at `T_ref`, expression, default `"50"` %): the conditions the record was
+  calculated at. Records should be calculated at a fixed setpoint: one from a system with a
+  dead band is 0 inside it while the temperature floats (document it).
+- **Model (decided): two nodes, air and mass**, in deviations `θ = T − T_ref`, imbalance
+  `ΔQ = Q_sys − Q_load`, implicit Euler (any time step, unconditionally stable):
+  `C_a·dθ_a/dt = ΔQ − H_ao·θ_a − H_am·(θ_a − θ_m)`, `C_m·dθ_m/dt = H_am·(θ_a − θ_m) − H_mo·θ_m`.
+  The mass node is eliminated → same `K·T = F + Q_sys` form. The record already has the
+  building's dynamics at constant temperature; the model only says how far and how fast
+  the zone leaves `T_ref` when the system does not match the load (what ASHRAE's space air
+  transfer function does; at 1 h it has the same g₀, g₁, p₁ structure).
+- **Parameters, all with defaults** (per floor area):
+  - `floor_area` 100 m², `height` 2.7 m (air volume);
+  - `construction` `VERY_LIGHT` / `LIGHT` / `MEDIUM` (default) / `HEAVY` / `VERY_HEAVY` →
+    `C_m` and `A_m` from ISO 13790 table 12 (80/110/165/260/370 kJ/(m²·K); A_m 2.5–3.5 ×
+    floor; **check the values before fixing them**), `H_am = 9.1·A_m`; `C_m`, `H_am`
+    overridable;
+  - `C_a` = air + 10 kJ/(m²·K) of furniture;
+  - `envelope_conductance` 1.0 W/(m²·K) of floor, half to the air node (`H_ao`, windows),
+    half to the mass (`H_mo`, opaque).
+  - Hand estimate (100 m², MEDIUM, 1 kW unmet): ~0.4 K in minutes, ~0.7 K in the first
+    hour, then slowly with the mass (a day or more). Simulate and adjust the defaults.
+- **Infiltration (decided)**: `load_infiltration` (ach, expression, the one the record was
+  calculated with) and `infiltration` (ach, expression, the one simulated), both default
+  `"0.5"`. The record's infiltration is taken out at the reference conditions
+  (`Q_load − ρ·cp·V·n_load/3600·(T_ref − T_ext)`, `L_load − λ·ρ·V·n_load/3600·(w_ref − w_ext)`)
+  and the real one added at the zone's actual T and w (term in the air node and in the
+  humidity balance). Exact (linear in T and w); with `n = n_load` and the setpoint held the
+  load is the record's. Same infiltration for sensible and latent; renews the air while the
+  system is off; allows `"0.5 * (1 - f)"`. Assumes the record's infiltration enters at
+  outdoor conditions, without heat recovery (document it).
+- **Outputs**: `temperature`, `abs_humidity`, `rel_humidity`, `sensible_load`, `latent_load`
+  (evaluated), `system_sensible_heat`, `system_latent_heat`, `unmet_sensible_heat`.
+- A `File_met` is still needed (equipment curves, outdoor air, infiltration).
+- **Validation**: example 05 at a fixed setpoint → its load into a `Load_space` (LIGHT) with
+  the same perfect system must give `T = T_ref`, unmet 0; with the DX of example 06, hours
+  out of setpoint and energy close to the full building; and infiltration `0.5` → `"0.5 *
+  (1 - f)"` compared with the building simulated directly that way.
+- Editor: a family in the graph (with the spaces). Docs: component page and a gallery
+  example (DX against the loads of example 05 read from a `File_data`).
+
 ## Growth plan (agreed 2026-10-07)
 
 Strategy: grow first in the **academic** world (research and teaching), then move to
