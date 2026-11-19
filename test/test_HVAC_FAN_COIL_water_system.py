@@ -388,16 +388,16 @@ def test_HVAC_FAN_COIL_water_system():
     assert peak_cooling == pytest.approx(5.520806314113201, rel=1e-5)
 
     yearly_df = water.variable_dataframe(
-        frequency="yearly", value="sum", pos_neg_columns=["Q_gen"]
+        frequency="yearly", value="sum", pos_neg_columns=["Q_generators"]
     )
-    heating_generation = yearly_df["Q_gen_pos"].values[0] / 1e6
-    cooling_generation = yearly_df["Q_gen_neg"].values[0] / 1e6
+    heating_generation = yearly_df["Q_generators_pos"].values[0] / 1e6
+    cooling_generation = yearly_df["Q_generators_neg"].values[0] / 1e6
 
     assert heating_generation == pytest.approx(0.05835296111110948, rel=1e-5)
     assert cooling_generation == pytest.approx(-4.937088600642061, rel=1e-5)
 
-    T_WGO = water.variable("T_WGO").values
-    T_WGI = water.variable("T_WGI").values
+    T_WGO = water.variable("T_generators_out").values
+    T_WGI = water.variable("T_generators_in").values
 
     assert T_WGO.max() == pytest.approx(51.16467692066909, rel=1e-5)
     assert T_WGO.min() == pytest.approx(7.0)

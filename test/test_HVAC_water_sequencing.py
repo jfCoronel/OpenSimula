@@ -51,17 +51,15 @@ def two_boilers(sequencing, **second):
 
 def test_priority_the_second_after_the_first_at_full_load():
     pro = two_boilers("PRIORITY")
-    assert last(pro, "plant", "Q_gen") == pytest.approx(6000)
+    assert last(pro, "plant", "Q_generators") == pytest.approx(6000)
     assert last(pro, "g1", "Q") == pytest.approx(4000)
     assert last(pro, "g2", "Q") == pytest.approx(2000)
     assert last(pro, "g1", "F_load") == pytest.approx(1)
     assert last(pro, "g2", "F_load") == pytest.approx(0.5)
     fuel = 4000 / eff(1) + 2000 / eff(0.5)
-    assert last(pro, "plant", "generator_fuel_power") == pytest.approx(fuel)
-    assert last(pro, "plant", "generator_efficiency") == pytest.approx(6000 / fuel)
-    assert last(pro, "plant", "generator_part_load") == pytest.approx(0.75)
+    assert last(pro, "plant", "generators_fuel_power") == pytest.approx(fuel)
     # both in parallel in the loop
-    assert last(pro, "plant", "water_flow") == pytest.approx(0.4)
+    assert last(pro, "plant", "primary_flow") == pytest.approx(0.4)
 
 
 def test_equal_load_all_at_the_same_part_load():
@@ -69,17 +67,17 @@ def test_equal_load_all_at_the_same_part_load():
     for g in ("g1", "g2"):
         assert last(pro, g, "Q") == pytest.approx(3000)
         assert last(pro, g, "F_load") == pytest.approx(0.75)
-    assert last(pro, "plant", "generator_fuel_power") == pytest.approx(6000 / eff(0.75))
+    assert last(pro, "plant", "generators_fuel_power") == pytest.approx(6000 / eff(0.75))
 
 
 def test_a_generator_off_lets_no_water_through_and_the_other_gives_what_it_can():
     pro = two_boilers("PRIORITY", system_on_off="0")
     assert last(pro, "g2", "Q") == 0
     assert last(pro, "g2", "water_flow") == 0
-    assert last(pro, "plant", "water_flow") == pytest.approx(0.2)
+    assert last(pro, "plant", "primary_flow") == pytest.approx(0.2)
     assert last(pro, "g1", "Q") == pytest.approx(4000)
     # 2 kW missing: the water cools below the setpoint
-    assert last(pro, "plant", "T_WGO") < 45
+    assert last(pro, "plant", "T_generators_out") < 45
 
 
 @pytest.mark.parametrize("sequencing", ["PRIORITY", "EQUAL_LOAD"])
@@ -108,8 +106,8 @@ def test_heat_pump_first_and_boiler_as_backup():
     pro = plant(generators, [heat_pump, BOILER | {"name": "b"}])
     assert last(pro, "hp_gen", "Q") == pytest.approx(4000)
     assert last(pro, "boiler_gen", "Q") == pytest.approx(2000)
-    assert last(pro, "plant", "generator_power") == pytest.approx(1250)
-    assert last(pro, "plant", "generator_fuel_power") == pytest.approx(2000 / eff(0.5))
+    assert last(pro, "plant", "generators_power") == pytest.approx(1250)
+    assert last(pro, "plant", "generators_fuel_power") == pytest.approx(2000 / eff(0.5))
 
 
 def test_only_the_generators_able_to_cool_run_in_cooling():
@@ -124,3 +122,14 @@ def test_only_the_generators_able_to_cool_run_in_cooling():
     assert last(pro, "chiller_gen", "Q") == pytest.approx(-6000)
     assert last(pro, "chiller_gen", "F_load") == pytest.approx(0.75)
     assert np.all(pro.component("boiler_gen").variable("Q").values == 0)
+
+
+def test_a_pump_without_flow_gives_no_heat():
+    # the power expression of a pump is constant by default: with no flow its heat to
+    # the water must be 0 (a generator not available added the heat of its pump)
+    pro = plant([{"type": "HVAC_water_generator", "name": "g", "equipment": "b", "pump": "p"}],
+                [BOILER | {"name": "b"}, {"type": "Pump", "name": "p", "nominal_water_flow": 0.2,
+                                          "nominal_power": 70}], n=2)
+    g = pro.component("g")
+    assert g.get_pump_heat(0) == 0
+    assert g.get_pump_heat(0.2) == pytest.approx(70)

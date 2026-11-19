@@ -195,7 +195,7 @@ class HVAC_water_generator(Component):
 
     def get_pump_heat(self, water_flow):
         """Heat of the primary pump to the water (W)."""
-        return 0 if self.pump is None else self.pump.get_heat_gain(water_flow)
+        return 0 if self.pump is None or water_flow == 0 else self.pump.get_heat_gain(water_flow)
 
     def get_pump_power(self, water_flow):
         """Electric power of the primary pump (W)."""

@@ -56,8 +56,8 @@ def values(pro, component, variable):
 def test_heat_pump_generator_stores_its_operation():
     pro = fan_coil_project()
     Q = values(pro, "generator", "Q")
-    assert np.allclose(Q, values(pro, "water_system", "Q_gen"))
-    assert np.allclose(values(pro, "generator", "power"), values(pro, "water_system", "generator_power"))
+    assert np.allclose(Q, values(pro, "water_system", "Q_generators"))
+    assert np.allclose(values(pro, "generator", "power"), values(pro, "water_system", "generators_power"))
     heating, cooling = Q > 0, Q < 0
     assert heating.sum() > 0 and cooling.sum() > 0
     assert np.all(values(pro, "generator", "state")[heating] == 1)

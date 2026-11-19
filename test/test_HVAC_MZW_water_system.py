@@ -59,7 +59,7 @@ def test_reheat_load_goes_to_the_hot_water_plant(winter):
     Q_coils = values(winter, "hot_water", "Q_coils")
     assert np.allclose(-Q_coils, reheat + heating_coil, rtol=1e-6, atol=1e-6)
     assert values(winter, "boiler_generator", "Q").sum() > 0
-    assert np.all(values(winter, "hot_water", "coils_water_flow")[reheat > 0] > 0)
+    assert np.all(values(winter, "hot_water", "coils_flow")[reheat > 0] > 0)
 
 
 def test_cooling_load_goes_to_the_chilled_water_plant(summer):
@@ -70,7 +70,7 @@ def test_cooling_load_goes_to_the_chilled_water_plant(summer):
     assert np.all(Q_coils[~cooling] == 0)
     assert values(summer, "chiller_generator", "Q").min() < 0
     # chilled water at the setpoint while there is load
-    T = values(summer, "chilled_water", "T_WGO")
+    T = values(summer, "chilled_water", "T_generators_out")
     assert np.allclose(T[cooling], 7, atol=0.5)
 
 
