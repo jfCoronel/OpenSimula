@@ -111,8 +111,8 @@ pip install "opensimula[gui]"
 opensimula gui project.json
 ```
 
-To start, eight progressive [examples](https://jfcoronel.github.io/OpenSimula/examples/), from a
-schedule to an office with a fan coil or served from a record of its loads, come with the package: `opensimula examples` copies them to
+To start, nine progressive [examples](https://jfcoronel.github.io/OpenSimula/examples/), from a
+schedule to a water plant with a heat pump and a boiler, come with the package: `opensimula examples` copies them to
 a folder, ready to open with `opensimula gui`.
 
 ## Component types
