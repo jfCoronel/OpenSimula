@@ -434,18 +434,71 @@ Jupyter shell:
 
 ![variable_dataframe](img/variable_dataframe.png)
 
+## HVAC systems and water plants
 
+The HVAC components are of two kinds: **equipment** components, which only hold the manufacturer's data of a piece of equipment and are not simulated by themselves (`DX_unit`, `Water_coil`, `Fan`, `Pump`, `Chiller_heat_pump`, `Boiler`), and **systems** (`HVAC_*`), which use them, are simulated in each time step and store the variables of the installation. An installation is put together by references between them:
 
+<pre>
+ zones                  air systems                      water side
+ ─────                  ───────────                      ──────────
+ Space        ◄──┬──  HVAC_perfect_system
+ Load_space   ◄──┤    HVAC_DX_system ── DX_unit
+                 ├──  HVAC_SZW_system ─┬─ Water_coil, Fan
+                 └──  HVAC_MZW_system ─┘     │
+                                             ▼ heating_water_system / cooling_water_system
+                                        HVAC_water_circuit (optional) ── pumps
+                                             │ water_system
+                                             ▼
+                                        HVAC_water_system (the plant) ── pumps (optional: header)
+                                             │ generators
+                                             ▼
+                                        HVAC_water_generator ── equipment: Chiller_heat_pump or Boiler
+                                                             └─ pump
+</pre>
 
+**Zones.** An air system serves a `Space` of a building or a `Load_space`, a zone defined by load records (sensible and latent loads read, for example, from a `File_data`), which allows to simulate an installation without the building. Both offer the systems the same: their temperature and humidity, and their balance equations. See example 08.
 
+**Air systems.** `HVAC_perfect_system` gives exactly the load (ideal loads, example 05); `HVAC_DX_system` is an air-to-air heat pump (example 06); `HVAC_SZW_system` (one zone) and `HVAC_MZW_system` (several zones, with VAV and reheat) have water coils. With `water_source` "WATER_SYSTEM" (and `reheat_water_source` for the reheat coils) their coils take the inlet water temperature from a water plant or circuit and give it their load in each iteration; with "UNKNOWN" they use fixed water temperatures.
 
+**Water plant.** An `HVAC_water_system` heats and/or cools water with its generators:
 
+- Each `HVAC_water_generator` has an equipment component, a `Chiller_heat_pump` (electric, heating and/or cooling according to its `chiller_type`) or a `Boiler` (fuel, heating only, efficiency on the lower heating value that may depend on the return temperature for condensing boilers), its own pump and its availability, and may have several identical units (`number_of_units`).
+- The generators able to serve the mode share the load with the `sequencing` of the plant: "PRIORITY", in the order of the list, the next one when the previous is at full load (a heat pump first and a boiler as backup), or "EQUAL_LOAD", all of them at the same part load. When they cannot reach the setpoint they give their full capacity at the actual water temperature.
+- The mode, heating or cooling, follows the load of the coils ("LOAD_CONTROL") or a schedule ("SCHEDULE_CONTROL", e.g. heating and cooling seasons of a two-pipe installation). Heating and cooling at the same time need two plants (four pipes). Coils only take heat or cold from a plant that can give it in its mode.
+- Without secondary `pumps` the water of the coils goes through the generators, moved by their pumps. With them the plant has a header between the primary circuit of the generators and the secondary one: the primary pump of each generator moves water only while it runs, and the mixing in the header matters. A primary flow larger than the secondary returns hot water to the generators through the bypass (bad for a condensing boiler); a smaller one sends part of the return to the supply (the water to the coils is below the setpoint).
 
+**Circuits.** An `HVAC_water_circuit` hangs from a plant: its own pumps, availability and, with a mixing valve (`heating_supply_setpoint`, `cooling_supply_setpoint`), its own supply temperature. A plant can feed several circuits at different temperatures. For the coils a circuit is like a plant; for the plant it is one more coil.
 
+**Results.** Each component stores its own variables: each generator its load, part load, electric and fuel power and efficiency; each circuit its temperatures, flows and the load it gives to the plant; the plant the temperatures of the supply, return and generators, the flows of the primary, secondary and bypass, the balance of its water and the total electric (`electric_power`) and fuel (`generators_fuel_power`) power. The water balance of a plant is `delta_U = Q_generators + Q_coils + Q_process + Q_loss + Q_pump`.
 
+As an example, the water side of [example 09](examples.md#09-water-plant): a heat pump first, a condensing boiler as backup, and a circuit at 45 °C at most.
 
+<pre><code class="python">
+...
 
+pro.new_component("HVAC_water_generator", "heat_pump_generator").set_parameters(
+    {"equipment": "heat_pump", "pump": "heat_pump_pump"})
+pro.new_component("HVAC_water_generator", "boiler_generator").set_parameters(
+    {"equipment": "boiler", "pump": "boiler_pump"})
+pro.new_component("HVAC_water_system", "water_plant").set_parameters({
+    "generators": ["heat_pump_generator", "boiler_generator"],
+    "sequencing": "PRIORITY",
+    "heating_water_setpoint": "50",
+    "cooling_water_setpoint": "7",
+    "total_water_volume": 50,
+    "system_control": "LOAD_CONTROL",
+})
+pro.new_component("HVAC_water_circuit", "south_circuit").set_parameters({
+    "water_system": "water_plant",
+    "pumps": ["south_pump"],
+    "heating_supply_setpoint": "45",
+})
+# the fan coil (HVAC_SZW_system) refers to the circuit
+pro.component("fan_coil_south").set_parameters({
+    "water_source": "WATER_SYSTEM",
+    "heating_water_system": "south_circuit",
+    "cooling_water_system": "south_circuit",
+})
+</code></pre>
 
-
-
-
+The parameters and variables of every component are in the [component list](component_list.md).

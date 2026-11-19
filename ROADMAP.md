@@ -652,6 +652,12 @@ generator per loop, more than one pump, and the usual primary/secondary separati
     Boilers (capacity independent of T) bit-identical. High load test: the water warms up
     to 50.5 °C instead of 69.5 °C (the chiller gives more with warmer water), annual
     generation −0.004 %; example 07: 85 steps at full load, annual +0.01 %.
+- **Example 09 Water plant (PR #56, merged)** and **docs for 0.10 (branch
+  `docs/water-plants-guide`)**: user guide section "HVAC systems and water plants" (diagram
+  of the references, plant, generators, header, circuits, example code) and a new page
+  `mkdocs/release_notes.md` (0.10: new, fixes that change results, upgrading from 0.9 with
+  the JSON migration and the table of renamed variables). Left for the release: full
+  validation, version 0.10.0, CITATION, PyPI (the user), GitHub release, Zenodo.
 - **Scope of 0.10 (agreed 2026-11-19)**: B3, B4, B5 + the coil mode check and the
   generator capacity at the actual temperature; B6 (variable secondary flow, pump staging)
   moved to 0.11.
