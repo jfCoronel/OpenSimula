@@ -155,7 +155,7 @@ def test_HVAC_water_system_process_load():
     system = _simulate_water_system(process_water_system_dict)
 
     yearly_df = system.variable_dataframe(
-        frequency="yearly", value="sum", pos_neg_columns=["Q_gen", "Q_process", "delta_U"]
+        frequency="yearly", value="sum", pos_neg_columns=["Q_generators", "Q_process", "delta_U"]
     )
 
     cooling_load = yearly_df["Q_process_pos"].values[0] / 1e6
@@ -164,8 +164,8 @@ def test_HVAC_water_system_process_load():
     losses = yearly_df["Q_loss"].values[0] / 1e6
     delta_U_pos = yearly_df["delta_U_pos"].values[0] / 1e6
     delta_U_neg = yearly_df["delta_U_neg"].values[0] / 1e6
-    cooling_generation = yearly_df["Q_gen_neg"].values[0] / 1e6
-    heating_generation = yearly_df["Q_gen_pos"].values[0] / 1e6
+    cooling_generation = yearly_df["Q_generators_neg"].values[0] / 1e6
+    heating_generation = yearly_df["Q_generators_pos"].values[0] / 1e6
 
     assert cooling_load == pytest.approx(2.347613)
     assert heating_load == pytest.approx(-0.120633)
@@ -176,8 +176,8 @@ def test_HVAC_water_system_process_load():
     assert cooling_generation == pytest.approx(-2.460499, rel=1e-5)
     assert heating_generation == pytest.approx(0.116661008, rel=1e-5)
 
-    T_WGO = system.variable("T_WGO").values
-    T_WGI = system.variable("T_WGI").values
+    T_WGO = system.variable("T_generators_out").values
+    T_WGI = system.variable("T_generators_in").values
 
     assert T_WGO.max() == pytest.approx(50.54919761)
     assert T_WGO.min() == pytest.approx(7.0)
@@ -189,7 +189,7 @@ def test_HVAC_water_system_high_load():
     system = _simulate_water_system(high_load_water_system_dict)
 
     yearly_df = system.variable_dataframe(
-        frequency="yearly", value="sum", pos_neg_columns=["Q_gen", "Q_process", "delta_U"]
+        frequency="yearly", value="sum", pos_neg_columns=["Q_generators", "Q_process", "delta_U"]
     )
 
     cooling_load = yearly_df["Q_process_pos"].values[0] / 1e6
@@ -198,8 +198,8 @@ def test_HVAC_water_system_high_load():
     losses = yearly_df["Q_loss"].values[0] / 1e6
     delta_U_pos = yearly_df["delta_U_pos"].values[0] / 1e6
     delta_U_neg = yearly_df["delta_U_neg"].values[0] / 1e6
-    cooling_generation = yearly_df["Q_gen_neg"].values[0] / 1e6
-    heating_generation = yearly_df["Q_gen_pos"].values[0] / 1e6
+    cooling_generation = yearly_df["Q_generators_neg"].values[0] / 1e6
+    heating_generation = yearly_df["Q_generators_pos"].values[0] / 1e6
 
     assert cooling_load == pytest.approx(5.8690325)
     assert heating_load == pytest.approx(-0.3015825)
@@ -210,8 +210,8 @@ def test_HVAC_water_system_high_load():
     assert cooling_generation == pytest.approx(-5.982142760, rel=1e-5)
     assert heating_generation == pytest.approx(0.297568968, rel=1e-5)
 
-    T_WGO = system.variable("T_WGO").values
-    T_WGI = system.variable("T_WGI").values
+    T_WGO = system.variable("T_generators_out").values
+    T_WGI = system.variable("T_generators_in").values
 
     # Generator undersized: outlet temperature cannot reach the setpoints
     assert T_WGO.max() == pytest.approx(69.50618103)
@@ -224,7 +224,7 @@ def test_HVAC_water_system_losses():
     system = _simulate_water_system(losses_water_system_dict)
 
     yearly_df = system.variable_dataframe(
-        frequency="yearly", value="sum", pos_neg_columns=["Q_gen", "Q_process", "delta_U"]
+        frequency="yearly", value="sum", pos_neg_columns=["Q_generators", "Q_process", "delta_U"]
     )
 
     cooling_load = yearly_df["Q_process_pos"].values[0] / 1e6
@@ -233,8 +233,8 @@ def test_HVAC_water_system_losses():
     losses = yearly_df["Q_loss"].values[0] / 1e6
     delta_U_pos = yearly_df["delta_U_pos"].values[0] / 1e6
     delta_U_neg = yearly_df["delta_U_neg"].values[0] / 1e6
-    cooling_generation = yearly_df["Q_gen_neg"].values[0] / 1e6
-    heating_generation = yearly_df["Q_gen_pos"].values[0] / 1e6
+    cooling_generation = yearly_df["Q_generators_neg"].values[0] / 1e6
+    heating_generation = yearly_df["Q_generators_pos"].values[0] / 1e6
 
     assert cooling_load == pytest.approx(2.347613)
     assert heating_load == pytest.approx(-0.120633)
@@ -245,8 +245,8 @@ def test_HVAC_water_system_losses():
     assert cooling_generation == pytest.approx(-2.920090772, rel=1e-5)
     assert heating_generation == pytest.approx(0.228622552, rel=1e-5)
 
-    T_WGO = system.variable("T_WGO").values
-    T_WGI = system.variable("T_WGI").values
+    T_WGO = system.variable("T_generators_out").values
+    T_WGI = system.variable("T_generators_in").values
 
     assert T_WGO.max() == pytest.approx(50.0)
     assert T_WGO.min() == pytest.approx(7.0)

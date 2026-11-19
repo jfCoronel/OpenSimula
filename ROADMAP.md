@@ -611,6 +611,26 @@ generator per loop, more than one pump, and the usual primary/secondary separati
   project `~/Desktop/opensimula_0.10/B3_heat_pump_and_boiler.json` (4 kW heat pump first,
   boiler backup: HP 591 kWh / boiler 397 kWh heating; HP undersized in cooling, 433 h >
   25.5 °C).
+- **B4 done (branch `feat/water-header`)**: header (primary / secondary) when the plant has
+  secondary `pumps` (optional: without them B3 behaviour, bit-identical). Ideal decoupler,
+  water lumped at the secondary supply (`total_water_volume`); secondary pumps at nominal
+  flow (constant, three-way valves; staging and variable flow → 0.11), primary pump of
+  each generator only while it runs; bypass both ways; each generator aims at the setpoint
+  at its outlet (decision 3): with primary < secondary the supply is below the setpoint.
+  Bugs found and fixed: heat of the secondary pumps counted twice (water overheating,
+  caught by checking the energy balance), and `get_pump_heat(0)` = nominal power (own
+  commit). Small balance residuals (≤ 66 W in 13 of 8760 h, also ≤ 49 W without header)
+  from the relaxed last iteration. Test project
+  `~/Desktop/opensimula_0.10/B4_header_two_boilers.json` (primary 0.5 > secondary 0.3:
+  boiler inlet ≈ supply, little condensing). **Plant variables renamed** (agreed
+  2026-11-19): `T_supply`, `T_return`, `T_generators_out`, `T_generators_in`, `T_mean`,
+  `primary_flow`, `secondary_flow`, `bypass_flow`, `coils_flow`, `Q_generators`,
+  `generators_power`, `generators_fuel_power`, `pumps_power`, `secondary_pumps_power`, new
+  `electric_power`; `water_flow`, `generator_efficiency`, `generator_part_load` removed
+  (per generator). Tests, notebooks (run fully) and docs updated.
+- **Scope of 0.10 (agreed 2026-11-19)**: B3, B4, B5 + the coil mode check and the
+  generator capacity at the actual temperature; B6 (variable secondary flow, pump staging)
+  moved to 0.11.
 - **Follow-ups found in B2**:
   - The generator capacity is evaluated at the setpoint, not at the actual supply
     temperature when the water does not reach it (the power is computed at the actual one).

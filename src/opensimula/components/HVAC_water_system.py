@@ -46,28 +46,26 @@ class HVAC_water_system(Component):  # HVAC Water system
         # Variables
         self.add_variable(Variable("on_off", unit="flag"))  # 0: 0ff, 1: on
         self.add_variable(Variable("mode", unit="flag"))  # 0: 0ff, 1: Heating, -1:Cooling, 2: Standby
-        self.add_variable(Variable("T_WGO", unit="°C"))
-        self.add_variable(Variable("T_WGI", unit="°C"))
-        self.add_variable(Variable("T_WCI", unit="°C"))
-        self.add_variable(Variable("T_WCO", unit="°C"))
-        self.add_variable(Variable("T_WAVG", unit="°C"))
-        self.add_variable(Variable("water_flow", unit="dm³/s"))
-        self.add_variable(Variable("coils_water_flow", unit="dm³/s"))
+        self.add_variable(Variable("T_generators_out", unit="°C"))
+        self.add_variable(Variable("T_generators_in", unit="°C"))
+        self.add_variable(Variable("T_supply", unit="°C"))
+        self.add_variable(Variable("T_return", unit="°C"))
+        self.add_variable(Variable("T_mean", unit="°C"))
+        self.add_variable(Variable("coils_flow", unit="dm³/s"))
         self.add_variable(Variable("primary_flow", unit="dm³/s"))
         self.add_variable(Variable("secondary_flow", unit="dm³/s"))
         self.add_variable(Variable("bypass_flow", unit="dm³/s"))
-        self.add_variable(Variable("Q_gen", unit="W"))
+        self.add_variable(Variable("Q_generators", unit="W"))
         self.add_variable(Variable("Q_coils", unit="W"))
         self.add_variable(Variable("Q_process", unit="W"))
         self.add_variable(Variable("Q_loss", unit="W"))
         self.add_variable(Variable("Q_pump", unit="W"))
         self.add_variable(Variable("delta_U", unit="W"))
-        self.add_variable(Variable("pump_power", unit="W"))
-        self.add_variable(Variable("secondary_pump_power", unit="W"))
-        self.add_variable(Variable("generator_power", unit="W"))
-        self.add_variable(Variable("generator_fuel_power", unit="W"))
-        self.add_variable(Variable("generator_efficiency", unit="-"))
-        self.add_variable(Variable("generator_part_load", unit="frac"))
+        self.add_variable(Variable("pumps_power", unit="W"))
+        self.add_variable(Variable("secondary_pumps_power", unit="W"))
+        self.add_variable(Variable("generators_power", unit="W"))
+        self.add_variable(Variable("generators_fuel_power", unit="W"))
+        self.add_variable(Variable("electric_power", unit="W"))  # generators and pumps
         self.add_variable(Variable("heating_water_setpoint", unit="°C"))
         self.add_variable(Variable("cooling_water_setpoint", unit="°C"))
 
@@ -117,10 +115,10 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.T_WCO_pre = self.parameter("initial_water_temp").value
             self.mode = 0 # Standby
         else:
-            self.T_WGO_pre = self.variable("T_WGO").values[time_index-1]
-            self.T_WGI_pre = self.variable("T_WGI").values[time_index-1]
-            self.T_WCI_pre = self.variable("T_WCI").values[time_index-1]
-            self.T_WCO_pre = self.variable("T_WCO").values[time_index-1]
+            self.T_WGO_pre = self.variable("T_generators_out").values[time_index-1]
+            self.T_WGI_pre = self.variable("T_generators_in").values[time_index-1]
+            self.T_WCI_pre = self.variable("T_supply").values[time_index-1]
+            self.T_WCO_pre = self.variable("T_return").values[time_index-1]
             self.mode = self.variable("mode").values[time_index-1]
         # Water mass flow: the generators available, in parallel, each at its flow
         self.generator_flows = [g.nominal_water_flow() if g.on_off else 0 for g in self.generators]
@@ -487,49 +485,41 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.variable("primary_flow").values[time_index] = self.water_flow
         self.variable("secondary_flow").values[time_index] = self.water_flow
         self.variable("mode").values[time_index] = self.mode
-        self.variable("T_WGO").values[time_index] = self.limit_water_temperature(self.T_WGO)
-        self.variable("T_WGI").values[time_index] = self.limit_water_temperature(self.T_WGI)
-        self.variable("T_WCO").values[time_index] = self.limit_water_temperature(self.T_WCO)
-        self.variable("T_WCI").values[time_index] = self.limit_water_temperature(self.T_WCI)
-        self.variable("T_WAVG").values[time_index] = self.limit_water_temperature(self.T_avg)
-        self.variable("water_flow").values[time_index] = self.water_flow
-        self.variable("coils_water_flow").values[time_index] = self.coils_flow_used
+        self.variable("T_generators_out").values[time_index] = self.limit_water_temperature(self.T_WGO)
+        self.variable("T_generators_in").values[time_index] = self.limit_water_temperature(self.T_WGI)
+        self.variable("T_return").values[time_index] = self.limit_water_temperature(self.T_WCO)
+        self.variable("T_supply").values[time_index] = self.limit_water_temperature(self.T_WCI)
+        self.variable("T_mean").values[time_index] = self.limit_water_temperature(self.T_avg)
+        self.variable("coils_flow").values[time_index] = self.coils_flow_used
         if self.water_flow == 0:
-            self.variable("Q_gen").values[time_index] = 0
+            self.variable("Q_generators").values[time_index] = 0
             self.variable("Q_coils").values[time_index] = 0
             self.variable("Q_process").values[time_index] = 0
             self.variable("Q_pump").values[time_index] = 0
-            self.variable("pump_power").values[time_index] = 0
-            self.variable("generator_power").values[time_index] = 0
-            self.variable("generator_fuel_power").values[time_index] = 0
-            self.variable("generator_efficiency").values[time_index] = 0
-            self.variable("generator_part_load").values[time_index] = 0
+            self.variable("pumps_power").values[time_index] = 0
+            self.variable("generators_power").values[time_index] = 0
+            self.variable("generators_fuel_power").values[time_index] = 0
+            self.variable("electric_power").values[time_index] = 0
             for g in self.generators:
                 g.set_operation(time_index, 0, self.T_WGO, self.T_WGI, 0, self.sequencing)
         else:
             running = self.mode in (1, -1)
             power = fuel = pump_power = 0
             for g, Q_g, flow in zip(self.generators, self.Q_generators, self.generator_flows):
-                p, f, f_load = g.set_operation(
+                p, f, _ = g.set_operation(
                     time_index, Q_g if running else 0, self.T_WGO, self.T_WGI, flow, self.sequencing
                 )
                 power += p
                 fuel += f
                 pump_power += g.get_pump_power(flow)
-            if len(self.generators) == 1:
-                eff = self.generators[0].variable("efficiency").values[time_index]
-            else:  # heat / (electric + fuel power) of all the generators
-                f_load = self.f_load if running and self.Q_gen != 0 else 0
-                eff = abs(self.Q_gen) / (power + fuel) if running and power + fuel > 0 else 0
-            self.variable("Q_gen").values[time_index] = self.Q_gen
+            self.variable("Q_generators").values[time_index] = self.Q_gen
             self.variable("Q_coils").values[time_index] = self.Q_coils_used
             self.variable("Q_process").values[time_index] = self.Q_process
             self.variable("Q_pump").values[time_index] = self.Q_pump
-            self.variable("pump_power").values[time_index] = pump_power
-            self.variable("generator_power").values[time_index] = power
-            self.variable("generator_fuel_power").values[time_index] = fuel
-            self.variable("generator_efficiency").values[time_index] = eff
-            self.variable("generator_part_load").values[time_index] = f_load
+            self.variable("pumps_power").values[time_index] = pump_power
+            self.variable("generators_power").values[time_index] = power
+            self.variable("generators_fuel_power").values[time_index] = fuel
+            self.variable("electric_power").values[time_index] = power + pump_power
         self.variable("Q_loss").values[time_index] = self.Q_loss
         self.variable("delta_U").values[time_index] = self.rho_cp * self.water_volume * (self.T_WGO - self.T_WGO_pre)/self.delta_t
 
@@ -538,42 +528,34 @@ class HVAC_water_system(Component):  # HVAC Water system
         m_p = self.primary_flow
         running = self.on_off and self.mode in (1, -1)
         self.variable("mode").values[time_index] = self.mode
-        for key, T in (("T_WGO", self.T_WGO), ("T_WGI", self.T_WGI), ("T_WCO", self.T_WCO),
-                       ("T_WCI", self.T_WCI), ("T_WAVG", self.T_avg)):
+        for key, T in (("T_generators_out", self.T_WGO), ("T_generators_in", self.T_WGI),
+                       ("T_return", self.T_WCO), ("T_supply", self.T_WCI), ("T_mean", self.T_avg)):
             self.variable(key).values[time_index] = self.limit_water_temperature(T)
-        self.variable("water_flow").values[time_index] = m_s
         self.variable("primary_flow").values[time_index] = m_p
         self.variable("secondary_flow").values[time_index] = m_s
         self.variable("bypass_flow").values[time_index] = m_p - m_s
-        self.variable("coils_water_flow").values[time_index] = self.coils_flow_used
+        self.variable("coils_flow").values[time_index] = self.coils_flow_used
         power = fuel = pump_power = 0
-        f_load = 0
         for g, Q_g, flow in zip(self.generators, self.Q_generators, self.generator_flows):
             Q_g = Q_g if running and flow > 0 else 0
             T_wo = self.T_WGI + Q_g / (self.rho_cp * flow) if flow > 0 else self.T_WGI
-            p, f, f_load = g.set_operation(time_index, Q_g, T_wo, self.T_WGI, flow, self.sequencing)
+            p, f, _ = g.set_operation(time_index, Q_g, T_wo, self.T_WGI, flow, self.sequencing)
             power += p
             fuel += f
             pump_power += g.get_pump_power(flow)
         secondary_pump_power = sum(
             p.get_power(p.parameter("nominal_water_flow").value) for p in self.secondary_pumps
         ) if m_s > 0 else 0
-        if len(self.generators) == 1:
-            eff = self.generators[0].variable("efficiency").values[time_index]
-        else:
-            f_load = self.f_load if running and self.Q_gen != 0 else 0
-            eff = abs(self.Q_gen) / (power + fuel) if running and power + fuel > 0 else 0
         Q_gen = self.Q_gen if running else 0
-        self.variable("Q_gen").values[time_index] = Q_gen
+        self.variable("Q_generators").values[time_index] = Q_gen
         self.variable("Q_coils").values[time_index] = self.Q_coils_used if m_s > 0 else 0
         self.variable("Q_process").values[time_index] = self.Q_process if m_s > 0 else 0
         self.variable("Q_pump").values[time_index] = self.Q_pump if self.on_off else 0
-        self.variable("pump_power").values[time_index] = pump_power + secondary_pump_power
-        self.variable("secondary_pump_power").values[time_index] = secondary_pump_power
-        self.variable("generator_power").values[time_index] = power
-        self.variable("generator_fuel_power").values[time_index] = fuel
-        self.variable("generator_efficiency").values[time_index] = eff if Q_gen != 0 else 0
-        self.variable("generator_part_load").values[time_index] = f_load if Q_gen != 0 else 0
+        self.variable("pumps_power").values[time_index] = pump_power + secondary_pump_power
+        self.variable("secondary_pumps_power").values[time_index] = secondary_pump_power
+        self.variable("generators_power").values[time_index] = power
+        self.variable("generators_fuel_power").values[time_index] = fuel
+        self.variable("electric_power").values[time_index] = power + pump_power + secondary_pump_power
         self.variable("Q_loss").values[time_index] = self.Q_loss
         self.variable("delta_U").values[time_index] = (
             self.rho_cp * self.water_volume * (self.T_S - self.T_WCI_pre) / self.delta_t

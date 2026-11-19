@@ -51,7 +51,7 @@ def last(pro, component, variable):
 
 
 def rho_cp(pro):
-    T = last(pro, "plant", "T_WAVG")
+    T = last(pro, "plant", "T_mean")
     return pro._sim_.props["RHOCP_W"](T) / 1000
 
 
@@ -63,11 +63,11 @@ def test_primary_larger_than_secondary_hot_water_back_to_the_boiler():
     assert last(pro, "plant", "bypass_flow") == pytest.approx(0.1)
     # supply at the setpoint; return colder by the load; boiler inlet: return mixed with
     # the supply that goes back through the bypass
-    T_S = last(pro, "plant", "T_WCI")
-    T_R = last(pro, "plant", "T_WCO")
+    T_S = last(pro, "plant", "T_supply")
+    T_R = last(pro, "plant", "T_return")
     assert T_S == pytest.approx(50, abs=0.01)
     assert T_S - T_R == pytest.approx(6000 / (rho_cp(pro) * m_s), rel=1e-3)
-    T_in = last(pro, "plant", "T_WGI")
+    T_in = last(pro, "plant", "T_generators_in")
     assert T_in == pytest.approx((m_s * T_R + (m_p - m_s) * T_S) / m_p, abs=0.01)
     assert last(pro, "g0", "T_wi") == pytest.approx(T_in)
     assert last(pro, "g0", "Q") == pytest.approx(6000, rel=1e-3)
@@ -77,12 +77,12 @@ def test_primary_smaller_than_secondary_supply_below_the_setpoint():
     pro = plant(0.1, [0.2])
     assert last(pro, "plant", "bypass_flow") == pytest.approx(-0.1)
     # the boiler gives 50 °C at its outlet, the supply is a mix with the return
-    assert last(pro, "plant", "T_WGO") == pytest.approx(50, abs=0.01)
-    T_S = last(pro, "plant", "T_WCI")
-    T_R = last(pro, "plant", "T_WCO")
+    assert last(pro, "plant", "T_generators_out") == pytest.approx(50, abs=0.01)
+    T_S = last(pro, "plant", "T_supply")
+    T_R = last(pro, "plant", "T_return")
     assert T_S < 45
     assert T_S == pytest.approx((0.1 * 50 + 0.1 * T_R) / 0.2, abs=0.01)
-    assert last(pro, "plant", "T_WGI") == pytest.approx(T_R)
+    assert last(pro, "plant", "T_generators_in") == pytest.approx(T_R)
     assert last(pro, "g0", "T_wo") == pytest.approx(50, abs=0.02)
 
 
@@ -112,14 +112,16 @@ def test_backup_boiler_moves_no_water_while_it_does_not_run():
 def test_pumps_power_primary_and_secondary():
     pro = plant(0.3, [0.1, 0.1])
     assert last(pro, "plant", "secondary_flow") == pytest.approx(0.2)
-    assert last(pro, "plant", "secondary_pump_power") == pytest.approx(160)
-    assert last(pro, "plant", "pump_power") == pytest.approx(210)
+    assert last(pro, "plant", "secondary_pumps_power") == pytest.approx(160)
+    assert last(pro, "plant", "pumps_power") == pytest.approx(210)
     assert last(pro, "g0", "pump_power") == pytest.approx(50)
+    # boilers with no auxiliary power: all the electricity is the pumps'
+    assert last(pro, "plant", "electric_power") == pytest.approx(210)
 
 
 def test_plant_off_no_flows():
     pro = plant(0.3, [0.2], n=6, system_on_off="0")
-    for v in ("primary_flow", "secondary_flow", "Q_gen", "pump_power"):
+    for v in ("primary_flow", "secondary_flow", "Q_generators", "pumps_power", "electric_power"):
         assert np.all(pro.component("plant").variable(v).values == 0)
 
 
@@ -130,8 +132,8 @@ def test_heat_of_the_pumps_counted_once():
     for p in ("primary_0", "secondary_0"):
         pro.component(p).parameter("power_to_heat_fraction").value = 1
     pro.simulate(progress=lambda i, n: None)
-    T_S = pro.component("plant").variable("T_WCI").values[24:]
+    T_S = pro.component("plant").variable("T_supply").values[24:]
     assert np.all(T_S < 50.2)
     h = lambda n: pro.component("plant").variable(n).values[24:]
-    residual = h("delta_U") - (h("Q_gen") + h("Q_process") + h("Q_loss") + h("Q_pump"))
+    residual = h("delta_U") - (h("Q_generators") + h("Q_process") + h("Q_loss") + h("Q_pump"))
     assert np.abs(residual).max() < 1
