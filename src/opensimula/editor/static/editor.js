@@ -7568,7 +7568,7 @@ var FAMILIES = [
   // any type starting with HVAC_, and the equipment
   ["other", "Other", "#8c959f", []]
 ];
-var EQUIPMENT = ["DX_unit", "Water_coil", "Fan", "Pump", "Chiller_heat_pump"];
+var EQUIPMENT = ["DX_unit", "Water_coil", "Fan", "Pump", "Chiller_heat_pump", "Boiler"];
 function familyOf(type) {
   for (const [key, , , types] of FAMILIES) if (types.includes(type)) return key;
   if (type.startsWith("HVAC_") || EQUIPMENT.includes(type)) return "hvac";
