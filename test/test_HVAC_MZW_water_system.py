@@ -93,3 +93,11 @@ def test_vav_with_the_return_equal_to_the_supply():
     # which made the mixed air humidity negative (psychrolib error)
     pro = simulate("01/07/2001 00:00:00", days=10, return_air_flow=0.8)
     assert np.all(values(pro, "ahu", "outdoor_air_fraction") >= 0)
+
+
+def test_no_cooling_from_a_plant_in_heating_mode():
+    # the hot water plant (SCHEDULE_CONTROL, heating) stays at 20 °C in summer: the coil
+    # cooled with it while the plant discarded the load (energy from nowhere)
+    pro = simulate("01/07/2001 00:00:00", days=3, cooling_water_system="hot_water")
+    assert np.all(~np.isin(values(pro, "ahu", "state"), [-1, -2]))
+    assert np.all(values(pro, "hot_water", "Q_coils") <= 0)

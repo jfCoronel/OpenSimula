@@ -380,8 +380,10 @@ def test_HVAC_FAN_COIL_water_system():
     peak_heating = Q_sens.max() / 1000
     peak_cooling = -Q_sens.min() / 1000
 
-    assert annual_heating == pytest.approx(0.05634705241207624, rel=1e-5)
-    assert annual_cooling == pytest.approx(4.86318071015206, rel=1e-5)
+    # 0.10: the coil no longer cools with the water of the plant in heating mode (it was
+    # at 20 °C before its first heating hours, and the plant discarded the load): -71 kWh
+    assert annual_heating == pytest.approx(0.05602134354744623, rel=1e-5)
+    assert annual_cooling == pytest.approx(4.7918622179986, rel=1e-5)
     assert annual_humidification == pytest.approx(0.5822385063655013, rel=1e-5)
     assert annual_dehumidification == pytest.approx(0.0)
     assert peak_heating == pytest.approx(2.390719002895933, rel=1e-5)
@@ -393,7 +395,7 @@ def test_HVAC_FAN_COIL_water_system():
     heating_generation = yearly_df["Q_generators_pos"].values[0] / 1e6
     cooling_generation = yearly_df["Q_generators_neg"].values[0] / 1e6
 
-    assert heating_generation == pytest.approx(0.05835296111110948, rel=1e-5)
+    assert heating_generation == pytest.approx(0.058097146558686835, rel=1e-5)
     assert cooling_generation == pytest.approx(-4.937088600642061, rel=1e-5)
 
     T_WGO = water.variable("T_generators_out").values

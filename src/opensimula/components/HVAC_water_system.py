@@ -191,6 +191,20 @@ class HVAC_water_system(Component):  # HVAC Water system
         else:
             return self.T_WCI
 
+    def can_heat(self):
+        """True if the coils can take heat from the plant: it is on and, with
+        SCHEDULE_CONTROL, not in cooling mode (its loads would be discarded)."""
+        if not self.on_off:
+            return False
+        return not (self.parameter("system_control").value == "SCHEDULE_CONTROL" and self.mode == -1)
+
+    def can_cool(self):
+        """True if the coils can take cold from the plant: it is on and, with
+        SCHEDULE_CONTROL, not in heating mode (its loads would be discarded)."""
+        if not self.on_off:
+            return False
+        return not (self.parameter("system_control").value == "SCHEDULE_CONTROL" and self.mode == 1)
+
     def add_coil_load(self, Q_coil, water_flow=0):
         """Add the load of a coil in this iteration.
 
@@ -369,6 +383,8 @@ class HVAC_water_system(Component):  # HVAC Water system
                     self.mode, self.mode * Q_required, setpoint, T_pi, nominal
                 )
                 self.Q_gen = self.mode * Q
+                if self.f_load >= 1:  # at full capacity: at the actual temperatures
+                    self._header_at_capacity(Q_sec, cpV_dt, nominal, m_s, setpoint, q)
             self.running = [q_g != 0 for q_g in self.Q_generators]
             flows = [f if r else 0 for f, r in zip(nominal, self.running)]
             self.Q_pump = self.Q_pump_secondary + sum(
@@ -379,6 +395,45 @@ class HVAC_water_system(Component):  # HVAC Water system
         self._header_temperatures(Q_sec, nominal)
         self._end_iteration_()
         return self.itera_T.converged()
+
+    def _header_at_capacity(self, Q_sec, C, nominal, m_s, setpoint, q):
+        """The generators cannot give the setpoint: they give their full capacity at the
+        actual outlet and inlet temperatures, which follow from the supply T_S through
+        the mixing in the header. T_S = T_S_pre + (capacity(T_S) + rest) / C is found
+        by bisection (nothing to find if the capacity does not depend on them)."""
+        mode = self.mode
+        flows = [f if r else 0 for f, r in zip(nominal, self.running)]
+        rest = Q_sec + self.Q_pump
+
+        def capacity(T_S):
+            m_p = sum(nominal) if not any(self.running) else sum(flows)
+            if m_p >= m_s or m_p == 0:
+                T_po = T_S
+                T_pi = (m_s * (T_S + q) + (m_p - m_s) * T_S) / m_p if m_p > 0 else T_S + q
+            else:
+                T_po = T_S - (m_s - m_p) / m_p * q
+                T_pi = T_S + q
+            return mode * self._generators_load(mode, float("inf"), T_po, T_pi, nominal)[0]
+
+        T1 = self.T_WCI_pre + (self.Q_gen + rest) / C
+        if capacity(T1) == self.Q_gen:  # independent of the temperatures (boilers)
+            return
+        def h(T):
+            return T - self.T_WCI_pre - (capacity(T) + rest) / C
+
+        T_free = self.T_WCI_pre + rest / C
+        low, high = sorted((setpoint, T_free))
+        h_low = h(low)
+        for _ in range(60):
+            mid = (low + high) / 2
+            h_mid = h(mid)
+            if (h_mid > 0) == (h_low > 0):
+                low, h_low = mid, h_mid
+            else:
+                high = mid
+            if high - low < 1e-7:
+                break
+        self.Q_gen = capacity((low + high) / 2)  # also the shares of the generators
 
     def _check_mode_header(self):
         """Mode and secondary flow of a plant with a header.
@@ -453,8 +508,7 @@ class HVAC_water_system(Component):  # HVAC Water system
                 Q_required = -Q + self.rho_cp * self.water_volume * (self.T_WGO - self.T_WGO_pre)/self.delta_t
                 self.Q_gen, self.f_load = self._generators_load(1, Q_required)
                 if self.f_load == 1 or self.f_load == 0: # Not enough heating power, update T_WGO with the actual Q_gen
-                    delta_T = (self.Q_gen+self.Q_pump+self.Q_coils+self.Q_process+self.Q_loss)*self.delta_t/(self.rho_cp * self.water_volume)
-                    self.T_WGO = self.T_WGO_pre + delta_T
+                    self._at_capacity(1, Q_required)
         elif self.mode == -1: #Cooling
             if T_WGO_FF < self.T_cool_sp: # no Q required, generator off
                 self.Q_gen = 0
@@ -466,8 +520,53 @@ class HVAC_water_system(Component):  # HVAC Water system
                 self.Q_gen, self.f_load = self._generators_load(-1, -Q_required)
                 self.Q_gen = -self.Q_gen
                 if self.f_load == 1 or self.f_load == 0: # Not enough cooling power, update T_WGO with the actual Q_gen
-                    delta_T = (self.Q_gen+self.Q_pump+self.Q_coils+self.Q_process+self.Q_loss)*self.delta_t/(self.rho_cp * self.water_volume)
-                    self.T_WGO = self.T_WGO_pre + delta_T
+                    self._at_capacity(-1, -Q_required)
+
+    def _at_capacity(self, mode, Q_required):
+        """The generators cannot reach the setpoint: they give their full capacity and
+        the water leaves them at another temperature, where their capacity is another
+        (that of a heat pump depends on it). The temperature T of the water must satisfy
+        the balance T = T_pre + (capacity(T) + rest) / C: it is found by bisection
+        between the setpoint and the temperature without generators, where the
+        difference changes sign (a fixed point may not converge with little water).
+        If the capacity does not depend on the temperature (a boiler) there is nothing
+        to find."""
+        C = self.rho_cp * self.water_volume / self.delta_t
+        rest = self.Q_pump + self.Q_coils + self.Q_process + self.Q_loss
+        self.T_WGO = self.T_WGO_pre + (self.Q_gen + rest) / C
+        if self.f_load == 0:  # no generator able to run
+            return
+        setpoint = self.T_heat_sp if mode == 1 else self.T_cool_sp
+
+        def capacity(T):
+            self.T_WGO = T
+            return mode * self._generators_load(mode, float("inf"))[0]
+
+        T1 = self.T_WGO
+        if capacity(T1) == self.Q_gen:  # independent of the temperature
+            self._generators_load(mode, Q_required)  # shares of the setpoint, as computed
+            self.T_WGO = T1
+            return
+
+        def h(T):
+            return T - self.T_WGO_pre - (capacity(T) + rest) / C
+
+        T_free = self.T_WGO_pre + rest / C  # without generators
+        low, high = sorted((setpoint, T_free))
+        h_low = h(low)
+        for _ in range(60):
+            mid = (low + high) / 2
+            h_mid = h(mid)
+            if (h_mid > 0) == (h_low > 0):
+                low, h_low = mid, h_mid
+            else:
+                high = mid
+            if high - low < 1e-7:
+                break
+        T = (low + high) / 2
+        self.Q_gen = capacity(T)  # also the shares of the generators at T
+        self.T_WGO = self.T_WGO_pre + (self.Q_gen + rest) / C
+        self.f_load = 1
 
     def limit_water_temperature(self, T):
         if T > self.max_water_temp:

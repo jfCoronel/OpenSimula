@@ -110,6 +110,14 @@ class HVAC_water_circuit(Component):
         """True if the circuit and its plant are on."""
         return bool(self._on_off and self.plant.on_off)
 
+    def can_heat(self):
+        """True if the coils can take heat: the circuit is on and its plant can heat."""
+        return bool(self._on_off and self.plant.can_heat())
+
+    def can_cool(self):
+        """True if the coils can take cold: the circuit is on and its plant can cool."""
+        return bool(self._on_off and self.plant.can_cool())
+
     def _supply(self, T_plant, mode=None):
         """Supply temperature: that of the plant, limited by the mixing valve, which
         mixes it with the return: never above the heating setpoint nor below the

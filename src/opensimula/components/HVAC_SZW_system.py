@@ -383,7 +383,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 "heating_water_system"
             ).component.get_heating_coil_inlet_T()
             if (
-                not self.parameter("heating_water_system").component.on_off
+                not self.parameter("heating_water_system").component.can_heat()
                 or heating_Tw < self.T_MA
             ):
                 self.state = 3
@@ -435,7 +435,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 "cooling_water_system"
             ).component.get_cooling_coil_inlet_T()
             if (
-                not self.parameter("cooling_water_system").component.on_off
+                not self.parameter("cooling_water_system").component.can_cool()
                 or cooling_Tw > self.T_MA
             ):
                 self.state = 3

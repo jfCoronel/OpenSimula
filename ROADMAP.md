@@ -640,16 +640,22 @@ generator per loop, more than one pump, and the usual primary/secondary separati
   loss as load, two circuits at 35 / 55 °C, off, volume, fan coil of 07 on a circuit at
   40 °C). Test project `~/Desktop/opensimula_0.10/B5_two_circuits.json` (plant 60 °C, AHU
   circuit 60 °C, reheat circuit 40 °C: takes 0.003 of its 0.2 dm³/s from the plant).
+- **Follow-ups for 0.10 done (branch `fix/water-coil-mode`)**:
+  - Coils ask the plant `can_heat()` / `can_cool()` (off, or SCHEDULE_CONTROL in the
+    opposite mode: no), besides the water temperature; circuits delegate to their plant.
+    Fan coil test (SCHEDULE_CONTROL): −71 kWh of cooling that had no generation; example
+    07 and the rest unchanged.
+  - Generator capacity at the actual water temperature when it cannot reach the setpoint:
+    bisection of T = T_pre + (capacity(T) + rest) / C between the setpoint and the free
+    temperature (a fixed point diverged with little water: dcap/dT 253 W/K > C 116 W/K);
+    the same in the header path, with the outlet / inlet temperatures from the mixing.
+    Boilers (capacity independent of T) bit-identical. High load test: the water warms up
+    to 50.5 °C instead of 69.5 °C (the chiller gives more with warmer water), annual
+    generation −0.004 %; example 07: 85 steps at full load, annual +0.01 %.
 - **Scope of 0.10 (agreed 2026-11-19)**: B3, B4, B5 + the coil mode check and the
   generator capacity at the actual temperature; B6 (variable secondary flow, pump staging)
   moved to 0.11.
-- **Follow-ups found in B2**:
-  - The generator capacity is evaluated at the setpoint, not at the actual supply
-    temperature when the water does not reach it (the power is computed at the actual one).
-  - A coil only checks the plant's water temperature, not its mode: with SCHEDULE_CONTROL in
-    heating, a cooling coil can cool with water that stayed cold (e.g. a hot plant at its
-    initial 20 °C in summer) and the plant discards its load: energy from nowhere. Coils
-    should ask the plant whether it can heat / cool in its mode.
+- **Follow-ups found in B2** (the first two done, see above):
   - `File_data` with `file_step` "SIMULATION" ignores the dates: a simulation that does not
     start on 1 January reads the file from its first row. Use "OWN" with `initial_time`.
 

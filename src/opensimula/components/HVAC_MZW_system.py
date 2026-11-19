@@ -509,10 +509,10 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         # colder (warmer) than the mixed air
         if heating and self.heating_ws is not None:
             self.heating_water_temp = self.heating_ws.get_heating_coil_inlet_T()
-            heating = self.heating_ws.on_off and self.heating_water_temp >= self.T_MA
+            heating = self.heating_ws.can_heat() and self.heating_water_temp >= self.T_MA
         if cooling and self.cooling_ws is not None:
             self.cooling_water_temp = self.cooling_ws.get_cooling_coil_inlet_T()
-            cooling = self.cooling_ws.on_off and self.cooling_water_temp <= self.T_MA
+            cooling = self.cooling_ws.can_cool() and self.cooling_water_temp <= self.T_MA
         if heating:
             self._simulate_heating()
         elif cooling:
@@ -606,7 +606,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         reheat_available = True
         if self.is_reheat and self.reheat_ws is not None:
             self.reheat_water_temp = self.reheat_ws.get_heating_coil_inlet_T()
-            reheat_available = self.reheat_ws.on_off and self.reheat_water_temp > self.T_SA
+            reheat_available = self.reheat_ws.can_heat() and self.reheat_water_temp > self.T_SA
         self.F_flow_total = 0
         self.rho_CA = 1 / sicro.GetMoistAirVolume(
             self.T_CA, self.w_CA / 1000, self.props["ATM_PRESSURE"]

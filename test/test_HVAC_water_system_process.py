@@ -205,18 +205,20 @@ def test_HVAC_water_system_high_load():
     assert heating_load == pytest.approx(-0.3015825)
     assert pump_heat == pytest.approx(0.12026)
     assert losses == pytest.approx(0.0)
-    assert delta_U_pos == pytest.approx(0.0396344704, rel=1e-5)
-    assert delta_U_neg == pytest.approx(-0.0364982622, rel=1e-5)
-    assert cooling_generation == pytest.approx(-5.982142760, rel=1e-5)
+    # 0.10: at full load the capacity of the chiller is the one at the actual water
+    # temperature, larger when the water is warmer: the water warms up much less
+    assert delta_U_pos == pytest.approx(0.01381299227264991, rel=1e-5)
+    assert delta_U_neg == pytest.approx(-0.010458764276310562, rel=1e-5)
+    assert cooling_generation == pytest.approx(-5.981924739703692, rel=1e-5)
     assert heating_generation == pytest.approx(0.297568968, rel=1e-5)
 
     T_WGO = system.variable("T_generators_out").values
     T_WGI = system.variable("T_generators_in").values
 
     # Generator undersized: outlet temperature cannot reach the setpoints
-    assert T_WGO.max() == pytest.approx(69.50618103)
+    assert T_WGO.max() == pytest.approx(50.45764802874351)
     assert T_WGO.min() == pytest.approx(7.0)
-    assert T_WGI.max() == pytest.approx(75.29645168)
+    assert T_WGI.max() == pytest.approx(50.48837668536154)
     assert T_WGI.min() == pytest.approx(7.050376000)
 
 
