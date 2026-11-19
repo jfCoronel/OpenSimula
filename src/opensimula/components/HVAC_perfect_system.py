@@ -10,7 +10,7 @@ class HVAC_perfect_system(Component):
         Component.__init__(self, name, project)
         self.parameter("type").value = "HVAC_perfect_system"
         self.parameter("description").value = "HVAC Perfect system for cooling and heating load"
-        self.add_parameter(Parameter_component("spaces", "not_defined", ["Space"])) 
+        self.add_parameter(Parameter_component("spaces", "not_defined", ["Space", "Load_space"])) 
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("outdoor_air_flow", "0", "m³/s"))
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))

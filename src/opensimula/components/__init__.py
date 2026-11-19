@@ -12,6 +12,7 @@ from opensimula.components.File_met import File_met
 from opensimula.components.Space_type import Space_type
 from opensimula.components.Building import Building
 from opensimula.components.Space import Space
+from opensimula.components.Load_space import Load_space
 from opensimula.components.Building_surface import Building_surface
 from opensimula.components.Solar_surface import Solar_surface
 from opensimula.components.Opening import Opening
@@ -33,6 +34,7 @@ DEFAULT_COMPONENTS_ORDER = [
                     "Solar_surface",
                     "Opening",
                     "Space",
+                    "Load_space",
                     "Building",
                     "HVAC_MZW_system",
                     "HVAC_perfect_system",

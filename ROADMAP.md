@@ -638,6 +638,32 @@ takes the place of a `Space` in `HVAC_DX_system`, `HVAC_SZW_system`, `HVAC_MZW_s
   (1 - f)"` compared with the building simulated directly that way.
 - Editor: a family in the graph (with the spaces). Docs: component page and a gallery
   example (DX against the loads of example 05 read from a `File_data`).
+- **Development plan of 0.10 (2026-11-19)**: A1 `Thermal_zone` (PR #45, merged) → A2
+  `Load_space` → A3 infiltration check → A4 comparison with the building / defaults → A5
+  editor graph, docs, gallery example 08; then the water plant B1 `Boiler` → B2
+  `HVAC_water_generator` (compatibility break) → B3 several generators → B4 primary /
+  secondary → B5 `HVAC_water_circuit` → B6 variable flow → B7 notebooks, docs, 0.10.0. No
+  0.9.1. Test projects in `~/Desktop/opensimula_0.10/` (made by scratchpad scripts).
+- **A2 done (branch `feat/load-space`)**: `Load_space` as designed (the A3 infiltration
+  correction is in it already). Checks:
+  - record of the example 05 box at 24 °C / 50 % with an ideal system, fed back to a
+    `Load_space` with the same ideal system: T = 24, RH = 50, system heat = record to 1e-12 W.
+  - against ASHRAE 140 (Denver), record at 24 °C, `Load_space` with no system vs 600FF/900FF
+    and with the 20/27 °C ideal system vs 600/900 (envelope conductance of the box 1.8
+    W/(m²·K) of floor, 6 exposed faces):
+    - heavy box 900: ISO `MEDIUM` gives heating 1.44 / cooling 2.24 MWh vs 1.64 / 2.61, free
+      floating rms 2.1 K (`CUSTOM` 165 kJ, A_m 1.5: rms 1.8 K).
+    - light box 600: every ISO class is too heavy (VERY_LIGHT: 3.25 / 4.71 MWh vs 4.31 /
+      5.97, rms 7 K); `CUSTOM` 15-20 kJ/(m²·K), A_m 1.0 gives 4.18 / 5.93 MWh, rms 1.8 K. The
+      case 600 box is lighter than any real building (decided 2026-11-19: keep the ISO
+      classes and `MEDIUM` as default; the examples' box uses `CUSTOM` 20 / 1.0, U 1.8).
+  - examples 05/06 box in Sevilla with `CUSTOM` 20 / 1.0, U 1.8: free-floating rms ~1.1-1.5 K
+    while closed, cooling within 2-3 %.
+  - ISO 13790 table 12 values confirmed by secondary sources (a thesis transcribing chapter
+    12.2, the Modelica Buildings ISO13790 docs).
+- **Found (to fix apart)**: `File_data` with `file_step` "SIMULATION" does not reset the row
+  index `k` between columns: with a file of n rows ≠ n_time_steps the second and later
+  columns are shifted. Works when the file has exactly n_time_steps rows.
 
 ## Growth plan (agreed 2026-10-07)
 

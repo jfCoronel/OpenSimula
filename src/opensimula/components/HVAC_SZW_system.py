@@ -17,7 +17,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         self.parameter("type").value = "HVAC_SZW_system"
         self.parameter("description").value = "HVAC Single Zone Water system"
         self.add_parameter(
-            Parameter_component("space", "not_defined", ["Space"])
+            Parameter_component("space", "not_defined", ["Space", "Load_space"])
         )  # Space
         self.add_parameter(
             Parameter_component("cooling_coil", "not_defined", ["Water_coil"])
