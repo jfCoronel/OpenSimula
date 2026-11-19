@@ -122,6 +122,9 @@ Parameters (src/opensimula/Parameters.py) provide type-safe configuration:
 - **HVAC_SZW_system**: Single-zone water-based HVAC
 - **HVAC_MZW_system**: Multi-zone water-based HVAC
 - **HVAC_perfect_system**: Ideal loads system for testing
+- **HVAC_water_system**: Water plant: `generators` (HVAC_water_generator), `sequencing`, optional secondary `pumps` (header)
+- **HVAC_water_generator**: A generator of a plant: equipment (Chiller_heat_pump or Boiler), its pump, `number_of_units`
+- **HVAC_water_circuit**: Secondary circuit fed by a plant (own pumps, mixing valve); coils can refer to it like to a plant
 - **DX_unit**, **Water_coil**, **Fan**, **Pump**, **Chiller_heat_pump**, **Boiler**: Equipment models (manufacturer data, used by the systems)
 
 #### Schedule Components

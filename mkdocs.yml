@@ -19,6 +19,7 @@ nav:
     - Component list: component_list.md
     - Developer guide: developer_guide.md
     - Validation: validation.md
+    - Release notes: release_notes.md
     - API reference:
         - Overview: api/index.md
         - Simulation: api/simulation.md
