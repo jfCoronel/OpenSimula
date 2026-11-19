@@ -1,8 +1,8 @@
 ## Examples
 
-A gallery of seven projects that build on each other: each one is the previous one plus one new idea, from a schedule with no building at all to an office conditioned by a fan coil and a heat pump. They all use the weather of Sevilla (Spain) and, from the third on, the same building: the 8 × 6 × 2.7 m box of the ASHRAE Standard 140 test cases, with lightweight walls and roof and a floor that loses almost no heat.
+A gallery of projects that build on each other: each one of the first seven is the previous one plus one new idea, from a schedule with no building at all to an office conditioned by a fan coil and a heat pump. The eighth goes back to the sixth and replaces the building by a record of its loads. They all use the weather of Sevilla (Spain) and, from the third on, the same building (the eighth, its loads): the 8 × 6 × 2.7 m box of the ASHRAE Standard 140 test cases, with lightweight walls and roof and a floor that loses almost no heat.
 
-They come with opensimula. To get them, together with the weather file they read, run in a terminal:
+They come with opensimula. To get them, together with the weather and load files they read, run in a terminal:
 
 <pre>
 opensimula examples
@@ -31,6 +31,7 @@ pro.results("office.temperature", "office.system_sensible_heat")
 | [05 Ideal system](#05-ideal-system) | An ideal system: the heating and cooling loads | 31 |
 | [06 DX system](#06-dx-system) | A real air-to-air heat pump | 32 |
 | [07 Fan coil](#07-fan-coil) | A fan coil, a water loop and an air-to-water heat pump | 36 |
+| [08 Load records](#08-load-records) | The system of 06 against a record of the loads, without the building | 12 |
 
 ### 01 Schedules
 
@@ -107,3 +108,15 @@ The air system is now a fan coil: a fan and a water coil in the office, working 
 ![Water temperature leaving the heat pump, a week of March](img/examples/07_fan_coil.png)
 
 *Try:* set `system_control` to "SCHEDULE_CONTROL", with a year schedule of heating and cooling seasons in `system_mode`, as a two-pipe installation works: on sunny winter days the office overheats, because the loop can only heat.
+
+### 08 Load records
+
+**New:** `Load_space`, `File_data`.
+
+The DX system of example 06 again, but the office is no longer made of walls, windows and gains: it is a `Load_space`, defined by a record of its hourly loads. This is how an HVAC installation is simulated when the loads come from another program or from measurements, or to try many systems quickly: without the walls and windows, the year simulates in half the time here, and in much less in a large building. `load_record` reads `office_loads.csv`, the loads of the box of the examples calculated with the ideal system of example 05 holding 24 °C and 50 % all year, with no outdoor air and 0.5 air changes per hour; they are the `reference_temperature`, `reference_humidity` and `load_infiltration` of `office`. As in examples 05-07, the infiltration of the office is only there while it is closed, `"0.5 * (1 - f)"`: the `Load_space` takes the record's infiltration out of the loads and adds the one simulated, at the temperature and humidity the office actually has.
+
+When the system does not supply the load, at night, at weekends, or when the DX unit falls short, the office departs from 24 °C following a model of two nodes, its air and the thermal mass of the building. Its mass is given by a construction class, `MEDIUM` by default; the box of the examples is the very light one of the ASHRAE 140 tests, lighter than any real building, so here it is `CUSTOM`, 20 kJ/(m²·K) of mass on 1 m² per m² of floor, with an envelope conductance of 1.8 W/(m²·K) of floor (a small box exposed on every side). With them the office behaves almost as the building of example 06: 5722 kWh of cooling load in the year against 5612, 2631 kWh used by the heat pump against 2569, and 20 hours above 25.5 °C while open against 18. The heating load is 300 kWh against 188: small, and where the model of two nodes is furthest from the building, cold nights and weekends with the sun of winter.
+
+![Office temperature with the DX system, with the building and with the load record, 8-12 October](img/examples/08_load_records.png)
+
+*Try:* change `construction` to `MEDIUM` or `HEAVY` and look at how the temperature swings while the office is closed; or make your own record: in example 05, set the ideal system to 24 °C and 50 % all day, simulate, pick `office.system_sensible_heat` and `office.system_latent_heat` in the results viewer and download them with **CSV**. Rename their columns to `Q_sensible [W]` and `Q_latent [W]` (a variable name cannot have the dot of `office.`) and give the file to `load_record`.

@@ -12,7 +12,7 @@ We have divided the list of all components into several groups of related compon
 - [Components to define shedules](component_list_schedules.md): Day_schedule, Week_schedule, Year_schedule.
 - [Components for reading files](component_list_files.md): File_met, File_data.
 - [Constructive components](component_list_constructions.md): Material, Construction, Glazing, Frame, Opening_type.
-- [Building definition components](component_list_building.md): Building, Space_type, Space, Building_surface, Opening, Solar_surface.
+- [Building definition components](component_list_building.md): Building, Space_type, Space, Load_space, Building_surface, Opening, Solar_surface.
 - [Air side HVAC systems components](component_list_HVAC_air_systems.md): HVAC_perfect_system, DX_unit, HVAC_DX_system, Water_coil, Fan, HVAC_SZW_system, HVAC_MZW_system.
 - [Water side HVAC systems components](component_list_HVAC_water_systems.md): Pump, Chiller_heat_pump, HVAC_water_system.
 - [Components for various utilities](component_list_utils.md): Calculator.

@@ -32,9 +32,9 @@ def main(argv=None):
     gui.add_argument("--headless", action="store_true", help="do not open a browser")
     examples = commands.add_parser(
         "examples",
-        help="copy the examples (projects and weather file) to a folder",
-        description="Copy the progressive examples of OpenSimula and the weather file they "
-        "read to a folder. Files already there are kept.",
+        help="copy the examples (projects, weather and load files) to a folder",
+        description="Copy the progressive examples of OpenSimula and the weather and load "
+        "files they read to a folder. Files already there are kept.",
     )
     examples.add_argument(
         "folder", nargs="?", default="opensimula_examples",
@@ -66,7 +66,7 @@ def copy_examples(folder="opensimula_examples"):
     target.mkdir(parents=True, exist_ok=True)
     copied, kept = [], []
     for source in sorted(EXAMPLES.iterdir()):
-        if source.suffix not in (".json", ".met"):
+        if source.suffix not in (".json", ".met", ".csv"):
             continue
         destination = target / source.name
         if destination.exists():

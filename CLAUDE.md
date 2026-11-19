@@ -110,6 +110,7 @@ Parameters (src/opensimula/Parameters.py) provide type-safe configuration:
 #### Building Components
 - **Building**: Container for building geometry and initial conditions
 - **Space**: Indoor spaces with thermal zones
+- **Load_space**: A zone defined by load records (no building), served by the air systems like a Space; both inherit from `Thermal_zone` (components/Thermal_zone.py, a base class, not a component type)
 - **Building_surface**: Walls, roofs, floors with construction assemblies
 - **Solar_surface**: External surfaces receiving solar radiation
 - **Opening**: Windows and doors

@@ -661,9 +661,22 @@ takes the place of a `Space` in `HVAC_DX_system`, `HVAC_SZW_system`, `HVAC_MZW_s
     while closed, cooling within 2-3 %.
   - ISO 13790 table 12 values confirmed by secondary sources (a thesis transcribing chapter
     12.2, the Modelica Buildings ISO13790 docs).
-- **Found (to fix apart)**: `File_data` with `file_step` "SIMULATION" does not reset the row
-  index `k` between columns: with a file of n rows ≠ n_time_steps the second and later
-  columns are shifted. Works when the file has exactly n_time_steps rows.
+- **Fixed (own commit, branch `feat/load-space-docs`)**: `File_data` with `file_step`
+  "SIMULATION" did not reset the row index between columns: when n_time_steps was not a
+  multiple of the rows, the second and later columns were shifted. Regression test in
+  `test/test_File_data.py` (50 steps, 24 rows).
+- **A5 done (branch `feat/load-space-docs`)**: `Load_space` in the "Building" family of the
+  editor graph; page in `component_list_building.md` (model, defaults, table against
+  ASHRAE 600/900); air systems docs say Space or Load_space (and `spaces` for the perfect
+  and DX systems, documented as `space` before); gallery example **08 Load records** (the
+  DX of 06 with the box replaced by `office_loads.csv`, shipped, `*.csv` in package-data and
+  copied by `opensimula examples`): cooling 5722 vs 5612 kWh, DX 2631 vs 2569 kWh, 20 vs 18
+  hours above 25.5 °C, heating 300 vs 188 kWh; simulates in half the time (3.4 vs 7.3 s).
+  Figure `mkdocs/img/examples/08_load_records.png` (scratchpad `ex/figure08.py`).
+- **Follow-up**: the results viewer exports CSV columns as `office.system_sensible_heat
+  [W]`; `File_data` reads them, but a name with a dot cannot be used in
+  `input_variables`. The docs say to rename the columns; better: `File_data` could replace
+  the dots, or the viewer export short names.
 
 ## Growth plan (agreed 2026-10-07)
 
