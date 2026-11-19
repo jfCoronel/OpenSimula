@@ -447,12 +447,19 @@
             "nominal_water_flow": 0.4137
         },
         {
+            "type": "HVAC_water_generator",
+            "name": "generator",
+            "description": "The air-to-water heat pump with its pump: what the water loop uses to heat or cool the water",
+            "equipment": "air_water_heat_pump",
+            "pump": "pump"
+        },
+        {
             "type": "HVAC_water_system",
             "name": "water_system",
             "description": "Water loop, always on: the heat pump heats the water to 50 °C or cools it to 7 °C, depending on what the coil asks for",
-            "water_thermal_generator": "air_water_heat_pump",
-            "pump": "pump",
-            "design_water_flow": 0.4137,
+            "generators": [
+                "generator"
+            ],
             "heating_water_setpoint": "50",
             "cooling_water_setpoint": "7",
             "total_water_volume": 100,
