@@ -27,6 +27,7 @@ from opensimula.components.HVAC_MZW_system import HVAC_MZW_system
 from opensimula.components.HVAC_perfect_system import HVAC_perfect_system
 from opensimula.components.Chiller_heat_pump import Chiller_heat_pump
 from opensimula.components.Boiler import Boiler
+from opensimula.components.HVAC_water_generator import HVAC_water_generator
 from opensimula.components.HVAC_water_system import HVAC_water_system
 
 DEFAULT_COMPONENTS_ORDER = [
@@ -41,6 +42,7 @@ DEFAULT_COMPONENTS_ORDER = [
                     "HVAC_perfect_system",
                     "HVAC_DX_system",
                     "HVAC_SZW_system",
+                    "HVAC_water_generator",
                     "HVAC_water_system",
                     "Calculator"
                 ]

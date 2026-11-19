@@ -1,0 +1,307 @@
+{
+    "name": "B2 Four-pipe VAV with a boiler and a chiller",
+    "description": "A VAV air handling unit with reheat (HVAC_MZW_system) serving two zones defined by their loads; hot water plant with a condensing boiler, chilled water plant with a chiller",
+    "time_step": 3600,
+    "n_time_steps": 8760,
+    "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "sevilla",
+    "components": [
+        {
+            "type": "Day_schedule",
+            "name": "working_day",
+            "description": "Office hours: 0 until 8:00, 1 from 8:00 to 18:00, 0 after",
+            "time_steps": [
+                28800,
+                36000
+            ],
+            "values": [
+                0,
+                1,
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Day_schedule",
+            "name": "closed_day",
+            "description": "Closed all day",
+            "time_steps": [],
+            "values": [
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Week_schedule",
+            "name": "working_week",
+            "description": "Monday to Friday open, Saturday and Sunday closed",
+            "days_schedules": [
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "closed_day",
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Week_schedule",
+            "name": "holiday_week",
+            "description": "Closed all week",
+            "days_schedules": [
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Year_schedule",
+            "name": "office_hours",
+            "description": "Working weeks all year except August (holidays). Its variable 'values' is 1 when the office is open",
+            "periods": [
+                "01/08",
+                "01/09"
+            ],
+            "weeks_schedules": [
+                "working_week",
+                "holiday_week",
+                "working_week"
+            ]
+        },
+        {
+            "type": "File_met",
+            "name": "sevilla",
+            "description": "Hourly weather of Sevilla (Spain), MET format. The file is read from the folder the app is started from",
+            "file_type": "MET",
+            "file_name": "sevilla.met"
+        },
+        {
+            "type": "File_data",
+            "name": "load_record",
+            "description": "Hourly sensible and latent loads of the box of the examples (one row per hour, positive heating), calculated with the ideal system of example 05 holding 24 °C and 50 % all year, with no outdoor air and 0.5 air changes per hour",
+            "file_name": "office_loads.csv",
+            "file_step": "OWN",
+            "initial_time": "01/01/2001 00:00:00",
+            "time_step": 3600
+        },
+        {
+            "type": "Load_space",
+            "name": "zone_south",
+            "description": "South zone: the office of the examples, from its load record",
+            "input_variables": [
+                "Q = load_record.Q_sensible",
+                "L = load_record.Q_latent",
+                "f = office_hours.values"
+            ],
+            "sensible_load": "1 * Q",
+            "latent_load": "1 * L",
+            "reference_temperature": "24",
+            "reference_humidity": "50",
+            "load_infiltration": "0.5",
+            "infiltration": "0.5 * (1 - f)",
+            "floor_area": 48,
+            "height": 2.7,
+            "construction": "CUSTOM",
+            "custom_mass_capacity": 20,
+            "custom_mass_area": 1.0,
+            "envelope_conductance": 1.8
+        },
+        {
+            "type": "Load_space",
+            "name": "zone_north",
+            "description": "North zone: half the loads of the south one (less sun), same construction",
+            "input_variables": [
+                "Q = load_record.Q_sensible",
+                "L = load_record.Q_latent",
+                "f = office_hours.values"
+            ],
+            "sensible_load": "0.5 * Q",
+            "latent_load": "0.5 * L",
+            "reference_temperature": "24",
+            "reference_humidity": "50",
+            "load_infiltration": "0.5",
+            "infiltration": "0.5 * (1 - f)",
+            "floor_area": 48,
+            "height": 2.7,
+            "construction": "CUSTOM",
+            "custom_mass_capacity": 20,
+            "custom_mass_area": 1.0,
+            "envelope_conductance": 1.8
+        },
+        {
+            "type": "Fan",
+            "name": "supply_fan",
+            "description": "Supply fan of the air handling unit",
+            "nominal_air_flow": 0.8,
+            "nominal_pressure": 600,
+            "nominal_power": 800
+        },
+        {
+            "type": "Water_coil",
+            "name": "cooling_coil",
+            "description": "Cooling coil, fed by the chilled water plant",
+            "nominal_air_flow": 0.8,
+            "nominal_total_cooling_capacity": 16000,
+            "nominal_sensible_cooling_capacity": 12000,
+            "nominal_cooling_water_flow": 0.76,
+            "nominal_heating_capacity": 0,
+            "nominal_heating_water_flow": 0.3
+        },
+        {
+            "type": "Water_coil",
+            "name": "heating_coil",
+            "description": "Preheating coil, fed by the hot water plant",
+            "nominal_air_flow": 0.8,
+            "nominal_heating_capacity": 12000,
+            "nominal_heating_water_flow": 0.3
+        },
+        {
+            "type": "Water_coil",
+            "name": "reheat_south",
+            "description": "Reheat coil of the south zone",
+            "nominal_air_flow": 0.48,
+            "nominal_heating_capacity": 4000,
+            "nominal_heating_water_flow": 0.1
+        },
+        {
+            "type": "Water_coil",
+            "name": "reheat_north",
+            "description": "Reheat coil of the north zone",
+            "nominal_air_flow": 0.32,
+            "nominal_heating_capacity": 3000,
+            "nominal_heating_water_flow": 0.075
+        },
+        {
+            "type": "HVAC_MZW_system",
+            "name": "ahu",
+            "description": "VAV air handling unit with reheat, working while the office is open; 15 % of outdoor air (return 0.68 of 0.8 m³/s)",
+            "spaces": [
+                "zone_south",
+                "zone_north"
+            ],
+            "air_flow_fractions": [
+                0.6,
+                0.4
+            ],
+            "return_air_flow_fractions": [
+                0.6,
+                0.4
+            ],
+            "min_air_flow_fractions": [
+                0.3,
+                0.3
+            ],
+            "cooling_coil": "cooling_coil",
+            "heating_coil": "heating_coil",
+            "supply_fan": "supply_fan",
+            "air_flow": 0.8,
+            "return_air_flow": 0.68,
+            "input_variables": [
+                "f = office_hours.values"
+            ],
+            "system_on_off": "f",
+            "supply_cooling_setpoint": "14",
+            "supply_heating_setpoint": "16",
+            "spaces_setpoint": [
+                "21",
+                "21"
+            ],
+            "vav": true,
+            "reheat": true,
+            "reheat_coils": [
+                "reheat_south",
+                "reheat_north"
+            ],
+            "water_source": "WATER_SYSTEM",
+            "cooling_water_system": "chilled_water",
+            "heating_water_system": "hot_water",
+            "cooling_water_flow": 0.76,
+            "heating_water_flow": 0.3,
+            "reheat_water_source": "WATER_SYSTEM",
+            "reheat_water_system": "hot_water"
+        },
+        {
+            "type": "Pump",
+            "name": "hot_pump",
+            "description": "Pump of the boiler",
+            "nominal_water_flow": 0.5,
+            "nominal_pressure": 80000,
+            "nominal_power": 70
+        },
+        {
+            "type": "Pump",
+            "name": "chilled_pump",
+            "description": "Pump of the chiller",
+            "nominal_water_flow": 0.76,
+            "nominal_pressure": 100000,
+            "nominal_power": 120
+        },
+        {
+            "type": "Boiler",
+            "name": "condensing_boiler",
+            "description": "Condensing gas boiler, 88 % with a return at 55 °C or more",
+            "nominal_heating_capacity": 20000,
+            "nominal_efficiency": 0.88,
+            "nominal_water_flow": 0.5,
+            "efficiency_expression": "1 + 0.0035 * max(55 - T_wi, 0)",
+            "auxiliary_power": 50
+        },
+        {
+            "type": "Chiller_heat_pump",
+            "name": "chiller",
+            "description": "Air-cooled chiller, EER 3",
+            "chiller_type": "CHILLER",
+            "nominal_cooling_capacity": 16000,
+            "nominal_cooling_power": 5333,
+            "EER_expression": "0.85 + 0.15 * F_load",
+            "nominal_water_flow": 0.76
+        },
+        {
+            "type": "HVAC_water_generator",
+            "name": "boiler_generator",
+            "description": "The boiler with its pump",
+            "equipment": "condensing_boiler",
+            "pump": "hot_pump"
+        },
+        {
+            "type": "HVAC_water_generator",
+            "name": "chiller_generator",
+            "description": "The chiller with its pump",
+            "equipment": "chiller",
+            "pump": "chilled_pump"
+        },
+        {
+            "type": "HVAC_water_system",
+            "name": "hot_water",
+            "description": "Hot water plant at 50 °C",
+            "generators": [
+                "boiler_generator"
+            ],
+            "heating_water_setpoint": "50",
+            "total_water_volume": 200,
+            "pump_operation": "ON_LOAD",
+            "system_control": "SCHEDULE_CONTROL",
+            "system_mode": "1",
+            "input_variables": [
+                "f = office_hours.values"
+            ],
+            "system_on_off": "f"
+        },
+        {
+            "type": "HVAC_water_system",
+            "name": "chilled_water",
+            "description": "Chilled water plant at 7 °C",
+            "generators": [
+                "chiller_generator"
+            ],
+            "cooling_water_setpoint": "7",
+            "total_water_volume": 200,
+            "pump_operation": "ON_LOAD",
+            "system_control": "SCHEDULE_CONTROL",
+            "system_mode": "-1",
+            "input_variables": [
+                "f = office_hours.values"
+            ],
+            "system_on_off": "f"
+        }
+    ]
+}

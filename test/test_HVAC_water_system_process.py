@@ -108,11 +108,15 @@ process_water_system_dict = {
             "nominal_water_flow": 0.4137
         },
         {
+            "type": "HVAC_water_generator",
+            "name": "generator",
+            "equipment": "heat_pump",
+            "pump": "pump",
+        },
+        {
             "type": "HVAC_water_system",
             "name": "water_system",
-            "water_thermal_generator": "heat_pump",
-            "pump": "pump",
-            "design_water_flow": 0.4137,
+            "generators": ["generator"],
             "heating_water_setpoint": "50",
             "cooling_water_setpoint": "7",
             "total_water_volume": 100,

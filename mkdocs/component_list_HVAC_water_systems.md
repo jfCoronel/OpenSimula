@@ -127,14 +127,56 @@ param = {
 boiler.set_parameters(param)
 </code></pre>
 
-### HVAC_water_system
+### HVAC_water_generator
 
-Component for the simulation of a hydronic water loop that supplies chilled and/or hot water to one or more coils (used by the air side HVAC systems, e.g. `HVAC_SZW_system` or `HVAC_MZW_system`) from a "Chiller_heat_pump" generator, optionally moved by a "Pump".
+A generator of hot or chilled water of an HVAC_water_system: an equipment component, a "Chiller_heat_pump" (heating and/or cooling, electric) or a "Boiler" (heating, fuel), with its own primary pump. The water system decides the load it gives in each time step; the generator turns it into the load, part load, power and efficiency of its equipment, and stores them. The water flow through it is the nominal water flow of its equipment.
+
+A Boiler only heats; a Chiller_heat_pump heats, cools or both according to its `chiller_type`.
 
 #### Parameters
-- **water_thermal_generator** [_component_, default = "not_defined", component type = Chiller_heat_pump]: Reference to the "Chiller_heat_pump" component that heats and/or cools the loop water.
-- **pump** [_component_, default = "not_defined", component type = Pump]: Reference to the "Pump" component that circulates the loop water. If not defined, the pump heat gain and power are considered zero.
-- **design_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Loop water flow used while the system is on.
+- **equipment** [_component_, default = "not_defined", component type = Chiller_heat_pump or Boiler]: Equipment that heats and/or cools the water.
+- **pump** [_component_, default = "not_defined", component type = Pump]: Primary pump of the generator, the one that moves the loop water while there is no header (one generator). If not defined, its heat to the water and its power are considered zero.
+- **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
+- **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: Availability of the generator: if 0 it gives no heat or cold. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
+
+**Example:**
+<pre><code class="python">
+...
+
+generator = osm.components.HVAC_water_generator("generator", project)
+param = {
+        "equipment": "heat_pump",
+        "pump": "pump"
+}
+generator.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component:
+
+- __on_off__ [flag]: Availability of the generator (system_on_off).
+- __state__ [flag]: Operation: off (0), heating (1), cooling (-1).
+- __Q__ [W]: Heat given to the water, positive heating, negative cooling.
+- __F_load__ [frac]: Part load of the equipment.
+- __power__ [W]: Electric power of the equipment (for a Boiler, its auxiliary power).
+- __fuel_power__ [W]: Fuel power on the lower heating value (Boiler; 0 for a Chiller_heat_pump).
+- __efficiency__ [frac]: EER (cooling) or COP (heating) of a Chiller_heat_pump, efficiency on the LHV of a Boiler.
+- __water_flow__ [dm³/s]: Water flow through the generator.
+- __T_wi__ [°C]: Inlet (return) water temperature.
+- __T_wo__ [°C]: Outlet (supply) water temperature.
+- __pump_power__ [W]: Electric power of its pump.
+
+### HVAC_water_system
+
+Component for the simulation of a hydronic water loop that supplies chilled and/or hot water to one or more coils (used by the air side HVAC systems, `HVAC_SZW_system` and `HVAC_MZW_system`) from its generators ("HVAC_water_generator"). For now a loop has one generator, whose pump moves the water at the nominal water flow of its equipment.
+
+The coils of the air systems connected to it (parameters `water_source`, `cooling_water_system`, `heating_water_system` and, for the reheat coils of `HVAC_MZW_system`, `reheat_water_source` and `reheat_water_system`) take from it their inlet water temperature and add their load and water flow to it in each iteration.
+
+Changed in version 0.10: `generators` replaces `water_thermal_generator`; the pump is now the one of the generator (`pump` of HVAC_water_generator) and the water flow the nominal one of its equipment (`design_water_flow` is gone).
+
+#### Parameters
+- **generators** [_component_list_, default = ["not_defined"], component type = HVAC_water_generator]: Generators of the loop. For now only one.
 - **initial_water_temp** [_float_, unit = "°C", default = 20]: Water temperature used to initialize the loop at the first time step.
 - **total_water_volume** [_float_, unit = "dm³", default = 1000, min = 0]: Total water volume of the loop, used to calculate its thermal inertia.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
@@ -155,9 +197,7 @@ Component for the simulation of a hydronic water loop that supplies chilled and/
 
 water_system = osm.components.HVAC_water_system("water_system", project)
 param = {
-        "water_thermal_generator": "heat_pump",
-        "pump": "pump",
-        "design_water_flow": 0.4137,
+        "generators": ["generator"],
         "heating_water_setpoint": "50",
         "cooling_water_setpoint": "7",
         "total_water_volume": 100,
@@ -182,15 +222,16 @@ After the simulation we will have the following variables of this component:
 - __T_WCO__ [°C]: Coils outlet water temperature.
 - __T_WAVG__ [°C]: Average water loop temperature.
 - __water_flow__ [dm³/s]: Loop water flow.
+- __coils_water_flow__ [dm³/s]: Sum of the water flows the coils report (design flow times their part load).
 - __Q_gen__ [W]: Heat supplied (positive) or removed (negative) by the generator.
 - __Q_coils__ [W]: Heat exchanged with the coils connected to the system, positive when heating the water, negative when cooling it.
 - __Q_process__ [W]: Additional process heat load applied to the water loop.
 - __Q_loss__ [W]: Thermal losses of the water loop to the environment.
 - __Q_pump__ [W]: Heat gain to the water from the pump.
 - __delta_U__ [W]: Rate of change of the internal energy stored in the water loop.
-- __pump_power__ [W]: Electrical power consumed by the pump.
-- __generator_power__ [W]: Electrical power consumed by the generator.
-- __generator_efficiency__ [-]: Generator efficiency (EER for cooling, COP for heating).
-- __generator_part_load__ [frac]: Partial load state of the generator.
+- __pump_power__ [W]: Electrical power consumed by the pump of the generator.
+- __generator_power__ [W]: Electrical power consumed by the generator (see its variables for the fuel power of a boiler).
+- __generator_efficiency__ [-]: Generator efficiency (EER for cooling, COP for heating, efficiency on the LHV for a boiler).
+- __generator_part_load__ [frac]: Partial load state of the generator, 0 while it gives no heat or cold.
 - __heating_water_setpoint__ [°C]: Heating water setpoint temperature.
 - __cooling_water_setpoint__ [°C]: Cooling water setpoint temperature.
