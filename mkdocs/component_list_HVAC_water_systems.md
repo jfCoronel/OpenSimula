@@ -133,9 +133,12 @@ A generator of hot or chilled water of an HVAC_water_system: an equipment compon
 
 A Boiler only heats; a Chiller_heat_pump heats, cools or both according to its `chiller_type`.
 
+A generator may have several identical units of its equipment in parallel (`number_of_units`): its capacity and water flow are those of one unit times the number of units, and the units share the load with the `sequencing` of the water system: with "PRIORITY" one after the other (the next one starts when the previous is at full load), with "EQUAL_LOAD" all at the same part load. The power of each unit is calculated with its own part load.
+
 #### Parameters
 - **equipment** [_component_, default = "not_defined", component type = Chiller_heat_pump or Boiler]: Equipment that heats and/or cools the water.
-- **pump** [_component_, default = "not_defined", component type = Pump]: Primary pump of the generator, the one that moves the loop water while there is no header (one generator). If not defined, its heat to the water and its power are considered zero.
+- **number_of_units** [_int_, default = 1, min = 1]: Number of identical units of the equipment.
+- **pump** [_component_, default = "not_defined", component type = Pump]: Primary pump of the generator, sized for its water flow (all its units). It moves the water through the generator while the generator is available. If not defined, its heat to the water and its power are considered zero.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
 - **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: Availability of the generator: if 0 it gives no heat or cold. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
 
@@ -158,10 +161,11 @@ After the simulation we will have the following variables of this component:
 - __on_off__ [flag]: Availability of the generator (system_on_off).
 - __state__ [flag]: Operation: off (0), heating (1), cooling (-1).
 - __Q__ [W]: Heat given to the water, positive heating, negative cooling.
-- __F_load__ [frac]: Part load of the equipment.
+- __F_load__ [frac]: Part load of the generator: load given divided by the capacity of all its units.
+- __units_on__ [-]: Number of units giving heat or cold.
 - __power__ [W]: Electric power of the equipment (for a Boiler, its auxiliary power).
 - __fuel_power__ [W]: Fuel power on the lower heating value (Boiler; 0 for a Chiller_heat_pump).
-- __efficiency__ [frac]: EER (cooling) or COP (heating) of a Chiller_heat_pump, efficiency on the LHV of a Boiler.
+- __efficiency__ [frac]: EER (cooling) or COP (heating) of a Chiller_heat_pump, efficiency on the LHV of a Boiler; with several units, heat given divided by the power (fuel power for a boiler) of all of them.
 - __water_flow__ [dm³/s]: Water flow through the generator.
 - __T_wi__ [°C]: Inlet (return) water temperature.
 - __T_wo__ [°C]: Outlet (supply) water temperature.
@@ -169,14 +173,17 @@ After the simulation we will have the following variables of this component:
 
 ### HVAC_water_system
 
-Component for the simulation of a hydronic water loop that supplies chilled and/or hot water to one or more coils (used by the air side HVAC systems, `HVAC_SZW_system` and `HVAC_MZW_system`) from its generators ("HVAC_water_generator"). For now a loop has one generator, whose pump moves the water at the nominal water flow of its equipment.
+Component for the simulation of a hydronic water loop that supplies chilled and/or hot water to one or more coils (used by the air side HVAC systems, `HVAC_SZW_system` and `HVAC_MZW_system`) from its generators ("HVAC_water_generator").
+
+The generators are in parallel in the loop: the water flow is the sum of the water flows of the generators available (their `system_on_off`), each one moved by its own pump; a generator that is not available lets no water through. In heating only the generators able to heat run (boilers and heat pumps), in cooling only those able to cool, and they share the load with the `sequencing`: "PRIORITY" in the order of the `generators` list, the next one when the previous is at full load (e.g. a heat pump first and a boiler as backup), or "EQUAL_LOAD", all of them at the same part load.
 
 The coils of the air systems connected to it (parameters `water_source`, `cooling_water_system`, `heating_water_system` and, for the reheat coils of `HVAC_MZW_system`, `reheat_water_source` and `reheat_water_system`) take from it their inlet water temperature and add their load and water flow to it in each iteration.
 
 Changed in version 0.10: `generators` replaces `water_thermal_generator`; the pump is now the one of the generator (`pump` of HVAC_water_generator) and the water flow the nominal one of its equipment (`design_water_flow` is gone).
 
 #### Parameters
-- **generators** [_component_list_, default = ["not_defined"], component type = HVAC_water_generator]: Generators of the loop. For now only one.
+- **generators** [_component_list_, default = ["not_defined"], component type = HVAC_water_generator]: Generators of the loop, in order of priority.
+- **sequencing** [_option_, default = "PRIORITY", options = ["PRIORITY", "EQUAL_LOAD"]]: How the generators, and the units of each generator, share the load.
 - **initial_water_temp** [_float_, unit = "°C", default = 20]: Water temperature used to initialize the loop at the first time step.
 - **total_water_volume** [_float_, unit = "dm³", default = 1000, min = 0]: Total water volume of the loop, used to calculate its thermal inertia.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
@@ -229,9 +236,10 @@ After the simulation we will have the following variables of this component:
 - __Q_loss__ [W]: Thermal losses of the water loop to the environment.
 - __Q_pump__ [W]: Heat gain to the water from the pump.
 - __delta_U__ [W]: Rate of change of the internal energy stored in the water loop.
-- __pump_power__ [W]: Electrical power consumed by the pump of the generator.
-- __generator_power__ [W]: Electrical power consumed by the generator (see its variables for the fuel power of a boiler).
-- __generator_efficiency__ [-]: Generator efficiency (EER for cooling, COP for heating, efficiency on the LHV for a boiler).
-- __generator_part_load__ [frac]: Partial load state of the generator, 0 while it gives no heat or cold.
+- __pump_power__ [W]: Electrical power consumed by the pumps of the generators.
+- __generator_power__ [W]: Electrical power consumed by the generators.
+- __generator_fuel_power__ [W]: Fuel power of the generators (boilers), on the lower heating value.
+- __generator_efficiency__ [-]: Efficiency of the generators: with one generator, its EER (cooling), COP (heating) or efficiency on the LHV (boiler); with several, the heat given divided by their electric plus fuel power.
+- __generator_part_load__ [frac]: Part load of the generators (load given divided by the capacity of those able to run), 0 while they give no heat or cold.
 - __heating_water_setpoint__ [°C]: Heating water setpoint temperature.
 - __cooling_water_setpoint__ [°C]: Cooling water setpoint temperature.
