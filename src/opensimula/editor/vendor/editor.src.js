@@ -562,10 +562,13 @@ export default {
         input.placeholder = "comma separated";
         input.onchange = () => onCommit(parseList(kind, input.value));
       } else if (kind === "integer" || kind === "number") {
-        input.type = "number";
-        input.step = kind === "integer" ? "1" : "any";
-        if (item.minimum !== undefined) input.min = item.minimum;
-        if (item.maximum !== undefined) input.max = item.maximum;
+        // A text field, not type="number": the browser would show the decimal
+        // separator of its language (a comma in Spanish), while expressions use
+        // the point and lists the comma. Anything that is not a number is kept as
+        // typed and reported by the validation.
+        input.type = "text";
+        input.inputMode = kind === "integer" ? "numeric" : "decimal";
+        input.spellcheck = false;
         input.value = value ?? "";
         input.onchange = () => onCommit(parseScalar(kind, input.value));
       } else {
