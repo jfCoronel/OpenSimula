@@ -1,6 +1,6 @@
 ## Examples
 
-A gallery of projects that build on each other: each one of the first seven is the previous one plus one new idea, from a schedule with no building at all to an office conditioned by a fan coil and a heat pump. The eighth goes back to the sixth and replaces the building by a record of its loads. They all use the weather of Sevilla (Spain) and, from the third on, the same building (the eighth, its loads): the 8 × 6 × 2.7 m box of the ASHRAE Standard 140 test cases, with lightweight walls and roof and a floor that loses almost no heat.
+A gallery of projects that build on each other: each one of the first seven is the previous one plus one new idea, from a schedule with no building at all to an office conditioned by a fan coil and a heat pump. The eighth goes back to the sixth and replaces the building by a record of its loads, and the ninth uses those loads for a water plant with two generators and two circuits. They all use the weather of Sevilla (Spain) and, from the third on, the same building (the last two, its loads): the 8 × 6 × 2.7 m box of the ASHRAE Standard 140 test cases, with lightweight walls and roof and a floor that loses almost no heat.
 
 They come with opensimula. To get them, together with the weather and load files they read, run in a terminal:
 
@@ -32,6 +32,7 @@ pro.results("office.temperature", "office.system_sensible_heat")
 | [06 DX system](#06-dx-system) | A real air-to-air heat pump | 32 |
 | [07 Fan coil](#07-fan-coil) | A fan coil, a water loop and an air-to-water heat pump | 37 |
 | [08 Load records](#08-load-records) | The system of 06 against a record of the loads, without the building | 12 |
+| [09 Water plant](#09-water-plant) | A heat pump and a backup boiler, two circuits with their fan coils | 24 |
 
 ### 01 Schedules
 
@@ -120,3 +121,17 @@ When the system does not supply the load, at night, at weekends, or when the DX 
 ![Office temperature with the DX system, with the building and with the load record, 8-12 October](img/examples/08_load_records.png)
 
 *Try:* change `construction` to `MEDIUM` or `HEAVY` and look at how the temperature swings while the office is closed; or make your own record: in example 05, set the ideal system to 24 °C and 50 % all day, simulate, pick `office.system_sensible_heat` and `office.system_latent_heat` in the results viewer and download them with **CSV**. Rename their columns to `Q_sensible [W]` and `Q_latent [W]` (a variable name cannot have the dot of `office.`) and give the file to `load_record`.
+
+### 09 Water plant
+
+**New:** `HVAC_water_generator` with several generators and `sequencing`, `Boiler`, `HVAC_water_circuit`.
+
+Two offices defined by their loads, as in example 08: `office_south` is the office of the examples and `office_north` the same box with half its loads. Each one has the fan coil of example 07, and each fan coil hangs from its own circuit of a water plant, `water_plant`, which has two generators: a reversible air-to-water heat pump and a condensing gas boiler. With `sequencing` "PRIORITY" the generators run in the order of the list: the heat pump heats the water to 50 °C and, only when it is at full load, the boiler helps; in cooling only the heat pump runs, as a boiler cannot cool. Each generator has its own pump, which moves water only while it is available.
+
+The circuits take water from the plant with their own pumps. `north_circuit` gives its fan coil the water of the plant; `south_circuit` has a mixing valve, `heating_supply_setpoint` "45": it mixes the water of the plant with its own return so that its fan coil gets 45 °C, taking from the plant only 0.07 of its 0.45 dm³/s. For the plant each circuit is one more coil.
+
+In the year the heat pump gives 740 kWh of heat and 8744 kWh of cold, with a mean COP of 2.7 and EER of 2.6 while it runs; the boiler gives 101 kWh in 54 hours, on the coldest mornings from December to April, with 112 kWh of gas (90 %: the return is above 55 °C, so it hardly condenses). The fan coils need only 502 kWh of heat: the rest is the cost of a two-pipe plant, which on many spring and autumn days cools the water to 7 °C in the afternoon and has to heat it again to 50 °C the next morning. The offices stay at 20-25 °C while open (3 hours above 25.5 °C in the year). Each generator has its own variables (`Q`, `power`, `fuel_power`, `efficiency`, `F_load`) and the plant their totals (`electric_power` of generators and pumps, `generators_fuel_power`).
+
+![Monthly heat of the heat pump and the boiler](img/examples/09_water_plant.png)
+
+*Try:* change `sequencing` to "EQUAL_LOAD": both generators share every load, and the boiler gives 525 kWh in 185 hours instead of 101 kWh in 54; give the heat pump more heating capacity, or the plant more water (`total_water_volume`), and look at the hours of the boiler; or add a secondary pump to the plant (`pumps`) to have a header between the generators and the circuits.

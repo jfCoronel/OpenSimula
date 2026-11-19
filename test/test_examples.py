@@ -17,6 +17,7 @@ NAMES = [
     "06_dx_system",
     "07_fan_coil",
     "08_load_records",
+    "09_water_plant",
 ]
 # 01-07 build on each other; 08 starts again from 06 without the building
 PROGRESSIVE = NAMES[:7]
@@ -118,3 +119,15 @@ def test_the_load_records_example_is_close_to_the_building(folder, monkeypatch):
     cooling_08, hot_08 = results["08_load_records"]
     assert abs(cooling_08 / cooling_06 - 1) < 0.05
     assert abs(hot_08 - hot_06) < 15
+
+
+def test_the_water_plant_example_heat_pump_first_boiler_as_backup(folder, monkeypatch):
+    pro = _simulate(folder, "09_water_plant", monkeypatch, n_time_steps=24 * 21)
+    hp = pro.component("heat_pump_generator")
+    boiler = pro.component("boiler_generator").variable("Q").values
+    assert boiler.sum() > 0
+    # the boiler only helps the heat pump at full load, and never cools
+    assert np.all(hp.variable("F_load").values[boiler > 0] == pytest.approx(1))
+    assert np.all(boiler >= 0)
+    # the mixing valve of the south circuit: never above 45 °C
+    assert pro.component("south_circuit").variable("T_supply").values.max() <= 45 + 1e-9

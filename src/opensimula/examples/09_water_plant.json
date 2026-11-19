@@ -1,0 +1,305 @@
+{
+    "name": "09 Water plant",
+    "description": "Two offices defined by their loads, each with a fan coil on its own circuit, fed by a water plant with a heat pump and a condensing boiler as backup",
+    "time_step": 3600,
+    "n_time_steps": 8760,
+    "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "sevilla",
+    "components": [
+        {
+            "type": "Day_schedule",
+            "name": "working_day",
+            "description": "Office hours: 0 until 8:00, 1 from 8:00 to 18:00, 0 after",
+            "time_steps": [
+                28800,
+                36000
+            ],
+            "values": [
+                0,
+                1,
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Day_schedule",
+            "name": "closed_day",
+            "description": "Closed all day",
+            "time_steps": [],
+            "values": [
+                0
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Week_schedule",
+            "name": "working_week",
+            "description": "Monday to Friday open, Saturday and Sunday closed",
+            "days_schedules": [
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "working_day",
+                "closed_day",
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Week_schedule",
+            "name": "holiday_week",
+            "description": "Closed all week",
+            "days_schedules": [
+                "closed_day"
+            ]
+        },
+        {
+            "type": "Year_schedule",
+            "name": "office_hours",
+            "description": "Working weeks all year except August (holidays). Its variable 'values' is 1 when the office is open",
+            "periods": [
+                "01/08",
+                "01/09"
+            ],
+            "weeks_schedules": [
+                "working_week",
+                "holiday_week",
+                "working_week"
+            ]
+        },
+        {
+            "type": "File_met",
+            "name": "sevilla",
+            "description": "Hourly weather of Sevilla (Spain), MET format. The file is read from the folder the app is started from",
+            "file_type": "MET",
+            "file_name": "sevilla.met"
+        },
+        {
+            "type": "File_data",
+            "name": "load_record",
+            "description": "Hourly sensible and latent loads of the box of the examples (one row per hour, positive heating), calculated with the ideal system of example 05 holding 24 °C and 50 % all year, with no outdoor air and 0.5 air changes per hour",
+            "file_name": "office_loads.csv"
+        },
+        {
+            "type": "Load_space",
+            "name": "office_south",
+            "description": "South office: the office of example 08, defined by its load record",
+            "input_variables": [
+                "Q = load_record.Q_sensible",
+                "L = load_record.Q_latent",
+                "f = office_hours.values"
+            ],
+            "sensible_load": "Q",
+            "latent_load": "L",
+            "reference_temperature": "24",
+            "reference_humidity": "50",
+            "load_infiltration": "0.5",
+            "infiltration": "0.5 * (1 - f)",
+            "floor_area": 48,
+            "height": 2.7,
+            "construction": "CUSTOM",
+            "custom_mass_capacity": 20,
+            "custom_mass_area": 1.0,
+            "envelope_conductance": 1.8
+        },
+        {
+            "type": "Load_space",
+            "name": "office_north",
+            "description": "North office: the same box with half the loads (less sun)",
+            "input_variables": [
+                "Q = load_record.Q_sensible",
+                "L = load_record.Q_latent",
+                "f = office_hours.values"
+            ],
+            "sensible_load": "0.5 * Q",
+            "latent_load": "0.5 * L",
+            "reference_temperature": "24",
+            "reference_humidity": "50",
+            "load_infiltration": "0.5",
+            "infiltration": "0.5 * (1 - f)",
+            "floor_area": 48,
+            "height": 2.7,
+            "construction": "CUSTOM",
+            "custom_mass_capacity": 20,
+            "custom_mass_area": 1.0,
+            "envelope_conductance": 1.8
+        },
+        {
+            "type": "Fan",
+            "name": "supply_fan",
+            "nominal_air_flow": 0.4167,
+            "nominal_pressure": 300,
+            "nominal_power": 208.35,
+            "description": "Fan of each fan coil"
+        },
+        {
+            "type": "Water_coil",
+            "name": "coil",
+            "description": "Water coil of each fan coil",
+            "nominal_air_flow": 0.4167,
+            "nominal_heating_capacity": 6500,
+            "nominal_heating_water_flow": 0.155,
+            "nominal_total_cooling_capacity": 8667,
+            "nominal_sensible_cooling_capacity": 6500,
+            "nominal_cooling_water_flow": 0.4137
+        },
+        {
+            "type": "HVAC_SZW_system",
+            "name": "fan_coil_south",
+            "description": "Fan coil of the south office, working while it is open at 20-25 °C with 15 % of outdoor air, fed by the south_circuit",
+            "space": "office_south",
+            "heating_coil": "coil",
+            "cooling_coil": "coil",
+            "supply_fan": "supply_fan",
+            "air_flow": 0.4167,
+            "outdoor_air_fraction": "0.15",
+            "cooling_water_flow": 0.4137,
+            "heating_water_flow": 0.155,
+            "input_variables": [
+                "f = office_hours.values"
+            ],
+            "heating_setpoint": "20",
+            "cooling_setpoint": "25",
+            "system_on_off": "f",
+            "water_flow_control": "ON_OFF",
+            "water_source": "WATER_SYSTEM",
+            "cooling_water_system": "south_circuit",
+            "heating_water_system": "south_circuit"
+        },
+        {
+            "type": "HVAC_SZW_system",
+            "name": "fan_coil_north",
+            "description": "Fan coil of the north office, working while it is open at 20-25 °C with 15 % of outdoor air, fed by the north_circuit",
+            "space": "office_north",
+            "heating_coil": "coil",
+            "cooling_coil": "coil",
+            "supply_fan": "supply_fan",
+            "air_flow": 0.4167,
+            "outdoor_air_fraction": "0.15",
+            "cooling_water_flow": 0.4137,
+            "heating_water_flow": 0.155,
+            "input_variables": [
+                "f = office_hours.values"
+            ],
+            "heating_setpoint": "20",
+            "cooling_setpoint": "25",
+            "system_on_off": "f",
+            "water_flow_control": "ON_OFF",
+            "water_source": "WATER_SYSTEM",
+            "cooling_water_system": "north_circuit",
+            "heating_water_system": "north_circuit"
+        },
+        {
+            "type": "Pump",
+            "name": "south_pump",
+            "description": "Pump of the south circuit",
+            "nominal_water_flow": 0.45,
+            "nominal_pressure": 60000,
+            "nominal_power": 45
+        },
+        {
+            "type": "Pump",
+            "name": "north_pump",
+            "description": "Pump of the north circuit",
+            "nominal_water_flow": 0.45,
+            "nominal_pressure": 60000,
+            "nominal_power": 45
+        },
+        {
+            "type": "HVAC_water_circuit",
+            "name": "south_circuit",
+            "water_system": "water_plant",
+            "pumps": [
+                "south_pump"
+            ],
+            "input_variables": [
+                "f = office_hours.values"
+            ],
+            "system_on_off": "f",
+            "heating_supply_setpoint": "45",
+            "description": "Circuit of the south fan coil: a mixing valve keeps its supply at 45 °C at most"
+        },
+        {
+            "type": "HVAC_water_circuit",
+            "name": "north_circuit",
+            "water_system": "water_plant",
+            "pumps": [
+                "north_pump"
+            ],
+            "input_variables": [
+                "f = office_hours.values"
+            ],
+            "system_on_off": "f",
+            "description": "Circuit of the north fan coil: the water of the plant, no mixing valve"
+        },
+        {
+            "type": "Chiller_heat_pump",
+            "name": "heat_pump",
+            "chiller_type": "CHILLER_HEAT_PUMP",
+            "description": "Reversible air-to-water heat pump: 12 kW of cooling, 6 kW of heating",
+            "nominal_cooling_capacity": 12000,
+            "nominal_cooling_power": 4000,
+            "EER_expression": "0.85 + 0.15 * F_load",
+            "nominal_heating_capacity": 6000,
+            "nominal_heating_power": 1875.0,
+            "COP_expression": "0.85 + 0.15 * F_load",
+            "nominal_water_flow": 0.6
+        },
+        {
+            "type": "Boiler",
+            "name": "boiler",
+            "description": "Condensing gas boiler: 88 % with a return at 55 °C or more, up to 96 % at 30 °C",
+            "nominal_heating_capacity": 10000,
+            "nominal_efficiency": 0.88,
+            "nominal_water_flow": 0.4,
+            "efficiency_expression": "1 + 0.0035 * max(55 - T_wi, 0)",
+            "auxiliary_power": 40
+        },
+        {
+            "type": "Pump",
+            "name": "heat_pump_pump",
+            "description": "Primary pump of the heat pump",
+            "nominal_water_flow": 0.6,
+            "nominal_pressure": 80000,
+            "nominal_power": 70
+        },
+        {
+            "type": "Pump",
+            "name": "boiler_pump",
+            "description": "Primary pump of the boiler",
+            "nominal_water_flow": 0.4,
+            "nominal_pressure": 60000,
+            "nominal_power": 40
+        },
+        {
+            "type": "HVAC_water_generator",
+            "name": "heat_pump_generator",
+            "equipment": "heat_pump",
+            "pump": "heat_pump_pump",
+            "description": "First generator: the heat pump, for heating and cooling"
+        },
+        {
+            "type": "HVAC_water_generator",
+            "name": "boiler_generator",
+            "equipment": "boiler",
+            "pump": "boiler_pump",
+            "description": "Backup: the boiler, only when the heat pump is at full load (it only heats)"
+        },
+        {
+            "type": "HVAC_water_system",
+            "name": "water_plant",
+            "generators": [
+                "heat_pump_generator",
+                "boiler_generator"
+            ],
+            "sequencing": "PRIORITY",
+            "heating_water_setpoint": "50",
+            "cooling_water_setpoint": "7",
+            "total_water_volume": 50,
+            "pump_operation": "ON_LOAD",
+            "system_control": "LOAD_CONTROL",
+            "system_on_off": "1",
+            "description": "Water plant: heats to 50 °C with the heat pump and, when it is not enough, also the boiler; cools to 7 °C with the heat pump"
+        }
+    ]
+}
