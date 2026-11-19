@@ -137,3 +137,34 @@ def test_heat_of_the_pumps_counted_once():
     h = lambda n: pro.component("plant").variable(n).values[24:]
     residual = h("delta_U") - (h("Q_generators") + h("Q_process") + h("Q_loss") + h("Q_pump"))
     assert np.abs(residual).max() < 1
+
+
+def test_heat_pump_at_full_capacity_with_a_header():
+    # an undersized heat pump: at full load its capacity is the one at the actual outlet
+    # temperature (higher than at the setpoint, the water is colder), and the energy
+    # balance of the water holds
+    hp = {"type": "Chiller_heat_pump", "name": "hp", "chiller_type": "HEAT_PUMP",
+          "nominal_heating_capacity": 4000, "nominal_heating_power": 1300, "nominal_water_flow": 0.3,
+          "heating_capacity_expression": "1.2 - 0.004 * T_wo"}
+    components = [{"type": "File_met", "name": "sevilla", "file_type": "MET", "file_name": MET}, hp,
+                  pump("primary", 0.3, 50), pump("secondary", 0.2, 80),
+                  {"type": "HVAC_water_generator", "name": "g", "equipment": "hp", "pump": "primary"},
+                  {"type": "HVAC_water_system", "name": "plant", "generators": ["g"], "pumps": ["secondary"],
+                   "heating_water_setpoint": "50", "initial_water_temp": 50, "total_water_volume": 100,
+                   "Q_process": "-4500"}]
+    sim = osm.Simulation()
+    sim.console_print = False
+    pro = sim.new_project("p")
+    pro.read_dict({"name": "p", "n_time_steps": 72, "simulation_file_met": "sevilla",
+                   "components": components})
+    pro.simulate(progress=lambda i, n: None)
+    T_out = pro.component("plant").variable("T_generators_out").values
+    Q = pro.component("g").variable("Q").values
+    assert np.all(T_out[1:] < 50)
+    # its capacity at the actual outlet temperature
+    assert np.allclose(Q[2:], 4000 * (1.2 - 0.004 * T_out[2:]), rtol=1e-3)
+    # it settles where its capacity equals the load: 4000 (1.2 - 0.004 T) = 4500
+    assert T_out[-1] == pytest.approx(18.75, abs=0.1)
+    h = lambda n: pro.component("plant").variable(n).values
+    residual = h("delta_U") - (h("Q_generators") + h("Q_process") + h("Q_loss") + h("Q_pump"))
+    assert np.abs(residual).max() < 1
