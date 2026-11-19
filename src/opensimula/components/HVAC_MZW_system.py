@@ -267,6 +267,13 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         self.heating_water_flow = self.parameter("heating_water_flow").value/1000 # Convert to m³/s
         self.cooling_water_temp = self.parameter("inlet_cooling_water_temp").value
         self.heating_water_temp = self.parameter("inlet_heating_water_temp").value
+        self.reheat_water_temp = self.heating_water_temp
+        # Water systems: the inlet water temperatures come from them in each iteration
+        from_system = self.parameter("water_source").value == "WATER_SYSTEM"
+        self.heating_ws = self.parameter("heating_water_system").component if from_system else None
+        self.cooling_ws = self.parameter("cooling_water_system").component if from_system else None
+        reheat_from_system = self.parameter("reheat_water_source").value == "WATER_SYSTEM"
+        self.reheat_ws = self.parameter("reheat_water_system").component if reheat_from_system else None
         self.rho_MA = self.props["RHO_A"]
         # Fan operation
         self.fan_operation = self.parameter("fan_operation").value
@@ -340,7 +347,25 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 self._calculate_required_Q()
             self._simulate_system()
             self._send_air_to_spaces(time_index)
+            self._send_water_to_systems()
         return True
+
+    def _send_water_to_systems(self):
+        # Loads of the coils to the water systems (positive when the coil heats the
+        # water); flow: the design one the fraction of the time (ON_OFF) or of the
+        # flow (PROPORTIONAL, estimated) the coil works
+        if self.heating_ws is not None and self.state in (1, 2):
+            self.heating_ws.add_coil_load(
+                -self.Q_coil, self.parameter("heating_water_flow").value * self.F_load
+            )
+        elif self.cooling_ws is not None and self.state in (-1, -2):
+            self.cooling_ws.add_coil_load(
+                -self.Q_coil, self.parameter("cooling_water_flow").value * self.F_load
+            )
+        if self.reheat_ws is not None and self.is_reheat:
+            Q = float(np.sum(self.Q_reheat))
+            if Q > 0:
+                self.reheat_ws.add_coil_load(-Q, self._reheat_flow)
 
     def _calculate_return_air(self, time_index):
         v_return = 0
@@ -475,9 +500,19 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             self.F_econo = 0.0
 
     def _simulate_system(self):
-        if self.h_coil is not None and self.Q_required > 0:  # Heating
+        heating = self.h_coil is not None and self.Q_required > 0
+        cooling = self.c_coil is not None and self.Q_required < 0
+        # From a water system: no heating (cooling) if it is off or its water is
+        # colder (warmer) than the mixed air
+        if heating and self.heating_ws is not None:
+            self.heating_water_temp = self.heating_ws.get_heating_coil_inlet_T()
+            heating = self.heating_ws.on_off and self.heating_water_temp >= self.T_MA
+        if cooling and self.cooling_ws is not None:
+            self.cooling_water_temp = self.cooling_ws.get_cooling_coil_inlet_T()
+            cooling = self.cooling_ws.on_off and self.cooling_water_temp <= self.T_MA
+        if heating:
             self._simulate_heating()
-        elif self.c_coil is not None and self.Q_required < 0:  # Cooling
+        elif cooling:
             self._simulate_cooling()
         else:  # Venting
             self.state = 3
@@ -564,6 +599,11 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
 
     def _send_air_to_spaces(self, time_index):
         self.Q_reheat = np.zeros(len(self.spaces))
+        self._reheat_flow = 0  # dm³/s, to the reheat water system
+        reheat_available = True
+        if self.is_reheat and self.reheat_ws is not None:
+            self.reheat_water_temp = self.reheat_ws.get_heating_coil_inlet_T()
+            reheat_available = self.reheat_ws.on_off and self.reheat_water_temp > self.T_SA
         self.F_flow_total = 0
         self.rho_CA = 1 / sicro.GetMoistAirVolume(
             self.T_CA, self.w_CA / 1000, self.props["ATM_PRESSURE"]
@@ -610,7 +650,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
             # Reheat control
             if self.is_reheat:
                 reheat_coil = self.reheat_coils[i]
-                if reheat_coil is not None and reheat_needed:
+                if reheat_coil is not None and reheat_needed and reheat_available:
                     # Reheat coil
                     water_flow = reheat_coil.parameter(
                         "nominal_heating_water_flow"
@@ -618,7 +658,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                     capacity, epsilon = reheat_coil.get_heating_capacity(
                         self.T_SA,
                         self.T_SAwb,
-                        self.heating_water_temp,
+                        self.reheat_water_temp,
                         self.air_flow * f_air_flow,
                         water_flow,
                     )
@@ -627,6 +667,8 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                         self.Q_reheat[i] = Q_reheat_required
                     else:
                         self.Q_reheat[i] = capacity
+                    if capacity > 0:
+                        self._reheat_flow += water_flow * 1000 * self.Q_reheat[i] / capacity
                     space.set_control_system(
                         {
                             "M_a": 0,
