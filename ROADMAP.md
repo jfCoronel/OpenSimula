@@ -3,7 +3,25 @@
 Working notes for resuming development on OpenSimula from any machine. This file is for
 the maintainer, not end users — it is not part of the published docs (`mkdocs/`).
 
-## Where things stand (2026-11-13)
+## Where things stand (2026-11-19)
+
+- **v0.10.0 released (2026-11-19)**: PyPI, GitHub release `v0.10.0`, Zenodo version DOI
+  10.5281/zenodo.24369425. Water plants (`Boiler`, `HVAC_water_generator` with several
+  generators, units and sequencing, header with secondary pumps, `HVAC_water_circuit`),
+  `Load_space` (zones from load records, `Thermal_zone` base class), MZW connected to its
+  water systems, gallery of nine examples, docs (user guide "HVAC systems and water plants"
+  with an SVG diagram, release notes page with the whole history and the upgrade from 0.9,
+  top bar grouped in one line). Breaks the compatibility of `HVAC_water_system`. Tests 220,
+  `validate.py --check` full: 0 changed. Details: sections "Planned: several generators..."
+  and "Planned: `Load_space`..." below (PRs #44-#58).
+- **Next (agreed 2026-11-19)**: CTE indicators (primary energy and CO₂ from the electric
+  and fuel power, `Boiler.fuel` ready; comfort indicators, reports). Later candidates: B6
+  variable secondary flow and pump staging (0.11), small follow-ups (`File_data` dates,
+  viewer CSV names with dots), HULC importer, marimo/WASM course. JOSS: wait (see memory),
+  one combined paper update for 0.9 + 0.10 when an editor is assigned or with the ping at
+  the end of November.
+
+## Where things stood (2026-11-13)
 
 - **v0.9.0 released (2026-11-13)**: PyPI, GitHub release `v0.9.0`, Zenodo version DOI
   10.5281/zenodo.24194954. Graphical interface (phases 1–4 below: results viewer with 3D
