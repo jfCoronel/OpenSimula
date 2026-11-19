@@ -574,6 +574,40 @@ generator per loop, more than one pump, and the usual primary/secondary separati
 - Order of work: `Boiler` → `HVAC_water_generator` with one generator → several generators
   and sequencing → primary/secondary (header) → `HVAC_water_circuit` secondaries → variable
   secondary flow.
+- **B1 done (PR #49, merged)**: `Boiler` (data only): fuel, nominal capacity and efficiency
+  (LHV), `efficiency_expression` of `T_wi`, `T_wo`, `F_water`, `F_load`, maximum supply
+  temperature, auxiliary power. Own interface (`get_heating_load(T_wo, T_wi, flow, Q)`,
+  `get_fuel_power`, `get_auxiliary_power`): the outdoor air does not matter to a boiler.
+- **B2 done (branch `feat/water-generator`)**, split as agreed 2026-11-19:
+  - `HVAC_water_generator` (equipment Chiller_heat_pump or Boiler, `pump`, `system_on_off`;
+    variables Q, F_load, power, fuel_power, efficiency, water_flow, T_wi, T_wo, pump_power).
+    `HVAC_water_system.generators` (one only until B3) replaces `water_thermal_generator`;
+    `pump` and `design_water_flow` gone: no header yet, so the loop is moved by the pump of
+    the generator at the nominal flow of its equipment. The plant's `pumps` list comes with
+    the header (B4). `pump_operation` stays in the plant.
+  - `add_coil_load(Q, flow)`: SZW and MZW send design flow × F_load; stored as
+    `coils_water_flow`, not used yet (B4/B6).
+  - Results bit-identical (example 07, the water tests) except `generator_part_load`: it
+    kept the previous step's value when the generator gave nothing, and was 1 at full load
+    while the power was computed with the part load at the actual supply temperature.
+  - **`HVAC_MZW_system` was not connected to its water systems** (parameters and docs said
+    so, the code used the fixed inlet temperatures and sent no load): now connected, coils
+    and reheat (own `reheat_water_temp`). AIR_SIDE validation: 0 changed. Test: four-pipe
+    VAV with reheat, boiler plant and chiller plant, two `Load_space` zones
+    (`test/mzw_four_pipe.json`, also `~/Desktop/opensimula_0.10/B2_mzw_four_pipe.json`).
+  - Fix (own commit): VAV outdoor air fraction from the flow balance limited to 0-1 (with
+    return = supply it was -1e-16 and the mixed air humidity negative → psychrolib error).
+  - Migrated: example 07, `test_HVAC_FAN_COIL_water_system.py`,
+    `test_HVAC_water_system_process.py`, the two `jupyter_test` water notebooks.
+- **Follow-ups found in B2**:
+  - The generator capacity is evaluated at the setpoint, not at the actual supply
+    temperature when the water does not reach it (the power is computed at the actual one).
+  - A coil only checks the plant's water temperature, not its mode: with SCHEDULE_CONTROL in
+    heating, a cooling coil can cool with water that stayed cold (e.g. a hot plant at its
+    initial 20 °C in summer) and the plant discards its load: energy from nowhere. Coils
+    should ask the plant whether it can heat / cool in its mode.
+  - `File_data` with `file_step` "SIMULATION" ignores the dates: a simulation that does not
+    start on 1 January reads the file from its first row. Use "OWN" with `initial_time`.
 
 ## Planned: `Load_space`, air systems against load records (discussed 2026-11-19)
 
@@ -677,6 +711,34 @@ takes the place of a `Space` in `HVAC_DX_system`, `HVAC_SZW_system`, `HVAC_MZW_s
   [W]`; `File_data` reads them, but a name with a dot cannot be used in
   `input_variables`. The docs say to rename the columns; better: `File_data` could replace
   the dots, or the viewer export short names.
+
+## Future: importer of HULC projects (added 2026-11-19)
+
+Code by a student's TFG (final degree project) to import buildings made with HULC (the
+Spanish CTE tool, `.ctehexml` files) into OpenSimula, in `future/hulc_to_opensimula/` (not
+part of the package yet):
+
+- `hulc_to_opensimula.py`: reads the `.ctehexml` (XML header with the general and climate
+  data + a CDATA block in BDL, the LIDER / DOE-2 language) and converts materials, glazings,
+  constructions... to the dict of `Project.read_dict()` (phases 1-2).
+- `hulc_geometria.py`: geometry (phase 3): floors, spaces, walls, roofs and windows from the
+  BDL tree, local HULC coordinates to world and to OpenSimula, CTE schedules, space
+  conditions and space types.
+- `ajustes_hulc.py`: adjustments of the dict to follow HULC more closely (window U with the
+  equivalent frame conductance of each WINDOW, crack infiltration).
+- `parche_opensimula_ff.py`: a patch of `Space._create_ff_matrix` for spaces whose floor or
+  ceiling is split into several surfaces (rows of the form factor matrix not summing 1,
+  long-wave radiation lost). Written against an older version (it mentions 500 iterations
+  and no final normalisation; the current code has `_normalize_ff_rows`): **check with the
+  TFG building whether the current code still has the problem** before using the patch.
+- `Demostracion_HULC_OpenSimula_edificio_v2 .ipynb` (demo), `edificio_pmt_atecyr_sis3.ctehexml`
+  (test building), `BDCatalogo.bdc` (HULC catalogue, 630 kB: check whether it can be
+  redistributed before committing it). Related: `jupyter_test/EDIFICIO_*_HULC.ipynb` and
+  their JSON.
+
+To do when we take it up: review and translate to English (code is in Spanish), tests with
+the test building, decide its place (`opensimula.importers.hulc`? a command `opensimula
+import-hulc file.ctehexml`), credit the student, and compare the demand with HULC's.
 
 ## Growth plan (agreed 2026-10-07)
 
