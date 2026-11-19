@@ -8385,10 +8385,9 @@ var editor_src_default = {
         input.placeholder = "comma separated";
         input.onchange = () => onCommit(parseList(kind, input.value));
       } else if (kind === "integer" || kind === "number") {
-        input.type = "number";
-        input.step = kind === "integer" ? "1" : "any";
-        if (item.minimum !== void 0) input.min = item.minimum;
-        if (item.maximum !== void 0) input.max = item.maximum;
+        input.type = "text";
+        input.inputMode = kind === "integer" ? "numeric" : "decimal";
+        input.spellcheck = false;
         input.value = value ?? "";
         input.onchange = () => onCommit(parseScalar(kind, input.value));
       } else {

@@ -550,3 +550,12 @@ def test_the_plotly_request_is_answered_with_the_bundle(building, monkeypatch):
     assert content == {"type": "plotly"}
     bundle = (widget_module._STATIC / "plotly3d.js").read_bytes()
     assert buffers == [bundle] and len(bundle) > 1_000_000
+
+
+def test_number_fields_always_use_the_decimal_point():
+    # type="number" fields show the separator of the browser's language (a comma in
+    # Spanish), which reads as a list separator: numbers are text fields
+    static = pathlib.Path(widget_module.__file__).parent / "static"
+    source = (static / "editor.js").read_text()
+    assert 'input.type = "number"' not in source
+    assert 'input.inputMode = kind === "integer" ? "numeric" : "decimal"' in source
