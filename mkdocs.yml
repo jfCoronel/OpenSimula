@@ -16,18 +16,20 @@ nav:
     - Getting started: getting_started.md
     - Examples: examples.md
     - User guide: user_guide.md
-    - Component list: component_list.md
-    - Developer guide: developer_guide.md
-    - Validation: validation.md
-    - Release notes: release_notes.md
-    - API reference:
-        - Overview: api/index.md
-        - Simulation: api/simulation.md
-        - Project: api/project.md
-        - Component: api/component.md
-        - Parameters: api/parameters.md
-        - Variable and Message: api/variable.md
-        - Iterative_process: api/iterative_process.md
+    - Components: component_list.md
+    - About:
+        - Validation: validation.md
+        - Release notes: release_notes.md
+    - Development:
+        - Developer guide: developer_guide.md
+        - API reference:
+            - Overview: api/index.md
+            - Simulation: api/simulation.md
+            - Project: api/project.md
+            - Component: api/component.md
+            - Parameters: api/parameters.md
+            - Variable and Message: api/variable.md
+            - Iterative_process: api/iterative_process.md
 
 plugins:
     - search
