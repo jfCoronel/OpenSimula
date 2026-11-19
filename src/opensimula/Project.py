@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import psychrolib as sicro
 from tqdm import trange
+from opensimula.Component import Component
 from opensimula.Message import Message
 from opensimula.Parameter_container import Parameter_container
 from opensimula.Parameters import (
@@ -205,13 +206,13 @@ class Project(Parameter_container):
             Component: The new component with its default parameters, None if the type
                 does not exist.
         """
-        try:
-            clase = globals()[comp_type]
-            comp = clase(name, self)
-            self._components_.append(comp)
-            return comp
-        except KeyError:
+        # globals() also holds modules (e.g. the base class module Thermal_zone)
+        clase = globals().get(comp_type)
+        if not (isinstance(clase, type) and issubclass(clase, Component)) or clase is Component:
             return None
+        comp = clase(name, self)
+        self._components_.append(comp)
+        return comp
 
     def duplicate_component(self, component_name, new_name):
         """Duplicate an existing component with a new name
