@@ -124,3 +124,14 @@ def test_only_the_generators_able_to_cool_run_in_cooling():
     assert last(pro, "chiller_gen", "Q") == pytest.approx(-6000)
     assert last(pro, "chiller_gen", "F_load") == pytest.approx(0.75)
     assert np.all(pro.component("boiler_gen").variable("Q").values == 0)
+
+
+def test_a_pump_without_flow_gives_no_heat():
+    # the power expression of a pump is constant by default: with no flow its heat to
+    # the water must be 0 (a generator not available added the heat of its pump)
+    pro = plant([{"type": "HVAC_water_generator", "name": "g", "equipment": "b", "pump": "p"}],
+                [BOILER | {"name": "b"}, {"type": "Pump", "name": "p", "nominal_water_flow": 0.2,
+                                          "nominal_power": 70}], n=2)
+    g = pro.component("g")
+    assert g.get_pump_heat(0) == 0
+    assert g.get_pump_heat(0.2) == pytest.approx(70)
