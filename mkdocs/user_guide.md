@@ -438,23 +438,7 @@ Jupyter shell:
 
 The HVAC components are of two kinds: **equipment** components, which only hold the manufacturer's data of a piece of equipment and are not simulated by themselves (`DX_unit`, `Water_coil`, `Fan`, `Pump`, `Chiller_heat_pump`, `Boiler`), and **systems** (`HVAC_*`), which use them, are simulated in each time step and store the variables of the installation. An installation is put together by references between them:
 
-<pre>
- zones                  air systems                      water side
- ─────                  ───────────                      ──────────
- Space        ◄──┬──  HVAC_perfect_system
- Load_space   ◄──┤    HVAC_DX_system ── DX_unit
-                 ├──  HVAC_SZW_system ─┬─ Water_coil, Fan
-                 └──  HVAC_MZW_system ─┘     │
-                                             ▼ heating_water_system / cooling_water_system
-                                        HVAC_water_circuit (optional) ── pumps
-                                             │ water_system
-                                             ▼
-                                        HVAC_water_system (the plant) ── pumps (optional: header)
-                                             │ generators
-                                             ▼
-                                        HVAC_water_generator ── equipment: Chiller_heat_pump or Boiler
-                                                             └─ pump
-</pre>
+![How the HVAC components refer to each other](img/hvac_components.svg)
 
 **Zones.** An air system serves a `Space` of a building or a `Load_space`, a zone defined by load records (sensible and latent loads read, for example, from a `File_data`), which allows to simulate an installation without the building. Both offer the systems the same: their temperature and humidity, and their balance equations. See example 08.
 

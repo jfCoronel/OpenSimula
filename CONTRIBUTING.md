@@ -98,8 +98,9 @@ uv run mkdocs build --clean  # local build in site/ (not committed)
 
 1. Update the version number in `pyproject.toml` and `CITATION.cff` (`version` and
    `date-released`), and run `uv sync` so that `uv.lock` picks it up.
-2. Add an entry to the release notes in `mkdocs/index.md` and update its
-   "Current Version" line.
+2. Add the version to the release notes, `mkdocs/release_notes.md` (new features, fixes that
+   change results and, if it breaks compatibility, how to upgrade), and update the
+   "Current Version" line of `mkdocs/index.md`.
 3. Run all the tests: `uv run pytest test`, and check that the ASHRAE 140 results are up to
    date: `uv run python ASHRAE_140/validation/validate.py --check`.
 4. Commit with the version as message (e.g. `Version 0.8.8: ...`) and push. The
