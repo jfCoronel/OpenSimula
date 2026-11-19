@@ -132,3 +132,6 @@ dmypy.json
 # JOSS paper: built PDF (CI artifact)
 paper/paper.pdf
 paper/jats/
+
+# HULC catalogue used by future/hulc_to_opensimula (not redistributed)
+future/hulc_to_opensimula/BDCatalogo.bdc*
