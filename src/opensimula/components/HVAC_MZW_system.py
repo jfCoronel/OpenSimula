@@ -387,6 +387,9 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         # Calculate F_OA based on return air flow
         if self.is_vav:
             self.F_OA = (self.air_flow * self.F_flow_total - v_return) / (self.air_flow* self.F_flow_total)
+            # with the return equal to the supply the rounding may leave it slightly
+            # negative, and the mixed air humidity with it
+            self.F_OA = min(max(self.F_OA, 0.0), 1.0)
         elif self.V_OA > 0:
             self._set_outdoor_air_from_flow(rho_ZA)
 

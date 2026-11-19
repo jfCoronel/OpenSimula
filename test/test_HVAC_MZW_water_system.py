@@ -87,3 +87,9 @@ def test_plant_off_no_cooling():
     assert np.all(~np.isin(values(pro, "ahu", "state"), [-1, -2]))
     assert np.all(values(pro, "chiller_generator", "Q") == 0)
 
+
+def test_vav_with_the_return_equal_to_the_supply():
+    # no outdoor air: the fraction from the flow balance may be -1e-16 by rounding,
+    # which made the mixed air humidity negative (psychrolib error)
+    pro = simulate("01/07/2001 00:00:00", days=10, return_air_flow=0.8)
+    assert np.all(values(pro, "ahu", "outdoor_air_fraction") >= 0)
