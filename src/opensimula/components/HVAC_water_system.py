@@ -191,6 +191,20 @@ class HVAC_water_system(Component):  # HVAC Water system
         else:
             return self.T_WCI
 
+    def can_heat(self):
+        """True if the coils can take heat from the plant: it is on and, with
+        SCHEDULE_CONTROL, not in cooling mode (its loads would be discarded)."""
+        if not self.on_off:
+            return False
+        return not (self.parameter("system_control").value == "SCHEDULE_CONTROL" and self.mode == -1)
+
+    def can_cool(self):
+        """True if the coils can take cold from the plant: it is on and, with
+        SCHEDULE_CONTROL, not in heating mode (its loads would be discarded)."""
+        if not self.on_off:
+            return False
+        return not (self.parameter("system_control").value == "SCHEDULE_CONTROL" and self.mode == 1)
+
     def add_coil_load(self, Q_coil, water_flow=0):
         """Add the load of a coil in this iteration.
 
