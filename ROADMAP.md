@@ -599,6 +599,18 @@ generator per loop, more than one pump, and the usual primary/secondary separati
     return = supply it was -1e-16 and the mixed air humidity negative → psychrolib error).
   - Migrated: example 07, `test_HVAC_FAN_COIL_water_system.py`,
     `test_HVAC_water_system_process.py`, the two `jupyter_test` water notebooks.
+- **B3 done (branch `feat/water-sequencing`)**: several generators per plant, in parallel
+  (no header yet): loop flow = sum of the nominal flows of the available generators, each
+  moved by its pump; one not available lets no water through. `sequencing` PRIORITY (list
+  order, next at full load of the previous) / EQUAL_LOAD (same part load); only those able
+  to serve the mode run (boiler only heats). `number_of_units` in the generator: capacity
+  and flow × N, units share the load with the plant's sequencing, power per unit at its own
+  part load; variable `units_on`. Plant: `generator_fuel_power`; `generator_efficiency` of
+  several = heat / (electric + fuel). One generator, one unit: bit-identical to B2. Tests
+  `test_HVAC_water_sequencing.py` (exact shares with a constant process load). Test
+  project `~/Desktop/opensimula_0.10/B3_heat_pump_and_boiler.json` (4 kW heat pump first,
+  boiler backup: HP 591 kWh / boiler 397 kWh heating; HP undersized in cooling, 433 h >
+  25.5 °C).
 - **Follow-ups found in B2**:
   - The generator capacity is evaluated at the setpoint, not at the actual supply
     temperature when the water does not reach it (the power is computed at the actual one).

@@ -20,6 +20,9 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.add_parameter(
             Parameter_component_list("generators", ["not_defined"], ["HVAC_water_generator"])
         )
+        # PRIORITY: in the order of the list, the next one when the previous is at full
+        # load; EQUAL_LOAD: all those able to run at the same part load
+        self.add_parameter(Parameter_options("sequencing", "PRIORITY", ["PRIORITY", "EQUAL_LOAD"]))
         self.add_parameter(Parameter_float("initial_water_temp", 20, "°C"))
         self.add_parameter(Parameter_float("total_water_volume", 1000, "dm³", min=0))
         self.add_parameter(Parameter_variable_list("input_variables", []))
@@ -56,6 +59,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.add_variable(Variable("delta_U", unit="W"))
         self.add_variable(Variable("pump_power", unit="W"))
         self.add_variable(Variable("generator_power", unit="W"))
+        self.add_variable(Variable("generator_fuel_power", unit="W"))
         self.add_variable(Variable("generator_efficiency", unit="-"))
         self.add_variable(Variable("generator_part_load", unit="frac"))
         self.add_variable(Variable("heating_water_setpoint", unit="°C"))
@@ -67,9 +71,6 @@ class HVAC_water_system(Component):  # HVAC Water system
         generators = self.parameter("generators").value
         if len(generators) == 0 or any(g == "not_defined" for g in generators):
             msg = f"{self.parameter('name').value}, must define its generators (HVAC_water_generator)."
-            errors.append(Message(msg, "ERROR"))
-        elif len(generators) > 1:
-            msg = f"{self.parameter('name').value}, only one generator is supported for now."
             errors.append(Message(msg, "ERROR"))
         # Test file_met defined
         if self.project().parameter("simulation_file_met").value == "not_defined":
@@ -84,11 +85,11 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.file_met = self.project().parameter("simulation_file_met").component
         # Parameters
         self.generators = self.parameter("generators").component
-        self.generator = self.generators[0]
-        # The loop is moved by the pump of the generator, that can be not defined
-        # (Q_pump = 0)
-        self.pump = self.generator.get_pump()
-        self.design_water_flow = self.generator.nominal_water_flow()
+        self.sequencing = self.parameter("sequencing").value
+        # The loop is moved by the pumps of the generators (in parallel), that can be
+        # not defined (Q_pump = 0)
+        self.pump = next((g.get_pump() for g in self.generators if g.get_pump() is not None), None)
+        self.design_water_flow = sum(g.nominal_water_flow() for g in self.generators)
         self.min_water_temp = self.parameter("water_limits").value[0]
         self.max_water_temp = self.parameter("water_limits").value[1]
 
@@ -107,7 +108,10 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.T_WCI_pre = self.variable("T_WCI").values[time_index-1]
             self.T_WCO_pre = self.variable("T_WCO").values[time_index-1]
             self.mode = self.variable("mode").values[time_index-1]
-        # Water mass flow
+        # Water mass flow: the generators available, in parallel, each at its flow
+        self.generator_flows = [g.nominal_water_flow() if g.on_off else 0 for g in self.generators]
+        self.design_water_flow = sum(self.generator_flows)
+        self.Q_generators = [0] * len(self.generators)
         self.water_flow = self.design_water_flow
         self.T_WCI = self.T_WCI_pre
         self.T_WCO = self.T_WCO_pre
@@ -239,16 +243,54 @@ class HVAC_water_system(Component):  # HVAC Water system
                     self.Q_coils = max(self.Q_coils, 0)
             if self.parameter("pump_operation").value == "ALLWAYS_ON":
                 if self.pump is not None:
-                    self.Q_pump = self.generator.get_pump_heat(self.water_flow)
+                    self.Q_pump = self._pumps_heat()
             elif self.parameter("pump_operation").value == "ON_LOAD":
                 if self.Q_process + self.Q_coils != 0:
                     self.water_flow = self.design_water_flow
                     if self.pump is not None:
-                        self.Q_pump = self.generator.get_pump_heat(self.water_flow)
+                        self.Q_pump = self._pumps_heat()
                     else:
                         self.Q_pump = 0
                 else:
                     self.water_flow = 0        
+
+    def _pumps_heat(self):
+        if self.water_flow == 0:
+            return 0
+        return sum(g.get_pump_heat(f) for g, f in zip(self.generators, self.generator_flows))
+
+    def _generators_load(self, mode, Q_required):
+        """Share a required load (positive) among the generators able to give it.
+
+        Returns:
+            tuple: (Q, F_load), load given (positive) and part load of the generators.
+        """
+        self.Q_generators = [0] * len(self.generators)
+        args = (self.T_WGO, self.T_WGI)
+        if len(self.generators) == 1:
+            g = self.generators[0]
+            if mode == 1:
+                Q, f_load = g.get_heating_load(*args, self.generator_flows[0], Q_required)
+            else:
+                Q, f_load = g.get_cooling_load(*args, self.generator_flows[0], Q_required)
+            self.Q_generators[0] = mode * Q
+            return (Q, f_load)
+        capacities = [g.get_capacity(mode, *args, f) for g, f in zip(self.generators, self.generator_flows)]
+        total = sum(capacities)
+        if total <= 0 or Q_required <= 0:
+            return (0, 0)
+        if self.sequencing == "EQUAL_LOAD":
+            F = min(Q_required / total, 1)
+            for i, capacity in enumerate(capacities):
+                self.Q_generators[i] = mode * F * capacity
+        else:  # PRIORITY
+            rest = Q_required
+            for i, capacity in enumerate(capacities):
+                q = min(rest, capacity)
+                self.Q_generators[i] = mode * q
+                rest -= q
+        Q = sum(abs(q) for q in self.Q_generators)
+        return (Q, Q / total)
 
     def _simulate_generator(self): # Heating or cooling mode
         Q = self.Q_coils + self.Q_process + self.Q_loss + self.Q_pump
@@ -257,22 +299,24 @@ class HVAC_water_system(Component):  # HVAC Water system
         if self.mode == 1: # Heating
             if T_WGO_FF > self.T_heat_sp: # no Q required, generator off
                 self.Q_gen = 0
+                self.Q_generators = [0] * len(self.generators)
                 self.T_WGO = T_WGO_FF
             else: # Q required, generator on
                 self.T_WGO = self.T_heat_sp
                 Q_required = -Q + self.rho_cp * self.water_volume * (self.T_WGO - self.T_WGO_pre)/self.delta_t
-                self.Q_gen, self.f_load = self.generator.get_heating_load(self.T_WGO, self.T_WGI, self.water_flow, Q_required)
+                self.Q_gen, self.f_load = self._generators_load(1, Q_required)
                 if self.f_load == 1 or self.f_load == 0: # Not enough heating power, update T_WGO with the actual Q_gen
                     delta_T = (self.Q_gen+self.Q_pump+self.Q_coils+self.Q_process+self.Q_loss)*self.delta_t/(self.rho_cp * self.water_volume)
                     self.T_WGO = self.T_WGO_pre + delta_T
         elif self.mode == -1: #Cooling
             if T_WGO_FF < self.T_cool_sp: # no Q required, generator off
                 self.Q_gen = 0
+                self.Q_generators = [0] * len(self.generators)
                 self.T_WGO = T_WGO_FF
             else: # Q required, generator on
                 self.T_WGO = self.T_cool_sp
                 Q_required = -Q + self.rho_cp * self.water_volume * (self.T_WGO - self.T_WGO_pre)/self.delta_t
-                self.Q_gen, self.f_load = self.generator.get_cooling_load(self.T_WGO, self.T_WGI, self.water_flow, -Q_required)
+                self.Q_gen, self.f_load = self._generators_load(-1, -Q_required)
                 self.Q_gen = -self.Q_gen
                 if self.f_load == 1 or self.f_load == 0: # Not enough cooling power, update T_WGO with the actual Q_gen
                     delta_T = (self.Q_gen+self.Q_pump+self.Q_coils+self.Q_process+self.Q_loss)*self.delta_t/(self.rho_cp * self.water_volume)
@@ -303,20 +347,33 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.variable("Q_pump").values[time_index] = 0
             self.variable("pump_power").values[time_index] = 0
             self.variable("generator_power").values[time_index] = 0
+            self.variable("generator_fuel_power").values[time_index] = 0
             self.variable("generator_efficiency").values[time_index] = 0
             self.variable("generator_part_load").values[time_index] = 0
-            self.generator.set_operation(time_index, 0, self.T_WGO, self.T_WGI, 0)
+            for g in self.generators:
+                g.set_operation(time_index, 0, self.T_WGO, self.T_WGI, 0, self.sequencing)
         else:
-            Q_gen = self.Q_gen if self.mode in (1, -1) else 0
-            power, eff, f_load = self.generator.set_operation(
-                time_index, Q_gen, self.T_WGO, self.T_WGI, self.water_flow
-            )
+            running = self.mode in (1, -1)
+            power = fuel = pump_power = 0
+            for g, Q_g, flow in zip(self.generators, self.Q_generators, self.generator_flows):
+                p, f, f_load = g.set_operation(
+                    time_index, Q_g if running else 0, self.T_WGO, self.T_WGI, flow, self.sequencing
+                )
+                power += p
+                fuel += f
+                pump_power += g.get_pump_power(flow)
+            if len(self.generators) == 1:
+                eff = self.generators[0].variable("efficiency").values[time_index]
+            else:  # heat / (electric + fuel power) of all the generators
+                f_load = self.f_load if running and self.Q_gen != 0 else 0
+                eff = abs(self.Q_gen) / (power + fuel) if running and power + fuel > 0 else 0
             self.variable("Q_gen").values[time_index] = self.Q_gen
             self.variable("Q_coils").values[time_index] = self.Q_coils_used
             self.variable("Q_process").values[time_index] = self.Q_process
             self.variable("Q_pump").values[time_index] = self.Q_pump
-            self.variable("pump_power").values[time_index] = self.generator.get_pump_power(self.water_flow)
+            self.variable("pump_power").values[time_index] = pump_power
             self.variable("generator_power").values[time_index] = power
+            self.variable("generator_fuel_power").values[time_index] = fuel
             self.variable("generator_efficiency").values[time_index] = eff
             self.variable("generator_part_load").values[time_index] = f_load
         self.variable("Q_loss").values[time_index] = self.Q_loss

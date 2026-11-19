@@ -93,7 +93,7 @@ def test_generator_off_gives_nothing():
     assert np.all(values(pro, "generator", "on_off") == 0)
 
 
-def test_one_generator_only_for_now():
+def test_several_generators_are_accepted():
     d = {"name": "p", "simulation_file_met": "m", "components": [
         {"type": "File_met", "name": "m", "file_type": "MET", "file_name": str(EXAMPLES / "sevilla.met")},
         {"type": "Chiller_heat_pump", "name": "chiller"},
@@ -105,7 +105,8 @@ def test_one_generator_only_for_now():
     sim.console_print = False
     pro = sim.new_project("p")
     pro.read_dict(d)
-    assert any("only one generator" in m.text for m in sim.message_list() if m.level == "ERROR")
+    assert not [m.text for m in sim.message_list() if m.level == "ERROR"]
+    assert len(pro.component("plant").parameter("generators").component) == 2
 
 
 @pytest.mark.parametrize("old", ["water_thermal_generator", "pump", "design_water_flow"])

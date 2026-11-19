@@ -2,6 +2,7 @@ from opensimula.Component import Component
 from opensimula.Message import Message
 from opensimula.Parameters import (
     Parameter_component,
+    Parameter_int,
     Parameter_math_exp,
     Parameter_variable_list,
 )
@@ -16,6 +17,11 @@ class HVAC_water_generator(Component):
     fuel), and has its own primary pump. The plant (HVAC_water_system) decides
     the load it gives in each time step; the generator turns it into the
     equipment's load, part load, power and efficiency, and stores them.
+
+    It may have ``number_of_units`` identical units of the equipment, in
+    parallel: its capacity and water flow are those of one unit times the number
+    of units, and the load is shared among them with the sequencing of the plant
+    (PRIORITY: one unit after the other; EQUAL_LOAD: all at the same part load).
     """
 
     def __init__(self, name, project):
@@ -25,6 +31,7 @@ class HVAC_water_generator(Component):
         self.add_parameter(
             Parameter_component("equipment", "not_defined", ["Chiller_heat_pump", "Boiler"])
         )
+        self.add_parameter(Parameter_int("number_of_units", 1, "", min=1))
         self.add_parameter(Parameter_component("pump", "not_defined", ["Pump"]))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("system_on_off", "1", "on/off"))
@@ -34,6 +41,7 @@ class HVAC_water_generator(Component):
         self.add_variable(Variable("state", unit="flag"))  # 0: off, 1: heating, -1: cooling
         self.add_variable(Variable("Q", unit="W"))  # positive heating, negative cooling
         self.add_variable(Variable("F_load", unit="frac"))
+        self.add_variable(Variable("units_on", unit="-"))
         self.add_variable(Variable("power", unit="W"))  # electric power of the equipment
         self.add_variable(Variable("fuel_power", unit="W"))  # LHV, boilers
         self.add_variable(Variable("efficiency", unit="frac"))  # EER, COP or boiler efficiency
@@ -57,6 +65,7 @@ class HVAC_water_generator(Component):
         self.equipment = self.parameter("equipment").component
         self.is_boiler = self.parameter("equipment").component.parameter("type").value == "Boiler"
         self.pump = self.get_pump()
+        self.n_units = self.parameter("number_of_units").value
         self.file_met = self.project().parameter("simulation_file_met").component
 
     def pre_iteration(self, time_index, date, daylight_saving):
@@ -70,8 +79,10 @@ class HVAC_water_generator(Component):
     # _________________ What the plant asks _________________
 
     def nominal_water_flow(self):
-        """Water flow of the generator (dm³/s): the nominal one of its equipment."""
-        return self.parameter("equipment").component.parameter("nominal_water_flow").value
+        """Water flow of the generator (dm³/s): the nominal one of its equipment times
+        the number of units."""
+        equipment = self.parameter("equipment").component
+        return equipment.parameter("nominal_water_flow").value * self.parameter("number_of_units").value
 
     def get_pump(self):
         """The primary pump (Pump component), None if not defined."""
@@ -107,9 +118,7 @@ class HVAC_water_generator(Component):
         """
         if not self.can_heat():
             return (0, 0)
-        if self.is_boiler:
-            return self.equipment.get_heating_load(T_wo, T_wi, water_flow, Q_required)
-        return self.equipment.get_heating_load(T_wo, self.T_OA, self.T_OAwb, water_flow, Q_required)
+        return self._load_of_units(1, T_wo, T_wi, water_flow, Q_required)
 
     def get_cooling_load(self, T_wo, T_wi, water_flow, Q_required):
         """Cold the generator gives for a required cooling load (both positive).
@@ -125,7 +134,64 @@ class HVAC_water_generator(Component):
         """
         if not self.can_cool():
             return (0, 0)
-        return self.equipment.get_cooling_load(T_wo, self.T_OA, self.T_OAwb, water_flow, Q_required)
+        return self._load_of_units(-1, T_wo, T_wi, water_flow, Q_required)
+
+    def get_capacity(self, mode, T_wo, T_wi, water_flow):
+        """Heat (mode 1) or cold (mode -1) the generator gives at full load (W, positive)."""
+        if (mode == 1 and not self.can_heat()) or (mode == -1 and not self.can_cool()):
+            return 0
+        return self.n_units * self._unit_capacity(mode, T_wo, T_wi, water_flow / self.n_units)
+
+    def _unit_load(self, mode, T_wo, T_wi, flow, Q):
+        """(Q, F_load) of one unit for a required load Q (positive)."""
+        if mode == 1:
+            if self.is_boiler:
+                return self.equipment.get_heating_load(T_wo, T_wi, flow, Q)
+            return self.equipment.get_heating_load(T_wo, self.T_OA, self.T_OAwb, flow, Q)
+        return self.equipment.get_cooling_load(T_wo, self.T_OA, self.T_OAwb, flow, Q)
+
+    def _unit_capacity(self, mode, T_wo, T_wi, flow):
+        return self._unit_load(mode, T_wo, T_wi, flow, float("inf"))[0]
+
+    def _load_of_units(self, mode, T_wo, T_wi, water_flow, Q_required):
+        if self.n_units == 1:
+            return self._unit_load(mode, T_wo, T_wi, water_flow, Q_required)
+        if Q_required <= 0:
+            return (0, 0)
+        capacity = self.get_capacity(mode, T_wo, T_wi, water_flow)
+        if capacity <= 0:
+            return (0, 0)
+        if Q_required >= capacity:
+            return (capacity, 1)
+        return (Q_required, Q_required / capacity)
+
+    def _unit_loads(self, Q, capacity_unit, sequencing):
+        """Loads of the units (positive) sharing Q."""
+        n = self.n_units
+        if n == 1:
+            return [Q]
+        if sequencing == "EQUAL_LOAD":
+            return [Q / n] * n
+        loads = []
+        rest = Q
+        for _ in range(n):
+            q = min(rest, capacity_unit)
+            loads.append(q)
+            rest -= q
+        return loads
+
+    def _unit_operation(self, mode, T_wo, T_wi, flow, q):
+        """(electric power, fuel power, efficiency) of one unit giving q (positive)."""
+        if q <= 0:
+            return (0, 0, 0)
+        if mode == 1:
+            if self.is_boiler:
+                fuel, eff = self.equipment.get_fuel_power(T_wo, T_wi, flow, q)
+                return (self.equipment.get_auxiliary_power(q), fuel, eff)
+            power, eff = self.equipment.get_heating_power(T_wo, self.T_OA, self.T_OAwb, flow, q)
+            return (power, 0, eff)
+        power, eff = self.equipment.get_cooling_power(T_wo, self.T_OA, self.T_OAwb, flow, q)
+        return (power, 0, eff)
 
     def get_pump_heat(self, water_flow):
         """Heat of the primary pump to the water (W)."""
@@ -135,7 +201,7 @@ class HVAC_water_generator(Component):
         """Electric power of the primary pump (W)."""
         return 0 if self.pump is None or water_flow == 0 else self.pump.get_power(water_flow)
 
-    def set_operation(self, time_index, Q, T_wo, T_wi, water_flow):
+    def set_operation(self, time_index, Q, T_wo, T_wi, water_flow, sequencing="PRIORITY"):
         """Store the operation of the time step decided by the plant.
 
         Args:
@@ -144,26 +210,37 @@ class HVAC_water_generator(Component):
             T_wo (float): supply water temperature (°C).
             T_wi (float): return water temperature (°C).
             water_flow (float): water flow (dm³/s).
+            sequencing (str, optional): how the units share the load, "PRIORITY" or
+                "EQUAL_LOAD". Defaults to "PRIORITY".
 
         Returns:
-            tuple: (power, efficiency, F_load) of the equipment: electric power (W),
-                EER, COP or boiler efficiency, and part load.
+            tuple: (power, fuel_power, F_load): electric power (W), fuel power on the
+                LHV (W) and part load of the generator.
         """
         power = fuel = efficiency = F_load = 0
-        if Q > 0:
-            if self.is_boiler:
-                _, F_load = self.equipment.get_heating_load(T_wo, T_wi, water_flow, Q)
-                fuel, efficiency = self.equipment.get_fuel_power(T_wo, T_wi, water_flow, Q)
-                power = self.equipment.get_auxiliary_power(Q)
+        units_on = 0
+        if Q != 0:
+            mode = 1 if Q > 0 else -1
+            flow = water_flow / self.n_units
+            if self.n_units == 1:
+                _, F_load = self._unit_load(mode, T_wo, T_wi, flow, abs(Q))
+                loads = [abs(Q)]
             else:
-                _, F_load = self.equipment.get_heating_load(T_wo, self.T_OA, self.T_OAwb, water_flow, Q)
-                power, efficiency = self.equipment.get_heating_power(T_wo, self.T_OA, self.T_OAwb, water_flow, Q)
-        elif Q < 0:
-            _, F_load = self.equipment.get_cooling_load(T_wo, self.T_OA, self.T_OAwb, water_flow, -Q)
-            power, efficiency = self.equipment.get_cooling_power(T_wo, self.T_OA, self.T_OAwb, water_flow, -Q)
+                capacity_unit = self._unit_capacity(mode, T_wo, T_wi, flow)
+                loads = self._unit_loads(abs(Q), capacity_unit, sequencing)
+                F_load = abs(Q) / (self.n_units * capacity_unit) if capacity_unit > 0 else 0
+            for q in loads:
+                p, f, efficiency = self._unit_operation(mode, T_wo, T_wi, flow, q)
+                power += p
+                fuel += f
+                units_on += 1 if q > 0 else 0
+            if self.n_units > 1:  # of the generator: heat / power (fuel for a boiler)
+                used = fuel if self.is_boiler else power
+                efficiency = abs(Q) / used if used > 0 else 0
         self.variable("state").values[time_index] = 1 if Q > 0 else (-1 if Q < 0 else 0)
         self.variable("Q").values[time_index] = Q
         self.variable("F_load").values[time_index] = F_load
+        self.variable("units_on").values[time_index] = units_on
         self.variable("power").values[time_index] = power
         self.variable("fuel_power").values[time_index] = fuel
         self.variable("efficiency").values[time_index] = efficiency
@@ -171,4 +248,4 @@ class HVAC_water_generator(Component):
         self.variable("T_wi").values[time_index] = T_wi
         self.variable("T_wo").values[time_index] = T_wo
         self.variable("pump_power").values[time_index] = self.get_pump_power(water_flow)
-        return (power, efficiency, F_load)
+        return (power, fuel, F_load)
