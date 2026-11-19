@@ -85,6 +85,48 @@ param = {
 chiller.set_parameters(param)
 </code></pre>
 
+### Boiler
+
+Component to define a boiler: hot water equipment for heating that burns a fuel (or uses electricity). Like Chiller_heat_pump it holds the manufacturer's data and is not simulated by itself: the water generator that uses it asks for the heat it can give and the fuel it uses.
+
+Capacities, fuel power and efficiencies are on the lower heating value (LHV) of the fuel. The efficiency is the nominal one multiplied by `efficiency_expression`, which may depend on the part load and on the water temperatures: a condensing boiler condenses the water vapour of the flue gases, and is more efficient, when the return water is cold, below about 55 °C for natural gas.
+
+This equipment can be used for one or more HVAC systems.
+
+#### Parameters
+- **fuel** [_option_, default = "NATURAL_GAS", options = ["NATURAL_GAS", "LPG", "DIESEL", "BIOMASS", "ELECTRICITY"]]: Fuel of the boiler. Informative for now; it will be used for primary energy and CO₂ emissions.
+- **nominal_heating_capacity** [_float_, unit = "W", default = 0, min = 0]: Heat given at full load. The boiler gives at most this heat, whatever the water temperatures.
+- **nominal_efficiency** [_float_, unit = "frac", default = 0.9, min = 0.01]: Efficiency (heat given / fuel power, on the LHV) at nominal conditions.
+- **nominal_water_flow** [_float_, unit = "dm³/s", default = 1, min = 0]: Nominal water flow, to calculate _F_water_.
+- **max_supply_temperature** [_float_, unit = "°C", default = 80]: Maximum supply water temperature: above it the boiler gives no heat.
+- **efficiency_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the efficiency in conditions different from the nominal ones; the efficiency is `nominal_efficiency` multiplied by it.
+- **auxiliary_power** [_float_, unit = "W", default = 0, min = 0]: Electric power of the burner fan, pumps inside the boiler and controls, while the boiler gives heat.
+- **expression_max_values** [_float-list_, unit = "-", default = [100, 100, 1.5, 1]]: Maximum values allowed in the mathematical expression. The order is [ _T_wi_ [ºC], _T_wo_ [ºC], _F_water_ [frac], _F_load_ [frac] ]. If any variable exceeds these values, the maximum value is taken.
+- **expression_min_values** [_float-list_, unit = "-", default = [0, 0, 0, 0]]: Minimum values allowed in the mathematical expression, in the same order. If any variable is lower than these values, the minimum value is taken.
+
+The efficiency expression can include the following independent variables.
+
+- _T_wi_ [ºC]: Water inlet (return) temperature.
+- _T_wo_ [ºC]: Water outlet (supply) temperature.
+- _F_water_ [frac]: Actual water flow divided by nominal water flow.
+- _F_load_ [frac]: Part load: heat given divided by the nominal heating capacity.
+
+**Example:** a condensing boiler, 88 % efficient with a return at 55 °C or more, up to 96 % with a return at 30 °C.
+<pre><code class="python">
+...
+
+boiler = osm.components.Boiler("boiler", project)
+param = {
+        "fuel": "NATURAL_GAS",
+        "nominal_heating_capacity": 24000,
+        "nominal_efficiency": 0.88,
+        "nominal_water_flow": 0.3,
+        "efficiency_expression": "1 + 0.0035 * max(55 - T_wi, 0)",
+        "auxiliary_power": 50
+}
+boiler.set_parameters(param)
+</code></pre>
+
 ### HVAC_water_system
 
 Component for the simulation of a hydronic water loop that supplies chilled and/or hot water to one or more coils (used by the air side HVAC systems, e.g. `HVAC_SZW_system` or `HVAC_MZW_system`) from a "Chiller_heat_pump" generator, optionally moved by a "Pump".
