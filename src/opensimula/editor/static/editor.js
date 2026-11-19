@@ -7563,7 +7563,7 @@ var FAMILIES = [
   ["data", "Weather and data", "#2a78d6", ["File_met", "File_data"]],
   ["schedule", "Schedules", "#eda100", ["Day_schedule", "Week_schedule", "Year_schedule"]],
   ["construction", "Constructions", "#1baf7a", ["Material", "Glazing", "Frame", "Construction", "Opening_type"]],
-  ["building", "Building", "#eb6834", ["Building", "Space_type", "Space", "Building_surface", "Solar_surface", "Opening", "Surface"]],
+  ["building", "Building", "#eb6834", ["Building", "Space_type", "Space", "Load_space", "Building_surface", "Solar_surface", "Opening", "Surface"]],
   ["hvac", "HVAC", "#6250d6", []],
   // any type starting with HVAC_, and the equipment
   ["other", "Other", "#8c959f", []]

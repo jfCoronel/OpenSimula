@@ -4,7 +4,7 @@
 Component for the perfect conditioning of a space. With this component we can obtain the heating and cooling loads (sensible and latent).
 
 #### Parameters
-- **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be controlled by this system.
+- **spaces** [_component_, default = "not_defined", component type = Space or Load_space]: Reference to the "Space" or "Load_space" component to be controlled by this system.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
 - **outdoor_air_flow** [_math_exp_, unit = "m³/s", default = "0"]: Outside air flow rate (ventilation) supplied to the space. This flow rate is only entered if the system is in operation. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
 - **heating_setpoint** [_math_exp_, unit = "°C", default = "20"]: Space heating setpoint temperature. The mathematical expression may contain any of the variables declared in the "input_variables" parameter, to be able to reflect the time variation of this value.
@@ -122,7 +122,7 @@ Component for the simulation of an air-conditioning system for a space and using
 
 
 #### Parameters
-- **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be air-conditioned by this system.
+- **spaces** [_component_, default = "not_defined", component type = Space or Load_space]: Reference to the "Space" or "Load_space" component to be air-conditioned by this system.
 - **equipment** [_component_, default = "not_defined", component type = DX_unit]: Reference to the "DX_unit" component used by this system.
 - **air_flow** [_float_, unit = "m³/s", default = 1, min = 0]: Inlet air flow used for all the simulation.
 - **outdoor_air_fraction** [_math_exp_, unit = "frac", default = 0]: Outdoor air flow fraction used for the simulation. The outside air is mixed with the return air from the room before it enters the indoor coil.
@@ -279,7 +279,7 @@ Component for the simulation of single zone water air-conditioning system. It ca
 ![HVAC_SZW_system](img/HVAC_SZW_system.png)
 
 #### Parameters
-- **space** [_component_, default = "not_defined", component type = Space]: Reference to the "Space" component to be air-conditioned by this system.
+- **space** [_component_, default = "not_defined", component type = Space or Load_space]: Reference to the "Space" or "Load_space" component to be air-conditioned by this system.
 - **cooling_coil** [_component_, default = "not_defined", component type = Water_coil]: Reference to the "Water_coil" component used for cooling by this system.
 - **heating_coil** [_component_, default = "not_defined", component type = Water_coil]: Reference to the "Water_coil" component used for heating by this system.
 - **supply_fan** [_component_, default = "not_defined", component type = Fan]: Reference to the "Fan" component used as supply fan by this system.
@@ -363,7 +363,7 @@ Component for the simulation of multi-zone water air-conditioning system. It can
 ![HVAC_MZW_system](img/HVAC_MZW_system.png)
 
 #### Parameters
-- **spaces** [_component_list_, default = ["not_defined", "not_defined"], component type = Space]: List of references to the "Space" components to be air-conditioned by this system.
+- **spaces** [_component_list_, default = ["not_defined", "not_defined"], component type = Space or Load_space]: List of references to the "Space" or "Load_space" components to be air-conditioned by this system.
 - **air_flow_fractions** [_float_list_, unit = "frac", default = [0.5, 0.5], min = 0, max = 1]: Fraction of total supply air flow assigned to each space. The sum of all fractions must equal 1.
 - **cooling_coil** [_component_, default = "not_defined", component type = Water_coil]: Reference to the "Water_coil" component used for cooling by this system.
 - **heating_coil** [_component_, default = "not_defined", component type = Water_coil]: Reference to the "Water_coil" component used for central heating by this system.

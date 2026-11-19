@@ -130,6 +130,86 @@ After the simulation we will have the following variables of this component:
 - __system_sensible_latent__ [W]: Latent heat introduced by control system in space. Positive for humidification and negative for dehumidification.
 
 
+### Load_space
+
+A zone defined by its loads instead of by its building. It takes the place of a Space in the air systems (HVAC_perfect_system, HVAC_DX_system, HVAC_SZW_system and HVAC_MZW_system), so that an HVAC installation can be simulated from precalculated load records, for example a column of a [File_data](component_list_files.md), a schedule or a [Calculator](component_list_utils.md), without the walls, windows and gains of the building. The project still needs its weather file (`simulation_file_met`): the equipment and the outdoor air depend on the outdoor conditions.
+
+The loads are the heat that keeps the zone at the reference temperature and humidity, with the same sign as the variables `system_sensible_heat` and `system_latent_heat` of a Space: positive heating (or humidifying), negative cooling (or dehumidifying). The variables `system_sensible_heat` and `system_latent_heat` of a Space served by an HVAC_perfect_system with a fixed setpoint are such a record. The record already holds the dynamics of the building at constant temperature (the delay of the solar and internal gains stored in its walls); records calculated with a dead band (for example 20-25 °C) are not, since inside the band the load is 0 while the temperature floats, so it is better to calculate them with a fixed setpoint.
+
+When the systems do not supply the load, the zone departs from the reference temperature following a model of two nodes, the air (with the furniture) and the thermal mass of the building, written in deviations θ = T - T_ref:
+
+- Air: C_a·dθ/dt = Q_sys - Q_load - H_ao·θ - H_am·(θ - θ_m) - H_inf·(T - T_ext) + ...
+- Mass: C_m·dθ_m/dt = H_am·(θ - θ_m) - H_mo·θ_m
+
+solved implicitly, so it is stable for any time step. All its parameters have default values: the mass of the building is given by its construction class (heat capacity C_m and area of the mass surfaces A_m per m² of floor, from ISO 13790), with H_am = 9.1 W/(m²·K)·A_m; the envelope conductance is split in two halves, one from the air to the outdoor (windows, H_ao) and the other from the mass (opaque elements, H_mo).
+
+The infiltration the record was calculated with (`load_infiltration`) is taken out of both loads at the reference conditions, and the simulated one (`infiltration`) is added at the actual temperature and humidity of the zone, so that a record calculated with one infiltration can be used with another one, for example only while the system is off. It is assumed that the infiltration of the record enters at outdoor conditions, without heat recovery. With the same infiltration in both, and the reference held, the loads are those of the record.
+
+Compared with the detailed model of the ASHRAE 140 boxes (Denver), with the record calculated at 24 °C:
+
+| Box | Load_space | Heating (MWh) | Cooling (MWh) | Free floating, rms difference |
+|---|---|---|---|---|
+| Heavy (case 900) | building | 1.64 | 2.61 | |
+| | MEDIUM | 1.44 | 2.24 | 2.1 K |
+| Light (case 600) | building | 4.31 | 5.97 | |
+| | VERY_LIGHT | 3.25 | 4.71 | 7.1 K |
+| | CUSTOM 20 kJ/(m²·K), A_m 1.0 | 4.18 | 5.93 | 1.8 K |
+
+(heating and cooling with an ideal system at 20-27 °C; free floating against cases 600FF and 900FF; envelope conductance of the boxes 1.8 W/(m²·K) of floor). The light box of ASHRAE 140 is lighter than any real building and than the lightest ISO class: for it the mass has to be given as CUSTOM.
+
+#### Parameters
+
+- **input_variables** [_variable_list_, default = []]: List of variables of other components used in the expressions of the loads, the reference conditions and the infiltrations (see [Calculator](component_list_utils.md)).
+- **sensible_load** [_math_exp_, unit = "W", default = "0"]: Sensible load: heat that keeps the zone at the reference temperature, positive heating and negative cooling.
+- **latent_load** [_math_exp_, unit = "W", default = "0"]: Latent load: latent heat that keeps the zone at the reference humidity, positive humidifying and negative dehumidifying.
+- **reference_temperature** [_math_exp_, unit = "°C", default = "24"]: Temperature the loads were calculated at.
+- **reference_humidity** [_math_exp_, unit = "%", default = "50"]: Relative humidity, at the reference temperature, the loads were calculated at.
+- **load_infiltration** [_math_exp_, unit = "1/h", default = "0.5"]: Air changes per hour of infiltration the loads were calculated with (0 if they do not include infiltration).
+- **infiltration** [_math_exp_, unit = "1/h", default = "0.5"]: Air changes per hour of infiltration to simulate.
+- **floor_area** [_float_, unit = "m²", default = 100, min = 0.001]: Floor area of the zone. The thermal mass and the envelope conductance are given per m² of floor.
+- **height** [_float_, unit = "m", default = 2.7, min = 0.001]: Height of the zone, for its air volume.
+- **construction** [_option_, default = "MEDIUM", options = ["VERY_LIGHT", "LIGHT", "MEDIUM", "HEAVY", "VERY_HEAVY", "CUSTOM"]]: Construction class, for the thermal mass: C_m = 80, 110, 165, 260 and 370 kJ/(m²·K) and A_m = 2.5, 2.5, 2.5, 3.0 and 3.5 m² per m² of floor (ISO 13790). With "CUSTOM", the next two parameters.
+- **custom_mass_capacity** [_float_, unit = "kJ/(m²·K)", default = 165, min = 0]: Heat capacity of the thermal mass per m² of floor, used with construction "CUSTOM".
+- **custom_mass_area** [_float_, unit = "m²/m²", default = 2.5, min = 0]: Area of the mass surfaces per m² of floor, used with construction "CUSTOM".
+- **envelope_conductance** [_float_, unit = "W/(m²·K)", default = 1.0, min = 0]: Conductance of the envelope (windows and opaque elements, without infiltration) per m² of floor. About 1 for a zone with one façade, 2 for a small building exposed on every side.
+- **convergence_DT** [_float_, unit = "°C", default = 0.01, min = 0]: Convergence temperature tolerance, as in Space.
+- **convergence_Dw** [_float_, unit = "g/kg", default = 0.01, min = 0]: Convergence humidity tolerance, as in Space.
+
+**Example:**
+<pre><code class="python">
+...
+
+office = osm.components.Load_space("office", project)
+param = {
+    "input_variables": ["Q = load_record.Q_sensible", "L = load_record.Q_latent"],
+    "sensible_load": "Q",
+    "latent_load": "L",
+    "reference_temperature": "24",
+    "floor_area": 48,
+    "construction": "HEAVY",
+}
+office.set_parameters(param)
+</code></pre>
+
+#### Variables
+
+After the simulation we will have the following variables of this component:
+
+- __temperature__ [°C]: Zone air temperature.
+- __abs_humidity__ [g/kg]: Absolute zone air humidity.
+- __rel_humidity__ [%]: Relative zone air humidity.
+- __mass_temperature__ [°C]: Temperature of the thermal mass node.
+- __reference_temperature__ [°C]: Reference temperature of the loads.
+- __sensible_load__ [W]: Sensible load at the reference temperature with the simulated infiltration (the record if both infiltrations are the same).
+- __latent_load__ [W]: Latent load at the reference humidity with the simulated infiltration.
+- __infiltration_flow__ [m³/s]: Simulated infiltration air flow.
+- __system_sensible_heat__ [W]: Sensible heat introduced by the control system, as in Space.
+- __system_latent_heat__ [W]: Latent heat introduced by the control system, as in Space.
+- __u_system_sensible_heat__ [W]: Sensible heat introduced by uncontrolled systems, as in Space.
+- __u_system_latent_heat__ [W]: Latent heat introduced by uncontrolled systems, as in Space.
+- __unmet_sensible_heat__ [W]: Sensible load not supplied by the systems (sensible_load minus the heat of the controlled and uncontrolled systems): positive when heating is missing, negative when cooling is missing.
+
+
 ### Building_surface
 
 Component to define the Building surfaces of the building: vertical or inclined walls,horizontal or inclined roofs, interior walls, slabs, underground walls, etc.

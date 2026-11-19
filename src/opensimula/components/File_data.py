@@ -59,16 +59,12 @@ class File_data(Component):
         self.data_array = self._df_.select_dtypes(include=np.number).to_numpy()
 
         if self.parameter("file_step").value == "SIMULATION":
-            i = 0
-            k = 0
+            # one row per time step, from the first row of the file for every column,
+            # starting again from the first row if the file is shorter than the simulation
             n = len(self._df_)
-            for key, var in self._variables_.items():
+            for i, var in enumerate(self._variables_.values()):
                 for j in range(n_time_steps):
-                    var.values[j] = self.data_array[k][i]
-                    k = k + 1
-                    if k == n:
-                        k = 0
-                i = i + 1
+                    var.values[j] = self.data_array[j % n][i]
         elif self.parameter("file_step").value == "OWN":
             n = len(self._df_)
             self._initial_date_ = dt.datetime.strptime(
