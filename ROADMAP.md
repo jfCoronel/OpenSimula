@@ -870,7 +870,21 @@ Proposed parameters of `Energy_indicators` (to refine when coding):
    energy (renewable). Carrier AMBIENT (fp,ren 1, fp,nren 0, no CO₂). In heating it is the
    heat given minus the electricity of the compressor (`HVAC_DX_system`,
    `HVAC_water_generator` with a `Chiller_heat_pump`). Whether a heat pump counts as
-   renewable (seasonal performance threshold) is a `CTE_compliance` rule. Cooling: open.
+   renewable (seasonal performance threshold) is a `CTE_compliance` rule. **Cooling: no
+   ambient energy** (as the CTE does), decided 2026-11-23.
+9. **`report()`** (decided 2026-11-23):
+   - Transport arguments, one for water and one for air (e.g. `water_transport`,
+     `air_transport`): "SEPARATE" (**default**, kept as their own services) or "BY_MODE"
+     (assigned to heating/cooling by the mode of the system at each hour; what runs with
+     no load stays in the transport service). `CTE_compliance` sets them as it needs.
+   - Tables: annual final energy by service and carrier, **monthly final energy** (months ×
+     carrier and service), primary energy (nren, total) and CO₂ by service, per m² and
+     total. THERMAL (heat without equipment) shown apart, converted only with reference
+     generators given as arguments.
+   - **HTML**: the result is an object holding the DataFrames with `to_html()` and
+     `_repr_html_()`, so it shows as formatted tables in Jupyter/marimo and in the GUI.
+   - A preview script with `get_energy_use()` (example 09: 101 kWh/m² C_ep,nren, 127
+     C_ep,tot, 17.2 kg CO₂/m², renewable share 20.6 %) checked the shape of the tables.
 
 Conversion factors, **checked 2026-11-23** against the documento reconocido del RITE
 "Factores de emisión de CO₂ y coeficientes de paso a energía primaria de diferentes fuentes
