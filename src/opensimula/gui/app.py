@@ -196,10 +196,11 @@ def _(
         ]
         _done = mo.callout(f"Simulated {_n} time steps in {_elapsed:.1f} s.", kind="success")
         _out = mo.vstack([_done, problem_list(_notes)]) if _notes else _done
-        # the energy report of each Energy_indicators, default hypotheses
+        # the report of each Energy_indicators (default hypotheses) and Comfort_indicators
         _reports = {
-            f"Energy report: {_c.parameter('name').value}": mo.Html(_c.report().to_html())
-            for _c in _project.component_list("Energy_indicators")
+            f"{_kind} report: {_c.parameter('name').value}": mo.Html(_c.report().to_html())
+            for _kind, _type in (("Energy", "Energy_indicators"), ("Comfort", "Comfort_indicators"))
+            for _c in _project.component_list(_type)
         }
         if _reports:
             _out = mo.vstack([_out, mo.accordion(_reports)])

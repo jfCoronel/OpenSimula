@@ -943,6 +943,20 @@ gallery example; later `CTE_compliance`.
   accordion, default hypotheses), checked in Chrome. Notebook
   `jupyter_test/ENERGY_INDICATORS.ipynb`. Example 09 (year): 101.1 kWh/m² C_ep,nren,
   127.3 C_ep,tot, 17.2 kg CO₂/m², renewable share 20.6 %.
+- **Step 3 done (branch `feat/comfort-indicators`)**: component `Comfort_indicators` (last
+  in the order). `Component.get_zone_setpoints()` → `Zone_control(zone, heating_setpoint,
+  cooling_setpoint, on)` (module `opensimula/comfort.py`) in DX, SZW, perfect system and
+  MZW (each zone its `spaces_setpoint`, the same for heating and cooling). Parameters:
+  `zones` (empty = all), `tolerance` (0.5 K; must be above the zone convergence, 0.01 K:
+  with 0 the hours held at the setpoint count, 43 % in example 06), `only_system_on`,
+  `input_variables` + `period` (e.g. occupied hours). Variables `outside_<zone>` (1/-1/0)
+  and `zones_outside`. `report()` → `Comfort_report` (`zones`: hours counted / above /
+  below / outside, %, degree-hours, T max/min; `monthly`; `summary`; HTML). Shown in the
+  GUI after Simulate with the energy report. Example 06: 18 h of 2380 (0.8 %), as the
+  gallery says; 09: 3 h. **Left out**: the unmet load of `Load_space`
+  (`unmet_sensible_heat` is the record at T_ref minus the system, it counts the load not
+  needed when the zone floats between setpoints: 930 kWh "unmet" in 09 with 3 h outside).
+  Notebook `jupyter_test/COMFORT_INDICATORS.ipynb`. Later: operative temperature, PMV/PPD.
 - **Follow-up**: sign conventions of the system outputs differ (in cooling, SZW/MZW
   `Q_sensible` negative and `Q_latent` positive, DX both positive, perfect system both
   signed): worth unifying before 1.0 (breaks outputs).
