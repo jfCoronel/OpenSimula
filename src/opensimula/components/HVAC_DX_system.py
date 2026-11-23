@@ -1,8 +1,10 @@
+import numpy as np
 from opensimula.Message import Message
 from opensimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp, Parameter_options
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
+from opensimula.energy import Energy_use, positive, where
 
 
 class HVAC_DX_system(Component):
@@ -252,3 +254,23 @@ class HVAC_DX_system(Component):
             else: # venting
                 self.variable("power").values[time_index] = self._equipment.get_fan_power(0)
                 self.variable("indoor_fan_power").values[time_index] = self._equipment.get_fan_power(0)
+
+    def get_energy_use(self):
+        """Electricity of the unit (compressor for heating or cooling, indoor fan for
+        air transport) and the ambient energy the heat pump takes in heating.
+
+        Returns:
+            list: `Energy_use` items (W at each time step).
+        """
+        state = self.variable("state").values
+        fan = self.variable("indoor_fan_power").values
+        compressor = positive(self.variable("power").values - fan)
+        heating = np.isin(state, [1, 2])
+        cooling = np.isin(state, [-1, -2])
+        Q_heating = where(heating, self.variable("Q_sensible").values)
+        return [
+            Energy_use("ELECTRICITY", "HEATING", where(heating, compressor)),
+            Energy_use("ELECTRICITY", "COOLING", where(cooling, compressor)),
+            Energy_use("ELECTRICITY", "AIR_TRANSPORT", np.array(fan, dtype=float)),
+            Energy_use("AMBIENT", "HEATING", where(heating, positive(Q_heating - compressor))),
+        ]

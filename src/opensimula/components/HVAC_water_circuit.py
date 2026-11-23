@@ -1,3 +1,4 @@
+import numpy as np
 from opensimula.Component import Component
 from opensimula.Message import Message
 from opensimula.Parameters import (
@@ -9,6 +10,7 @@ from opensimula.Parameters import (
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
+from opensimula.energy import Energy_use
 
 
 class HVAC_water_circuit(Component):
@@ -222,3 +224,12 @@ class HVAC_water_circuit(Component):
         }
         for key, value in values.items():
             self.variable(key).values[time_index] = value
+
+    def get_energy_use(self):
+        """Electricity of its pumps (water transport).
+
+        Returns:
+            list: `Energy_use` items (W at each time step).
+        """
+        return [Energy_use("ELECTRICITY", "WATER_TRANSPORT",
+                           np.array(self.variable("pumps_power").values, dtype=float))]

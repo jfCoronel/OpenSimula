@@ -246,6 +246,20 @@ class Component(Parameter_container):
         """Finish the component after the time loop of the simulation"""
         pass
 
+    def get_energy_use(self):
+        """Energy the component used in the simulation, by carrier and service.
+
+        Components that use energy (systems, generators, spaces with lighting and
+        equipment) override it; the base component uses none. Each power is reported
+        by one component only: a water plant reports its own secondary pumps, not
+        the equipment of its generators.
+
+        Returns:
+            list: list of `opensimula.energy.Energy_use` (carrier, service, power in W
+                at each time step, positive).
+        """
+        return []
+
     def pre_iteration(self, time_index, date, daylight_saving):
         """Prepare the time step, before its iterations
 

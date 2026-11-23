@@ -14,6 +14,7 @@ from opensimula.Parameters import (
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
+from opensimula.energy import Energy_use, positive, where
 
 
 class HVAC_MZW_system(Component):  # HVAC Multizone Water system
@@ -781,6 +782,33 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 self.variable("T_ADP").values[time_index] = self.T_ADP
                 self.variable("epsilon").values[time_index] = self.epsilon
                 self.variable("epsilon_adp").values[time_index] = self.epsilon_adp
+
+    def get_energy_use(self):
+        """Electricity of the fans (air transport) and, when the coils are not fed
+        by a water system, their heat as heat without equipment (thermal).
+
+        Returns:
+            list: `Energy_use` items (W at each time step).
+        """
+        v = self.variable
+        state = v("state").values
+        uses = [Energy_use("ELECTRICITY", "AIR_TRANSPORT",
+                           v("supply_fan_power").values + v("return_fan_power").values)]
+        heating = np.zeros(len(state))
+        unknown_coils = self.parameter("water_source").value == "UNKNOWN"
+        if unknown_coils:
+            heating += where(np.isin(state, [1, 2]), v("Q_sensible").values)
+        unknown_reheat = (self.parameter("reheat").value
+                          and self.parameter("reheat_water_source").value == "UNKNOWN")
+        if unknown_reheat:
+            n = len(self.parameter("spaces").component)
+            heating += positive(sum(v(f"Q_reheat_{i}").values for i in range(n)))
+        if unknown_coils or unknown_reheat:
+            uses.append(Energy_use("THERMAL", "HEATING_WITHOUT_EQUIPMENT", heating))
+        if unknown_coils:
+            uses.append(Energy_use("THERMAL", "COOLING_WITHOUT_EQUIPMENT",
+                                   where(np.isin(state, [-1, -2]), v("Q_total").values)))
+        return uses
 
 
 def _not_zero(expression):
