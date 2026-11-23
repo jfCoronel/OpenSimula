@@ -10,6 +10,7 @@ from opensimula.Parameters import (
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
+from opensimula.comfort import Zone_control
 from opensimula.energy import Energy_use, mode_from_state, positive, where
 
 
@@ -622,6 +623,18 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
             uses.append(Energy_use("THERMAL", "COOLING_WITHOUT_EQUIPMENT",
                                    where(np.isin(state, [-1, -2]), v("Q_total").values)))
         return uses
+
+    def get_zone_setpoints(self):
+        """The zone it serves, with its heating and cooling setpoints.
+
+        Returns:
+            list: one `Zone_control` (values at each time step).
+        """
+        v = self.variable
+        return [Zone_control(self.parameter("space").component,
+                             np.array(v("heating_setpoint").values, dtype=float),
+                             np.array(v("cooling_setpoint").values, dtype=float),
+                             v("state").values != 0)]
 
 
 def _not_zero(expression):

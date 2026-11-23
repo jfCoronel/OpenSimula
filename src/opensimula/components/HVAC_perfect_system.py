@@ -4,6 +4,7 @@ from opensimula.Parameters import Parameter_component, Parameter_float, Paramete
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
+from opensimula.comfort import Zone_control
 from opensimula.energy import Energy_use, positive
 
 
@@ -155,3 +156,15 @@ class HVAC_perfect_system(Component):
             Energy_use("THERMAL", "HEATING_WITHOUT_EQUIPMENT", positive(Q_s) + positive(Q_l)),
             Energy_use("THERMAL", "COOLING_WITHOUT_EQUIPMENT", positive(-Q_s) + positive(-Q_l)),
         ]
+
+    def get_zone_setpoints(self):
+        """The zone it serves, with its heating and cooling setpoints.
+
+        Returns:
+            list: one `Zone_control` (values at each time step).
+        """
+        v = self.variable
+        return [Zone_control(self.parameter("spaces").component,
+                             np.array(v("heating_setpoint").values, dtype=float),
+                             np.array(v("cooling_setpoint").values, dtype=float),
+                             v("state").values != 0)]

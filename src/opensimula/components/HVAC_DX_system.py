@@ -4,6 +4,7 @@ from opensimula.Parameters import Parameter_component, Parameter_float, Paramete
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
+from opensimula.comfort import Zone_control
 from opensimula.energy import Energy_use, mode_from_state, positive, where
 
 
@@ -274,3 +275,15 @@ class HVAC_DX_system(Component):
             Energy_use("ELECTRICITY", "AIR_TRANSPORT", np.array(fan, dtype=float), mode_from_state(state)),
             Energy_use("AMBIENT", "HEATING", where(heating, positive(Q_heating - compressor))),
         ]
+
+    def get_zone_setpoints(self):
+        """The zone it serves, with its heating and cooling setpoints.
+
+        Returns:
+            list: one `Zone_control` (values at each time step).
+        """
+        v = self.variable
+        return [Zone_control(self.parameter("spaces").component,
+                             np.array(v("heating_setpoint").values, dtype=float),
+                             np.array(v("cooling_setpoint").values, dtype=float),
+                             v("state").values != 0)]

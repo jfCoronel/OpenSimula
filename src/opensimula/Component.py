@@ -260,6 +260,17 @@ class Component(Parameter_container):
         """
         return []
 
+    def get_zone_setpoints(self):
+        """Zones whose temperature the component controls, with its setpoints.
+
+        Systems that control zones override it; the base component controls none.
+
+        Returns:
+            list: list of `opensimula.comfort.Zone_control` (zone, heating and
+                cooling setpoints in °C and system on, at each time step).
+        """
+        return []
+
     def pre_iteration(self, time_index, date, daylight_saving):
         """Prepare the time step, before its iterations
 
