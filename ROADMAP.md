@@ -970,6 +970,115 @@ gallery example; later `CTE_compliance`.
   `Q_sensible` negative and `Q_latent` positive, DX both positive, perfect system both
   signed): worth unifying before 1.0 (breaks outputs).
 
+## Planned: `CTE_compliance`, verification of DB-HE (design closed 2026-11-23)
+
+Goal: check a project against the Spanish DB-HE 2019 (articulado 14/06/2022), on top of
+`Energy_indicators` and `Comfort_indicators`. Verification only; the energy rating
+(RD 390/2021, letters A-G) would be another component (`Energy_rating`) on the same base.
+Not a recognised procedure: HULC / CE3X stay the official tools (the DB-HE says the
+verification "no es necesario que se trate de procedimientos oficialmente reconocidos",
+the rating does need them). Sources given by the user: DB-HE con comentarios (22/12/2023)
+and Guía de aplicación DB-HE 2019 (junio 2022). Values below copied from them.
+
+**Phase 1: HE0** (`report()` → table: requirement, value, limit, complies).
+
+- Indicators per m² of reference area: sum of the useful floor area of the habitable
+  spaces inside the thermal envelope (HE0 4.6); spaces with process conditions may be
+  excluded. Uses with different limits are checked apart (no compensation): one
+  `CTE_compliance` per use part, each with its own `Energy_indicators` (`zones` subset).
+- EPB services counted (HE0 4.1.3, Guía 4.3): heating, cooling, DHW, ventilation,
+  humidity control; lighting only in uses other than residencial privado. Equipment
+  (appliances), lifts... not counted. Ambient energy of heat pumps only in heating and
+  DHW (already so in `get_energy_use()`). Monthly balance and kexp = 0 (matter only with
+  on-site production: no PV model yet).
+- Reference systems, residencial privado only, when a service has no system (HE0 4.5,
+  table 4.5): heat and DHW natural gas, efficiency 0.92 **on the HHV (PCS)**; cold
+  electricity, 2.60 (nominal values).
+- C_ep,nren,lim [kWh/m²·year] (tables 3.1.a/b-HE0), winter zone α / A / B / C / D / E:
+  - residencial privado, new and extensions: 20 / 25 / 28 / 32 / 38 / 43;
+    changes of use to residential and reforms: 40 / 50 / 55 / 65 / 70 / 80;
+    extrapeninsular (Baleares, Canarias, Ceuta, Melilla) × 1.25.
+  - other uses: 70 / 55 / 50 / 35 / 20 / 10 + 8·C_FI; extrapeninsular × 1.40.
+- C_ep,tot,lim (tables 3.2.a/b-HE0):
+  - residencial privado, new and extensions: 40 / 50 / 56 / 64 / 76 / 86;
+    changes of use and reforms: 55 / 75 / 80 / 90 / 105 / 115; extrapeninsular × 1.15.
+  - other uses: 165 / 155 / 150 / 140 / 130 / 120 + 9·C_FI; extrapeninsular × 1.40.
+- C_FI, carga interna media [W/m²] (Anejo A): mean hourly load over a typical week of
+  occupancy (sensible only), lighting and equipment, weighted by useful area. Levels: low
+  < 6, medium 6-9, high 9-12, very high ≥ 12. Residential ≈ 4 W/m².
+- Hours outside setpoint (HE0 4.1.6, Anejo A): ≤ 4 % of the occupation time (residential
+  24 h: 350 h/year). An hour counts when **any** conditioned habitable space is more than
+  **1 °C** outside its setpoint range during occupation: it measures time, not area
+  (several spaces at once count once). `Comfort_indicators` today adds zone-hours: it
+  needs the building count (hours with `zones_outside` > 0).
+- Residential operational conditions and profiles (Anejo D): setpoints low 17 °C (0-7 h,
+  23-24 h) / 20 °C (7-23 h) Oct-May; high 27 °C (0-7 h, 23-24 h) / 25 °C (15-23 h)
+  Jun-Sep, free 7-15 h; loads by hour (occupancy sensible/latent, lighting, equipment)
+  and DHW profile by hour. Tertiary: the project's, or the normalised profiles of the
+  documento reconocido "Condiciones técnicas..." (8/12/16/24 h, low/medium/high load).
+- DHW reference demand (Anejo F): residential 28 l/day·person at 60 °C, occupancy by
+  bedrooms (1: 1.5, 2: 3, 3: 4, 4: 5, 5: 6, 6: 6, >6: 7), centralisation factor by number
+  of dwellings; other uses table c (offices 2 l/day·person...); mains water temperature
+  by month and province capital (Anejo G).
+- Climate zone (Anejo B) by province and altitude: winter letter α / A-E + summer 1-4.
+
+**Phase 2: HE1** (geometry and constructions are in the model):
+
+- K = Σ b_tr·(A·U + l·ψ + χ) / Σ b_tr·A (b_tr 0 for elements next to other buildings or
+  adjacent spaces outside the envelope); K_lim tables 3.1.1.b (residential: new
+  V/A ≤ 1: 0.67 / 0.60 / 0.58 / 0.53 / 0.48 / 0.43, V/A ≥ 4: 0.86 / 0.80 / 0.77 / 0.72 /
+  0.67 / 0.62; changes of use and reforms > 25 %: 1.00 / 0.87 / 0.83 / 0.73 / 0.63 / 0.54
+  and 1.07 / 0.94 / 0.90 / 0.81 / 0.70 / 0.62) and 3.1.1.c (other uses: 0.96 / 0.81 /
+  0.76 / 0.65 / 0.54 / 0.43 and 1.12 / 0.98 / 0.92 / 0.82 / 0.70 / 0.59), linear in V/A
+  between 1 and 4. Alternative: heating and cooling demand both < 15 kWh/m².
+  Thermal bridges ψ are not modelled: to decide (lengths × ψ given by the user, or none).
+- U_lim per element (table 3.1.1.a): walls/floors to outdoor air 0.80 / 0.70 / 0.56 /
+  0.49 / 0.41 / 0.37; roofs 0.55 / 0.50 / 0.44 / 0.40 / 0.35 / 0.33; to ground or
+  non-habitable 0.90 / 0.80 / 0.75 / 0.70 / 0.65 / 0.59; openings 3.2 / 2.7 / 2.3 / 2.1 /
+  1.8 / 1.80; doors ≤ 50 % glazed 5.7.
+- q_sol;jul ≤ 2.00 (residential) / 4.00 (other) kWh/m²·month: July solar gains through
+  openings with movable shading active / reference area (could come from a July
+  simulation with shading on, or the simplified formula).
+- n50 (new residential > 120 m²): ≤ 6 (V/A ≤ 2) to 3 (V/A ≥ 4) h⁻¹; Anejo H n50 = 0.629
+  (C_o·A_o + C_h·A_h)/V_int, C_o 16 (new) / 29 (existing) m³/h·m² at 100 Pa. Q100 of
+  openings ≤ 27 (α-B) / 9 (C-E).
+
+Decisions (2026-11-23):
+
+1. **Phase 1 is HE0 only**: `report()` gives three checks, C_ep,nren, C_ep,tot and hours
+   outside setpoint (value, limit, complies). HE1 in phase 2.
+2. **Hours outside setpoint**: `Comfort_indicators` gets the building count (hours with
+   any zone outside, `zones_outside` > 0) besides the zone-hours; `CTE_compliance` uses
+   it with tolerance 1 K and the occupation time (period expression of the comfort
+   component; residential 24 h).
+3. **Transport**: `CTE_compliance` calls `report(water_transport="BY_MODE",
+   air_transport="BY_MODE")`: pumps and fans go to heating/cooling by the mode of each
+   hour; fans running with no load stay as AIR_TRANSPORT, counted as the ventilation
+   service (EPB).
+4. **C_FI** (other uses): computed from the `Space` gains (occupancy sensible, lighting,
+   equipment, per m² of the zones) as the mean of the simulated period; a parameter can
+   give it; required for `Load_space` zones (they have no breakdown).
+5. **Parameters**: `energy_indicators`, `comfort_indicators`, `climate_zone` (e.g. "B4",
+   given by the user; an Anejo B lookup by province and altitude can come later),
+   `building_use` (RESIDENTIAL_PRIVATE / OTHER), `intervention` (NEW_OR_EXTENSION /
+   CHANGE_OF_USE_OR_REFORM). Extrapeninsular multipliers from the `conversion_factors`
+   region of `Energy_indicators` (BALEARES, CANARIAS, CEUTA_MELILLA, EXTRAPENINSULAR).
+6. **DHW**: entered by the user as an extra use of `Energy_indicators` for now; a helper
+   for the Anejo F/G reference demand later.
+7. Residential without a system for a service: the reference systems of table 4.5 as
+   `reference_heating` / `reference_cooling` of the report.
+
+**Fuel basis (confirmed by the user 2026-11-23)**: final energy for primary energy and
+CO₂ is on the **LHV (PCI)**, as the boilers here and the RITE factors: nothing to
+convert. The HHV (PCS) appears only in the reference boiler of the substitution systems
+(0.92 on the PCS): its final energy on the PCI is Q / (0.92 · PCS/PCI); PCS/PCI of
+natural gas ≈ 1.11 (to check the exact value the CTE tools use; a parameter of
+`CTE_compliance` with that default).
+
+Order of work: (1) building count of hours in `Comfort_indicators`; (2) `CTE_compliance`
+HE0 with tests (cases with known limits: residential new B4, other uses with C_FI);
+(3) docs and a gallery example (residential, Anejo D profiles?); (4) phase 2, HE1.
+
 ## Future: importer of HULC projects (added 2026-11-19)
 
 Code by a student's TFG (final degree project) to import buildings made with HULC (the
