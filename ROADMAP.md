@@ -14,8 +14,9 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   top bar grouped in one line). Breaks the compatibility of `HVAC_water_system`. Tests 220,
   `validate.py --check` full: 0 changed. Details: sections "Planned: several generators..."
   and "Planned: `Load_space`..." below (PRs #44-#58).
-- **Next (agreed 2026-11-19)**: CTE indicators (primary energy and CO₂ from the electric
-  and fuel power, `Boiler.fuel` ready; comfort indicators, reports). Later candidates: B6
+- **Next (agreed 2026-11-19)**: CTE indicators. Design closed 2026-11-23 (section
+  "Planned: `Energy_indicators`..." below): `Energy_indicators` (0.11), `Comfort_indicators`,
+  `CTE_compliance` later. Later candidates: B6
   variable secondary flow and pump staging (0.11), small follow-ups (`File_data` dates,
   viewer CSV names with dots), HULC importer, marimo/WASM course. JOSS: wait (see memory),
   one combined paper update for 0.9 + 0.10 when an editor is assigned or with the ping at
@@ -785,6 +786,100 @@ takes the place of a `Space` in `HVAC_DX_system`, `HVAC_SZW_system`, `HVAC_MZW_s
   [W]`; `File_data` reads them, but a name with a dot cannot be used in
   `input_variables`. The docs say to rename the columns; better: `File_data` could replace
   the dots, or the viewer export short names.
+
+## Planned: `Energy_indicators`, and `CTE_compliance` on top of it (design closed 2026-11-23)
+
+Goal: from a simulation, the energy use of a project as final energy per carrier and
+service, primary energy (non-renewable and total) and CO₂, per m², with a report. Two
+components, kept apart (decided):
+
+- **`Energy_indicators`** (0.11): neutral, not tied to a country or a regulation. Counts
+  the energy each consumer uses, converts it with configurable factors and reports it.
+- **`CTE_compliance`** (later): uses an `Energy_indicators` and adds the Spanish CTE DB-HE
+  rules: which services count (lighting only in tertiary buildings), reference systems for
+  the heat without equipment, regional factors, limits per climate zone (C_ep,nren,
+  C_ep,tot, hours outside setpoint), and maybe HE1 envelope indicators (K global,
+  q_sol,jul: the geometry is there). Not a certification tool (HULC stays the official
+  one). Fully backwards compatible: new components, nothing existing changes.
+
+What consumes energy today (checked 2026-11-23):
+
+- `HVAC_DX_system`: `power` (electric, compressor + indoor fan; fan alone when venting) and
+  `indoor_fan_power` (already inside `power`); `state` gives heating/cooling.
+- `HVAC_SZW_system`, `HVAC_MZW_system`: `supply_fan_power`, `return_fan_power` (electric).
+  The heat of their coils (and MZW reheat) is consumption only through a plant
+  (`water_source = WATER_SYSTEM`); with `UNKNOWN` it has no generator.
+- `HVAC_water_generator`: `power` (electric, equipment), `fuel_power` (LHV, boilers, carrier
+  = `Boiler.fuel`, `FUELS` includes ELECTRICITY), `pump_power`; `state` heating/cooling.
+- `HVAC_water_system`: `secondary_pumps_power`; `pumps_power`, `generators_power`,
+  `generators_fuel_power`, `electric_power` are sums of its generators (**double counting
+  risk** if both plant and generators are added up).
+- `HVAC_water_circuit`: `pumps_power`.
+- `HVAC_perfect_system`: only heat (`Q_sensible`, `Q_latent`), no equipment.
+- `Space`: `light_convective + light_radiant` = lighting; `other_gains_*` = equipment.
+  `Load_space`: nothing.
+- Not modelled: DHW, on-site PV / renewables, humidifiers.
+
+Decisions (2026-11-23):
+
+1. **Consumers report themselves**: each consumer implements a common method, e.g.
+   `get_energy_use(time_index)` → list of `(carrier, service, W)`. `Energy_indicators`
+   needs no table of variable names per type, and each power is counted once (the plant
+   reports only its own secondary pumps, each generator its equipment and its pump).
+2. **Services**: HEATING, COOLING (energy of the equipment: compressors, boilers),
+   **WATER_TRANSPORT** (all pumps), **AIR_TRANSPORT** (all fans, the DX indoor fan taken
+   out of `power`), LIGHTING, EQUIPMENT, plus the user's own (e.g. DHW). Transport is
+   **not** assigned to heating/cooling/DHW in the simulation: that is done afterwards, in
+   `report()`, with a hypothesis given as an argument (e.g. by the mode of the system at
+   each hour, or kept apart).
+3. **Heat without equipment** (perfect system, coils with `UNKNOWN` source): its own
+   services (e.g. HEATING_WITHOUT_EQUIPMENT, COOLING_WITHOUT_EQUIPMENT), thermal energy
+   with no carrier. Converted to final energy only in `report()`, with reference
+   generators given as arguments (carrier + efficiency / EER); `CTE_compliance` will pass
+   the CTE ones. Without them, the report shows them as thermal energy, out of the primary
+   energy and CO₂ totals.
+4. **Equipment** (`other_gains_*` of the spaces, convective + radiant + latent): electric
+   by default; a parameter (e.g. `equipment_carrier`) sets another carrier.
+5. **Lighting** always counted in `Energy_indicators` (whether it enters the CTE indicator
+   is a `CTE_compliance` rule).
+
+Proposed parameters of `Energy_indicators` (to refine when coding):
+
+- `components`: consumers to count; empty = all of the project.
+- `zones`: `Space`/`Load_space` giving the reference area (sum of `floor_area`) and their
+  lighting and equipment; empty = all.
+- `equipment_carrier`: ELECTRICITY by default.
+- Conversion factors per carrier (fp,nren, fp,tot, kg CO₂/kWh): a preset name or a custom
+  table; the Spanish presets (PENINSULA, BALEARES, CANARIAS, CEUTA_MELILLA) in a data
+  module that `CTE_compliance` reuses.
+- `extra_uses`: `input_variables` + expressions per carrier and service (DHW from a
+  record or a `Calculator`...), as `Space_type` / `Calculator`.
+- Hourly variables: final energy per carrier and per service, primary nren and total,
+  CO₂ (heat without equipment kept apart, decision 3). Last in the order (before or after
+  `Calculator`, to decide).
+- `report(frequency="yearly", per_area=True, transport=..., reference_heating=...,
+  reference_cooling=...)` → table (DataFrame) by service and carrier, also for the GUI.
+
+Conversion factors (documento reconocido del RITE "Factores de emisión de CO₂ y coeficientes
+de paso a energía primaria de diferentes fuentes de energía final", 2016; **values from
+memory, check against the document** before coding), per kWh of final energy, peninsular:
+electricity fp,nren 1.954 / fp,tot 2.368 / 0.331 kgCO₂; natural gas 1.190 / 1.195 / 0.252;
+LPG 1.201 / 1.204 / 0.254; diesel (gasóleo) 1.179 / 1.182 / 0.311; biomass (pellets) 0.085 /
+1.113 / 0.018. Electricity differs in the islands and Ceuta/Melilla. Check whether the fuel
+factors are on the HHV or the LHV (the boilers here work on the LHV).
+
+6. **Comfort in its own component** (e.g. `Comfort_indicators`): hours outside setpoint per
+   zone while its system is on, `unmet_sensible_heat` of `Load_space`; later operative
+   temperature, PMV/PPD. It is not energy; `CTE_compliance` will use both.
+7. **Heat without equipment reported by each system**: `HVAC_perfect_system` its
+   `Q_sensible` + `Q_latent`; `HVAC_SZW_system` / `HVAC_MZW_system` with `UNKNOWN` source
+   the heat of their coils (and reheat), heating and cooling apart.
+
+Design closed (2026-11-23). Before coding the factors: check them against the documento
+reconocido and whether the fuel factors are on the HHV or the LHV. Names of the services
+and of the `report()` hypotheses to settle while coding. Order of work: (1)
+`get_energy_use()` in the consumers, with tests; (2) `Energy_indicators` and `report()`;
+(3) `Comfort_indicators`; (4) docs and a gallery example; later `CTE_compliance`.
 
 ## Future: importer of HULC projects (added 2026-11-19)
 
