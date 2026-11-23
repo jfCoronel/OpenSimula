@@ -89,7 +89,7 @@ Located in `src/opensimula/Project.py::simulate()`:
 3. **Post-simulation**: Cleanup and finalization
 
 The simulation order (`DEFAULT_COMPONENTS_ORDER` in components/__init__.py):
-- Space_type → Building_surface → Solar_surface → Opening → Space → Building → HVAC systems → Calculator
+- Space_type → Building_surface → Solar_surface → Opening → Space → Building → HVAC systems → Calculator → Energy_indicators → Comfort_indicators
 
 #### Parameter System
 Parameters (src/opensimula/Parameters.py) provide type-safe configuration:
@@ -137,6 +137,8 @@ Parameters (src/opensimula/Parameters.py) provide type-safe configuration:
 - **File_data**: Generic data file reader (CSV, Excel)
 - **Calculator**: Custom calculation component using math expressions
 - **Space_type**: Space type definitions (occupancy, lighting, equipment)
+- **Energy_indicators**: Final energy by carrier and service, primary energy and CO₂ (RITE factors); `report()` → tables/HTML. Consumers report through `Component.get_energy_use()` (`opensimula/energy.py`)
+- **Comfort_indicators**: Hours of each zone outside the setpoints of its system; systems report through `Component.get_zone_setpoints()` (`opensimula/comfort.py`)
 
 ### Project Configuration
 

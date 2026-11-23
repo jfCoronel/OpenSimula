@@ -486,3 +486,31 @@ pro.component("fan_coil_south").set_parameters({
 </code></pre>
 
 The parameters and variables of every component are in the [component list](component_list.md).
+
+## Energy and comfort indicators
+
+Two components look at a whole project after its simulation, without changing it: `Energy_indicators` (its energy use) and `Comfort_indicators` (the hours its zones are outside their setpoints). They are the last in the simulation order and read the variables of the others; they also store their own hourly variables, for the results viewer. See [example 10](examples.md#10-energy-and-comfort).
+
+**Energy.** Every component that uses energy reports it by **carrier** (ELECTRICITY, NATURAL_GAS, LPG, DIESEL, BIOMASS) and by **service**: HEATING and COOLING (the equipment: compressors, boilers), WATER_TRANSPORT (pumps), AIR_TRANSPORT (fans), LIGHTING and EQUIPMENT (of the spaces). Each power is counted once: a water plant reports its own secondary pumps and each of its generators its equipment and pump. Two carriers are not final energy:
+
+- **AMBIENT**, the energy a heat pump takes from the environment while it heats (the heat given minus its electricity; none in cooling). It is renewable primary energy.
+- **THERMAL**, heat with no equipment behind it: that of an ideal system (`HVAC_perfect_system`) and that of the coils of a system with `water_source` "UNKNOWN", as services HEATING_WITHOUT_EQUIPMENT and COOLING_WITHOUT_EQUIPMENT. It becomes final energy only when the report is given a reference generator.
+
+`Energy_indicators` adds them up (all the systems and zones of the project, or those in `components` and `zones`), plus extra uses written as expressions, such as the domestic hot water, and converts the final energy to primary energy (renewable and non-renewable) and CO₂ with the factors of a region of the documento reconocido del RITE (2016) or custom ones. It is neutral: the rules of a regulation (which services count, reference systems, limits) are not in it.
+
+**Comfort.** Every system that controls the temperature of zones reports their heating and cooling setpoints and when it is on. `Comfort_indicators` counts, per zone, the hours the air temperature is above the cooling setpoint or below the heating setpoint by more than a tolerance (0.5 K by default), while the system is on and, optionally, during a period such as the occupied hours.
+
+**Reports.** `report()` of each component returns an object with its tables (pandas DataFrames) that a notebook shows as HTML, and `to_html()` gives that HTML. In the [OpenSimula app](#opensimula-app) the reports appear after **Simulate**. The energy report has the final energy of the year by service and carrier, by month, and the primary energy and CO₂ by service, in total and per m². Its arguments are the hypotheses: pumps and fans as their own services (default) or assigned to heating or cooling by the mode of each hour, and the reference generators of the heat without equipment.
+
+<pre><code class="python">
+...
+
+pro.new_component("Energy_indicators", "energy").set_parameters({"conversion_factors": "PENINSULA"})
+pro.new_component("Comfort_indicators", "comfort").set_parameters({"tolerance": 0.5})
+pro.simulate()
+
+report = pro.component("energy").report(water_transport="BY_MODE", air_transport="BY_MODE")
+report.summary["primary_nren"]          # kWh in the period
+report.monthly_carriers                 # DataFrame, kWh by month and carrier
+pro.component("comfort").report()       # hours outside the setpoints by zone and month
+</code></pre>
