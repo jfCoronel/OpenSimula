@@ -1068,10 +1068,12 @@ Decisions (2026-11-23):
 7. Residential without a system for a service: the reference systems of table 4.5 as
    `reference_heating` / `reference_cooling` of the report.
 
-**Pending, to confirm before coding**: whether the fuel factors (RITE 2016) and the CTE
-tools work on the HHV (PCS) or the LHV (PCI). The reference boiler is 0.92 on the PCS
-and the boilers here work on the PCI; if the factors are per kWh PCS, boiler fuel energy
-must be multiplied by HHV/LHV (≈ 1.11 natural gas) before converting.
+**Fuel basis (confirmed by the user 2026-11-23)**: final energy for primary energy and
+CO₂ is on the **LHV (PCI)**, as the boilers here and the RITE factors: nothing to
+convert. The HHV (PCS) appears only in the reference boiler of the substitution systems
+(0.92 on the PCS): its final energy on the PCI is Q / (0.92 · PCS/PCI); PCS/PCI of
+natural gas ≈ 1.11 (to check the exact value the CTE tools use; a parameter of
+`CTE_compliance` with that default).
 
 Order of work: (1) building count of hours in `Comfort_indicators`; (2) `CTE_compliance`
 HE0 with tests (cases with known limits: residential new B4, other uses with C_FI);
