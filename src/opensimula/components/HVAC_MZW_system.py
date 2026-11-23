@@ -359,8 +359,9 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 -self.Q_coil, self.parameter("heating_water_flow").value * self.F_load
             )
         elif self.cooling_ws is not None and self.state in (-1, -2):
-            self.cooling_ws.add_coil_load(
-                -self.Q_coil, self.parameter("cooling_water_flow").value * self.F_load
+            self.cooling_ws.add_coil_load(  # sensible and latent heat (condensation)
+                -self.Q_coil - self.M_w * self.props["LAMBDA"],
+                self.parameter("cooling_water_flow").value * self.F_load,
             )
         if self.reheat_ws is not None and self.is_reheat:
             Q = float(np.sum(self.Q_reheat))
@@ -772,7 +773,7 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
                 self.variable("Q_total").values[time_index] = -Q_s + Q_l
                 self.variable("T_iw").values[time_index] = self.cooling_water_temp
                 self.variable("T_ow").values[time_index] = self.cooling_water_temp + (
-                    Q_s + Q_l
+                    -Q_s + Q_l
                 ) / (
                     self.cooling_water_flow
                     * self.props["RHOCP_W"](self.cooling_water_temp)
