@@ -8,7 +8,7 @@ from opensimula.Parameters import (
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
-from opensimula.energy import Energy_use, positive, where
+from opensimula.energy import Energy_use, mode_from_plant, positive, where
 
 
 class HVAC_water_generator(Component):
@@ -264,10 +264,15 @@ class HVAC_water_generator(Component):
         Q = v("Q").values
         power = v("power").values
         heating, cooling = Q > 0, Q < 0
+        # the pump works with the mode of the plant (it runs also while the
+        # generator gives no heat); the plant tells its generators who it is
+        plant = getattr(self, "plant", None)
+        mode = mode_from_plant(plant.variable("mode").values) if plant else np.sign(Q)
         uses = [
             Energy_use("ELECTRICITY", "HEATING", where(heating, power)),
             Energy_use("ELECTRICITY", "COOLING", where(cooling, power)),
-            Energy_use("ELECTRICITY", "WATER_TRANSPORT", np.array(v("pump_power").values, dtype=float)),
+            Energy_use("ELECTRICITY", "WATER_TRANSPORT", np.array(v("pump_power").values, dtype=float),
+                       mode),
         ]
         equipment = self.parameter("equipment").component
         if equipment.parameter("type").value == "Boiler":

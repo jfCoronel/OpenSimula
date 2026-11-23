@@ -4,7 +4,7 @@ from opensimula.Parameters import Parameter_component, Parameter_float, Paramete
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
-from opensimula.energy import Energy_use, positive, where
+from opensimula.energy import Energy_use, mode_from_state, positive, where
 
 
 class HVAC_DX_system(Component):
@@ -271,6 +271,6 @@ class HVAC_DX_system(Component):
         return [
             Energy_use("ELECTRICITY", "HEATING", where(heating, compressor)),
             Energy_use("ELECTRICITY", "COOLING", where(cooling, compressor)),
-            Energy_use("ELECTRICITY", "AIR_TRANSPORT", np.array(fan, dtype=float)),
+            Energy_use("ELECTRICITY", "AIR_TRANSPORT", np.array(fan, dtype=float), mode_from_state(state)),
             Energy_use("AMBIENT", "HEATING", where(heating, positive(Q_heating - compressor))),
         ]

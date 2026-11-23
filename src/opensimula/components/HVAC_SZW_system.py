@@ -10,7 +10,7 @@ from opensimula.Parameters import (
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
-from opensimula.energy import Energy_use, positive, where
+from opensimula.energy import Energy_use, mode_from_state, positive, where
 
 
 class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
@@ -614,7 +614,8 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         v = self.variable
         state = v("state").values
         uses = [Energy_use("ELECTRICITY", "AIR_TRANSPORT",
-                           v("supply_fan_power").values + v("return_fan_power").values)]
+                           v("supply_fan_power").values + v("return_fan_power").values,
+                           mode_from_state(state))]
         if self.parameter("water_source").value == "UNKNOWN":
             uses.append(Energy_use("THERMAL", "HEATING_WITHOUT_EQUIPMENT",
                                    where(np.isin(state, [1, 2]), v("Q_sensible").values)))

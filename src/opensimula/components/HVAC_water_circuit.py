@@ -10,7 +10,7 @@ from opensimula.Parameters import (
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
-from opensimula.energy import Energy_use
+from opensimula.energy import Energy_use, mode_from_plant
 
 
 class HVAC_water_circuit(Component):
@@ -231,5 +231,7 @@ class HVAC_water_circuit(Component):
         Returns:
             list: `Energy_use` items (W at each time step).
         """
+        plant = self.parameter("water_system").component
         return [Energy_use("ELECTRICITY", "WATER_TRANSPORT",
-                           np.array(self.variable("pumps_power").values, dtype=float))]
+                           np.array(self.variable("pumps_power").values, dtype=float),
+                           mode_from_plant(plant.variable("mode").values))]

@@ -14,7 +14,7 @@ from opensimula.Parameters import (
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
-from opensimula.energy import Energy_use, positive, where
+from opensimula.energy import Energy_use, mode_from_state, positive, where
 
 
 class HVAC_MZW_system(Component):  # HVAC Multizone Water system
@@ -793,7 +793,8 @@ class HVAC_MZW_system(Component):  # HVAC Multizone Water system
         v = self.variable
         state = v("state").values
         uses = [Energy_use("ELECTRICITY", "AIR_TRANSPORT",
-                           v("supply_fan_power").values + v("return_fan_power").values)]
+                           v("supply_fan_power").values + v("return_fan_power").values,
+                           mode_from_state(state))]
         heating = np.zeros(len(state))
         unknown_coils = self.parameter("water_source").value == "UNKNOWN"
         if unknown_coils:
