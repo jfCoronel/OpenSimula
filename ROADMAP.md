@@ -957,6 +957,15 @@ gallery example; later `CTE_compliance`.
   (`unmet_sensible_heat` is the record at T_ref minus the system, it counts the load not
   needed when the zone floats between setpoints: 930 kWh "unmet" in 09 with 3 h outside).
   Notebook `jupyter_test/COMFORT_INDICATORS.ipynb`. Later: operative temperature, PMV/PPD.
+- **Step 4 done (branch `docs/indicators`)**: docs of both components in
+  `component_list_utils.md` (what each component reports, factors, report()), user guide
+  section "Energy and comfort indicators", developer guide note on `get_energy_use()` /
+  `get_zone_setpoints()`, gallery example `10_energy_and_comfort` (09 + the two
+  components; year: 5010 kWh final, 52 kWh/m², 101.1 / 127.3 kWh/m² primary nren / total,
+  17.2 kg CO₂/m², 20.6 % renewable, 3 h outside of 4760) with its figure (monthly final
+  energy by service; heating red, cooling blue, as the user wants in every figure).
+  **Next**: `CTE_compliance` (rules of DB-HE on top of both: services counted, reference
+  systems, limits per climate zone, tolerance of the hours outside setpoint).
 - **Follow-up**: sign conventions of the system outputs differ (in cooling, SZW/MZW
   `Q_sensible` negative and `Q_latent` positive, DX both positive, perfect system both
   signed): worth unifying before 1.0 (breaks outputs).

@@ -18,6 +18,7 @@ NAMES = [
     "07_fan_coil",
     "08_load_records",
     "09_water_plant",
+    "10_energy_and_comfort",
 ]
 # 01-07 build on each other; 08 starts again from 06 without the building
 PROGRESSIVE = NAMES[:7]
@@ -158,3 +159,14 @@ def test_the_fan_coil_gives_the_plant_its_latent_heat(folder, monkeypatch):
     assert np.allclose(T_ow[cooling] - T_iw[cooling], Q_total[cooling] / (flow * rhocp))
     T_plant = pro.component("water_system").variable("T_supply").values
     assert np.all(np.abs(T_iw[cooling] - T_plant[cooling]) < 2)
+
+
+def test_the_energy_and_comfort_example_is_09_with_the_indicators(folder, monkeypatch):
+    load = lambda n: json.loads((folder / f"{n}.json").read_text(encoding="utf-8"))
+    example, water = load("10_energy_and_comfort"), load("09_water_plant")
+    assert example["components"][:-2] == water["components"]
+    assert [c["type"] for c in example["components"][-2:]] == ["Energy_indicators", "Comfort_indicators"]
+    pro = _simulate(folder, "10_energy_and_comfort", monkeypatch, n_time_steps=24 * 7)
+    r = pro.component("energy").report()
+    assert r.summary["reference_area"] == 96 and r.summary["primary_nren"] > 0
+    assert pro.component("comfort").report().summary["hours_counted"] > 0

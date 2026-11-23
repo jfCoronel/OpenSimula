@@ -1,6 +1,6 @@
 ## Examples
 
-A gallery of projects that build on each other: each one of the first seven is the previous one plus one new idea, from a schedule with no building at all to an office conditioned by a fan coil and a heat pump. The eighth goes back to the sixth and replaces the building by a record of its loads, and the ninth uses those loads for a water plant with two generators and two circuits. They all use the weather of Sevilla (Spain) and, from the third on, the same building (the last two, its loads): the 8 × 6 × 2.7 m box of the ASHRAE Standard 140 test cases, with lightweight walls and roof and a floor that loses almost no heat.
+A gallery of projects that build on each other: each one of the first seven is the previous one plus one new idea, from a schedule with no building at all to an office conditioned by a fan coil and a heat pump. The eighth goes back to the sixth and replaces the building by a record of its loads, the ninth uses those loads for a water plant with two generators and two circuits, and the tenth adds to it the indicators of its energy use and comfort. They all use the weather of Sevilla (Spain) and, from the third on, the same building (the last two, its loads): the 8 × 6 × 2.7 m box of the ASHRAE Standard 140 test cases, with lightweight walls and roof and a floor that loses almost no heat.
 
 They come with opensimula. To get them, together with the weather and load files they read, run in a terminal:
 
@@ -33,6 +33,7 @@ pro.results("office.temperature", "office.system_sensible_heat")
 | [07 Fan coil](#07-fan-coil) | A fan coil, a water loop and an air-to-water heat pump | 37 |
 | [08 Load records](#08-load-records) | The system of 06 against a record of the loads, without the building | 12 |
 | [09 Water plant](#09-water-plant) | A heat pump and a backup boiler, two circuits with their fan coils | 24 |
+| [10 Energy and comfort](#10-energy-and-comfort) | Final and primary energy, CO₂ and hours outside the setpoints | 26 |
 
 ### 01 Schedules
 
@@ -135,3 +136,24 @@ In the year the heat pump gives 740 kWh of heat and 9181 kWh of cold, with a mea
 ![Monthly heat of the heat pump and the boiler](img/examples/09_water_plant.png)
 
 *Try:* change `sequencing` to "EQUAL_LOAD": both generators share every load, and the boiler gives 525 kWh in 185 hours instead of 101 kWh in 54; give the heat pump more heating capacity, or the plant more water (`total_water_volume`), and look at the hours of the boiler; or add a secondary pump to the plant (`pumps`) to have a header between the generators and the circuits.
+
+### 10 Energy and comfort
+
+**New:** `Energy_indicators`, `Comfort_indicators`.
+
+The water plant of example 09 with two more components that look at the whole project. `energy` adds up the energy every system uses, by carrier (electricity, natural gas...) and by service: heating and cooling (the heat pump and the boiler), water transport (the pumps of the generators and circuits) and air transport (the fans of the fan coils). It converts it to primary energy and CO₂ with the factors of the documento reconocido del RITE for the peninsula. `comfort` counts the hours each office is more than 0.5 K above or below the setpoints of its fan coil while it works. Neither changes the simulation: they read the variables of the others at its end and have their own variables, hourly, for the results viewer.
+
+Their `report()` gives the tables of the year. In the [OpenSimula app](user_guide.md#opensimula-app) they appear after **Simulate**, below the message of the simulation; in a notebook:
+
+<pre><code class="python">
+pro.read_json("10_energy_and_comfort.json")
+pro.simulate()
+pro.component("energy").report()     # tables, shown as HTML in the notebook
+pro.component("comfort").report()
+</code></pre>
+
+In the year the installation uses 5010 kWh of final energy, 52 kWh/m² of the 96 m² of the two offices: 4898 kWh of electricity and 112 kWh of gas. Cooling takes 3172 kWh, the fans 992 and the pumps 476, more than the 370 kWh of heating. The heat pump also takes 485 kWh from the outdoor air while it heats: ambient energy, renewable, which counts in the primary energy but not in the final energy. In primary energy that is 101 kWh/m² non-renewable and 127 kWh/m² in total (20.6 % renewable), with 17.2 kg/m² of CO₂. Fans and pumps are kept apart by default; `report(water_transport="BY_MODE", air_transport="BY_MODE")` assigns them to heating or cooling by the mode of each hour. The offices are outside their setpoints 3 hours of the 4760 that their fan coils work (0.1 %), all of them in `office_south` and above 25.5 °C. In August the offices are closed and nothing runs.
+
+![Monthly final energy by service](img/examples/10_energy_and_comfort.png)
+
+*Try:* change `conversion_factors` to "CANARIAS" and look at the primary energy and CO₂ of the same electricity; add the domestic hot water as an extra use (`extra_services` `["DHW"]`, `extra_carriers` `["ELECTRICITY"]`, `extra_expressions` `["400 * f"]` with `input_variables` `["f = office_hours.values"]`); or count only the hours the offices are open in `comfort` (`period` `"f"`, with the same input variable).
