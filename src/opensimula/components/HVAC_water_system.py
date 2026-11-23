@@ -11,7 +11,7 @@ from opensimula.Parameters import (
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
-from opensimula.energy import Energy_use
+from opensimula.energy import Energy_use, mode_from_plant
 
 
 class HVAC_water_system(Component):  # HVAC Water system
@@ -91,6 +91,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.file_met = self.project().parameter("simulation_file_met").component
         # Parameters
         self.generators = self.parameter("generators").component
+        for g in self.generators:  # for the mode of their pumps in the energy report
+            g.plant = self
         self.sequencing = self.parameter("sequencing").value
         # The loop is moved by the pumps of the generators (in parallel), that can be
         # not defined (Q_pump = 0)
@@ -671,4 +673,5 @@ class HVAC_water_system(Component):  # HVAC Water system
             list: `Energy_use` items (W at each time step).
         """
         return [Energy_use("ELECTRICITY", "WATER_TRANSPORT",
-                           np.array(self.variable("secondary_pumps_power").values, dtype=float))]
+                           np.array(self.variable("secondary_pumps_power").values, dtype=float),
+                           mode_from_plant(self.variable("mode").values))]

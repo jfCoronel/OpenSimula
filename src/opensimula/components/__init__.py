@@ -30,6 +30,7 @@ from opensimula.components.Boiler import Boiler
 from opensimula.components.HVAC_water_generator import HVAC_water_generator
 from opensimula.components.HVAC_water_circuit import HVAC_water_circuit
 from opensimula.components.HVAC_water_system import HVAC_water_system
+from opensimula.components.Energy_indicators import Energy_indicators
 
 DEFAULT_COMPONENTS_ORDER = [
                     "Space_type",
@@ -46,6 +47,7 @@ DEFAULT_COMPONENTS_ORDER = [
                     "HVAC_water_circuit",
                     "HVAC_water_generator",
                     "HVAC_water_system",
-                    "Calculator"
+                    "Calculator",
+                    "Energy_indicators"
                 ]
 

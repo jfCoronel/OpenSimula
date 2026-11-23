@@ -925,6 +925,24 @@ gallery example; later `CTE_compliance`.
   sensible heat, not the latent (condensation); also T_ow in cooling and the SZW water
   temperature with a plant. Fan coil test: cooling generation +11.8 %; examples 07/09:
   chiller electricity +3.6/+3.8 %. ASHRAE 140: 0 changed.
+- **Step 2 done (branch `feat/energy-indicators`)**: component `Energy_indicators` (last in
+  `DEFAULT_COMPONENTS_ORDER`, after `Calculator`, so a calculator can feed its extra uses).
+  Parameters: `components` / `zones` (empty = all), `reference_area` (0 = floor area of the
+  zones), `equipment_carrier`, `conversion_factors` (PENINSULA, BALEARES, CANARIAS,
+  CEUTA_MELILLA, NATIONAL, EXTRAPENINSULAR) + `custom_carriers` / `custom_fp_ren` /
+  `custom_fp_nren` / `custom_CO2` (override), `input_variables` + `extra_services` /
+  `extra_carriers` / `extra_expressions` (W, evaluated in `post_iteration`). Hourly
+  variables filled in `post_simulation` from `get_energy_use()`: one per carrier
+  (`electricity`, `natural_gas`, `ambient`, `thermal`...), one per service (final energy,
+  without AMBIENT), `primary_ren`, `primary_nren`, `primary_total` (W), `CO2` (kg/h).
+  `report(water_transport, air_transport, reference_heating, reference_cooling)` →
+  `Energy_report` (`annual`, `monthly_carriers`, `monthly_services`, `indicators`,
+  `indicators_per_area`, `summary`, `notes`; `to_html()`, `_repr_html_()`). `Energy_use`
+  got a `mode` (1/-1/0) for the transport, the plant tells its generators who it is
+  (`g.plant`). The GUI shows the report of each `Energy_indicators` after Simulate (an
+  accordion, default hypotheses), checked in Chrome. Notebook
+  `jupyter_test/ENERGY_INDICATORS.ipynb`. Example 09 (year): 101.1 kWh/m² C_ep,nren,
+  127.3 C_ep,tot, 17.2 kg CO₂/m², renewable share 20.6 %.
 - **Follow-up**: sign conventions of the system outputs differ (in cooling, SZW/MZW
   `Q_sensible` negative and `Q_latent` positive, DX both positive, perfect system both
   signed): worth unifying before 1.0 (breaks outputs).
