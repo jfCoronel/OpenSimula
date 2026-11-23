@@ -68,6 +68,10 @@ def test_cooling_load_goes_to_the_chilled_water_plant(summer):
     assert cooling.sum() > 0
     assert np.all(Q_coils[cooling] > 0)
     assert np.all(Q_coils[~cooling] == 0)
+    # the plant gets the sensible and the latent heat (condensation) of the coil
+    Q_total = values(summer, "ahu", "Q_total")
+    assert values(summer, "ahu", "Q_latent")[cooling].sum() > 0
+    assert np.allclose(Q_coils[cooling], Q_total[cooling], rtol=1e-6, atol=1e-6)
     assert values(summer, "chiller_generator", "Q").min() < 0
     # chilled water at the setpoint while there is load
     T = values(summer, "chilled_water", "T_generators_out")

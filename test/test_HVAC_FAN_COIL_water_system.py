@@ -396,12 +396,14 @@ def test_HVAC_FAN_COIL_water_system():
     cooling_generation = yearly_df["Q_generators_neg"].values[0] / 1e6
 
     assert heating_generation == pytest.approx(0.058097146558686835, rel=1e-5)
-    assert cooling_generation == pytest.approx(-4.937088600642061, rel=1e-5)
+    # 0.11: the cooling coil gives the plant its latent heat (condensation) too, it gave
+    # only the sensible heat: -4.937 → -5.519 MWh (+11.8 %); air side unchanged
+    assert cooling_generation == pytest.approx(-5.519329999730686, rel=1e-5)
 
     T_WGO = water.variable("T_generators_out").values
     T_WGI = water.variable("T_generators_in").values
 
-    assert T_WGO.max() == pytest.approx(51.16467692066909, rel=1e-5)
+    assert T_WGO.max() == pytest.approx(51.16476848948563, rel=1e-5)
     assert T_WGO.min() == pytest.approx(7.0)
-    assert T_WGI.max() == pytest.approx(51.18265094961068, rel=1e-5)
-    assert T_WGI.min() == pytest.approx(7.050963909874366, rel=1e-5)
+    assert T_WGI.max() == pytest.approx(51.1827429496203, rel=1e-5)
+    assert T_WGI.min() == pytest.approx(7.055410892281852, rel=1e-5)

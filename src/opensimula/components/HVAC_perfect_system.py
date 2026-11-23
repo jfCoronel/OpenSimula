@@ -1,8 +1,10 @@
+import numpy as np
 from opensimula.Message import Message
 from opensimula.Parameters import Parameter_component, Parameter_float, Parameter_variable_list, Parameter_math_exp
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
+from opensimula.energy import Energy_use, positive
 
 
 class HVAC_perfect_system(Component):
@@ -139,4 +141,17 @@ class HVAC_perfect_system(Component):
             else:
                 self.variable("state").values[time_index] = 3
 
+    def get_energy_use(self):
+        """Heat supplied by the ideal system as heat without equipment (thermal):
+        heating and humidification as heating, cooling and dehumidification as
+        cooling.
 
+        Returns:
+            list: `Energy_use` items (W at each time step).
+        """
+        Q_s = self.variable("Q_sensible").values
+        Q_l = self.variable("Q_latent").values
+        return [
+            Energy_use("THERMAL", "HEATING_WITHOUT_EQUIPMENT", positive(Q_s) + positive(Q_l)),
+            Energy_use("THERMAL", "COOLING_WITHOUT_EQUIPMENT", positive(-Q_s) + positive(-Q_l)),
+        ]

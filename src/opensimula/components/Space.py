@@ -5,6 +5,7 @@ from opensimula.Variable import Variable
 import numpy as np
 import psychrolib as sicro
 import math
+from opensimula.energy import Energy_use
 
 
 ANGLE_TOL = 1.0e-6  # degrees
@@ -389,3 +390,21 @@ class Space(Thermal_zone):
         self.variable("infiltration_latent_heat").values[time_i] = (
             V_inf * self.props["RHO_A"] * self.props["LAMBDA"] * (w_ext - self._w)
         )
+
+    def get_energy_use(self):
+        """Lighting and equipment (other gains) of the space, both electric.
+
+        The equipment is reported as electricity; `Energy_indicators` can give it
+        another carrier.
+
+        Returns:
+            list: `Energy_use` items (W at each time step).
+        """
+        v = self.variable
+        return [
+            Energy_use("ELECTRICITY", "LIGHTING",
+                       v("light_convective").values + v("light_radiant").values),
+            Energy_use("ELECTRICITY", "EQUIPMENT",
+                       v("other_gains_convective").values + v("other_gains_radiant").values
+                       + v("other_gains_latent").values),
+        ]

@@ -131,3 +131,30 @@ def test_the_water_plant_example_heat_pump_first_boiler_as_backup(folder, monkey
     assert np.all(boiler >= 0)
     # the mixing valve of the south circuit: never above 45 °C
     assert pro.component("south_circuit").variable("T_supply").values.max() <= 45 + 1e-9
+
+
+def test_the_fan_coil_gives_the_plant_its_latent_heat(folder, monkeypatch):
+    # a week of July: the coil dehumidifies; the plant gets sensible + latent heat
+    monkeypatch.chdir(folder)
+    data = json.loads((folder / "07_fan_coil.json").read_text(encoding="utf-8"))
+    data["initial_time"] = "01/07/2001 00:00:00"
+    data["n_time_steps"] = 24 * 7
+    sim = osm.Simulation()
+    sim.console_print = False
+    pro = sim.new_project("p")
+    pro.read_dict(data)
+    pro.simulate(progress=lambda i, n: None)
+    coil = pro.component("fan_coil")
+    cooling = np.isin(coil.variable("state").values, [-1, -2])
+    Q_total = coil.variable("Q_total").values
+    assert cooling.sum() > 10
+    assert coil.variable("Q_latent").values[cooling].sum() > 0
+    Q_coils = pro.component("water_system").variable("Q_coils").values
+    assert np.allclose(Q_coils[cooling], Q_total[cooling], rtol=1e-6, atol=1e-6)
+    # the water leaves the coil warmer by the total heat, from the plant's temperature
+    T_iw, T_ow = coil.variable("T_iw").values, coil.variable("T_ow").values
+    flow = coil.parameter("cooling_water_flow").value / 1000  # m³/s
+    rhocp = coil.props["RHOCP_W"](T_iw[cooling])
+    assert np.allclose(T_ow[cooling] - T_iw[cooling], Q_total[cooling] / (flow * rhocp))
+    T_plant = pro.component("water_system").variable("T_supply").values
+    assert np.all(np.abs(T_iw[cooling] - T_plant[cooling]) < 2)

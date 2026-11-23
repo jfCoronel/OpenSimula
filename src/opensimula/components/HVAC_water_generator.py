@@ -1,3 +1,4 @@
+import numpy as np
 from opensimula.Component import Component
 from opensimula.Message import Message
 from opensimula.Parameters import (
@@ -7,6 +8,7 @@ from opensimula.Parameters import (
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
+from opensimula.energy import Energy_use, positive, where
 
 
 class HVAC_water_generator(Component):
@@ -249,3 +251,28 @@ class HVAC_water_generator(Component):
         self.variable("T_wo").values[time_index] = T_wo
         self.variable("pump_power").values[time_index] = self.get_pump_power(water_flow)
         return (power, fuel, F_load)
+
+    def get_energy_use(self):
+        """Energy of the equipment (electricity, and fuel for a boiler) for heating
+        or cooling, the ambient energy a heat pump takes in heating and the
+        electricity of its pump (water transport).
+
+        Returns:
+            list: `Energy_use` items (W at each time step).
+        """
+        v = self.variable
+        Q = v("Q").values
+        power = v("power").values
+        heating, cooling = Q > 0, Q < 0
+        uses = [
+            Energy_use("ELECTRICITY", "HEATING", where(heating, power)),
+            Energy_use("ELECTRICITY", "COOLING", where(cooling, power)),
+            Energy_use("ELECTRICITY", "WATER_TRANSPORT", np.array(v("pump_power").values, dtype=float)),
+        ]
+        equipment = self.parameter("equipment").component
+        if equipment.parameter("type").value == "Boiler":
+            fuel = equipment.parameter("fuel").value
+            uses.append(Energy_use(fuel, "HEATING", where(heating, v("fuel_power").values)))
+        else:
+            uses.append(Energy_use("AMBIENT", "HEATING", where(heating, positive(Q - power))))
+        return uses

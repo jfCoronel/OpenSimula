@@ -1,3 +1,4 @@
+import numpy as np
 from opensimula.Message import Message
 from opensimula.Parameters import (
     Parameter_component,
@@ -9,6 +10,7 @@ from opensimula.Parameters import (
 from opensimula.Component import Component
 from opensimula.Variable import Variable
 import psychrolib as sicro
+from opensimula.energy import Energy_use, positive, where
 
 
 class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
@@ -379,9 +381,10 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         elif (
             self.parameter("water_source").value == "WATER_SYSTEM"
         ):  # from water system
-            heating_Tw = self.parameter(
+            self.heating_water_temp = self.parameter(
                 "heating_water_system"
             ).component.get_heating_coil_inlet_T()
+            heating_Tw = self.heating_water_temp
             if (
                 not self.parameter("heating_water_system").component.can_heat()
                 or heating_Tw < self.T_MA
@@ -431,9 +434,10 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
         elif (
             self.parameter("water_source").value == "WATER_SYSTEM"
         ):  # from water system
-            cooling_Tw = self.parameter(
+            self.cooling_water_temp = self.parameter(
                 "cooling_water_system"
             ).component.get_cooling_coil_inlet_T()
+            cooling_Tw = self.cooling_water_temp
             if (
                 not self.parameter("cooling_water_system").component.can_cool()
                 or cooling_Tw > self.T_MA
@@ -520,8 +524,9 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                     -self.Q_coil, self.parameter("heating_water_flow").value * self.F_load
                 )
             elif self.state == -1 or self.state == -2:  # Cooling
-                self.parameter("cooling_water_system").component.add_coil_load(
-                    -self.Q_coil, self.parameter("cooling_water_flow").value * self.F_load
+                self.parameter("cooling_water_system").component.add_coil_load(  # sensible and latent heat (condensation)
+                    -self.Q_coil - self.M_w * self.props["LAMBDA"],
+                    self.parameter("cooling_water_flow").value * self.F_load,
                 )
 
     def _update_supply_mass_flow(self):
@@ -590,7 +595,7 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 self.variable("Q_total").values[time_index] = -Q_s + Q_l
                 self.variable("T_iw").values[time_index] = self.cooling_water_temp
                 self.variable("T_ow").values[time_index] = self.cooling_water_temp + (
-                    Q_s + Q_l
+                    -Q_s + Q_l
                 ) / (
                     self.cooling_water_flow
                     * self.props["RHOCP_W"](self.cooling_water_temp)
@@ -598,6 +603,24 @@ class HVAC_SZW_system(Component):  # HVAC Single Zone Water system
                 self.variable("T_ADP").values[time_index] = self.T_ADP
                 self.variable("epsilon").values[time_index] = self.epsilon
                 self.variable("epsilon_adp").values[time_index] = self.epsilon_adp
+
+    def get_energy_use(self):
+        """Electricity of the fans (air transport) and, when the coils are not fed
+        by a water system, their heat as heat without equipment (thermal).
+
+        Returns:
+            list: `Energy_use` items (W at each time step).
+        """
+        v = self.variable
+        state = v("state").values
+        uses = [Energy_use("ELECTRICITY", "AIR_TRANSPORT",
+                           v("supply_fan_power").values + v("return_fan_power").values)]
+        if self.parameter("water_source").value == "UNKNOWN":
+            uses.append(Energy_use("THERMAL", "HEATING_WITHOUT_EQUIPMENT",
+                                   where(np.isin(state, [1, 2]), v("Q_sensible").values)))
+            uses.append(Energy_use("THERMAL", "COOLING_WITHOUT_EQUIPMENT",
+                                   where(np.isin(state, [-1, -2]), v("Q_total").values)))
+        return uses
 
 
 def _not_zero(expression):

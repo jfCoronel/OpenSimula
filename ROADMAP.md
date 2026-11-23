@@ -860,26 +860,74 @@ Proposed parameters of `Energy_indicators` (to refine when coding):
 - `report(frequency="yearly", per_area=True, transport=..., reference_heating=...,
   reference_cooling=...)` → table (DataFrame) by service and carrier, also for the GUI.
 
-Conversion factors (documento reconocido del RITE "Factores de emisión de CO₂ y coeficientes
-de paso a energía primaria de diferentes fuentes de energía final", 2016; **values from
-memory, check against the document** before coding), per kWh of final energy, peninsular:
-electricity fp,nren 1.954 / fp,tot 2.368 / 0.331 kgCO₂; natural gas 1.190 / 1.195 / 0.252;
-LPG 1.201 / 1.204 / 0.254; diesel (gasóleo) 1.179 / 1.182 / 0.311; biomass (pellets) 0.085 /
-1.113 / 0.018. Electricity differs in the islands and Ceuta/Melilla. Check whether the fuel
-factors are on the HHV or the LHV (the boilers here work on the LHV).
-
 6. **Comfort in its own component** (e.g. `Comfort_indicators`): hours outside setpoint per
    zone while its system is on, `unmet_sensible_heat` of `Load_space`; later operative
    temperature, PMV/PPD. It is not energy; `CTE_compliance` will use both.
 7. **Heat without equipment reported by each system**: `HVAC_perfect_system` its
    `Q_sensible` + `Q_latent`; `HVAC_SZW_system` / `HVAC_MZW_system` with `UNKNOWN` source
    the heat of their coils (and reheat), heating and cooling apart.
+8. **Ambient energy of heat pumps** (added 2026-11-23): it counts in final and primary
+   energy (renewable). Carrier AMBIENT (fp,ren 1, fp,nren 0, no CO₂). In heating it is the
+   heat given minus the electricity of the compressor (`HVAC_DX_system`,
+   `HVAC_water_generator` with a `Chiller_heat_pump`). Whether a heat pump counts as
+   renewable (seasonal performance threshold) is a `CTE_compliance` rule. **Cooling: no
+   ambient energy** (as the CTE does), decided 2026-11-23.
+9. **`report()`** (decided 2026-11-23):
+   - Transport arguments, one for water and one for air (e.g. `water_transport`,
+     `air_transport`): "SEPARATE" (**default**, kept as their own services) or "BY_MODE"
+     (assigned to heating/cooling by the mode of the system at each hour; what runs with
+     no load stays in the transport service). `CTE_compliance` sets them as it needs.
+   - Tables: annual final energy by service and carrier, **monthly final energy** (months ×
+     carrier and service), primary energy (nren, total) and CO₂ by service, per m² and
+     total. THERMAL (heat without equipment) shown apart, converted only with reference
+     generators given as arguments.
+   - **HTML**: the result is an object holding the DataFrames with `to_html()` and
+     `_repr_html_()`, so it shows as formatted tables in Jupyter/marimo and in the GUI.
+   - A preview script with `get_energy_use()` (example 09: 101 kWh/m² C_ep,nren, 127
+     C_ep,tot, 17.2 kg CO₂/m², renewable share 20.6 %) checked the shape of the tables.
 
-Design closed (2026-11-23). Before coding the factors: check them against the documento
-reconocido and whether the fuel factors are on the HHV or the LHV. Names of the services
-and of the `report()` hypotheses to settle while coding. Order of work: (1)
-`get_energy_use()` in the consumers, with tests; (2) `Energy_indicators` and `report()`;
-(3) `Comfort_indicators`; (4) docs and a gallery example; later `CTE_compliance`.
+Conversion factors, **checked 2026-11-23** against the documento reconocido del RITE
+"Factores de emisión de CO₂ y coeficientes de paso a energía primaria de diferentes fuentes
+de energía final consumidas en el sector de edificios en España" (version 20/07/2014, in
+force since 14/01/2016; tables of section 8, pp. 16-17). Per kWh of final energy:
+
+| Carrier | fp,ren | fp,nren | fp,tot | kg CO₂/kWh |
+|---|---|---|---|---|
+| Electricity, peninsular | 0.414 | 1.954 | 2.368 | 0.331 |
+| Electricity, Baleares | 0.082 | 2.968 | 3.049 | 0.932 |
+| Electricity, Canarias | 0.070 | 2.924 | 2.994 | 0.776 |
+| Electricity, Ceuta y Melilla | 0.072 | 2.718 | 2.790 | 0.721 |
+| Electricity, national (statistics only) | 0.396 | 2.007 | 2.403 | 0.357 |
+| Electricity, extrapeninsular (statistics only) | 0.075 | 2.937 | 3.011 | 0.833 |
+| Diesel (gasóleo calefacción) | 0.003 | 1.179 | 1.182 | 0.311 |
+| LPG | 0.003 | 1.201 | 1.204 | 0.254 |
+| Natural gas | 0.005 | 1.190 | 1.195 | 0.252 |
+| Coal | 0.002 | 1.082 | 1.084 | 0.472 |
+| Biomass, not densified | 1.003 | 0.034 | 1.037 | 0.018 |
+| Biomass, densified (pellets) | 1.028 | 0.085 | 1.113 | 0.018 |
+
+The document does not say HHV or LHV for the fuels; the boilers here work on the LHV
+(as the CTE tools). `Boiler.fuel` has one BIOMASS: map it to pellets or add both (and
+COAL) when coding the factors.
+
+Design closed (2026-11-23). Order of work: (1) `get_energy_use()` in the consumers, with
+tests; (2) `Energy_indicators` and `report()`; (3) `Comfort_indicators`; (4) docs and a
+gallery example; later `CTE_compliance`.
+
+- **Step 1 done (branch `feat/energy-use`)**: `opensimula/energy.py` (`CARRIERS`,
+  `SERVICES`, `Energy_use(carrier, service, values)`), `Component.get_energy_use()`
+  (returns the arrays of the whole simulation, not one time step: it reads the stored
+  variables, so it works after `simulate()`) implemented in `Space`, `HVAC_DX_system`,
+  `HVAC_SZW_system`, `HVAC_MZW_system`, `HVAC_perfect_system`, `HVAC_water_generator`,
+  `HVAC_water_system` (secondary pumps only), `HVAC_water_circuit`. Tests in
+  `test/test_energy_use.py` (each power counted once against the plant totals).
+  **Core fix found here (own commit):** cooling coils of SZW/MZW gave the plant only their
+  sensible heat, not the latent (condensation); also T_ow in cooling and the SZW water
+  temperature with a plant. Fan coil test: cooling generation +11.8 %; examples 07/09:
+  chiller electricity +3.6/+3.8 %. ASHRAE 140: 0 changed.
+- **Follow-up**: sign conventions of the system outputs differ (in cooling, SZW/MZW
+  `Q_sensible` negative and `Q_latent` positive, DX both positive, perfect system both
+  signed): worth unifying before 1.0 (breaks outputs).
 
 ## Future: importer of HULC projects (added 2026-11-19)
 

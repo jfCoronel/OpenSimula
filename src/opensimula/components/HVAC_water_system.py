@@ -1,3 +1,4 @@
+import numpy as np
 from opensimula.Component import Component  # noqa: N999
 from opensimula.Iterative_process import Iterative_process
 from opensimula.Message import Message
@@ -10,6 +11,7 @@ from opensimula.Parameters import (
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
+from opensimula.energy import Energy_use
 
 
 class HVAC_water_system(Component):  # HVAC Water system
@@ -660,3 +662,13 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.rho_cp * self.water_volume * (self.T_S - self.T_WCI_pre) / self.delta_t
         )
         self.running_pre = list(self.running)
+
+    def get_energy_use(self):
+        """Electricity of its secondary pumps (water transport); its generators
+        report their own energy.
+
+        Returns:
+            list: `Energy_use` items (W at each time step).
+        """
+        return [Energy_use("ELECTRICITY", "WATER_TRANSPORT",
+                           np.array(self.variable("secondary_pumps_power").values, dtype=float))]
