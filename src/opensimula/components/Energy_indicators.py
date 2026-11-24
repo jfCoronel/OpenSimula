@@ -222,7 +222,7 @@ class Energy_indicators(Component):
         Args:
             water_transport (str): "SEPARATE" (default), the pumps as their own
                 service WATER_TRANSPORT; or "BY_MODE", the energy of each hour assigned
-                to HEATING or COOLING by the mode of the system that moves the water
+                to HEATING, COOLING or DHW by the mode of the system that moves the water
                 (what runs with no heating or cooling stays in WATER_TRANSPORT).
             air_transport (str): the same for the fans (AIR_TRANSPORT).
             reference_heating (tuple, optional): (carrier, efficiency) of the generator
@@ -324,10 +324,11 @@ class Energy_indicators(Component):
         for u in uses:
             option = {"WATER_TRANSPORT": water, "AIR_TRANSPORT": air}.get(u.service)
             if option == "BY_MODE" and u.mode is not None:
-                heating, cooling = u.mode == 1, u.mode == -1
+                heating, cooling, dhw = u.mode == 1, u.mode == -1, u.mode == 2
                 result.append(u._replace(service="HEATING", values=np.where(heating, u.values, 0.0)))
                 result.append(u._replace(service="COOLING", values=np.where(cooling, u.values, 0.0)))
-                result.append(u._replace(values=np.where(heating | cooling, 0.0, u.values)))
+                result.append(u._replace(service="DHW", values=np.where(dhw, u.values, 0.0)))
+                result.append(u._replace(values=np.where(heating | cooling | dhw, 0.0, u.values)))
             else:
                 result.append(u)
         return result

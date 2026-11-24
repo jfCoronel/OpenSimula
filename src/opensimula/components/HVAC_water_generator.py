@@ -8,7 +8,7 @@ from opensimula.Parameters import (
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
-from opensimula.energy import Energy_use, mode_from_plant, positive, where
+from opensimula.energy import Energy_use, mode_from_plant, positive, split_dhw, where
 
 
 class HVAC_water_generator(Component):
@@ -268,16 +268,15 @@ class HVAC_water_generator(Component):
         # generator gives no heat); the plant tells its generators who it is
         plant = getattr(self, "plant", None)
         mode = mode_from_plant(plant.variable("mode").values) if plant else np.sign(Q)
-        uses = [
-            Energy_use("ELECTRICITY", "HEATING", where(heating, power)),
-            Energy_use("ELECTRICITY", "COOLING", where(cooling, power)),
-            Energy_use("ELECTRICITY", "WATER_TRANSPORT", np.array(v("pump_power").values, dtype=float),
-                       mode),
-        ]
+        # the heat given to DHW demands is DHW, the rest heating
+        share = plant.dhw_share() if plant else np.zeros(len(Q))
+        uses = split_dhw("ELECTRICITY", "HEATING", where(heating, power), share)
+        uses.append(Energy_use("ELECTRICITY", "COOLING", where(cooling, power)))
+        uses += split_dhw("ELECTRICITY", "WATER_TRANSPORT", v("pump_power").values, share, mode)
         equipment = self.parameter("equipment").component
         if equipment.parameter("type").value == "Boiler":
             fuel = equipment.parameter("fuel").value
-            uses.append(Energy_use(fuel, "HEATING", where(heating, v("fuel_power").values)))
+            uses += split_dhw(fuel, "HEATING", where(heating, v("fuel_power").values), share)
         else:
-            uses.append(Energy_use("AMBIENT", "HEATING", where(heating, positive(Q - power))))
+            uses += split_dhw("AMBIENT", "HEATING", where(heating, positive(Q - power)), share)
         return uses

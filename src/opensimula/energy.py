@@ -29,6 +29,7 @@ CARRIERS = [
 SERVICES = [
     "HEATING",
     "COOLING",
+    "DHW",
     "WATER_TRANSPORT",
     "AIR_TRANSPORT",
     "LIGHTING",
@@ -46,8 +47,8 @@ class Energy_use(NamedTuple):
         service (str): one of ``SERVICES`` (or a user service, e.g. "DHW").
         values (numpy.ndarray): power (W) at each time step, positive.
         mode (numpy.ndarray or None): for the transport services, what the system
-            does at each time step (1 heating, -1 cooling, 0 neither), used by the
-            report to assign the transport to heating or cooling.
+            does at each time step (1 heating, -1 cooling, 2 domestic hot water, 0
+            none of them), used by the report to assign the transport to a service.
     """
 
     carrier: str
@@ -73,6 +74,33 @@ def mode_from_plant(mode):
     (1 heating, -1 cooling, 0 off, 2 standby)."""
     mode = np.asarray(mode)
     return np.where(mode == 1, 1, np.where(mode == -1, -1, 0))
+
+
+def split_dhw(carrier, service, values, dhw_share, mode=None):
+    """Split a use between its service and DHW by the DHW share of each time step.
+
+    Args:
+        carrier (str): carrier of the use.
+        service (str): service of the part that is not DHW (e.g. HEATING,
+            WATER_TRANSPORT).
+        values (numpy.ndarray): power (W) at each time step.
+        dhw_share (numpy.ndarray): fraction (0-1) of the use that is DHW.
+        mode (numpy.ndarray, optional): mode of a transport use; its DHW part gets
+            mode 2 and keeps the service.
+
+    Returns:
+        list: one or two `Energy_use` (the DHW part only if not all zero).
+    """
+    values = np.asarray(values, dtype=float)
+    share = np.asarray(dhw_share, dtype=float)
+    rest = values * (1 - share)
+    uses = [Energy_use(carrier, service, rest, mode)]
+    if np.any(share > 0):
+        if mode is None:
+            uses.append(Energy_use(carrier, "DHW", values * share))
+        else:
+            uses.append(Energy_use(carrier, service, values * share, np.where(share > 0, 2, 0)))
+    return uses
 
 
 def where(condition, values):

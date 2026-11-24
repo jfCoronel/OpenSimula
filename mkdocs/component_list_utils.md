@@ -43,7 +43,7 @@ What each component reports (power at each time step):
 | `HVAC_SZW_system`, `HVAC_MZW_system` | ELECTRICITY | AIR_TRANSPORT (supply and return fans) |
 | | THERMAL | HEATING_WITHOUT_EQUIPMENT, COOLING_WITHOUT_EQUIPMENT: heat of the coils with `water_source` (or `reheat_water_source`) "UNKNOWN" |
 | `HVAC_perfect_system` | THERMAL | HEATING_WITHOUT_EQUIPMENT, COOLING_WITHOUT_EQUIPMENT (sensible and latent) |
-| `HVAC_water_generator` | ELECTRICITY | HEATING or COOLING (equipment), WATER_TRANSPORT (its pump) |
+| `HVAC_water_generator` | ELECTRICITY | HEATING or COOLING (equipment), WATER_TRANSPORT (its pump); the heat its plant gives to DHW demands as DHW |
 | | fuel of the `Boiler` | HEATING |
 | | AMBIENT | HEATING (heat pumps): heat given minus electricity |
 | `HVAC_water_system` | ELECTRICITY | WATER_TRANSPORT (its secondary pumps; its generators report their own energy) |
@@ -84,14 +84,14 @@ Factors per kWh of final energy (fuels on the lower heating value; BIOMASS is de
 #### Variables
 
 - **electricity**, **natural_gas**, **lpg**, **diesel**, **biomass**, **ambient**, **thermal** (W): Power of each carrier.
-- **heating**, **cooling**, **water_transport**, **air_transport**, **lighting**, **equipment**, **heating_without_equipment**, **cooling_without_equipment** and one per extra service, in lower case (W): Final energy of each service (without AMBIENT; THERMAL for the services without equipment).
+- **heating**, **cooling**, **dhw**, **water_transport**, **air_transport**, **lighting**, **equipment**, **heating_without_equipment**, **cooling_without_equipment** and one per extra service, in lower case (W): Final energy of each service (without AMBIENT; THERMAL for the services without equipment).
 - **primary_ren**, **primary_nren**, **primary_total** (W): Primary energy.
 - **CO2** (kg/h): CO₂ emissions.
 
 #### Functions
 
 - **report(water_transport="SEPARATE", air_transport="SEPARATE", reference_heating=None, reference_cooling=None)**: Tables of the simulation, an `Energy_report` that a notebook shows as HTML (`to_html()` gives it): `annual` (final energy by service and carrier, kWh), `monthly_carriers` and `monthly_services` (by month), `indicators` and `indicators_per_area` (final, primary and CO₂ by service) and `summary` (a dict with the totals and the hypotheses).
-    - `water_transport`, `air_transport`: "SEPARATE", pumps and fans as their own services, or "BY_MODE", the energy of each hour assigned to HEATING or COOLING by the mode of the system that moves the water or air (what runs with neither stays as transport).
+    - `water_transport`, `air_transport`: "SEPARATE", pumps and fans as their own services, or "BY_MODE", the energy of each hour assigned to HEATING, COOLING or DHW by the mode of the system that moves the water or air (what runs with none of them stays as transport).
     - `reference_heating`, `reference_cooling`: (carrier, efficiency) of the generator that gives the heat without equipment, e.g. `("NATURAL_GAS", 0.92)` and `("ELECTRICITY", 2.6)`. An ELECTRICITY heating one with efficiency above 1 is a heat pump: the heat minus its electricity is AMBIENT.
 - **get_uses()**: Every energy use counted, a list of `Energy_use(carrier, service, values, mode)`.
 

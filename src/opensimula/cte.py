@@ -37,6 +37,9 @@ REFERENCE_HEATING_EFFICIENCY_HHV = 0.92  # natural gas, on the higher heating va
 REFERENCE_COOLING_EER = 2.60  # electricity
 # Carga interna media levels (Anejo A, table a)
 INTERNAL_LOAD_LEVELS = [(6, "low"), (9, "medium"), (12, "high"), (float("inf"), "very high")]
+# Anejo D table c: hourly profile of the DHW use of dwellings, % of the daily demand
+DHW_PROFILE_RESIDENTIAL = [1, 0, 0, 0, 0, 1, 3, 10, 7, 7, 6, 6, 5, 5, 4, 3, 4, 4, 5, 7, 6,
+                           6, 5, 5]
 # how the result of a requirement is shown (text and colour)
 MARKS = {True: ("✔ complies", "#1a7f37"), False: ("✘ does not comply", "#cf222e")}
 
@@ -63,6 +66,33 @@ def internal_load_level(c_fi):
     for limit, name in INTERNAL_LOAD_LEVELS:
         if c_fi < limit:
             return name
+
+
+def dhw_profile_schedules(name="dhw_profile_residential"):
+    """Schedules with the hourly DHW profile of dwellings (DB-HE, Anejo D table c).
+
+    A Day_schedule, a Week_schedule and a Year_schedule (the last one called ``name``)
+    whose variable ``values`` is the fraction of the daily volume used in each hour
+    (it sums 1 over the day). The DHW_demand of a dwelling with 120 l/day then has
+    ``input_variables: ["f = <name>.values"]`` and ``volume_flow: "120 * f"`` (l/h).
+
+    Args:
+        name (str): name of the Year_schedule; the others are ``<name>_day`` and
+            ``<name>_week``.
+
+    Returns:
+        list: the three components as dicts, to add to the ``components`` of a project.
+    """
+    return [
+        {"type": "Day_schedule", "name": f"{name}_day",
+         "description": "DHW use of dwellings, fraction of the daily volume per hour "
+                        "(DB-HE, Anejo D table c)",
+         "time_steps": [3600] * 23, "values": [v / 100 for v in DHW_PROFILE_RESIDENTIAL],
+         "interpolation": "STEP"},
+        {"type": "Week_schedule", "name": f"{name}_week", "days_schedules": [f"{name}_day"]},
+        {"type": "Year_schedule", "name": name, "periods": [],
+         "weeks_schedules": [f"{name}_week"]},
+    ]
 
 
 def he0_limits(climate_zone, building_use, intervention, c_fi=0.0, extrapeninsular=False):
