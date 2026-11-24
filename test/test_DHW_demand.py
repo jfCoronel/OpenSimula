@@ -79,7 +79,7 @@ def test_demand_from_volume_profile_and_mains():
 
 def test_dhw_only_plant_energy_is_dhw():
     pro = run(instantaneous())
-    assert np.allclose(values(pro, "plant", "Q_dhw"), values(pro, "plant", "Q_coils"))
+    assert np.allclose(values(pro, "plant", "Q_dhw"), values(pro, "plant", "Q_loads"))
     heating = values(pro, "gen", "Q") > 0
     assert heating.sum() > 0
     share = pro.component("plant").dhw_share()
@@ -106,9 +106,14 @@ def test_combined_plant_splits_heating_and_dhw():
     assert gas["HEATING"].sum() > 0 and gas["DHW"].sum() > 0
     assert np.allclose(gas["HEATING"] + gas["DHW"], fuel)
     # DHW share: the DHW load over the load of coils and processes, while heating
-    Q_dhw, Q_coils = values(pro, "hot_water", "Q_dhw"), values(pro, "hot_water", "Q_coils")
+    Q_dhw, Q_coils = values(pro, "hot_water", "Q_dhw"), values(pro, "hot_water", "Q_loads")
     heating = (Q_coils < 0) & (values(pro, "hot_water", "mode") == 1)
     share = pro.component("hot_water").dhw_share()
+    # the loads: heating coils of the zones and the DHW demand
+    Q_heat = values(pro, "hot_water", "Q_heating_coils")
+    assert np.allclose(Q_coils, Q_heat + values(pro, "hot_water", "Q_cooling_coils") + Q_dhw)
+    assert np.all(Q_heat <= 0) and Q_heat.sum() < 0
+    assert np.all(values(pro, "hot_water", "Q_cooling_coils") == 0)
     assert np.allclose(share[heating], np.clip(Q_dhw[heating] / Q_coils[heating], 0, 1))
     assert np.allclose(gas["DHW"], fuel * share)
 
@@ -119,9 +124,13 @@ def test_dhw_through_a_circuit_reaches_the_plant():
     pro = run(data)
     assert values(pro, "dhw", "Q_supplied").sum() > 0
     # the circuit passes the DHW part of its load to the plant
-    Q_dhw_c, Q_coils_c = values(pro, "north_circuit", "Q_dhw"), values(pro, "north_circuit", "Q_coils")
+    Q_dhw_c, Q_coils_c = values(pro, "north_circuit", "Q_dhw"), values(pro, "north_circuit", "Q_loads")
     Q_plant = values(pro, "north_circuit", "Q_plant")
     part = np.divide(Q_plant * Q_dhw_c, Q_coils_c, out=np.zeros_like(Q_plant), where=Q_coils_c != 0)
+    # the circuit: fan coils (heating in winter) and the DHW demand
+    split = (values(pro, "north_circuit", "Q_heating_coils")
+             + values(pro, "north_circuit", "Q_cooling_coils") + Q_dhw_c)
+    assert np.allclose(Q_coils_c, split)
     on = values(pro, "water_plant", "mode") == 1
     assert np.allclose(values(pro, "water_plant", "Q_dhw")[on], part[on], atol=1e-6)
     r = pro.component("energy").report()

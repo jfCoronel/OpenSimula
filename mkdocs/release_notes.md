@@ -2,6 +2,14 @@
 
 This is the list of changes to opensimula between each release. For full details, see the commit logs.
 
+### Next version (not released yet)
+
+Domestic hot water and solar thermal on the water plants, CTE DB-HE verification (HE0 and HE4), energy and comfort indicators. **One variable of the water plants and circuits has a new name.**
+
+#### Changes that break compatibility
+
+- `HVAC_water_system` and `HVAC_water_circuit`: the variable `Q_coils` is now **`Q_loads`** (it is the load of the coils, the circuits and the DHW demands), split into the new **`Q_heating_coils`**, **`Q_cooling_coils`** and `Q_dhw`. Expressions and scripts that read `Q_coils` must use `Q_loads`.
+
 ### 0.10.0 (November 19, 2026)
 
 Water plants with several generators, primary / secondary circuits and boilers; zones defined by load records; a gallery of examples. **It breaks the compatibility of the water systems** with 0.9: see [Upgrading from 0.9](#upgrading-from-09).

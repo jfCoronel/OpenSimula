@@ -65,7 +65,7 @@ def test_circuit_with_a_mixing_valve():
     assert last(pro, "floor", "mixing_flow") == pytest.approx(0.2 - plant_flow)
     # the plant gives the load of the circuit
     assert last(pro, "floor", "Q_plant") == pytest.approx(-3000)
-    assert last(pro, "plant", "Q_coils") == pytest.approx(-3000)
+    assert last(pro, "plant", "Q_loads") == pytest.approx(-3000)
     assert last(pro, "generator", "Q") == pytest.approx(3000, rel=1e-3)
     assert last(pro, "floor", "pumps_power") == pytest.approx(40)
 
@@ -82,7 +82,7 @@ def test_two_circuits_at_different_temperatures_from_one_boiler():
                  circuit("radiators", 0.1, heating_supply_setpoint="55", Q_loss="-4000")])
     assert last(pro, "floor", "T_supply") == pytest.approx(35)
     assert last(pro, "radiators", "T_supply") == pytest.approx(55)
-    assert last(pro, "plant", "Q_coils") == pytest.approx(-6000)
+    assert last(pro, "plant", "Q_loads") == pytest.approx(-6000)
     assert last(pro, "generator", "Q") == pytest.approx(6000, rel=1e-3)
     assert last(pro, "plant", "coils_flow") == pytest.approx(
         last(pro, "floor", "plant_flow") + last(pro, "radiators", "plant_flow"))
@@ -92,7 +92,7 @@ def test_circuit_off_takes_nothing():
     pro = plant([circuit("floor", 0.2, Q_loss="-3000", system_on_off="0")], n=6)
     for v in ("water_flow", "plant_flow", "Q_plant", "pumps_power"):
         assert np.all(pro.component("floor").variable(v).values == 0)
-    assert np.all(pro.component("plant").variable("Q_coils").values == 0)
+    assert np.all(pro.component("plant").variable("Q_loads").values == 0)
 
 
 def test_water_volume_of_the_circuit():
@@ -136,5 +136,5 @@ def test_fan_coil_on_a_circuit():
     assert np.allclose(v("fan_coils", "T_supply")[heating], 40, atol=0.1)
     assert np.allclose(v("fan_coils", "T_supply")[cooling], 10, atol=0.1)
     # the loop sees the load of the circuit, the circuit that of the coil
-    assert np.all(v("fan_coils", "Q_coils")[heating] < 0)
-    assert np.allclose(v("water_system", "Q_coils")[heating], v("fan_coils", "Q_plant")[heating])
+    assert np.all(v("fan_coils", "Q_loads")[heating] < 0)
+    assert np.allclose(v("water_system", "Q_loads")[heating], v("fan_coils", "Q_plant")[heating])

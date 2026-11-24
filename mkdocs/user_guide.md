@@ -466,7 +466,7 @@ Water hotter than the use temperature is mixed with mains water by the user; wat
 
 **Constant or variable flow.** Plants and circuits move the design flow while their pumps run (`flow_control` "CONSTANT", three-way valves). With "VARIABLE" (two-way valves) they move the flow their coils ask for, at least `minimum_flow`: the pumps work at that flow (give them a `power_expression` of `F_water`) and secondary pumps are staged.
 
-**Results.** Each component stores its own variables: each generator its load, part load, electric and fuel power and efficiency; each circuit its temperatures, flows and the load it gives to the plant; the plant the temperatures of the supply, return and generators, the flows of the primary, secondary and bypass, the balance of its water and the total electric (`electric_power`) and fuel (`generators_fuel_power`) power. The water balance of a plant is `delta_U = Q_generators + Q_coils + Q_process + Q_loss + Q_pump`.
+**Results.** Each component stores its own variables: each generator its load, part load, electric and fuel power and efficiency; each circuit its temperatures, flows and the load it gives to the plant; the plant the temperatures of the supply, return and generators, the flows of the primary, secondary and bypass, the balance of its water and the total electric (`electric_power`) and fuel (`generators_fuel_power`) power. The water balance of a plant is `delta_U = Q_generators + Q_loads + Q_process + Q_loss + Q_pump`, where `Q_loads` is the load of everything hanging from it, split into `Q_heating_coils`, `Q_cooling_coils` and `Q_dhw`.
 
 As an example, the water side of [example 09](examples.md#09-water-plant): a heat pump first, a condensing boiler as backup, and a circuit at 45 °C at most.
 

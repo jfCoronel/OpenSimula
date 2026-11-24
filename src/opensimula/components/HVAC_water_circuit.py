@@ -67,8 +67,11 @@ class HVAC_water_circuit(Component):
         self.add_variable(Variable("plant_flow", unit="dm³/s"))  # taken from the plant
         self.add_variable(Variable("mixing_flow", unit="dm³/s"))  # return mixed in the supply
         self.add_variable(Variable("coils_flow", unit="dm³/s"))
-        self.add_variable(Variable("Q_coils", unit="W"))
-        self.add_variable(Variable("Q_dhw", unit="W"))  # part of Q_coils of DHW demands
+        # loads of its coils and DHW demands: Q_loads = Q_heating_coils + Q_cooling_coils + Q_dhw
+        self.add_variable(Variable("Q_loads", unit="W"))
+        self.add_variable(Variable("Q_heating_coils", unit="W"))
+        self.add_variable(Variable("Q_cooling_coils", unit="W"))
+        self.add_variable(Variable("Q_dhw", unit="W"))
         self.add_variable(Variable("Q_loss", unit="W"))
         self.add_variable(Variable("Q_pump", unit="W"))
         self.add_variable(Variable("delta_U", unit="W"))
@@ -126,6 +129,7 @@ class HVAC_water_circuit(Component):
         self.Q_coils = self.coils_flow = 0
         self.Q_coils_used = self.coils_flow_used = 0
         self.Q_dhw = self.Q_dhw_used = 0
+        self.Q_heat = self.Q_heat_used = self.Q_cool = self.Q_cool_used = 0
         self.water_flow = 0
         self.pump_flows = [0] * len(self.pumps)
         self.Q_pump = self.Q_loss = self.delta_U = self.Q_plant = 0
@@ -188,6 +192,10 @@ class HVAC_water_circuit(Component):
         self.Q_coils += Q_coil
         self.coils_flow += water_flow
         self.Q_dhw += dhw
+        if Q_coil - dhw < 0:  # coils: heating ones take heat from the water
+            self.Q_heat += Q_coil - dhw
+        else:
+            self.Q_cool += Q_coil - dhw
 
     # _________________ Iteration: the load to the plant _________________
 
@@ -251,6 +259,8 @@ class HVAC_water_circuit(Component):
         self.Q_coils_used, self.coils_flow_used = self.Q_coils, self.coils_flow
         self.Q_coils = self.coils_flow = 0
         self.Q_dhw_used, self.Q_dhw = self.Q_dhw, 0
+        self.Q_heat_used, self.Q_heat = self.Q_heat, 0
+        self.Q_cool_used, self.Q_cool = self.Q_cool, 0
         return True
 
     def _iteration_tank(self):
@@ -294,6 +304,8 @@ class HVAC_water_circuit(Component):
         self.Q_coils_used, self.coils_flow_used = self.Q_coils, self.coils_flow
         self.Q_coils = self.coils_flow = 0
         self.Q_dhw_used, self.Q_dhw = self.Q_dhw, 0
+        self.Q_heat_used, self.Q_heat = self.Q_heat, 0
+        self.Q_cool_used, self.Q_cool = self.Q_cool, 0
         return True
 
     def is_dhw_only(self):
@@ -318,7 +330,9 @@ class HVAC_water_circuit(Component):
             "plant_flow": self.plant_flow,
             "mixing_flow": self.water_flow - self.plant_flow,
             "coils_flow": self.coils_flow_used,
-            "Q_coils": self.Q_coils_used if on else 0,
+            "Q_loads": self.Q_coils_used if on else 0,
+            "Q_heating_coils": self.Q_heat_used if on else 0,
+            "Q_cooling_coils": self.Q_cool_used if on else 0,
             "Q_dhw": self.Q_dhw_used if on else 0,
             "Q_loss": self.Q_loss,
             "Q_pump": self.Q_pump,
@@ -338,7 +352,7 @@ class HVAC_water_circuit(Component):
             list: `Energy_use` items (W at each time step).
         """
         plant = self.parameter("water_system").component
-        coils = np.asarray(self.variable("Q_coils").values, dtype=float)
+        coils = np.asarray(self.variable("Q_loads").values, dtype=float)
         dhw = np.asarray(self.variable("Q_dhw").values, dtype=float)
         share = np.clip(np.divide(dhw, coils, out=np.zeros_like(coils), where=coils < 0), 0, 1)
         if self.is_dhw_only():
@@ -355,7 +369,9 @@ class HVAC_water_circuit(Component):
             "plant_flow": self.plant_flow,
             "mixing_flow": 0,
             "coils_flow": self.coils_flow_used,
-            "Q_coils": self.Q_coils_used if self._on_off else 0,
+            "Q_loads": self.Q_coils_used if self._on_off else 0,
+            "Q_heating_coils": self.Q_heat_used if self._on_off else 0,
+            "Q_cooling_coils": self.Q_cool_used if self._on_off else 0,
             "Q_dhw": self.Q_dhw_used if self._on_off else 0,
             "Q_loss": self.Q_loss,
             "Q_pump": self.Q_pump,

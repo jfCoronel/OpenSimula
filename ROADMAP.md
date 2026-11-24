@@ -1241,6 +1241,13 @@ an office in B4: C_ep,nren 151 vs 104 kWh/m² (fails, cooling 94), C_ep,tot 186 
 HE0 with tests (cases with known limits: residential new B4, other uses with C_FI);
 (3) docs and a gallery example (residential, Anejo D profiles?); (4) phase 2, HE1.
 
+## Variable `Q_coils` renamed (2026-11-24)
+
+Asked by the user: with DHW demands on the plants, `Q_coils` was equal to `Q_dhw` in a
+plant without coils. In `HVAC_water_system` and `HVAC_water_circuit` it is now `Q_loads`
+(everything hanging from them), split into the new `Q_heating_coils`, `Q_cooling_coils`
+and `Q_dhw`. Breaks compatibility: noted in the release notes (next version).
+
 ## B6: variable water flow (agreed 2026-11-24)
 
 Moved ahead of DHW steps 2-3: an instantaneous boiler (no tank, no pump, mains pressure)
