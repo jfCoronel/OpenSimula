@@ -197,6 +197,7 @@ class Comfort_indicators(Component):
             "building_hours_outside": float(b["Hours outside"]),
             "building_share_outside": (float(b["Hours outside"] / b["Hours counted"])
                                        if b["Hours counted"] > 0 else 0.0),
+            "period_hours": float(self._period.sum() * h),
             "tolerance": self.parameter("tolerance").value,
             "counted": ("system on" if self.parameter("only_system_on").value else "all")
             + ("" if self.parameter("period").value.strip() == "1"

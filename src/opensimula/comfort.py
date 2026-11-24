@@ -43,7 +43,8 @@ class Comfort_report:
         monthly (pandas.DataFrame): hours outside the setpoints by month and zone, with
             the zone-hours ("TOTAL") and the building hours ("BUILDING").
         summary (dict): hours counted and outside, and their share, of the zones
-            (zone-hours) and of the building (``building_*``), tolerance, period.
+            (zone-hours) and of the building (``building_*``), hours of the period
+            (``period_hours``, the occupation time), tolerance, period.
     """
 
     def __init__(self, title, zones, monthly, summary, notes):

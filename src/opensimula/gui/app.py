@@ -199,7 +199,8 @@ def _(
         # the report of each Energy_indicators (default hypotheses) and Comfort_indicators
         _reports = {
             f"{_kind} report: {_c.parameter('name').value}": mo.Html(_c.report().to_html())
-            for _kind, _type in (("Energy", "Energy_indicators"), ("Comfort", "Comfort_indicators"))
+            for _kind, _type in (("Energy", "Energy_indicators"), ("Comfort", "Comfort_indicators"),
+                                 ("CTE", "CTE_compliance"))
             for _c in _project.component_list(_type)
         }
         if _reports:
