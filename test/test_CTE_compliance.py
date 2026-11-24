@@ -86,6 +86,13 @@ def test_tertiary_counts_lighting_and_uses_the_internal_load(office):
     assert r.summary["complies"] == bool(r.checks["complies"].all())
     html = r._repr_html_()
     assert html.count("<table") == 2 and "HE0 requirements" in html
+    # the results as marks (the table keeps booleans)
+    assert r.checks["complies"].dtype == bool
+    n_ok = int(r.checks["complies"].sum())
+    assert html.count("✔ complies") == n_ok
+    assert html.count("✘ does not comply") == len(r.checks) - n_ok
+    assert ("✔ Complies with HE0" if r.summary["complies"] else "✘ Does not comply with HE0") in html
+    assert "✘ does not comply" in repr(r) or n_ok == len(r.checks)
 
 
 def test_residential_leaves_lighting_out_and_internal_load_given():
