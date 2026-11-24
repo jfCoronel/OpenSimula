@@ -21,8 +21,12 @@ CARRIERS = [
     "DIESEL",
     "BIOMASS",
     "AMBIENT",
+    "SOLAR_THERMAL",
     "THERMAL",
 ]
+# Renewable energy taken from the environment on site (heat pumps, solar collectors):
+# it counts in primary energy (renewable) but not in the final energy totals
+ENVIRONMENT_CARRIERS = ("AMBIENT", "SOLAR_THERMAL")
 
 # Services: what it is used for. Pumps and fans are their own services; splitting
 # them among heating, cooling or DHW is a hypothesis of the report.
@@ -127,8 +131,10 @@ ELECTRICITY_FACTORS = {
     "NATIONAL": (0.396, 2.007, 0.357),  # statistics only
     "EXTRAPENINSULAR": (0.075, 2.937, 0.833),  # statistics only
 }
-# Energy taken from the environment by heat pumps: renewable
+# Energy taken from the environment by heat pumps and solar thermal collectors (on
+# site): renewable
 AMBIENT_FACTORS = (1.0, 0.0, 0.0)
+SOLAR_THERMAL_FACTORS = (1.0, 0.0, 0.0)
 
 
 def conversion_factors(region="PENINSULA"):
@@ -141,7 +147,8 @@ def conversion_factors(region="PENINSULA"):
         dict: {carrier: (fp_ren, fp_nren, kg CO2)} per kWh of final energy; THERMAL
             (heat without equipment) has no factors.
     """
-    factors = {"ELECTRICITY": ELECTRICITY_FACTORS[region], "AMBIENT": AMBIENT_FACTORS}
+    factors = {"ELECTRICITY": ELECTRICITY_FACTORS[region], "AMBIENT": AMBIENT_FACTORS,
+               "SOLAR_THERMAL": SOLAR_THERMAL_FACTORS}
     factors.update(FUEL_FACTORS)
     return factors
 
@@ -166,7 +173,7 @@ class Energy_report:
 
     Attributes:
         annual (pandas.DataFrame): final energy of the period by service (rows) and
-            carrier (columns), with a "TOTAL" row and column (final energy: AMBIENT
+            carrier (columns), with a "TOTAL" row and column (final energy: AMBIENT, SOLAR_THERMAL
             and THERMAL are not in the totals).
         monthly_carriers (pandas.DataFrame): final energy by month and carrier.
         monthly_services (pandas.DataFrame): final energy by month and service.

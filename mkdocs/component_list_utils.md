@@ -46,11 +46,12 @@ What each component reports (power at each time step):
 | `HVAC_water_generator` | ELECTRICITY | HEATING or COOLING (equipment), WATER_TRANSPORT (its pump); the heat its plant gives to DHW demands as DHW |
 | | fuel of the `Boiler` | HEATING |
 | | AMBIENT | HEATING (heat pumps): heat given minus electricity |
+| | SOLAR_THERMAL | HEATING (solar collectors): heat given; DHW its share |
 | `HVAC_water_system` | ELECTRICITY | WATER_TRANSPORT (its secondary pumps; its generators report their own energy) |
 | `HVAC_water_circuit` | ELECTRICITY | WATER_TRANSPORT (its pumps) |
 | `Space` | ELECTRICITY | LIGHTING; EQUIPMENT (other gains, carrier given by `equipment_carrier`) |
 
-AMBIENT is the energy heat pumps take from the environment while heating (none in cooling): renewable primary energy, not final energy. THERMAL is heat with no equipment behind it: it is not final energy until `report()` is given a reference generator.
+AMBIENT is the energy heat pumps take from the environment while heating (none in cooling), and SOLAR_THERMAL the heat of solar collectors: renewable energy produced on site, renewable primary energy, not in the totals of final energy. THERMAL is heat with no equipment behind it: it is not final energy until `report()` is given a reference generator.
 
 #### Parameters
 
@@ -68,7 +69,7 @@ AMBIENT is the energy heat pumps take from the environment while heating (none i
 - **extra_carriers** [_option_list_, default = []]: Carrier of each extra use.
 - **extra_expressions** [_math_exp_list_, unit = "W", default = []]: Power of each extra use, evaluated at the end of each time step.
 
-Factors per kWh of final energy (fuels on the lower heating value; BIOMASS is densified biomass, pellets; AMBIENT: 1 / 0 / 0):
+Factors per kWh of final energy (fuels on the lower heating value; BIOMASS is densified biomass, pellets; AMBIENT and SOLAR_THERMAL: 1 / 0 / 0, renewable produced on site as the DB-HE considers the ambient energy of heat pumps; the documento reconocido of the RITE gives no factors for them):
 
 | Carrier | fp,ren | fp,nren | kg CO₂/kWh |
 |---|---|---|---|

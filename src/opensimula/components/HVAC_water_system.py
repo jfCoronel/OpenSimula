@@ -92,6 +92,13 @@ class HVAC_water_system(Component):  # HVAC Water system
         if self.project().parameter("simulation_file_met").value == "not_defined":
             msg = f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'."
             errors.append(Message(msg, "ERROR"))
+        if (self.parameter("tank").value == "not_defined" and any(
+                g is not None and g.parameter("equipment").component is not None
+                and g.parameter("equipment").component.parameter("type").value == "Solar_collector"
+                for g in self.parameter("generators").component)):
+            msg = (f"{self.parameter('name').value}, a generator with a Solar_collector needs a "
+                   "plant with a tank (the heat of the sun is stored in it).")
+            errors.append(Message(msg, "ERROR"))
         if (self.parameter("flow_control").value == "VARIABLE"
                 and self.parameter("minimum_flow").value == 0
                 and str(self.parameter("Q_process").value).strip() not in ("0", "0.0", "")):
@@ -123,6 +130,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.tank = (self.parameter("tank").component
                      if self.parameter("tank").value != "not_defined" else None)
         self.has_header = len(self.secondary_pumps) > 0 or self.tank is not None
+        self.solar_generators = [i for i, g in enumerate(self.generators) if g.is_solar]
+        self.Q_solar = 0
         self._dhw_only = None
         self.secondary_design_flow = sum(
             p.parameter("nominal_water_flow").value for p in self.secondary_pumps
@@ -216,13 +225,13 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.mode = self.parameter("system_mode").evaluate(self.var_dic)
            
     def get_cooling_coil_inlet_T(self): 
-        if self.pre_iter: 
+        if self.pre_iter and self.tank is None:  # a tank: the water it has
             return self.T_cool_sp
         else:
             return self.T_WCI
 
     def get_heating_coil_inlet_T(self):
-        if self.pre_iter: 
+        if self.pre_iter and self.tank is None:  # a tank: the water it has
             return self.T_heat_sp
         else:
             return self.T_WCI
@@ -423,13 +432,15 @@ class HVAC_water_system(Component):  # HVAC Water system
         m_s = self.secondary_flow
         cpV_dt = self.rho_cp * self.water_volume / self.delta_t
         nominal = [g.nominal_water_flow() if g.on_off else 0 for g in self.generators]
+        solar = self._solar_heat(cpV_dt, Q_sec)  # of each generator, always taken
+        Q_solar = sum(solar)
         self.Q_generators = [0] * len(self.generators)
         self.Q_gen = 0
         self.f_load = 0
         if not self.on_off or self.mode == 0:
-            self.running = [False] * len(self.generators)
-            self.Q_pump = self.Q_pump_secondary
-            Q = (Q_sec + self.Q_pump) if self.on_off else self.Q_loss
+            self.running = [s > 0 for s in solar]
+            self.Q_pump = self.Q_pump_secondary + self._running_pumps_heat(nominal)
+            Q = (Q_sec + self.Q_pump + Q_solar) if self.on_off else self.Q_loss
             T_S = self.T_WCI_pre + Q / cpV_dt
         else:
             setpoint = self.T_heat_sp if self.mode == 1 else self.T_cool_sp
@@ -445,25 +456,52 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.Q_pump = self.Q_pump_secondary + sum(
                 g.get_pump_heat(f) for g, f in zip(self.generators, flows)
             )
-            Q_required = cpV_dt * (T_S_target - self.T_WCI_pre) - (Q_sec + self.Q_pump)
-            if self.mode * Q_required > 0 and self._tank_thermostat(cpV_dt, Q_sec):
+            Q_required = cpV_dt * (T_S_target - self.T_WCI_pre) - (Q_sec + self.Q_pump + Q_solar)
+            if self.mode * Q_required > 0 and self._tank_thermostat(cpV_dt, Q_sec + Q_solar):
                 # every generator able to run is considered, at its nominal flow
                 Q, self.f_load = self._generators_load(
                     self.mode, self.mode * Q_required, setpoint, T_pi, nominal
                 )
                 self.Q_gen = self.mode * Q
                 if self.f_load >= 1:  # at full capacity: at the actual temperatures
-                    self._header_at_capacity(Q_sec, cpV_dt, nominal, m_s, setpoint, q)
-            self.running = [q_g != 0 for q_g in self.Q_generators]
-            flows = [f if r else 0 for f, r in zip(nominal, self.running)]
-            self.Q_pump = self.Q_pump_secondary + sum(
-                g.get_pump_heat(f) for g, f in zip(self.generators, flows)
-            )
-            T_S = self.T_WCI_pre + (self.Q_gen + Q_sec + self.Q_pump) / cpV_dt
+                    self._header_at_capacity(Q_sec + Q_solar, cpV_dt, nominal, m_s, setpoint, q)
+            self.running = [q_g != 0 or s > 0 for q_g, s in zip(self.Q_generators, solar)]
+            self.Q_pump = self.Q_pump_secondary + self._running_pumps_heat(nominal)
+            T_S = self.T_WCI_pre + (self.Q_gen + Q_solar + Q_sec + self.Q_pump) / cpV_dt
+        # the solar generators in the shares and the total of the generators
+        if Q_solar > 0:
+            self.Q_generators = [q_g + s for q_g, s in zip(self.Q_generators, solar)]
+            self.Q_gen += Q_solar
+        self.Q_solar = Q_solar
         self.T_S = self.itera_T.estimate_next_x(T_S)
         self._header_temperatures(Q_sec, nominal)
         self._end_iteration_()
         return self.itera_T.converged()
+
+    def _running_pumps_heat(self, nominal):
+        """Heat of the primary pumps of the generators running."""
+        return sum(g.get_pump_heat(f if r else 0)
+                   for g, f, r in zip(self.generators, nominal, self.running))
+
+    def _solar_heat(self, C, Q_sec):
+        """Heat of the solar collector generators (W, each), with the water of the tank
+        entering them: all of it is taken, unless the tank would go above the maximum
+        temperature of the collectors (then less, as if they stopped part of the time)."""
+        solar = [0.0] * len(self.generators)
+        if not self.solar_generators or not self.on_off or self.mode == -1:
+            return solar
+        for i in self.solar_generators:
+            solar[i] = self.generators[i].get_solar_heat(self.T_WCI_pre)
+        total = sum(solar)
+        if total > 0:
+            T_max = min(self.generators[i].equipment.parameter("max_temperature").value
+                        for i in self.solar_generators)
+            pumps = sum(self.generators[i].get_pump_heat(self.generators[i].nominal_water_flow())
+                        for i in self.solar_generators if solar[i] > 0)
+            room = C * (T_max - self.T_WCI_pre) - (Q_sec + self.Q_pump_secondary + pumps)
+            if total > room:
+                solar = [s * max(room, 0) / total for s in solar]
+        return solar
 
     def _tank_thermostat(self, C, Q_sec):
         """False if the thermostat of the tank keeps the generators off: in heating, not
@@ -724,7 +762,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.variable("coils_flow").values[time_index] = self.coils_flow_used
         power = fuel = pump_power = 0
         for g, Q_g, flow in zip(self.generators, self.Q_generators, self.generator_flows):
-            Q_g = Q_g if running and flow > 0 else 0
+            Q_g = Q_g if (running or (g.is_solar and self.on_off)) and flow > 0 else 0
             T_wo = self.T_WGI + Q_g / (self.rho_cp * flow) if flow > 0 else self.T_WGI
             p, f, _ = g.set_operation(time_index, Q_g, T_wo, self.T_WGI, flow, self.sequencing)
             power += p
@@ -734,7 +772,7 @@ class HVAC_water_system(Component):  # HVAC Water system
             p.get_power(f) for p, f in zip(self.secondary_pumps, self._secondary_pump_flows())
             if f > 0
         ) if m_s > 0 else 0
-        Q_gen = self.Q_gen if running else 0
+        Q_gen = self.Q_gen if running else (self.Q_solar if self.on_off else 0)
         self.variable("Q_generators").values[time_index] = Q_gen
         self.variable("Q_coils").values[time_index] = self.Q_coils_used if m_s > 0 else 0
         self.variable("Q_dhw").values[time_index] = (

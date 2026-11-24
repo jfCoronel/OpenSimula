@@ -1093,7 +1093,18 @@ circuits with only DHW loads count all their energy as DHW (`is_dhw_only()`, als
 losses); **DHW priority left out (option A, 2026-11-24)**: the loads share a shortfall.
 Found: without dead band a tank recharges every hour and the plant pump runs all year
 (ON_LOAD is per time step): use a dead band of 5-7 K); (3) solar thermal, with
-the stratified tank; (4) HE4 in `CTE_compliance` (renewable share of the DHW demand,
+the stratified tank, split on 2026-11-24 into **3a done** (branch `feat/solar-thermal`:
+`Solar_collector` (EN ISO 9806 η0, a1, a2, IAM b0 and K_d, tilt, azimuth from the south,
+heat exchanger effectiveness, `max_temperature`; T_m from the inlet, flow and
+effectiveness, quadratic solved in closed form), the generator with a collector is not
+controllable (the plant with a tank always takes its heat, the others give the rest),
+carrier SOLAR_THERMAL (1/0/0 as AMBIENT; not in the RITE document), `DHW_demand.
+preheat_system` (series backup: the backup heats from the preheat temperature). Fixed on
+the way: a plant with a tank gave its setpoint, not the tank temperature, in the first
+iteration. Sevilla, 2 m², 150 l, 120 l/day: 1938 kWh/m² on the plane, collector 0.47,
+solar fraction 0.72 (0.54 December, 0.95 August)) and **3b** (stratified tank: nodes,
+mains at the bottom, draw at the top, solar from the bottom, backup on a node, mixing of
+inversions); (4) HE4 in `CTE_compliance` (renewable share of the DHW demand,
 on-site and nearby perimeter, SCOP_dhw ≥ 2.5 for heat pumps) and the Anejo F reference
 demand helper (28 l/day·person, occupancy by bedrooms, centralisation factor). Later:
 legionella cycles, "3 in 1" heat pumps.

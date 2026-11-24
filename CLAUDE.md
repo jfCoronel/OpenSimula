@@ -127,6 +127,7 @@ Parameters (src/opensimula/Parameters.py) provide type-safe configuration:
 - **HVAC_water_circuit**: Secondary circuit fed by a plant (own pumps, mixing valve); coils can refer to it like to a plant
 - **DHW_demand**: Domestic hot water demand (volume flow and use temperature as expressions, e.g. a schedule with the DB-HE profile from `cte.dhw_profile_schedules()`; mains temperature) hanging from a plant or circuit like a coil; plants split generator energy HEATING/DHW (`Q_dhw`, `dhw_share()`)
 - **Water_tank**: Storage tank (volume, UA, ambient temperature, thermostat dead band) referred by a plant (`tank`: its water, works as a header) or a circuit (`tank`, `tank_setpoint`: DHW charging circuit)
+- **Solar_collector**: Solar thermal collectors (EN ISO 9806), equipment of an HVAC_water_generator in a plant with a tank (not controllable: the plant always takes its heat); carrier SOLAR_THERMAL. `DHW_demand.preheat_system` preheats in series (solar tank + backup)
 - **DX_unit**, **Water_coil**, **Fan**, **Pump**, **Chiller_heat_pump**, **Boiler**: Equipment models (manufacturer data, used by the systems)
 
 #### Schedule Components

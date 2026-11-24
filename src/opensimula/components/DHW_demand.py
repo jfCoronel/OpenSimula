@@ -39,6 +39,10 @@ class DHW_demand(Component):
         self.parameter("description").value = "Domestic hot water demand."
         self.add_parameter(Parameter_component("water_system", "not_defined",
                                                ["HVAC_water_system", "HVAC_water_circuit"]))
+        # preheating in series (e.g. a solar tank): the water enters it instead of the
+        # mains and the water_system heats it from there
+        self.add_parameter(Parameter_component("preheat_system", "not_defined",
+                                               ["HVAC_water_system", "HVAC_water_circuit"]))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("volume_flow", "0", "l/h"))
         self.add_parameter(Parameter_math_exp("use_temperature", "60", "°C"))
@@ -48,9 +52,11 @@ class DHW_demand(Component):
         self.add_variable(Variable("volume_flow", unit="l/h"))  # at the use temperature
         self.add_variable(Variable("T_use", unit="°C"))
         self.add_variable(Variable("T_mains", unit="°C"))
+        self.add_variable(Variable("T_preheat", unit="°C"))  # of the preheat system
         self.add_variable(Variable("T_supply", unit="°C"))  # of the plant or circuit
         self.add_variable(Variable("water_flow", unit="dm³/s"))  # from the plant, at T_supply
         self.add_variable(Variable("Q_demand", unit="W"))  # with distribution losses
+        self.add_variable(Variable("Q_preheat", unit="W"))  # given by the preheat system
         self.add_variable(Variable("Q_supplied", unit="W"))
         self.add_variable(Variable("Q_unmet", unit="W"))
         self.add_variable(Variable("low_temperature", unit="flag"))
@@ -69,6 +75,8 @@ class DHW_demand(Component):
         super().pre_simulation(n_time_steps, delta_t)
         self.props = self._sim_.props
         self.plant = self.parameter("water_system").component
+        self.preheat = (self.parameter("preheat_system").component
+                        if self.parameter("preheat_system").value != "not_defined" else None)
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -80,27 +88,43 @@ class DHW_demand(Component):
         rho_cp = self.props["RHOCP_W"](self.T_use) / 1000  # J/(dm³·K)
         self.Q_demand = (rho_cp * self.volume_flow / 3600 * max(self.T_use - self.T_mains, 0)
                          * (1 + self.parameter("distribution_losses").value))
-        self.T_supply = self.T_mains
+        self.T_supply = self.T_preheat = self.T_mains
         self.water_flow = 0
-        self.Q_supplied = 0
+        self.Q_supplied = self.Q_preheat = 0
         self.too_cold = False
 
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
+        # preheating: the water drawn enters the preheat system (mains water replaces
+        # it) and gives the heat up to its temperature (all of it, mixed, if hotter)
+        T_in = self.T_mains
+        self.Q_preheat = 0
+        if self.preheat is not None:
+            self.T_preheat = self.preheat.get_heating_coil_inlet_T()
+            dT_pre = self.T_preheat - self.T_mains
+            if self.Q_demand > 0 and self.preheat.can_heat() and dT_pre > 0:
+                self.Q_preheat = self.Q_demand * min(dT_pre / (self.T_use - self.T_mains), 1)
+                rho_cp = self.props["RHOCP_W"](self.T_preheat) / 1000
+                self.preheat.add_coil_load(-self.Q_preheat, self.Q_preheat / (rho_cp * dT_pre),
+                                           -self.Q_preheat)
+                T_in = min(self.T_preheat, self.T_use)
+        Q_rest = self.Q_demand - self.Q_preheat
+        # the water system heats the rest, from T_in
         self.T_supply = self.plant.get_heating_coil_inlet_T()
-        can_heat = self.Q_demand > 0 and self.plant.can_heat()
+        can_heat = Q_rest > 0 and self.plant.can_heat()
         self.too_cold = can_heat and self.T_supply < self.T_use
-        dT = self.T_supply - self.T_mains
+        dT = self.T_supply - T_in
         if not can_heat or dT <= 0:
-            self.Q_supplied = 0
+            self.Q_supplied = self.Q_preheat
             self.water_flow = 0
             return True
         # hotter than T_use: mixed with mains water, the whole demand; colder: used as
         # it comes, only the heat up to T_supply
-        self.Q_supplied = self.Q_demand * min(dT / (self.T_use - self.T_mains), 1)
+        Q = Q_rest * min(dT / (self.T_use - T_in), 1)
         rho_cp = self.props["RHOCP_W"](self.T_supply) / 1000
-        self.water_flow = self.Q_supplied / (rho_cp * dT)  # from the plant, at T_supply
-        self.plant.add_coil_load(-self.Q_supplied, self.water_flow, -self.Q_supplied)
+        self.water_flow = Q / (rho_cp * dT)  # from the plant, at T_supply
+        self.plant.add_coil_load(-Q, self.water_flow, -Q)
+        self.Q_supplied = self.Q_preheat + Q
         return True
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
@@ -109,9 +133,11 @@ class DHW_demand(Component):
             "volume_flow": self.volume_flow,
             "T_use": self.T_use,
             "T_mains": self.T_mains,
+            "T_preheat": self.T_preheat,
             "T_supply": self.T_supply,
             "water_flow": self.water_flow,
             "Q_demand": self.Q_demand,
+            "Q_preheat": self.Q_preheat,
             "Q_supplied": self.Q_supplied,
             "Q_unmet": self.Q_demand - self.Q_supplied,
             "low_temperature": float(self.too_cold),

@@ -129,14 +129,14 @@ boiler.set_parameters(param)
 
 ### HVAC_water_generator
 
-A generator of hot or chilled water of an HVAC_water_system: an equipment component, a "Chiller_heat_pump" (heating and/or cooling, electric) or a "Boiler" (heating, fuel), with its own primary pump. The water system decides the load it gives in each time step; the generator turns it into the load, part load, power and efficiency of its equipment, and stores them. The water flow through it is the nominal water flow of its equipment.
+A generator of hot or chilled water of an HVAC_water_system: an equipment component, a "Chiller_heat_pump" (heating and/or cooling, electric), a "Boiler" (heating, fuel) or a "Solar_collector" (heating, solar thermal energy), with its own primary pump. A solar collector generator cannot be controlled: the plant (which must have a tank) always takes the heat the sun gives, up to the `max_temperature` of the collector, and its other generators give only what is missing up to the setpoint; its pump (the pump of the solar loop) runs while the collector gives heat. The water system decides the load it gives in each time step; the generator turns it into the load, part load, power and efficiency of its equipment, and stores them. The water flow through it is the nominal water flow of its equipment.
 
 A Boiler only heats; a Chiller_heat_pump heats, cools or both according to its `chiller_type`.
 
 A generator may have several identical units of its equipment in parallel (`number_of_units`): its capacity and water flow are those of one unit times the number of units, and the units share the load with the `sequencing` of the water system: with "PRIORITY" one after the other (the next one starts when the previous is at full load), with "EQUAL_LOAD" all at the same part load. The power of each unit is calculated with its own part load.
 
 #### Parameters
-- **equipment** [_component_, default = "not_defined", component type = Chiller_heat_pump or Boiler]: Equipment that heats and/or cools the water.
+- **equipment** [_component_, default = "not_defined", component type = Chiller_heat_pump, Boiler or Solar_collector]: Equipment that heats and/or cools the water.
 - **number_of_units** [_int_, default = 1, min = 1]: Number of identical units of the equipment.
 - **pump** [_component_, default = "not_defined", component type = Pump]: Primary pump of the generator, sized for its water flow (all its units). It moves the water through the generator while the generator is available. If not defined, its heat to the water and its power are considered zero.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
@@ -315,6 +315,55 @@ After the simulation we will have the following variables of this component:
 - __Q_plant__ [W]: Load given to the plant: Q_coils + Q_loss + Q_pump - delta_U.
 - __pumps_power__ [W]: Electric power of its pumps.
 
+### Solar_collector
+
+Field of solar thermal collectors, with the data of its EN ISO 9806 test (on the aperture area). Equipment data, like a Boiler: an `HVAC_water_generator` uses it, in a plant with a tank (`Water_tank`). The useful heat follows the quasi-steady model of EN ISO 9806:
+
+Q = A · [η0 · (K_b · G_b + K_d · G_d) − a1 · (T_m − T_a) − a2 · (T_m − T_a)²]
+
+G_b and G_d are the beam and diffuse irradiance on the collector plane, from the weather file (the diffuse with the `tilted_diffuse_model` of the File_met, plus the radiation reflected by the ground with the `albedo` of the project); K_b = 1 − b0 · (1/cos θ − 1) is the incidence angle modifier of the beam (θ, angle of incidence) and K_d that of the diffuse; T_a is the outdoor air temperature and T_m the mean temperature of the fluid in the collector: with the water of the tank entering at T_in, the flow m of the loop and a heat exchanger of effectiveness ε between the loop and the tank, T_m = T_in + Q / (m·c) · (1/ε − 1/2). The collector gives heat (its pump runs) while Q > 0 and the tank is below `max_temperature`. Shadows on the collectors are not considered yet.
+
+#### Parameters
+
+- **area** [_float_, unit = "m²", default = 2]: Aperture area of the field.
+- **eta_0** [_float_, unit = "frac", default = 0.75]: Peak efficiency η0 (zero loss efficiency).
+- **a1** [_float_, unit = "W/(m²·K)", default = 3.5]: Heat loss coefficient.
+- **a2** [_float_, unit = "W/(m²·K²)", default = 0.015]: Temperature dependence of the heat loss coefficient.
+- **b0** [_float_, default = 0.15]: Incidence angle modifier constant of the beam irradiance.
+- **K_diffuse** [_float_, unit = "frac", default = 0.9]: Incidence angle modifier of the diffuse irradiance.
+- **tilt** [_float_, unit = "°", default = 45, min = 0, max = 90]: Tilt of the collectors from the horizontal.
+- **azimuth** [_float_, unit = "°", default = 0, min = -180, max = 180]: Orientation of the collectors: 0 south, negative to the east, positive to the west (as the solar azimuth of the File_met).
+- **nominal_water_flow** [_float_, unit = "dm³/s", default = 0.04]: Flow of the solar loop (typically 0.02 dm³/s per m², "low flow" installations about half).
+- **exchanger_effectiveness** [_float_, unit = "frac", default = 1, min = 0.01, max = 1]: Effectiveness of the heat exchanger between the collector loop and the tank (1: no exchanger).
+- **max_temperature** [_float_, unit = "°C", default = 90]: Maximum temperature of the tank: the collectors do not heat it above it.
+
+#### Variables
+
+- **irradiance** (W/m²): Total irradiance on the collector plane.
+- **effective_irradiance** (W/m²): With the incidence angle modifiers, K_b · G_b + K_d · G_d.
+
+The heat given, its efficiency (Q / (A · G)) and the power of the pump are variables of the generator (`Q`, `efficiency`, `pump_power`).
+
+The heat of the collectors is final energy of the carrier **SOLAR_THERMAL** (service DHW or HEATING, as the rest of the heat of the plant). It is renewable energy produced on site, with the factors of the energy taken by heat pumps from the environment (1 / 0 / 0), and not counted in the totals of final energy.
+
+**Example** (2 m² of collectors and a 150 l solar tank that preheats the DHW; the backup, in series, is the `water_system` of the DHW demand):
+<pre><code class="python">
+...
+
+pro.new_component("Solar_collector", "collector").set_parameters({
+    "area": 2, "eta_0": 0.75, "a1": 3.5, "a2": 0.015, "tilt": 45, "azimuth": 0,
+    "nominal_water_flow": 0.04})
+pro.new_component("Pump", "solar_pump").set_parameters({"nominal_water_flow": 0.04, "nominal_power": 30})
+pro.new_component("HVAC_water_generator", "solar_gen").set_parameters({
+    "equipment": "collector", "pump": "solar_pump"})
+pro.new_component("Water_tank", "solar_tank").set_parameters({"volume": 150, "UA": 1.2})
+pro.new_component("HVAC_water_system", "solar_plant").set_parameters({
+    "generators": ["solar_gen"], "tank": "solar_tank"})
+pro.new_component("DHW_demand", "dhw").set_parameters({
+    "water_system": "boiler_plant", "preheat_system": "solar_plant",
+    "input_variables": ["f = profile.values"], "volume_flow": "120 * f"})
+</code></pre>
+
 ### Water_tank
 
 Water storage tank: a DHW tank, an electric water heater or a buffer tank. Equipment data, like a Boiler: it is used by the `HVAC_water_system` or the `HVAC_water_circuit` that refers to it in its `tank` parameter, whose water is then the water of the tank (fully mixed: one temperature). Its heat losses are UA·(T − T_ambient).
@@ -356,6 +405,7 @@ Water from the plant hotter than the use temperature is mixed by the user with m
 #### Parameters
 
 - **water_system** [_component_, default = "not_defined", component type = HVAC_water_system or HVAC_water_circuit]: Plant or circuit that gives the hot water.
+- **preheat_system** [_component_, default = "not_defined", component type = HVAC_water_system or HVAC_water_circuit]: Preheating in series, e.g. a solar tank: the water drawn enters it (mains water replaces it) and leaves at its temperature; it gives the heat up to that temperature (all the demand, mixed with mains water, if hotter than the use temperature) and the `water_system` (the backup) heats the rest from there.
 - **input_variables** [_variable_list_, default = []]: Variables of other components used in the expressions.
 - **volume_flow** [_math_exp_, unit = "l/h", default = "0"]: Hot water used, at the use temperature (negative values count as 0). Usually a daily volume times a schedule, e.g. `"120 * f"` with `f` the hourly profile below.
 - **use_temperature** [_math_exp_, unit = "°C", default = "60"]: Temperature of the water used. It can use `T_month` (as below) and the input variables.
@@ -367,6 +417,7 @@ Water from the plant hotter than the use temperature is mixed by the user with m
 
 - **volume_flow** (l/h), **T_use** (°C): Hot water used and its temperature.
 - **T_mains** (°C), **T_supply** (°C): Mains water temperature and supply temperature of the plant or circuit.
+- **T_preheat** (°C), **Q_preheat** (W): Temperature of the preheat system and heat it gives (mains temperature and 0 without one).
 - **water_flow** (dm³/s): Water taken from the plant, at its supply temperature.
 - **Q_demand** (W): Heat of the demand, with the distribution losses.
 - **Q_supplied** (W), **Q_unmet** (W): Heat given by the plant and heat not met.
