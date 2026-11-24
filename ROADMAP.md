@@ -1010,6 +1010,72 @@ gallery example; later `CTE_compliance`.
   `Q_sensible` negative and `Q_latent` positive, DX both positive, perfect system both
   signed): worth unifying before 1.0 (breaks outputs).
 
+## Planned: domestic hot water (DHW) and solar thermal (design closed 2026-11-24)
+
+Step 2 of the plan of 2026-11-24. DHW counts in HE0, HE4 asks for a renewable share
+(60-70 % of the demand), and nearly every HULC building has it (the TFG test building:
+gas boiler, 120 l/day at 60 °C).
+
+**Approach (decided): DHW on the water plants we have**, no separate DHW system. A DHW
+demand is one more "coil" of a plant or circuit: it takes the flow m at the supply
+temperature and gives it back at the mains temperature (the water drawn is replaced by
+mains water), so the plant's own balance gives the generators an inlet at the mains
+temperature (a condensing boiler in instantaneous DHW works as it should). Generators,
+sequencing, pumps, circuits and energy accounting are reused.
+
+Components and changes:
+
+1. **`DHW_demand`** (new): `water_system` (a plant or a circuit, like the coils); daily
+   volume at the reference temperature (expression, l/day; 60 °C by default; allows
+   schedules); hourly profile (24 fractions, default the Anejo D table c of the DB-HE);
+   mains water temperature (12 monthly values or an expression; a helper with the Anejo G
+   table by province capital and the altitude correction); `distribution_losses` (fraction
+   of the demand, default 0) for networks without recirculation. Load
+   m·cp·(T_ref − T_mains)·(1 + losses) added to the plant each iteration; demand not met
+   when the water is colder than the use temperature (reported).
+2. **`Water_tank`** (new, equipment / data like `Boiler`): volume, loss coefficient UA,
+   temperature of the room it is in (expression), number of nodes (1 = fully mixed, the
+   default; stratified later). Referenced by a plant or a circuit with a new `tank`
+   parameter: then its water is the tank (replaces `total_water_volume` / `water_volume`)
+   and its losses are UA·(T − T_room) (on top of `Q_loss`). Also the buffer tanks of
+   heating plants.
+3. **Where the tank goes**:
+   - DHW only with storage (boiler + tank, electric water heater, DHW heat pump): `tank` in
+     the plant; the generators heat it to the setpoint, the demand draws from it.
+   - Heating + DHW with storage (boiler or heat pump with a DHW tank, central DHW): `tank`
+     in a DHW charging circuit hanging from the plant (its pump = charging pump, its
+     setpoint = the tank setpoint); heating on other circuits. To check / adapt: the
+     circuit must charge its tank to the setpoint (today it mixes to a supply setpoint).
+   - Instantaneous (boiler without tank): plant with a small water volume and setpoint
+     60 °C.
+   - Electric water heater: a `Boiler` with fuel ELECTRICITY and efficiency 1.
+4. **Recirculation**: the DHW circuit's `Q_loss` (loop losses) and its pump (recirculation
+   pump); nothing new.
+5. **Plant changes**: energy of the generators split by service, HEATING and DHW, by the
+   heat delivered to each kind of load each hour (also needed for combined plants);
+   optional DHW priority (when the generators fall short, DHW loads first).
+6. **Solar thermal**: `Solar_collector` (equipment: area, tilt, azimuth, EN ISO 9806
+   quasi-steady efficiency η0, a1, a2 and incidence angle modifier b0; radiation from
+   `File_met`) used by an `HVAC_water_generator` as a **non-controllable generator**: it
+   gives what the sun allows when the collector is hotter than the tank (on/off by
+   temperature difference, its loop pump), the plant always takes it (up to a maximum
+   temperature) and the other generators make up the rest (first in the sequencing). New
+   carrier **SOLAR_THERMAL** (renewable: fp,ren 1, fp,nren 0, no CO2), service DHW.
+   Stratified tank with this step (demand draws at the top and mains water enters at the
+   bottom; solar heats the bottom; the backup the top); examples with 4-6 nodes.
+7. **Ambient energy** of heat pumps counts in DHW (DB-HE).
+8. Limits: one mode per plant (heat or cold): DHW in summer needs its own plant if the
+   climate plant cools ("3 in 1" heat pumps alternating, later). Potable water and closed
+   loop are not told apart (energy is what matters here); a heat exchanger later, if
+   needed, through a circuit.
+
+Order: (1) `DHW_demand` and the split of energy by service, with an example of a combined
+boiler; (2) `Water_tank`, DHW charging circuit, DHW priority; (3) solar thermal, with
+the stratified tank; (4) HE4 in `CTE_compliance` (renewable share of the DHW demand,
+on-site and nearby perimeter, SCOP_dhw ≥ 2.5 for heat pumps) and the Anejo F reference
+demand helper (28 l/day·person, occupancy by bedrooms, centralisation factor). Later:
+legionella cycles, "3 in 1" heat pumps.
+
 ## Planned: `CTE_compliance`, verification of DB-HE (design closed 2026-11-23)
 
 Goal: check a project against the Spanish DB-HE 2019 (articulado 14/06/2022), on top of
