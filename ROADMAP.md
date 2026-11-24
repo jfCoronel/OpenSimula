@@ -38,7 +38,8 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   and variables, anchors per parameter, "?" in the editor, tooltips in the results viewer.
 - Then, plan of 2026-11-24 below: (3) water emitters (radiators, radiant floor), (4)
   multisplit / VRF, (5) ventilation with heat recovery, (6) IDF importer, (7) HULC importer.
-  Pending small items: a gallery example with DHW and solar; DHW priority (option C,
+  Docs of the day in PR #81 (user guide DHW / tanks / solar, diagram, gallery example 11
+  "Domestic hot water and solar"). Pending small items: DHW priority (option C,
   time sharing); stratified charging circuits; release 0.11; JOSS ping at the end of
   November.
 
