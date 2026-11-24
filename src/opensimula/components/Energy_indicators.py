@@ -17,6 +17,7 @@ from opensimula.Variable import Variable
 from opensimula.energy import (
     CARRIERS,
     ELECTRICITY_FACTORS,
+    ENVIRONMENT_CARRIERS,
     SERVICES,
     Energy_report,
     Energy_use,
@@ -34,7 +35,7 @@ CONSUMER_TYPES = [
 ]
 ZONE_TYPES = ["Space", "Load_space"]
 # Carriers a user can give (equipment, extra uses, custom factors)
-FINAL_CARRIERS = [c for c in CARRIERS if c not in ("AMBIENT", "THERMAL")]
+FINAL_CARRIERS = [c for c in CARRIERS if c not in (*ENVIRONMENT_CARRIERS, "THERMAL")]
 TRANSPORT_OPTIONS = ["SEPARATE", "BY_MODE"]
 
 
@@ -166,7 +167,8 @@ class Energy_indicators(Component):
                 (u.values for u in uses if u.carrier == carrier), np.zeros(self._n()))
         for service in self._services():
             self.variable(service.lower()).values[:] = sum(
-                (u.values for u in uses if u.service == service and u.carrier != "AMBIENT"),
+                (u.values for u in uses
+                 if u.service == service and u.carrier not in ENVIRONMENT_CARRIERS),
                 np.zeros(self._n()))
         ren, nren, co2 = self._primary(uses)
         self.variable("primary_ren").values[:] = ren
@@ -255,7 +257,7 @@ class Energy_indicators(Component):
             if u.service in services:
                 annual.loc[u.service, u.carrier] += u.values.sum() * to_kwh
         annual = annual.loc[:, annual.sum() > 0]
-        final_carriers = [c for c in annual.columns if c not in ("AMBIENT", "THERMAL")]
+        final_carriers = [c for c in annual.columns if c not in (*ENVIRONMENT_CARRIERS, "THERMAL")]
         annual["TOTAL"] = annual[final_carriers].sum(axis=1)
         annual.loc["TOTAL"] = annual.sum()
         annual.index.name, annual.columns.name = "service", "carrier"
@@ -291,7 +293,7 @@ class Energy_indicators(Component):
                 if u.service == s and u.carrier in factors:
                     e = u.values.sum() * to_kwh
                     f = factors[u.carrier]
-                    final += e if u.carrier != "AMBIENT" else 0
+                    final += e if u.carrier not in ENVIRONMENT_CARRIERS else 0
                     ren += e * f[0]
                     nren += e * f[1]
                     co2 += e * f[2]

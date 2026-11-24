@@ -15,8 +15,9 @@ class HVAC_water_generator(Component):
     """A generator of hot or chilled water of an HVAC_water_system.
 
     It uses an equipment component for the manufacturer's data, a
-    Chiller_heat_pump (heating and/or cooling, electric) or a Boiler (heating,
-    fuel), and has its own primary pump. The plant (HVAC_water_system) decides
+    Chiller_heat_pump (heating and/or cooling, electric), a Boiler (heating,
+    fuel) or a Solar_collector (heating, solar thermal energy, not controllable:
+    the plant always takes its heat), and has its own primary pump. The plant (HVAC_water_system) decides
     the load it gives in each time step; the generator turns it into the
     equipment's load, part load, power and efficiency, and stores them.
 
@@ -31,7 +32,8 @@ class HVAC_water_generator(Component):
         self.parameter("type").value = "HVAC_water_generator"
         self.parameter("description").value = "Generator of hot or chilled water of a water system"
         self.add_parameter(
-            Parameter_component("equipment", "not_defined", ["Chiller_heat_pump", "Boiler"])
+            Parameter_component("equipment", "not_defined",
+                                ["Chiller_heat_pump", "Boiler", "Solar_collector"])
         )
         self.add_parameter(Parameter_int("number_of_units", 1, "", min=1))
         self.add_parameter(Parameter_component("pump", "not_defined", ["Pump"]))
@@ -65,7 +67,9 @@ class HVAC_water_generator(Component):
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
         self.equipment = self.parameter("equipment").component
-        self.is_boiler = self.parameter("equipment").component.parameter("type").value == "Boiler"
+        equipment_type = self.parameter("equipment").component.parameter("type").value
+        self.is_boiler = equipment_type == "Boiler"
+        self.is_solar = equipment_type == "Solar_collector"
         self.pump = self.get_pump()
         self.n_units = self.parameter("number_of_units").value
         self.file_met = self.project().parameter("simulation_file_met").component
@@ -93,8 +97,9 @@ class HVAC_water_generator(Component):
         return self.parameter("pump").component
 
     def can_heat(self):
-        """True if the equipment can heat and the generator is available."""
-        if not self.on_off:
+        """True if the equipment can heat and the generator is available (not a solar
+        collector: the plant does not ask it for a load, see get_solar_heat)."""
+        if not self.on_off or self.is_solar:
             return False
         if self.is_boiler:
             return True
@@ -102,9 +107,17 @@ class HVAC_water_generator(Component):
 
     def can_cool(self):
         """True if the equipment can cool and the generator is available."""
-        if not self.on_off or self.is_boiler:
+        if not self.on_off or self.is_boiler or self.is_solar:
             return False
         return self.equipment.parameter("chiller_type").value != "HEAT_PUMP"
+
+    def get_solar_heat(self, T_in):
+        """Heat of a solar collector generator (W) heating water at T_in at its
+        nominal flow: what the sun allows, 0 if not available or not a collector."""
+        if not self.is_solar or not self.on_off:
+            return 0.0
+        flow = self.nominal_water_flow() / self.n_units
+        return self.n_units * self.equipment.get_useful_heat(T_in, flow)
 
     def get_heating_load(self, T_wo, T_wi, water_flow, Q_required):
         """Heat the generator gives for a required load.
@@ -221,7 +234,10 @@ class HVAC_water_generator(Component):
         """
         power = fuel = efficiency = F_load = 0
         units_on = 0
-        if Q != 0:
+        if self.is_solar:
+            efficiency = self.equipment.get_efficiency(Q / self.n_units) if Q > 0 else 0
+            units_on = self.n_units if Q > 0 else 0
+        elif Q != 0:
             mode = 1 if Q > 0 else -1
             flow = water_flow / self.n_units
             if self.n_units == 1:
@@ -274,7 +290,9 @@ class HVAC_water_generator(Component):
         uses.append(Energy_use("ELECTRICITY", "COOLING", where(cooling, power)))
         uses += split_dhw("ELECTRICITY", "WATER_TRANSPORT", v("pump_power").values, share, mode)
         equipment = self.parameter("equipment").component
-        if equipment.parameter("type").value == "Boiler":
+        if self.is_solar:
+            uses += split_dhw("SOLAR_THERMAL", "HEATING", where(heating, Q), share)
+        elif equipment.parameter("type").value == "Boiler":
             fuel = equipment.parameter("fuel").value
             uses += split_dhw(fuel, "HEATING", where(heating, v("fuel_power").values), share)
         else:
