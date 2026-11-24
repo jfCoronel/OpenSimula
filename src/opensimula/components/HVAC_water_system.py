@@ -12,6 +12,7 @@ from opensimula.Parameters import (
 )
 from opensimula.Variable import Variable
 from opensimula.energy import mode_from_plant, split_dhw
+from opensimula.components.Pump import staged_pump_flows
 
 
 class HVAC_water_system(Component):  # HVAC Water system
@@ -36,6 +37,10 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.add_parameter(
             Parameter_options("pump_operation", "ALLWAYS_ON", ["ALLWAYS_ON", "ON_LOAD"]) # ALLWAYS_ON: pump on when system is on, ON_LOAD: pump on when heating or cooling load is required
         )
+        # CONSTANT: the design flow while on (three-way valves); VARIABLE: the flow the
+        # coils ask for (two-way valves), between minimum_flow and the design flow
+        self.add_parameter(Parameter_options("flow_control", "CONSTANT", ["CONSTANT", "VARIABLE"]))
+        self.add_parameter(Parameter_float("minimum_flow", 0, "frac", min=0, max=1))
         self.add_parameter(
             Parameter_options("system_control", "LOAD_CONTROL", ["LOAD_CONTROL", "SCHEDULE_CONTROL"]) # LOAD_CONTROL: system cooling/heating based on load, SCHEDULE_CONTROL: system cooling based on cooling_mode and heating based on heating_mode
         )
@@ -83,6 +88,13 @@ class HVAC_water_system(Component):  # HVAC Water system
         if self.project().parameter("simulation_file_met").value == "not_defined":
             msg = f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'."
             errors.append(Message(msg, "ERROR"))
+        if (self.parameter("flow_control").value == "VARIABLE"
+                and self.parameter("minimum_flow").value == 0
+                and str(self.parameter("Q_process").value).strip() not in ("0", "0.0", "")):
+            msg = (f"{self.parameter('name').value}, with VARIABLE flow_control a Q_process "
+                   "has no water flow of its own: set minimum_flow > 0 or it is not served "
+                   "while no coil asks for water.")
+            errors.append(Message(msg, "WARNING"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -95,6 +107,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         for g in self.generators:  # for the mode of their pumps in the energy report
             g.plant = self
         self.sequencing = self.parameter("sequencing").value
+        self.variable_flow = self.parameter("flow_control").value == "VARIABLE"
+        self.minimum_flow = self.parameter("minimum_flow").value
         # The loop is moved by the pumps of the generators (in parallel), that can be
         # not defined (Q_pump = 0)
         self.pump = next((g.get_pump() for g in self.generators if g.get_pump() is not None), None)
@@ -127,6 +141,7 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.mode = self.variable("mode").values[time_index-1]
         # Water mass flow: the generators available, in parallel, each at its flow
         self.generator_flows = [g.nominal_water_flow() if g.on_off else 0 for g in self.generators]
+        self.nominal_flows = list(self.generator_flows)
         self.design_water_flow = sum(self.generator_flows)
         self.Q_generators = [0] * len(self.generators)
         self.water_flow = self.design_water_flow
@@ -241,6 +256,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         if self.has_header:
             return self._iteration_header()
         self._check_mode()
+        if self.variable_flow:
+            self._variable_flow()
         if self.water_flow == 0:
             self.T_WGO = self.T_WGO_pre + self.Q_loss*self.delta_t/(self.rho_cp * self.water_volume)    
             self.Q_gen = 0
@@ -303,6 +320,28 @@ class HVAC_water_system(Component):  # HVAC Water system
                         self.Q_pump = 0
                 else:
                     self.water_flow = 0        
+
+    def _variable_flow(self):
+        """Loop flow of a plant without header with VARIABLE flow_control: the flow the
+        coils ask for, between the minimum and the design flow, shared by the generators
+        in proportion to their nominal flow (their pumps move it)."""
+        design = self.design_water_flow
+        if not self.on_off or design <= 0:
+            flow = 0
+        else:
+            flow = min(max(self.coils_flow, self.minimum_flow * design), design)
+        self.water_flow = flow
+        self.generator_flows = [f * flow / design if design > 0 else 0 for f in self.nominal_flows]
+        self.Q_pump = self._pumps_heat()
+
+    def _secondary_pump_flows(self):
+        """Flow of each secondary pump: all at their nominal flow with CONSTANT
+        flow_control, staged with VARIABLE."""
+        if self.secondary_flow <= 0:
+            return [0] * len(self.secondary_pumps)
+        if self.variable_flow:
+            return staged_pump_flows(self.secondary_pumps, self.secondary_flow)
+        return [p.parameter("nominal_water_flow").value for p in self.secondary_pumps]
 
     def _pumps_heat(self):
         if self.water_flow == 0:
@@ -464,7 +503,10 @@ class HVAC_water_system(Component):  # HVAC Water system
             elif self.mode == -1:
                 self.Q_process = max(self.Q_process, 0)
                 Q_coils = max(Q_coils, 0)
-            if self.parameter("pump_operation").value == "ON_LOAD" and self.Q_process + Q_coils == 0:
+            if self.variable_flow:
+                design = self.secondary_design_flow
+                self.secondary_flow = min(max(self.coils_flow, self.minimum_flow * design), design)
+            elif self.parameter("pump_operation").value == "ON_LOAD" and self.Q_process + Q_coils == 0:
                 self.secondary_flow = 0
             else:
                 self.secondary_flow = self.secondary_design_flow
@@ -473,7 +515,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_coils = Q_coils
         self.water_flow = self.secondary_flow
         self.Q_pump_secondary = sum(
-            p.get_heat_gain(p.parameter("nominal_water_flow").value) for p in self.secondary_pumps
+            p.get_heat_gain(f) for p, f in zip(self.secondary_pumps, self._secondary_pump_flows())
+            if f > 0
         ) if self.secondary_flow > 0 else 0
         return self.Q_coils + self.Q_process + self.Q_loss
 
@@ -657,7 +700,8 @@ class HVAC_water_system(Component):  # HVAC Water system
             fuel += f
             pump_power += g.get_pump_power(flow)
         secondary_pump_power = sum(
-            p.get_power(p.parameter("nominal_water_flow").value) for p in self.secondary_pumps
+            p.get_power(f) for p, f in zip(self.secondary_pumps, self._secondary_pump_flows())
+            if f > 0
         ) if m_s > 0 else 0
         Q_gen = self.Q_gen if running else 0
         self.variable("Q_generators").values[time_index] = Q_gen
