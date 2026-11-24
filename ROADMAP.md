@@ -23,6 +23,25 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   one combined paper update for 0.9 + 0.10 when an editor is assigned or with the ping at
   the end of November.
 
+## Where things stand (2026-11-24, end of the day)
+
+- Merged on `main` (not released; next version, see the release notes): `Energy_indicators`,
+  `Comfort_indicators`, `CTE_compliance` HE0 and **HE4**, B6 **variable water flow**
+  (`flow_control`, `minimum_flow`, staged pumps), **DHW** complete (`DHW_demand` with
+  `volume_flow` / `use_temperature` expressions and `preheat_system`, `Water_tank` mixed or
+  stratified with thermostat dead band, DHW charging circuits, `Solar_collector` and carrier
+  SOLAR_THERMAL, Anejo D/F/G helpers in `opensimula.cte`), `Q_coils` renamed `Q_loads` with
+  `Q_heating_coils` / `Q_cooling_coils` (breaks compatibility). PRs #66-#79. Tests 292,
+  ASHRAE 140 quick check 0 changed. GUI test cases in `pruebas/2026-11-24_*` (local).
+- **Next session, first item (agreed 2026-11-24)**: help links from the GUI to the docs
+  (section "Future: help links in the GUI"): one source for the descriptions of parameters
+  and variables, anchors per parameter, "?" in the editor, tooltips in the results viewer.
+- Then, plan of 2026-11-24 below: (3) water emitters (radiators, radiant floor), (4)
+  multisplit / VRF, (5) ventilation with heat recovery, (6) IDF importer, (7) HULC importer.
+  Pending small items: a gallery example with DHW and solar; DHW priority (option C,
+  time sharing); stratified charging circuits; release 0.11; JOSS ping at the end of
+  November.
+
 ## Plan agreed 2026-11-24: systems for the importers
 
 The HULC importer (CALENER-GT systems) should not be left half done: the usual systems of
@@ -33,8 +52,8 @@ power curves vs temperature and part load, "Defecto" curves of the CALENER-GT ca
 and indoor units `UT_ED_UnidadInterior` per zone). An importer of EnergyPlus IDF files
 (through epJSON) would open OpenSimula to that community. Order agreed:
 
-1. `CTE_compliance` HE0 (section below), in progress.
-2. **DHW**: demand (l/day, hourly profile of Anejo D, use and mains temperature of
+1. `CTE_compliance` HE0 (section below), done (HE4 too, 2026-11-24).
+2. **DHW** (done 2026-11-24, see "Planned: domestic hot water"): demand (l/day, hourly profile of Anejo D, use and mains temperature of
    Anejo G), storage tank with losses, generators (boiler, DHW heat pump, electric
    heater, combined boiler with DHW priority) and **solar thermal** (collector η0, a1,
    a2; needed for HE4).
