@@ -3,6 +3,7 @@ from opensimula.Component import Component  # noqa: N999
 from opensimula.Iterative_process import Iterative_process
 from opensimula.Message import Message
 from opensimula.Parameters import (
+    Parameter_component,
     Parameter_component_list,
     Parameter_float,
     Parameter_float_list,
@@ -30,6 +31,9 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.add_parameter(Parameter_component_list("pumps", [], ["Pump"]))
         self.add_parameter(Parameter_float("initial_water_temp", 20, "°C"))
         self.add_parameter(Parameter_float("total_water_volume", 1000, "dm³", min=0))
+        # a storage tank: its water is the water of the plant, which then works as a
+        # header (the tank decouples the generators from the loads)
+        self.add_parameter(Parameter_component("tank", "not_defined", ["Water_tank"]))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("heating_water_setpoint", "45", "°C"))
         self.add_parameter(Parameter_math_exp("cooling_water_setpoint", "7", "°C"))
@@ -116,7 +120,10 @@ class HVAC_water_system(Component):  # HVAC Water system
         # Header: the secondary pumps move the water to the coils, the primary pumps of
         # the generators only that of the generators running
         self.secondary_pumps = self.parameter("pumps").component
-        self.has_header = len(self.secondary_pumps) > 0
+        self.tank = (self.parameter("tank").component
+                     if self.parameter("tank").value != "not_defined" else None)
+        self.has_header = len(self.secondary_pumps) > 0 or self.tank is not None
+        self._dhw_only = None
         self.secondary_design_flow = sum(
             p.parameter("nominal_water_flow").value for p in self.secondary_pumps
         )
@@ -179,7 +186,15 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.water_flow = self.design_water_flow
         else:
             self.water_flow = 0
-        self.water_volume = self.parameter("total_water_volume").value
+        self.water_volume = (self.tank.get_volume() if self.tank is not None
+                             else self.parameter("total_water_volume").value)
+        self.Q_tank_loss = 0
+        # thermostat of a tank: heating in the previous time step without reaching the
+        # setpoint goes on; otherwise it starts dead_band below the setpoint
+        self.tank_charging_pre = (
+            self.tank is not None and time_index > 0
+            and self.variable("Q_generators").values[time_index - 1] > 0
+            and self.variable("T_supply").values[time_index - 1] < self.T_heat_sp - 1e-6)
 
         # Iterative 
         if self.has_header:
@@ -246,6 +261,9 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.var_dic["T_w"] = self.T_avg
         self.var_dic["m_w"] = self.water_flow
         self.Q_loss = self.parameter("Q_loss").evaluate(self.var_dic)
+        if self.tank is not None:  # losses of the tank, at the temperature of its water
+            self.Q_tank_loss = -self.tank.get_loss(self.T_WCI)
+            self.Q_loss += self.Q_tank_loss
         self.Q_process = self.parameter("Q_process").evaluate(self.var_dic)
 
 
@@ -418,7 +436,8 @@ class HVAC_water_system(Component):  # HVAC Water system
             # primary flow of the generators running (in the previous iteration)
             flows = [f if r else 0 for f, r in zip(nominal, self.running)]
             m_p = sum(flows)
-            q = Q_sec / (self.rho_cp * m_s) if m_s > 0 else 0  # T_R - T_S
+            # T_R - T_S (the losses of a tank are not in the return)
+            q = (Q_sec - self.Q_tank_loss) / (self.rho_cp * m_s) if m_s > 0 else 0
             # supply that gives the setpoint at the outlet of the generators
             T_S_target = setpoint + (m_s - m_p) / m_p * q if 0 < m_p < m_s else setpoint
             T_R = T_S_target + q
@@ -427,7 +446,7 @@ class HVAC_water_system(Component):  # HVAC Water system
                 g.get_pump_heat(f) for g, f in zip(self.generators, flows)
             )
             Q_required = cpV_dt * (T_S_target - self.T_WCI_pre) - (Q_sec + self.Q_pump)
-            if self.mode * Q_required > 0:
+            if self.mode * Q_required > 0 and self._tank_thermostat(cpV_dt, Q_sec):
                 # every generator able to run is considered, at its nominal flow
                 Q, self.f_load = self._generators_load(
                     self.mode, self.mode * Q_required, setpoint, T_pi, nominal
@@ -445,6 +464,15 @@ class HVAC_water_system(Component):  # HVAC Water system
         self._header_temperatures(Q_sec, nominal)
         self._end_iteration_()
         return self.itera_T.converged()
+
+    def _tank_thermostat(self, C, Q_sec):
+        """False if the thermostat of the tank keeps the generators off: in heating, not
+        heating in the previous time step and the water, without them, not below the
+        setpoint minus the dead band."""
+        if self.tank is None or self.mode != 1 or self.tank_charging_pre:
+            return True
+        T_free = self.T_WCI_pre + (Q_sec + self.Q_pump_secondary) / C
+        return T_free < self.T_heat_sp - self.tank.get_dead_band()
 
     def _header_at_capacity(self, Q_sec, C, nominal, m_s, setpoint, q):
         """The generators cannot give the setpoint: they give their full capacity at the
@@ -495,7 +523,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         Q_coils = self.Q_coils
         if self.on_off:
             if self.parameter("system_control").value == "LOAD_CONTROL":
-                total = Q_coils + self.Q_process
+                total = Q_coils + self.Q_process + self.Q_tank_loss  # a tank: its losses too
                 self.mode = 1 if total < 0 else (-1 if total > 0 else 0)
             elif self.mode == 1:
                 self.Q_process = min(self.Q_process, 0)
@@ -503,7 +531,9 @@ class HVAC_water_system(Component):  # HVAC Water system
             elif self.mode == -1:
                 self.Q_process = max(self.Q_process, 0)
                 Q_coils = max(Q_coils, 0)
-            if self.variable_flow:
+            if not self.secondary_pumps:  # a tank without secondary pumps: the loads move it
+                self.secondary_flow = self.coils_flow
+            elif self.variable_flow:
                 design = self.secondary_design_flow
                 self.secondary_flow = min(max(self.coils_flow, self.minimum_flow * design), design)
             elif self.parameter("pump_operation").value == "ON_LOAD" and self.Q_process + Q_coils == 0:
@@ -528,7 +558,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.generator_flows = flows
         self.primary_flow = m_p
         self.T_WCI = self.T_S
-        self.T_WCO = self.T_S + Q_sec / (self.rho_cp * m_s) if m_s > 0 else self.T_S
+        self.T_WCO = (self.T_S + (Q_sec - self.Q_tank_loss) / (self.rho_cp * m_s)
+                      if m_s > 0 else self.T_S)
         if m_p == 0:
             self.T_WGI = self.T_WGO = self.T_WCO if m_s > 0 else self.T_S
             return
@@ -720,6 +751,8 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.rho_cp * self.water_volume * (self.T_S - self.T_WCI_pre) / self.delta_t
         )
         self.running_pre = list(self.running)
+        if self.tank is not None:
+            self.tank.set_state(time_index, self.T_S)
 
     def get_energy_use(self):
         """Electricity of its secondary pumps (water transport); its generators
@@ -732,6 +765,20 @@ class HVAC_water_system(Component):  # HVAC Water system
                          self.variable("secondary_pumps_power").values, self.dhw_share(),
                          mode_from_plant(self.variable("mode").values))
 
+    def is_dhw_only(self):
+        """True if all the loads of the plant are DHW: DHW demands and circuits with only
+        DHW demands, no coils of air systems and no process load."""
+        if getattr(self, "_dhw_only", None) is None:
+            users = self.referring_components(
+                ["DHW_demand", "HVAC_water_circuit", "HVAC_SZW_system", "HVAC_MZW_system"])
+            self._dhw_only = (
+                len(users) > 0
+                and str(self.parameter("Q_process").value).strip() in ("0", "0.0", "")
+                and all(u.parameter("type").value == "DHW_demand"
+                        or (u.parameter("type").value == "HVAC_water_circuit" and u.is_dhw_only())
+                        for u in users))
+        return self._dhw_only
+
     def dhw_share(self):
         """Fraction of the heat given by the plant that goes to DHW demands, at each
         time step: the DHW part of the load of its coils over the load of its coils
@@ -740,9 +787,12 @@ class HVAC_water_system(Component):  # HVAC Water system
         Returns:
             numpy.ndarray: values from 0 to 1.
         """
+        mode = np.asarray(self.variable("mode").values)
+        if self.is_dhw_only():  # also its losses and the heat stored in a tank
+            return (mode == 1).astype(float)
         dhw = np.asarray(self.variable("Q_dhw").values, dtype=float)
         total = (np.asarray(self.variable("Q_coils").values, dtype=float)
                  + np.asarray(self.variable("Q_process").values, dtype=float))
-        heating = (total < 0) & (np.asarray(self.variable("mode").values) == 1)
+        heating = (total < 0) & (mode == 1)
         share = np.divide(dhw, total, out=np.zeros_like(total), where=heating)
         return np.clip(share, 0, 1)

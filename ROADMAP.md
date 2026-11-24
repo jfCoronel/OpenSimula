@@ -1083,7 +1083,16 @@ generators and pumps split their energy HEATING/DHW (`energy.split_dhw`), transp
 instantaneous boiler 2226 kWh/year of demand, 2023 kWh of gas; DHW on the two-pipe plant
 of example 10: 521 kWh unmet in summer. Found: the plants work with constant flow, so a
 boiler's inlet is a mixture, not mains water (efficiency of condensing boilers): variable
-flow (B6) fixes it); (2) `Water_tank`, DHW charging circuit, DHW priority; (3) solar thermal, with
+flow (B6) fixes it); (2) `Water_tank`, DHW charging circuit, DHW priority (**done 2026-11-24**,
+branch `feat/water-tank`: `Water_tank` (volume, UA with the conversion from the ErP / EN 12897
+standing losses in its docs, `ambient_temperature` expression, thermostat `dead_band`);
+`tank` in the plant (its water; the plant works as with a header, the loads moving the water
+without secondary pumps) and in the circuit (charging circuit, `tank_setpoint`: charges the
+fraction of the step needed, the tank gives water while the plant is off); plants and
+circuits with only DHW loads count all their energy as DHW (`is_dhw_only()`, also tank
+losses); **DHW priority left out (option A, 2026-11-24)**: the loads share a shortfall.
+Found: without dead band a tank recharges every hour and the plant pump runs all year
+(ON_LOAD is per time step): use a dead band of 5-7 K); (3) solar thermal, with
 the stratified tank; (4) HE4 in `CTE_compliance` (renewable share of the DHW demand,
 on-site and nearby perimeter, SCOP_dhw ≥ 2.5 for heat pumps) and the Anejo F reference
 demand helper (28 l/day·person, occupancy by bedrooms, centralisation factor). Later:

@@ -1,0 +1,149 @@
+"""Water_tank: storage tanks in a plant (electric water heater) and in a DHW charging
+circuit of a heating plant."""
+
+import json
+import pathlib
+
+import numpy as np
+import pytest
+
+import opensimula as osm
+from opensimula.cte import dhw_profile_schedules
+
+EXAMPLES = pathlib.Path(osm.__file__).parent / "examples"
+MZW = pathlib.Path(__file__).parent / "mzw_four_pipe.json"
+MET = str(EXAMPLES / "sevilla.met")
+
+
+def simulate(data, start="01/01/2001 00:00:00", days=7):
+    data["initial_time"] = start
+    data["n_time_steps"] = 24 * days
+    for c in data["components"]:
+        if c["type"] in ("File_met", "File_data"):
+            c["file_name"] = str(EXAMPLES / pathlib.Path(c["file_name"]).name)
+    sim = osm.Simulation()
+    sim.console_print = False
+    pro = sim.new_project("p")
+    pro.read_dict(data)
+    errors = [m.text for m in sim.message_list() if m.level == "ERROR"]
+    assert not errors, errors
+    pro.simulate(progress=lambda i, n: None)
+    return pro
+
+
+def values(pro, component, variable):
+    return np.asarray(pro.component(component).variable(variable).values, dtype=float)
+
+
+def dhw(water_system, daily=120):
+    return [*dhw_profile_schedules("profile"),
+            {"type": "DHW_demand", "name": "dhw", "water_system": water_system,
+             "input_variables": ["f = profile.values"], "volume_flow": f"{daily} * f"}]
+
+
+def water_heater(tank=None):
+    """Electric water heater: 1.5 kW resistance and a 100 l tank at 60 °C."""
+    return {"name": "heater", "time_step": 3600, "simulation_file_met": "sevilla", "components": [
+        {"type": "File_met", "name": "sevilla", "file_type": "MET", "file_name": MET},
+        {"type": "Boiler", "name": "resistance", "fuel": "ELECTRICITY",
+         "nominal_heating_capacity": 1500, "nominal_efficiency": 1, "nominal_water_flow": 0.05},
+        {"type": "HVAC_water_generator", "name": "gen", "equipment": "resistance"},
+        {"type": "Water_tank", "name": "tank", "volume": 100, "UA": 1.2, **(tank or {})},
+        {"type": "HVAC_water_system", "name": "heater", "generators": ["gen"], "tank": "tank",
+         "heating_water_setpoint": "60", "initial_water_temp": 60},
+        *dhw("heater"),
+        {"type": "Energy_indicators", "name": "energy"},
+    ]}
+
+
+def test_electric_water_heater_balance():
+    pro = simulate(water_heater())
+    # held at the setpoint, it loses UA·(60 − 20) every hour
+    assert np.allclose(values(pro, "tank", "temperature"), 60)
+    assert np.allclose(values(pro, "tank", "Q_loss"), 1.2 * 40)
+    assert values(pro, "dhw", "Q_unmet").sum() == pytest.approx(0, abs=1e-6)
+    electricity = values(pro, "gen", "fuel_power").sum()
+    expected = (values(pro, "dhw", "Q_supplied").sum() + values(pro, "tank", "Q_loss").sum()
+                + values(pro, "heater", "delta_U").sum())
+    assert electricity == pytest.approx(expected, rel=1e-6)
+    # all of it is DHW: the losses and the heat stored too
+    assert pro.component("heater").is_dhw_only()
+    r = pro.component("energy").report()
+    assert r.annual.loc["DHW", "ELECTRICITY"] == pytest.approx(electricity / 1000)
+    assert "HEATING" not in r.annual.index
+
+
+def test_ambient_temperature_is_an_expression():
+    pro = simulate(water_heater({"input_variables": ["T = sevilla.temperature"],
+                                 "ambient_temperature": "T"}), days=2)
+    T_out = values(pro, "sevilla", "temperature")
+    assert np.allclose(values(pro, "tank", "T_ambient"), T_out)
+    assert np.allclose(values(pro, "tank", "Q_loss"), 1.2 * (60 - T_out))
+
+
+def test_dead_band_of_the_thermostat():
+    pro = simulate(water_heater({"dead_band": 5}))
+    T = values(pro, "tank", "temperature")
+    assert T.min() >= 55 - 1.5 and T.max() <= 60 + 1e-6  # (a draw can go a bit below)
+    on = values(pro, "heater", "Q_generators") > 0
+    always = simulate(water_heater())
+    assert on.sum() < (values(always, "heater", "Q_generators") > 0).sum()
+    # it starts when the water, without heating (draw and losses of that hour), would be
+    # below 55 °C
+    starts = np.flatnonzero(on[1:] & ~on[:-1]) + 1
+    C = pro._sim_.props["RHOCP_W"](60) / 1000 * 100 / 3600
+    free = T[starts - 1] - (values(pro, "dhw", "Q_demand")[starts]
+                            + values(pro, "tank", "Q_loss")[starts]) / C
+    assert len(starts) > 0 and np.all(free < 55 + 0.1)
+
+
+def charging_circuit(plant_on="1", dead_band=0):
+    data = json.loads(MZW.read_text(encoding="utf-8"))
+    for c in data["components"]:
+        if c["name"] == "hot_water":
+            c.update({"heating_water_setpoint": "70", "system_on_off": plant_on})
+    data["components"] += [
+        {"type": "Pump", "name": "charge_pump", "nominal_water_flow": 0.1, "nominal_power": 40},
+        {"type": "Water_tank", "name": "tank", "volume": 200, "UA": 1.5, "dead_band": dead_band},
+        {"type": "HVAC_water_circuit", "name": "dhw_circuit", "water_system": "hot_water",
+         "pumps": ["charge_pump"], "tank": "tank", "tank_setpoint": "60"},
+        *dhw("dhw_circuit", 200),
+        {"type": "Energy_indicators", "name": "energy"},
+    ]
+    return data
+
+
+def test_charging_circuit_balance_and_dhw_share():
+    pro = simulate(charging_circuit())
+    c = "dhw_circuit"
+    balance = (values(pro, c, "Q_coils") + values(pro, c, "Q_loss") + values(pro, c, "Q_pump")
+               - values(pro, c, "Q_plant") - values(pro, c, "delta_U"))
+    assert np.allclose(balance, 0, atol=1e-6)
+    assert np.allclose(values(pro, "tank", "temperature"), 60)
+    assert values(pro, "dhw", "Q_unmet").sum() == pytest.approx(0, abs=1e-6)
+    # the whole charge is DHW for the plant, which also heats the coils of the zones
+    assert pro.component(c).is_dhw_only()
+    assert not pro.component("hot_water").is_dhw_only()
+    assert np.allclose(values(pro, "hot_water", "Q_dhw"), values(pro, c, "Q_plant"))
+    r = pro.component("energy").report()
+    assert r.annual.loc["DHW", "TOTAL"] > 0 and r.annual.loc["HEATING", "TOTAL"] > 0
+
+
+def test_tank_gives_water_while_the_plant_is_off():
+    # the plant works only in office hours: at night the tank gives its water and cools
+    pro = simulate(charging_circuit(plant_on="f"), days=3)
+    off = values(pro, "hot_water", "on_off") == 0
+    draws = off & (values(pro, "dhw", "Q_demand") > 0)
+    assert values(pro, "dhw", "Q_supplied")[draws].sum() > 0
+    assert np.all(values(pro, "dhw_circuit", "plant_flow")[off] == 0)
+    T = values(pro, "tank", "temperature")
+    assert T[off].min() < 60
+
+
+def test_charging_circuit_dead_band():
+    pro = simulate(charging_circuit(dead_band=5))
+    charging = values(pro, "dhw_circuit", "plant_flow") > 0
+    always = simulate(charging_circuit())
+    assert charging.sum() < (values(always, "dhw_circuit", "plant_flow") > 0).sum()
+    T = values(pro, "tank", "temperature")
+    assert T.max() <= 60 + 1e-6 and T.min() > 50

@@ -196,6 +196,7 @@ Changed in version 0.10: `generators` replaces `water_thermal_generator`; the pu
 - **pumps** [_component_list_, default = [], component type = Pump]: Secondary pumps, in parallel. With them the plant has a header (primary / secondary); without them (the default) the loop is moved by the pumps of the generators.
 - **initial_water_temp** [_float_, unit = "°C", default = 20]: Water temperature used to initialize the loop at the first time step.
 - **total_water_volume** [_float_, unit = "dm³", default = 1000, min = 0]: Total water volume of the loop, used to calculate its thermal inertia.
+- **tank** [_component_, default = "not_defined", component type = Water_tank]: Storage tank (DHW tank, electric water heater, buffer tank). Its water is the water of the plant (its volume replaces `total_water_volume`, its losses are added to `Q_loss`) and the plant works as with a header: the generators heat the tank up to the heating setpoint, moving water only while they run, and the loads take the water of the tank (without secondary pumps, the flow they ask for: e.g. the mains pressure of a DHW demand). The thermostat starts the generators when the tank, without them, would be `dead_band` below the setpoint and keeps them on up to it.
 - **input_variables** [_variable_list_, default = []]: List of variables from other components used in this component. They may be used in parameters of the type math_exp.
 - **heating_water_setpoint** [_math_exp_, unit = "°C", default = "45"]: Hot water outlet setpoint temperature at the generator when the system is heating. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
 - **cooling_water_setpoint** [_math_exp_, unit = "°C", default = "7"]: Chilled water outlet setpoint temperature at the generator when the system is cooling. The mathematical expression may contain any of the variables declared in the "input_variables" parameter.
@@ -278,6 +279,8 @@ The pumps of the circuit move their nominal water flow while it is on. The mixin
 - **cooling_supply_setpoint** [_math_exp_, unit = "°C", default = ""]: Minimum supply temperature (mixing valve). Empty: no limit.
 - **Q_loss** [_math_exp_, unit = "W", default = "0"]: Heat losses (negative) or gains (positive) of the water of the circuit; may use `T_w`, its supply temperature, and `m_w`, its water flow.
 - **water_volume** [_float_, unit = "dm³", default = 0, min = 0]: Water volume of the circuit: the plant also gives the heat to warm it up or cool it down.
+- **tank** [_component_, default = "not_defined", component type = Water_tank]: With a tank the circuit is a charging circuit (e.g. the DHW tank of a boiler that also heats): its coils (DHW demands) take the water of the tank, at its temperature, even while the plant is off; its pumps charge the tank with water of the plant while the tank is below `tank_setpoint`, the plant can heat and its water is hotter, running the fraction of the time step the charge needs (the water goes back to the plant at the temperature of the tank). The mixing valve and `water_volume` do not apply. The thermostat starts the charge `dead_band` below the setpoint (see Water_tank). If only DHW demands hang from the circuit, all its load to the plant (losses of the tank included) and its pumps count as DHW.
+- **tank_setpoint** [_math_exp_, unit = "°C", default = "60"]: Charging setpoint of the tank.
 
 **Example:**
 <pre><code class="python">
@@ -311,6 +314,38 @@ After the simulation we will have the following variables of this component:
 - __delta_U__ [W]: Rate of change of the energy stored in its water.
 - __Q_plant__ [W]: Load given to the plant: Q_coils + Q_loss + Q_pump - delta_U.
 - __pumps_power__ [W]: Electric power of its pumps.
+
+### Water_tank
+
+Water storage tank: a DHW tank, an electric water heater or a buffer tank. Equipment data, like a Boiler: it is used by the `HVAC_water_system` or the `HVAC_water_circuit` that refers to it in its `tank` parameter, whose water is then the water of the tank (fully mixed: one temperature). Its heat losses are UA·(T − T_ambient).
+
+#### Parameters
+
+- **volume** [_float_, unit = "dm³", default = 150]: Water volume.
+- **UA** [_float_, unit = "W/K", default = 1.5, min = 0]: Heat loss coefficient. From the standing loss of the ErP label, S in W (measured with 45 K between the water and the room): UA = S / 45; from a standing loss Q in kWh/24h at 45 K (EN 12897): UA = Q · 1000 / (24 · 45). E.g. S = 60 W → UA = 1.33 W/K; Q = 1.5 kWh/24h → UA = 1.39 W/K.
+- **dead_band** [_float_, unit = "K", default = 0, min = 0]: Dead band of the thermostat: the heating starts when the water, without it, would be this much below the setpoint, and goes on up to the setpoint. With 0 the tank is held at the setpoint.
+- **input_variables** [_variable_list_, default = []]: Variables of other components used in the expression.
+- **ambient_temperature** [_math_exp_, unit = "°C", default = "20"]: Temperature of the room the tank is in, e.g. that of a space (`T = space.temperature`) or the outdoor air.
+
+#### Variables
+
+- **temperature** (°C): Temperature of the water.
+- **T_ambient** (°C): Temperature of the room.
+- **Q_loss** (W): Heat lost by the tank (positive).
+
+**Example** (electric water heater of 100 l):
+<pre><code class="python">
+...
+
+pro.new_component("Boiler", "resistance").set_parameters({
+    "fuel": "ELECTRICITY", "nominal_heating_capacity": 1500,
+    "nominal_efficiency": 1, "nominal_water_flow": 0.05})
+pro.new_component("HVAC_water_generator", "heater_gen").set_parameters({"equipment": "resistance"})
+pro.new_component("Water_tank", "tank").set_parameters({"volume": 100, "UA": 1.2, "dead_band": 5})
+pro.new_component("HVAC_water_system", "heater").set_parameters({
+    "generators": ["heater_gen"], "tank": "tank", "heating_water_setpoint": "60"})
+# and a DHW_demand with "water_system": "heater"
+</code></pre>
 
 ### DHW_demand
 

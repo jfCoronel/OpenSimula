@@ -27,6 +27,11 @@ class HVAC_water_circuit(Component):
     and gives it back its load (that of its coils, its losses, the heat of its
     pumps and, with a water volume, the change of its stored energy). The mode,
     heating or cooling, is that of the plant.
+
+    With a ``tank`` (Water_tank) it is a charging circuit: its coils (e.g. DHW
+    demands) take the water of the tank, and its pumps charge the tank with water of
+    the plant while the tank is below ``tank_setpoint`` and the plant can heat and is
+    hotter; they run the fraction of the time step the charge needs.
     """
 
     def __init__(self, name, project):
@@ -50,6 +55,8 @@ class HVAC_water_circuit(Component):
         self.add_parameter(Parameter_math_exp("cooling_supply_setpoint", "", "°C"))
         self.add_parameter(Parameter_math_exp("Q_loss", "0", "W"))
         self.add_parameter(Parameter_float("water_volume", 0, "dm³", min=0))
+        self.add_parameter(Parameter_component("tank", "not_defined", ["Water_tank"]))
+        self.add_parameter(Parameter_math_exp("tank_setpoint", "60", "°C"))
 
         # Variables
         self.add_variable(Variable("on_off", unit="flag"))
@@ -87,6 +94,9 @@ class HVAC_water_circuit(Component):
         self.design_flow = sum(p.parameter("nominal_water_flow").value for p in self.pumps)
         self.water_volume = self.parameter("water_volume").value
         self.variable_flow = self.parameter("flow_control").value == "VARIABLE"
+        self.tank = (self.parameter("tank").component
+                     if self.parameter("tank").value != "not_defined" else None)
+        self._dhw_only = None
         self.minimum_flow = self.parameter("minimum_flow").value
 
     def pre_iteration(self, time_index, date, daylight_saving):
@@ -103,6 +113,16 @@ class HVAC_water_circuit(Component):
                 self.variable("T_supply").values[time_index - 1]
                 + self.variable("T_return").values[time_index - 1]
             ) / 2
+        if self.tank is not None:
+            self.tank_sp = self.parameter("tank_setpoint").evaluate(self.var_dic)
+            self.T_tank_pre = (self.tank_sp if time_index == 0
+                               else self.variable("T_supply").values[time_index - 1])
+            self.T_tank = self.T_tank_pre
+            # charging in the previous time step without reaching the setpoint: the
+            # thermostat goes on up to it
+            self.charging_pre = (time_index > 0
+                                 and self.variable("plant_flow").values[time_index - 1] > 0
+                                 and self.T_tank_pre < self.tank_sp - 1e-6)
         self.Q_coils = self.coils_flow = 0
         self.Q_coils_used = self.coils_flow_used = 0
         self.Q_dhw = self.Q_dhw_used = 0
@@ -123,7 +143,10 @@ class HVAC_water_circuit(Component):
         return bool(self._on_off and self.plant.on_off)
 
     def can_heat(self):
-        """True if the coils can take heat: the circuit is on and its plant can heat."""
+        """True if the coils can take heat: the circuit is on and its plant can heat (with
+        a tank, the circuit is on: the tank gives its water whatever the plant does)."""
+        if self.tank is not None:
+            return bool(self._on_off)
         return bool(self._on_off and self.plant.can_heat())
 
     def can_cool(self):
@@ -142,11 +165,15 @@ class HVAC_water_circuit(Component):
         return T
 
     def get_heating_coil_inlet_T(self):
-        """Water temperature to the heating coils (°C)."""
+        """Water temperature to the heating coils (°C): that of the tank, if any."""
+        if self.tank is not None:
+            return self.T_tank
         return self._supply(self.plant.get_heating_coil_inlet_T(), 1)
 
     def get_cooling_coil_inlet_T(self):
-        """Water temperature to the cooling coils (°C)."""
+        """Water temperature to the cooling coils (°C): that of the tank, if any."""
+        if self.tank is not None:
+            return self.T_tank
         return self._supply(self.plant.get_cooling_coil_inlet_T(), -1)
 
     def add_coil_load(self, Q_coil, water_flow=0, dhw=0.0):
@@ -166,6 +193,8 @@ class HVAC_water_circuit(Component):
 
     def iteration(self, time_index, date, daylight_saving, n_iter):
         super().iteration(time_index, date, daylight_saving, n_iter)
+        if self.tank is not None:
+            return self._iteration_tank()
         mode = self.plant.mode
         # the water the plant gives to its coils (the setpoint before its first iteration)
         if mode == 1:
@@ -224,8 +253,62 @@ class HVAC_water_circuit(Component):
         self.Q_dhw_used, self.Q_dhw = self.Q_dhw, 0
         return True
 
+    def _iteration_tank(self):
+        """Charging circuit: the tank, fully mixed, takes the load of its coils, its
+        losses and the charge from the plant (water of the plant in, water of the tank
+        back), and the heat of its pumps while they run."""
+        T_pre = self.T_tank_pre
+        rho_cp = self.props["RHOCP_W"](T_pre) / 1000  # W/(dm³·K)
+        C = rho_cp * self.tank.get_volume() / self.delta_t
+        self.var_dic["T_w"] = T_pre
+        self.var_dic["m_w"] = self.design_flow
+        self.Q_tank_loss = -self.tank.get_loss(T_pre)
+        self.Q_loss = (self.parameter("Q_loss").evaluate(self.var_dic) + self.Q_tank_loss
+                       if self._on_off else self.Q_tank_loss)
+        Q_free = (self.Q_coils if self._on_off else 0) + self.Q_loss
+        T_free = T_pre + Q_free / C
+        T_plant = self.plant.get_heating_coil_inlet_T()
+        self.T_plant = T_plant
+        fraction = Q_charge = Q_pump_full = 0
+        start = self.charging_pre or T_free < self.tank_sp - self.tank.get_dead_band()
+        if (start and self.on_off and self.plant.can_heat() and T_free < self.tank_sp
+                and T_plant > T_free and self.design_flow > 0):
+            Q_need = C * (self.tank_sp - T_free)
+            Q_max = rho_cp * self.design_flow * (T_plant - T_free)  # pumps the whole step
+            Q_pump_full = sum(p.get_heat_gain(p.parameter("nominal_water_flow").value)
+                              for p in self.pumps)
+            fraction = min(Q_need / (Q_max + Q_pump_full), 1)
+            Q_charge = fraction * Q_max
+        self.pump_fraction = fraction
+        self.water_flow = self.plant_flow = fraction * self.design_flow  # mean of the step
+        self.Q_pump = fraction * Q_pump_full
+        self.T_tank = T_free + (Q_charge + self.Q_pump) / C
+        self.T_supply = self.T_tank
+        self.T_return = self.T_tank  # charging water back to the plant
+        self.delta_U = C * (self.T_tank - T_pre)
+        self.Q_plant = -Q_charge
+        dhw = self.Q_plant if self.is_dhw_only() else (
+            self.Q_plant * self.Q_dhw / self.Q_coils if self.Q_coils != 0 else 0.0)
+        if self.Q_plant != 0 or self.plant_flow != 0:
+            self.plant.add_coil_load(self.Q_plant, self.plant_flow, dhw)
+        self.Q_coils_used, self.coils_flow_used = self.Q_coils, self.coils_flow
+        self.Q_coils = self.coils_flow = 0
+        self.Q_dhw_used, self.Q_dhw = self.Q_dhw, 0
+        return True
+
+    def is_dhw_only(self):
+        """True if all the loads of the circuit are DHW demands."""
+        if getattr(self, "_dhw_only", None) is None:
+            users = self.referring_components(
+                ["DHW_demand", "HVAC_water_circuit", "HVAC_SZW_system", "HVAC_MZW_system"])
+            self._dhw_only = len(users) > 0 and all(
+                u.parameter("type").value == "DHW_demand" for u in users)
+        return self._dhw_only
+
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
+        if self.tank is not None:
+            return self._post_iteration_tank(time_index)
         on = self.water_flow > 0
         values = {
             "T_plant": self.T_plant,
@@ -258,5 +341,29 @@ class HVAC_water_circuit(Component):
         coils = np.asarray(self.variable("Q_coils").values, dtype=float)
         dhw = np.asarray(self.variable("Q_dhw").values, dtype=float)
         share = np.clip(np.divide(dhw, coils, out=np.zeros_like(coils), where=coils < 0), 0, 1)
+        if self.is_dhw_only():
+            share = np.ones_like(coils)
         return split_dhw("ELECTRICITY", "WATER_TRANSPORT", self.variable("pumps_power").values,
                          share, mode_from_plant(plant.variable("mode").values))
+
+    def _post_iteration_tank(self, time_index):
+        values = {
+            "T_plant": self.T_plant,
+            "T_supply": self.T_tank,
+            "T_return": self.T_tank,
+            "water_flow": self.water_flow,
+            "plant_flow": self.plant_flow,
+            "mixing_flow": 0,
+            "coils_flow": self.coils_flow_used,
+            "Q_coils": self.Q_coils_used if self._on_off else 0,
+            "Q_dhw": self.Q_dhw_used if self._on_off else 0,
+            "Q_loss": self.Q_loss,
+            "Q_pump": self.Q_pump,
+            "delta_U": self.delta_U,
+            "Q_plant": self.Q_plant,
+            "pumps_power": self.pump_fraction * sum(
+                p.get_power(p.parameter("nominal_water_flow").value) for p in self.pumps),
+        }
+        for key, value in values.items():
+            self.variable(key).values[time_index] = value
+        self.tank.set_state(time_index, self.T_tank)

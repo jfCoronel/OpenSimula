@@ -40,6 +40,26 @@ class Component(Parameter_container):
         """
         return self._project_
 
+    def referring_components(self, types=None):
+        """Components of the project whose parameters refer to this one.
+
+        Args:
+            types (list, optional): only those of these types.
+
+        Returns:
+            list: Component objects.
+        """
+        users = []
+        for comp in self.project().component_list():
+            if comp is self or (types is not None and comp.parameter("type").value not in types):
+                continue
+            for param in comp.parameter_dict().values():
+                refs = getattr(param, "component", None) if hasattr(param, "allowed_types") else None
+                if refs is self or (isinstance(refs, list) and any(r is self for r in refs)):
+                    users.append(comp)
+                    break
+        return users
+
     def add_variable(self, variable):
         """Add a new variable to the component
 
