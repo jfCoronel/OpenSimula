@@ -366,7 +366,17 @@ pro.new_component("DHW_demand", "dhw").set_parameters({
 
 ### Water_tank
 
-Water storage tank: a DHW tank, an electric water heater or a buffer tank. Equipment data, like a Boiler: it is used by the `HVAC_water_system` or the `HVAC_water_circuit` that refers to it in its `tank` parameter, whose water is then the water of the tank (fully mixed: one temperature). Its heat losses are UA·(T − T_ambient).
+Water storage tank: a DHW tank, an electric water heater or a buffer tank. Equipment data, like a Boiler: it is used by the `HVAC_water_system` or the `HVAC_water_circuit` that refers to it in its `tank` parameter, whose water is then the water of the tank. Its heat losses are UA·(T − T_ambient).
+
+By default the tank is fully mixed (one temperature). With `number_of_nodes` > 1 (only in a plant) it is **stratified**: N layers of the same volume, node 1 at the top and node N at the bottom. Each time step:
+
+1. the water drawn by the loads leaves at the top and the same flow comes back at the bottom (mains water for a DHW demand), pushing the layers up;
+2. each node loses UA/N·(T_node − T_ambient);
+3. the solar collectors heat the bottom node, taking its water (the coldest: they work better);
+4. the other generators heat the node of the backup heater (`backup_position`), where its thermostat is, up to the setpoint of the plant (with the `dead_band`), as much as their capacity gives;
+5. heated water rises: a layer warmer than the one above mixes with it.
+
+The water to the loads is the mean temperature of the water leaving the top in the time step. With the backup in the middle of the tank, the bottom stays cold for the collectors, which is why a single tank with solar and backup needs the stratification (with one node the backup keeps the whole tank hot and the solar fraction falls: 0.56 instead of 0.75 in the example below).
 
 #### Parameters
 
@@ -375,10 +385,13 @@ Water storage tank: a DHW tank, an electric water heater or a buffer tank. Equip
 - **dead_band** [_float_, unit = "K", default = 0, min = 0]: Dead band of the thermostat: the heating starts when the water, without it, would be this much below the setpoint, and goes on up to the setpoint. With 0 the tank is held at the setpoint.
 - **input_variables** [_variable_list_, default = []]: Variables of other components used in the expression.
 - **ambient_temperature** [_math_exp_, unit = "°C", default = "20"]: Temperature of the room the tank is in, e.g. that of a space (`T = space.temperature`) or the outdoor air.
+- **number_of_nodes** [_int_, default = 1, min = 1, max = 50]: Number of layers of a stratified tank (1: fully mixed). Only in a plant. 4 to 10 nodes are usual; the results change little above 6.
+- **backup_position** [_float_, unit = "frac", default = 0.5]: Height of the backup heater and its thermostat in a stratified tank, as a fraction of the height from the bottom (0.5: in the middle): only the water above it is kept at the setpoint.
 
 #### Variables
 
-- **temperature** (°C): Temperature of the water.
+- **temperature** (°C): Temperature of the water (the mean one in a stratified tank).
+- **T_node_1** ... **T_node_N** (°C): Temperature of each node of a stratified tank, from the top.
 - **T_ambient** (°C): Temperature of the room.
 - **Q_loss** (W): Heat lost by the tank (positive).
 
@@ -394,6 +407,15 @@ pro.new_component("Water_tank", "tank").set_parameters({"volume": 100, "UA": 1.2
 pro.new_component("HVAC_water_system", "heater").set_parameters({
     "generators": ["heater_gen"], "tank": "tank", "heating_water_setpoint": "60"})
 # and a DHW_demand with "water_system": "heater"
+</code></pre>
+
+**Example** (one 200 l stratified tank with solar collectors and an electric heater in the middle):
+<pre><code class="python">
+pro.new_component("Water_tank", "tank").set_parameters({
+    "volume": 200, "UA": 1.5, "number_of_nodes": 6, "backup_position": 0.5, "dead_band": 5})
+pro.new_component("HVAC_water_system", "plant").set_parameters({
+    "generators": ["solar_gen", "heater_gen"], "tank": "tank", "heating_water_setpoint": "60"})
+# Sevilla, 2 m² of collectors, 120 l/day: solar fraction 0.75 (0.56 with one node)
 </code></pre>
 
 ### DHW_demand

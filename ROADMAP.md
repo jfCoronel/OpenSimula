@@ -1102,9 +1102,16 @@ carrier SOLAR_THERMAL (1/0/0 as AMBIENT; not in the RITE document), `DHW_demand.
 preheat_system` (series backup: the backup heats from the preheat temperature). Fixed on
 the way: a plant with a tank gave its setpoint, not the tank temperature, in the first
 iteration. Sevilla, 2 m², 150 l, 120 l/day: 1938 kWh/m² on the plane, collector 0.47,
-solar fraction 0.72 (0.54 December, 0.95 August)) and **3b** (stratified tank: nodes,
-mains at the bottom, draw at the top, solar from the bottom, backup on a node, mixing of
-inversions); (4) HE4 in `CTE_compliance` (renewable share of the DHW demand,
+solar fraction 0.72 (0.54 December, 0.95 August)) and **3b done** (branch
+`feat/stratified-tank`: `Water_tank.number_of_nodes`, `backup_position`; in a plant only
+(circuits: error); per time step from the nodes at its start: draw advected (sub-steps
+of at most a node, two passes so that the return temperature gives the load exactly),
+losses per node, solar on the bottom node (capped by bisection at max_temperature),
+backup on its node up to the setpoint by bisection, inversions mixed (pool adjacent
+violators); variables T_node_i. Single 200 l tank, 2 m², electric heater in the middle,
+Sevilla: solar fraction 0.56 with 1 node, 0.72 / 0.74 / 0.75 / 0.76 with 2 / 4 / 6 /
+10; balance exact. Later: stratified charging circuits, solar return to the node of its
+temperature, pump heat in stratified tanks); (4) HE4 in `CTE_compliance` (renewable share of the DHW demand,
 on-site and nearby perimeter, SCOP_dhw ≥ 2.5 for heat pumps) and the Anejo F reference
 demand helper (28 l/day·person, occupancy by bedrooms, centralisation factor). Later:
 legionella cycles, "3 in 1" heat pumps.

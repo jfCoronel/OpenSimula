@@ -131,6 +131,8 @@ class HVAC_water_system(Component):  # HVAC Water system
                      if self.parameter("tank").value != "not_defined" else None)
         self.has_header = len(self.secondary_pumps) > 0 or self.tank is not None
         self.solar_generators = [i for i, g in enumerate(self.generators) if g.is_solar]
+        self.stratified = self.tank is not None and self.tank.n_nodes > 1
+        self.backup_on_pre = False
         self.Q_solar = 0
         self._dhw_only = None
         self.secondary_design_flow = sum(
@@ -216,6 +218,15 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.Q_gen = 0
             self.f_load = 0
             self.itera_T = Iterative_process(self.T_WCI_pre,tol=self.parameter("convergence_DT").value,n_ini_relax=3,rel_vel=0.8)
+            if self.stratified:
+                if self.tank.nodes is None or time_index == 0:
+                    self.tank.nodes = np.full(self.tank.n_nodes, self.parameter("initial_water_temp").value)
+                self.nodes_pre = np.array(self.tank.nodes)
+                self.nodes = self.nodes_pre
+                self.T_ret = self.T_WCI_pre
+                self.T_backup_in = self.nodes_pre[self.tank.backup_node]
+                self.backup_on = False
+                self.rho_cp = self.props["RHOCP_W"](float(np.mean(self.nodes_pre))) / 1000
         else:
             self.itera_T = Iterative_process(self.T_WGO_pre,tol=self.parameter("convergence_DT").value,n_ini_relax=3,rel_vel=0.8)
         self.pre_iter = True
@@ -270,7 +281,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.var_dic["T_w"] = self.T_avg
         self.var_dic["m_w"] = self.water_flow
         self.Q_loss = self.parameter("Q_loss").evaluate(self.var_dic)
-        if self.tank is not None:  # losses of the tank, at the temperature of its water
+        self.parameter_Q_loss = self.Q_loss
+        if self.tank is not None and not self.stratified:  # losses of the tank
             self.Q_tank_loss = -self.tank.get_loss(self.T_WCI)
             self.Q_loss += self.Q_tank_loss
         self.Q_process = self.parameter("Q_process").evaluate(self.var_dic)
@@ -280,6 +292,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         super().iteration(time_index, date, daylight_saving, n_iter)
         self.pre_iter = False
         self._update_expressions()
+        if self.stratified:
+            return self._iteration_stratified()
         if self.has_header:
             return self._iteration_header()
         self._check_mode()
@@ -415,6 +429,135 @@ class HVAC_water_system(Component):  # HVAC Water system
                 rest -= q
         Q = sum(abs(q) for q in self.Q_generators)
         return (Q, Q / total)
+
+    # _________________ Plant with a stratified tank _________________
+
+    def _iteration_stratified(self):
+        """One iteration of a plant with a stratified tank (Water_tank with nodes).
+
+        From the temperatures of the nodes at the start of the time step: the water the
+        loads draw leaves at the top and comes back at the bottom (at the temperature
+        that gives their load), the nodes lose heat, the solar collectors heat the bottom
+        node with the water of that node, and the other generators heat the node of the
+        backup heater, where the thermostat is, up to the setpoint (as much as their
+        capacity gives). Heated water rises. The supply to the loads is the mean
+        temperature of the water leaving at the top.
+        """
+        tank = self.tank
+        dt = self.delta_t
+        T0 = self.nodes_pre
+        rho_cp = self.props["RHOCP_W"](float(np.mean(T0))) / 1000  # W/(dm³·K)
+        self.rho_cp = rho_cp
+        heating = self.on_off and self.can_heat()
+        self.mode = 1 if heating else 0
+        Q_coils = self.Q_coils if heating else 0
+        m = self.coils_flow if heating else 0
+        # draw: two passes, the second with the return temperature that gives the load
+        T, T_out = tank.advect(T0, m, T0[-1], dt)
+        if m > 0:
+            T_ret = T_out + Q_coils / (rho_cp * m)
+            T, T_out = tank.advect(T0, m, T_ret, dt)
+        else:
+            T_ret = T_out
+        self.T_ret = T_ret
+        # losses of the tank and Q_loss of the plant (shared by the nodes)
+        T, lost = tank.losses(T, rho_cp, dt)
+        self.Q_tank_loss = -lost
+        T = T + self.parameter_loss_per_node(rho_cp)
+        # solar collectors, on the bottom node, at most up to their maximum temperature
+        solar = [0.0] * len(self.generators)
+        if heating:
+            for i in self.solar_generators:
+                solar[i] = self.generators[i].get_solar_heat(T0[tank.solar_node])
+        Q_solar = sum(solar)
+        if Q_solar > 0:
+            T_max = min(self.generators[i].equipment.parameter("max_temperature").value
+                        for i in self.solar_generators)
+            def too_hot(Q):
+                return tank.add_heat(T, tank.solar_node, Q, rho_cp, dt).max() > T_max
+            if too_hot(Q_solar):
+                low, high = 0.0, Q_solar
+                for _ in range(50):
+                    mid = (low + high) / 2
+                    low, high = (low, mid) if too_hot(mid) else (mid, high)
+                solar = [s * low / Q_solar for s in solar]
+                Q_solar = low
+            T = tank.add_heat(T, tank.solar_node, Q_solar, rho_cp, dt)
+        # backup on its node: thermostat with dead band, up to the setpoint
+        j = tank.backup_node
+        nominal = [g.nominal_water_flow() if g.on_off else 0 for g in self.generators]
+        self.Q_generators = [0.0] * len(self.generators)
+        Q_backup = 0.0
+        self.f_load = 0
+        sp = self.T_heat_sp
+        start = self.backup_on_pre or T[j] < sp - tank.get_dead_band()
+        if heating and start and T[j] < sp:
+            low, high = 0.0, rho_cp * tank.get_volume() * (sp - T[j]) / dt
+            for _ in range(60):  # the heat that leaves the node of the heater at sp
+                mid = (low + high) / 2
+                if tank.add_heat(T, j, mid, rho_cp, dt)[j] < sp:
+                    low = mid
+                else:
+                    high = mid
+            Q_backup, self.f_load = self._generators_load(1, high, sp, T[j], nominal)
+            T = tank.add_heat(T, j, Q_backup, rho_cp, dt)
+        self.backup_on = Q_backup > 0 and T[j] < sp - 1e-6
+        self.Q_generators = [q + s for q, s in zip(self.Q_generators, solar)]
+        self.Q_solar = Q_solar
+        self.Q_gen = Q_backup + Q_solar
+        self.running = [q != 0 for q in self.Q_generators]
+        self.generator_flows = [f if r else 0 for f, r in zip(nominal, self.running)]
+        self.Q_pump = 0  # the heat of the pumps is not counted in a stratified tank
+        self.nodes = T
+        self.T_backup_in = T0[j]
+        self.water_flow = self.secondary_flow = m
+        self.T_S = self.itera_T.estimate_next_x(T_out if m > 0 else T[0])
+        self.T_WCI = self.T_S
+        self._end_iteration_()
+        return self.itera_T.converged()
+
+    def parameter_loss_per_node(self, rho_cp):
+        """Temperature change of each node by the Q_loss expression of the plant."""
+        return self.parameter_Q_loss * self.delta_t / (rho_cp * self.tank.get_volume())
+
+    def _post_iteration_stratified(self, time_index):
+        T = self.nodes
+        rho_cp = self.rho_cp
+        self.variable("mode").values[time_index] = self.mode
+        self.variable("T_supply").values[time_index] = self.T_S
+        self.variable("T_return").values[time_index] = self.T_ret
+        self.variable("T_mean").values[time_index] = float(np.mean(T))
+        self.variable("T_generators_in").values[time_index] = self.T_backup_in
+        self.variable("primary_flow").values[time_index] = sum(self.generator_flows)
+        self.variable("secondary_flow").values[time_index] = self.secondary_flow
+        self.variable("coils_flow").values[time_index] = self.coils_flow_used
+        power = fuel = pump_power = 0
+        T_out = self.T_backup_in
+        for i, (g, Q_g, flow) in enumerate(zip(self.generators, self.Q_generators, self.generator_flows)):
+            T_wi = self.nodes_pre[self.tank.solar_node] if g.is_solar else self.T_backup_in
+            T_wo = T_wi + Q_g / (rho_cp * flow) if flow > 0 else T_wi
+            if not g.is_solar and Q_g > 0:
+                T_out = T_wo
+            p, f, _ = g.set_operation(time_index, Q_g, T_wo, T_wi, flow, self.sequencing)
+            power += p
+            fuel += f
+            pump_power += g.get_pump_power(flow)
+        self.variable("T_generators_out").values[time_index] = T_out
+        self.variable("Q_generators").values[time_index] = self.Q_gen
+        self.variable("Q_coils").values[time_index] = self.Q_coils_used if self.mode == 1 else 0
+        self.variable("Q_dhw").values[time_index] = self.Q_dhw_used if self.mode == 1 else 0
+        self.variable("Q_process").values[time_index] = 0
+        self.variable("Q_pump").values[time_index] = 0
+        self.variable("Q_loss").values[time_index] = self.Q_tank_loss + self.parameter_Q_loss
+        self.variable("pumps_power").values[time_index] = pump_power
+        self.variable("secondary_pumps_power").values[time_index] = 0
+        self.variable("generators_power").values[time_index] = power
+        self.variable("generators_fuel_power").values[time_index] = fuel
+        self.variable("electric_power").values[time_index] = power + pump_power
+        self.variable("delta_U").values[time_index] = float(
+            np.sum(rho_cp * self.tank.node_volume() * (T - self.nodes_pre)) / self.delta_t)
+        self.tank.set_state(time_index, float(np.mean(T)), T)
+        self.backup_on_pre = self.backup_on
 
     # _________________ Plant with a header (primary / secondary) _________________
 
@@ -703,6 +846,9 @@ class HVAC_water_system(Component):  # HVAC Water system
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
         super().post_iteration(time_index, date, daylight_saving, converged)
+        if self.stratified:
+            self._post_iteration_stratified(time_index)
+            return
         if self.has_header:
             self._post_iteration_header(time_index)
             return

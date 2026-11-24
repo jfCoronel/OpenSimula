@@ -1,5 +1,15 @@
+import math
+
+import numpy as np
+
 from opensimula.Component import Component
-from opensimula.Parameters import Parameter_float, Parameter_math_exp, Parameter_variable_list
+from opensimula.Message import Message
+from opensimula.Parameters import (
+    Parameter_float,
+    Parameter_int,
+    Parameter_math_exp,
+    Parameter_variable_list,
+)
 from opensimula.Variable import Variable
 
 
@@ -8,10 +18,16 @@ class Water_tank(Component):
 
     Equipment data, like a Boiler: it is used by the HVAC_water_system or the
     HVAC_water_circuit that refers to it in its ``tank`` parameter, whose water is then
-    the water of the tank (fully mixed, one node). Its heat losses are
-    UA·(T − T_ambient), with the ambient temperature an expression (e.g. the
-    temperature of the space it is in). The system that holds it stores its
-    temperature and losses in the variables of the tank.
+    the water of the tank. Its heat losses are UA·(T − T_ambient), with the ambient
+    temperature an expression (e.g. the temperature of the space it is in). The system
+    that holds it stores its temperature and losses in the variables of the tank.
+
+    With ``number_of_nodes`` > 1 (only in a plant) the tank is stratified: N layers of
+    the same volume, from the top (node 1) to the bottom (node N). The water drawn
+    leaves at the top and the water that comes back (mains water for DHW) enters at the
+    bottom, pushing the layers up; the solar collectors heat the bottom node and the
+    other generators the node at ``backup_position``, where the thermostat is; heated
+    water rises (a layer warmer than the one above mixes with it).
     """
 
     def __init__(self, name, project):
@@ -25,9 +41,36 @@ class Water_tank(Component):
         self.add_parameter(Parameter_float("dead_band", 0, "K", min=0))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("ambient_temperature", "20", "°C"))
-        self.add_variable(Variable("temperature", unit="°C"))
+        self.add_parameter(Parameter_int("number_of_nodes", 1, "", min=1, max=50))
+        # height of the backup heater (and its thermostat), fraction from the bottom
+        self.add_parameter(Parameter_float("backup_position", 0.5, "frac", min=0, max=1))
+        self.add_variable(Variable("temperature", unit="°C"))  # mean
         self.add_variable(Variable("T_ambient", unit="°C"))
         self.add_variable(Variable("Q_loss", unit="W"))  # heat lost, positive
+
+    def check(self):
+        errors = super().check()
+        if self.parameter("number_of_nodes").value > 1:
+            users = self.referring_components(["HVAC_water_circuit"])
+            if users:
+                msg = (f"{self.parameter('name').value}, a stratified tank (number_of_nodes > 1) "
+                       "can only be the tank of a plant (HVAC_water_system).")
+                errors.append(Message(msg, "ERROR"))
+        return errors
+
+    def pre_simulation(self, n_time_steps, delta_t):
+        self.n_nodes = self.parameter("number_of_nodes").value
+        for key in [k for k in self._variables_ if k.startswith("T_node_")]:
+            self.del_variable(self._variables_[key])
+        if self.n_nodes > 1:
+            for i in range(1, self.n_nodes + 1):
+                self.add_variable(Variable(f"T_node_{i}", unit="°C"))
+        super().pre_simulation(n_time_steps, delta_t)
+        N = self.n_nodes
+        p = self.parameter("backup_position").value
+        self.backup_node = min(N - 1, max(0, math.ceil((1 - p) * N) - 1))  # 0 is the top
+        self.solar_node = N - 1
+        self.nodes = None  # temperatures of the nodes, set by the system that holds it
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -46,8 +89,73 @@ class Water_tank(Component):
         """Heat lost by the tank with its water at T (W, positive when it loses)."""
         return self.parameter("UA").value * (T - self.T_ambient)
 
-    def set_state(self, time_index, T):
-        """Store the temperature of the water and the losses at a time step."""
+    def set_state(self, time_index, T, nodes=None):
+        """Store the temperature of the water (the mean one), the losses and, for a
+        stratified tank, the temperature of its nodes."""
         self.variable("temperature").values[time_index] = T
         self.variable("T_ambient").values[time_index] = self.T_ambient
-        self.variable("Q_loss").values[time_index] = self.get_loss(T)
+        if nodes is None:
+            self.variable("Q_loss").values[time_index] = self.get_loss(T)
+        else:
+            self.variable("Q_loss").values[time_index] = sum(self.get_loss(t) for t in nodes) / len(nodes)
+            for i, t in enumerate(nodes):
+                self.variable(f"T_node_{i + 1}").values[time_index] = t
+            self.nodes = np.array(nodes, dtype=float)
+
+    # _________________ Stratified tank: the physics of its nodes _________________
+
+    def node_volume(self):
+        return self.get_volume() / self.n_nodes
+
+    def advect(self, T, flow, T_in, dt):
+        """Water drawn at the top and the same flow entering at the bottom at T_in.
+
+        Args:
+            T (numpy.ndarray): temperatures of the nodes, top first.
+            flow (float): flow (dm³/s).
+            T_in (float): temperature of the water entering at the bottom.
+            dt (float): time (s).
+
+        Returns:
+            tuple: (temperatures, mean temperature of the water leaving at the top).
+        """
+        T = np.array(T, dtype=float)
+        volume = flow * dt
+        if volume <= 0:
+            return T, T[0]
+        n = max(1, math.ceil(volume / self.node_volume()))
+        f = volume / n / self.node_volume()  # fraction of a node renewed in a sub-step
+        out = 0.0
+        for _ in range(n):
+            out += T[0]
+            below = np.append(T[1:], T_in)
+            T = T + f * (below - T)
+        return T, out / n
+
+    def losses(self, T, rho_cp, dt):
+        """Temperatures after the losses of each node (explicit) and the heat lost (W)."""
+        UA = self.parameter("UA").value / self.n_nodes
+        q = UA * (np.asarray(T) - self.T_ambient)
+        return np.asarray(T) - q * dt / (rho_cp * self.node_volume()), float(q.sum())
+
+    @staticmethod
+    def mix(T):
+        """Mix the inversions: a node warmer than the one above rises (the blocks of
+        nodes out of order take their mean temperature), top first, non increasing."""
+        blocks = []  # [sum, count]
+        for t in T:
+            blocks.append([t, 1])
+            while len(blocks) > 1 and blocks[-1][0] / blocks[-1][1] > blocks[-2][0] / blocks[-2][1] + 1e-12:
+                s, c = blocks.pop()
+                blocks[-1][0] += s
+                blocks[-1][1] += c
+        out = []
+        for s, c in blocks:
+            out += [s / c] * c
+        return np.array(out)
+
+    def add_heat(self, T, node, Q, rho_cp, dt):
+        """Temperatures after giving the heat Q (W) to a node and mixing."""
+        T = np.array(T, dtype=float)
+        T[node] += Q * dt / (rho_cp * self.node_volume())
+        return self.mix(T)
