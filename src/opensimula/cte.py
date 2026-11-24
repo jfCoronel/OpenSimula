@@ -37,6 +37,8 @@ REFERENCE_HEATING_EFFICIENCY_HHV = 0.92  # natural gas, on the higher heating va
 REFERENCE_COOLING_EER = 2.60  # electricity
 # Carga interna media levels (Anejo A, table a)
 INTERNAL_LOAD_LEVELS = [(6, "low"), (9, "medium"), (12, "high"), (float("inf"), "very high")]
+# how the result of a requirement is shown (text and colour)
+MARKS = {True: ("✔ complies", "#1a7f37"), False: ("✘ does not comply", "#cf222e")}
 
 
 def winter_zone(climate_zone):
@@ -122,11 +124,18 @@ class CTE_report:
         if s["building_use"] == "OTHER":
             lines.append(f"Carga interna media C_FI: {s['c_fi']:.2f} W/m² "
                          f"({internal_load_level(s['c_fi'])}, {s['c_fi_source']})")
-        lines.append("Complies with HE0" if s["complies"] else "Does NOT comply with HE0")
+        lines.append(("✔ Complies with HE0" if s["complies"] else "✘ Does not comply with HE0"))
         return lines
 
-    def _tables(self):
-        return [("HE0 requirements", self.checks),
+    def _tables(self, html_marks=False):
+        checks = self.checks.copy()
+        def mark(ok):
+            text, colour = MARKS[bool(ok)]
+            if html_marks:
+                return f'<span style="color:{colour};font-weight:bold">{html.escape(text)}</span>'
+            return text
+        checks["complies"] = checks["complies"].map(mark)
+        return [("HE0 requirements", checks),
                 ("EPB services counted [per m²]", self.services)]
 
     def to_html(self):
@@ -137,10 +146,14 @@ class CTE_report:
         """
         parts = [TABLE_STYLE, '<div class="os-energy-report">',
                  f"<h3>{html.escape(self.title)}</h3>"]
-        parts += [f"<p>{html.escape(line)}</p>" for line in self._summary_lines()]
-        for title, df in self._tables():
+        lines = self._summary_lines()
+        colour = MARKS[bool(self.summary["complies"])][1]
+        parts += [f"<p>{html.escape(line)}</p>" for line in lines[:-1]]
+        parts.append(f'<p style="color:{colour};font-weight:bold">{html.escape(lines[-1])}</p>')
+        for title, df in self._tables(html_marks=True):
             parts.append(f"<h3>{html.escape(title)}</h3>")
-            parts.append(df.to_html(float_format=lambda x: f"{x:,.2f}", border=0, na_rep=""))
+            parts.append(df.to_html(float_format=lambda x: f"{x:,.2f}", border=0, na_rep="",
+                                    escape=False))
         parts += [f'<p class="note">{html.escape(n)}</p>' for n in self.notes]
         parts.append("</div>")
         return "\n".join(parts)
