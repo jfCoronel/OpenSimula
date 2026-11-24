@@ -1113,7 +1113,12 @@ Sevilla: solar fraction 0.56 with 1 node, 0.72 / 0.74 / 0.75 / 0.76 with 2 / 4 /
 10; balance exact. Later: stratified charging circuits, solar return to the node of its
 temperature, pump heat in stratified tanks); (4) HE4 in `CTE_compliance` (renewable share of the DHW demand,
 on-site and nearby perimeter, SCOP_dhw ≥ 2.5 for heat pumps) and the Anejo F reference
-demand helper (28 l/day·person, occupancy by bedrooms, centralisation factor). Later:
+demand helper (28 l/day·person, occupancy by bedrooms, centralisation factor) (**done 2026-11-24**, branch `feat/cte-he4`: demand = heat of the
+generators to DHW + unmet; renewable: solar, heat pumps Q − E if seasonal SCOP_dhw of the
+simulation ≥ 2.5, biomass Q·fp,ren/fp,tot; 70 % / 60 % below 5000 l/day, applies above
+100 l/day (`dhw_daily_demand` or from the DHW_demand components at 60 °C); helpers
+`dhw_reference_demand`, `mains_temperatures` (Anejo G, 52 capitals, altitude correction),
+`he4_minimum_share`; report title HE0 and HE4 and table per generator). Later:
 legionella cycles, "3 in 1" heat pumps.
 
 ## Planned: `CTE_compliance`, verification of DB-HE (design closed 2026-11-23)

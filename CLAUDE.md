@@ -142,7 +142,7 @@ Parameters (src/opensimula/Parameters.py) provide type-safe configuration:
 - **Space_type**: Space type definitions (occupancy, lighting, equipment)
 - **Energy_indicators**: Final energy by carrier and service, primary energy and CO₂ (RITE factors); `report()` → tables/HTML. Consumers report through `Component.get_energy_use()` (`opensimula/energy.py`)
 - **Comfort_indicators**: Hours of each zone outside the setpoints of its system; systems report through `Component.get_zone_setpoints()` (`opensimula/comfort.py`)
-- **CTE_compliance**: Verification of CTE DB-HE HE0 (C_ep,nren, C_ep,tot, hours outside setpoint) on top of Energy_indicators and Comfort_indicators; limits in `opensimula/cte.py`
+- **CTE_compliance**: Verification of CTE DB-HE HE0 (C_ep,nren, C_ep,tot, hours outside setpoint) and HE4 (renewable share of DHW) on top of Energy_indicators and Comfort_indicators; limits and Anejo D/F/G helpers in `opensimula/cte.py`
 
 ### Project Configuration
 

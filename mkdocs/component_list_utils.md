@@ -136,13 +136,14 @@ Hours each zone is outside the setpoints of the system that controls it. For eve
 
 ### CTE_compliance
 
-Verification of the Spanish CTE DB-HE 2019, section HE0 (limitation of the energy use), on top of an `Energy_indicators` and a `Comfort_indicators`. It is not a recognised procedure (HULC remains the official tool); it applies to the hourly results of OpenSimula the rules of the DB-HE:
+Verification of the Spanish CTE DB-HE 2019, sections HE0 (limitation of the energy use) and HE4 (renewable contribution to the DHW demand), on top of an `Energy_indicators` and a `Comfort_indicators`. It is not a recognised procedure (HULC remains the official tool); it applies to the hourly results of OpenSimula the rules of the DB-HE:
 
 - Only the EPB services count: heating, cooling, DHW, ventilation, humidity control and, in uses other than residencial privado, lighting. Equipment is left out (`non_epb_services`).
 - Pumps and fans are assigned to heating or cooling by the mode of each hour; fans running with no load are the ventilation (`report(water_transport="BY_MODE", air_transport="BY_MODE")` of the energy component).
 - In residencial privado, the heat with no system behind it (ideal systems, coils with no water system) is given by the reference systems of table 4.5-HE0: natural gas, 0.92 on the higher heating value (× `hhv_lhv_ratio` on the lower heating value, the one of the final energy), and electricity, EER 2.60.
 - C_ep,nren and C_ep,tot per m² of the reference area of the energy component are compared with the limits of tables 3.1 and 3.2-HE0 for the winter climate zone, the use and the intervention; for other uses the limits depend on the carga interna media C_FI. The extrapeninsular multipliers apply when the energy component uses the factors of Baleares, Canarias or Ceuta y Melilla.
 - The hours outside setpoint of the building (each hour once, when any zone is more than 1 K outside its setpoints) must not exceed 4 % of the occupation time, the hours of the `period` of the comfort component (all hours for residencial privado; the occupied hours for other uses).
+- **HE4**, if the building has DHW: the renewable part of the DHW demand must be at least 70 % (60 % below 5000 l/day); it applies above 100 l/day at 60 °C (Anejo F). The demand is the heat the water generators give to DHW, which includes the losses of distribution, storage and recirculation, plus the demand not met. Its renewable part, following the procedure of HE4 3.1 (only on site or nearby): the heat of the solar collectors; the ambient energy of electric heat pumps, Q·(1 − 1/SCOP_dhw), if their seasonal SCOP_dhw over the simulated period is at least 2.5; the heat of biomass boilers times fp,ren / fp,tot. Electricity from the grid and fossil fuels give none. Thermally driven heat pumps, district heating, photovoltaics and waste heat are not modelled.
 
 #### Parameters
 
@@ -154,10 +155,19 @@ Verification of the Spanish CTE DB-HE 2019, section HE0 (limitation of the energ
 - **internal_load** [_float_, unit = "W/m²", default = 0, min = 0]: Carga interna media C_FI for other uses. 0: the mean over the simulated period of the sensible gains of occupancy, lighting and equipment of the `Space` zones of the energy component; required when the zones include `Load_space`.
 - **non_epb_services** [_string_list_, default = ["EQUIPMENT"]]: Services of the energy component that are not EPB (e.g. lifts given as extra uses).
 - **hhv_lhv_ratio** [_float_, unit = "frac", default = 1.11, min = 1]: Ratio of the higher to the lower heating value of natural gas, for the reference boiler.
+- **dhw_daily_demand** [_float_, unit = "l/day", default = 0, min = 0]: DHW demand of Anejo F (at 60 °C) that decides whether HE4 applies and its minimum share (e.g. from `cte.dhw_reference_demand()`). 0: the mean over the simulated period of the `DHW_demand` components, their volume taken to 60 °C with the mains temperature (Anejo F, 3).
 
 #### Functions
 
-- **report()**: A `CTE_report` that a notebook shows as HTML: `checks` (C_ep,nren, C_ep,tot and hours outside setpoint: value, limit, unit, complies), `services` (the EPB services counted: final energy, C_ep,nren, C_ep,tot and CO₂ per m²), `summary` (zone, use, intervention, area, C_FI, values and limits, `complies`) and `notes`.
+- **report()**: A `CTE_report` that a notebook shows as HTML: `checks` (C_ep,nren, C_ep,tot, hours outside setpoint and, with DHW, the renewable share of HE4: value, limit, unit, complies), `services` (the EPB services counted: final energy, C_ep,nren, C_ep,tot and CO₂ per m²), `tables` (the DHW renewable contribution per generator), `summary` (zone, use, intervention, area, C_FI, values and limits, DHW demand and renewable share, `complies`) and `notes`.
+- **he4()**: The HE4 figures as a dict: `demand`, `renewable` (kWh), `share`, `daily_demand` (l/day), `minimum` (0 if HE4 does not apply) and `generators` (table).
+
+**Helpers of the DB-HE** (module `opensimula.cte`):
+
+- `dhw_reference_demand(bedrooms=None, dwellings=None, centralised=False, persons=None, use=None)`: reference DHW demand of Anejo F in l/day at 60 °C (without losses): 28 l/day·person with the minimum occupation of table a by bedrooms (a number, or a list with the bedrooms of each dwelling) and the centralisation factor of table b; for other uses the l/day·person of table c (`use`, e.g. "Oficinas", "Hotel ***") times `persons`.
+- `mains_temperatures(capital, altitude=None)`: the 12 monthly mains water temperatures of Anejo G for a province capital, corrected for the altitude of another place; for the `mains_monthly_temperatures` of a `DHW_demand`.
+- `he4_minimum_share(daily_demand)`: 0.70, 0.60 below 5000 l/day, 0 at 100 l/day or less.
+- `dhw_profile_schedules(name)`: the hourly DHW profile of dwellings (Anejo D) as schedules.
 
 **Example:**
 <pre><code class="python">
