@@ -514,3 +514,5 @@ report.summary["primary_nren"]          # kWh in the period
 report.monthly_carriers                 # DataFrame, kWh by month and carrier
 pro.component("comfort").report()       # hours outside the setpoints by zone and month
 </code></pre>
+
+**CTE DB-HE.** `CTE_compliance` checks a building against section HE0 of the Spanish DB-HE 2019, on top of the two components above: it counts only the EPB services (lighting only for uses other than residencial privado), assigns pumps and fans by the mode of each hour, gives the heat without equipment of dwellings by the reference systems of the DB-HE, and compares C_ep,nren, C_ep,tot and the hours outside setpoint of the building with their limits for the climate zone, use and intervention. Its `report()` gives the requirements with value, limit and whether they comply. It is not a recognised procedure: HULC remains the official tool. See the [component list](component_list_utils.md#cte_compliance).

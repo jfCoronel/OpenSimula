@@ -50,6 +50,14 @@ and indoor units `UT_ED_UnidadInterior` per zone). An importer of EnergyPlus IDF
    (BSD-3). Phase 2: `HVACTemplate:*` and simple equipment (PTAC/PTHP → DX).
 7. HULC importer, when 2-5 exist; more real `.ctehexml` files (residential, tertiary) to
    see which systems appear; the default curves are in `BDCatalogo.bdc`.
+   **Test buildings** (pointed by the user 2026-11-24): the Guía de aplicación DB-HE 2019
+   has five worked examples, each with its justification PDF and its HULC files
+   (https://www.codigotecnico.org/Guias/GuiaHE2019.html): I vivienda unifamiliar mínima,
+   II unifamiliar adosada, III vivienda colectiva en altura, IV local comercial, V
+   edificio de oficinas (`Guia_aplicacion_DBHE2019_Ejemplos_I..V.pdf`,
+   `Guia_Ejemplos_DBHE2019-*.zip`). Use them to check `CTE_compliance` (C_ep,nren,
+   C_ep,tot, hours outside setpoint against HULC) and as the reference set of the HULC
+   importer (which systems appear).
 
 Later: water-cooled chillers and cooling towers, ground-source heat pumps, PV (HE5, monthly
 balance with kexp = 0), district heating.
@@ -1109,7 +1117,16 @@ natural gas ≈ 1.11 (to check the exact value the CTE tools use; a parameter of
 
 Order of work: (1) building count of hours in `Comfort_indicators` (**done**, branch
 `feat/comfort-building-hours`: BUILDING row and column, `building_*` summary, variable
-`building_outside`); (2) `CTE_compliance`
+`building_outside`); (2) **done** (branch `feat/cte-compliance`): `CTE_compliance` HE0, module
+`opensimula/cte.py` (tables, `he0_limits()`, `CTE_report`); EPB services (equipment out,
+lighting only for other uses; `non_epb_services`), transport BY_MODE, residential
+reference systems (gas 0.92 HHV × `hhv_lhv_ratio` 1.11, electricity EER 2.60), C_FI
+from the Space gains or `internal_load` (required with Load_space), extrapeninsular from
+the factors region, hours outside setpoint = building hours of the comfort component vs
+4 % of its period hours (`period_hours`; set its `period` to the occupation of tertiary
+buildings), warning if its tolerance is not 1 K; GUI shows the report. Example 06 as
+an office in B4: C_ep,nren 151 vs 104 kWh/m² (fails, cooling 94), C_ep,tot 186 vs 211,
+10 h outside; (2) `CTE_compliance`
 HE0 with tests (cases with known limits: residential new B4, other uses with C_FI);
 (3) docs and a gallery example (residential, Anejo D profiles?); (4) phase 2, HE1.
 

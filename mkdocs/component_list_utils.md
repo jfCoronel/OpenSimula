@@ -132,3 +132,44 @@ Hours each zone is outside the setpoints of the system that controls it. For eve
 #### Functions
 
 - **report()**: Tables of the simulation, a `Comfort_report` that a notebook shows as HTML: `zones` (by zone, TOTAL and BUILDING: hours counted, above, below and outside, their percentage, degree-hours above and below, maximum and minimum temperature while counted), `monthly` (hours outside by month and zone, TOTAL and BUILDING) and `summary`. TOTAL adds the zone-hours of every zone; BUILDING counts each hour once, when any zone is counted or outside: it measures time, not zone-hours, as the hours outside setpoint of the CTE DB-HE (several zones outside at the same time count once).
+
+### CTE_compliance
+
+Verification of the Spanish CTE DB-HE 2019, section HE0 (limitation of the energy use), on top of an `Energy_indicators` and a `Comfort_indicators`. It is not a recognised procedure (HULC remains the official tool); it applies to the hourly results of OpenSimula the rules of the DB-HE:
+
+- Only the EPB services count: heating, cooling, DHW, ventilation, humidity control and, in uses other than residencial privado, lighting. Equipment is left out (`non_epb_services`).
+- Pumps and fans are assigned to heating or cooling by the mode of each hour; fans running with no load are the ventilation (`report(water_transport="BY_MODE", air_transport="BY_MODE")` of the energy component).
+- In residencial privado, the heat with no system behind it (ideal systems, coils with no water system) is given by the reference systems of table 4.5-HE0: natural gas, 0.92 on the higher heating value (× `hhv_lhv_ratio` on the lower heating value, the one of the final energy), and electricity, EER 2.60.
+- C_ep,nren and C_ep,tot per m² of the reference area of the energy component are compared with the limits of tables 3.1 and 3.2-HE0 for the winter climate zone, the use and the intervention; for other uses the limits depend on the carga interna media C_FI. The extrapeninsular multipliers apply when the energy component uses the factors of Baleares, Canarias or Ceuta y Melilla.
+- The hours outside setpoint of the building (each hour once, when any zone is more than 1 K outside its setpoints) must not exceed 4 % of the occupation time, the hours of the `period` of the comfort component (all hours for residencial privado; the occupied hours for other uses).
+
+#### Parameters
+
+- **energy_indicators** [_component_, default = "not_defined"]: The `Energy_indicators` of the building or part of the building checked (one `CTE_compliance` per use: no compensation between uses).
+- **comfort_indicators** [_component_, default = "not_defined"]: The `Comfort_indicators` for the hours outside setpoint (its `tolerance` should be 1 K). If not defined, the hours are not checked.
+- **climate_zone** [_string_, default = "B4"]: Climate zone of the DB-HE (Anejo B): winter zone α, A, B, C, D or E followed by the summer zone 1 to 4 ("alpha3" also valid).
+- **building_use** [_option_, default = "RESIDENTIAL_PRIVATE", options = ["RESIDENTIAL_PRIVATE", "OTHER"]]: Use of the building.
+- **intervention** [_option_, default = "NEW_OR_EXTENSION", options = ["NEW_OR_EXTENSION", "CHANGE_OF_USE_OR_REFORM"]]: New building or extension, or change of use and reform (residential limits only).
+- **internal_load** [_float_, unit = "W/m²", default = 0, min = 0]: Carga interna media C_FI for other uses. 0: the mean over the simulated period of the sensible gains of occupancy, lighting and equipment of the `Space` zones of the energy component; required when the zones include `Load_space`.
+- **non_epb_services** [_string_list_, default = ["EQUIPMENT"]]: Services of the energy component that are not EPB (e.g. lifts given as extra uses).
+- **hhv_lhv_ratio** [_float_, unit = "frac", default = 1.11, min = 1]: Ratio of the higher to the lower heating value of natural gas, for the reference boiler.
+
+#### Functions
+
+- **report()**: A `CTE_report` that a notebook shows as HTML: `checks` (C_ep,nren, C_ep,tot and hours outside setpoint: value, limit, unit, complies), `services` (the EPB services counted: final energy, C_ep,nren, C_ep,tot and CO₂ per m²), `summary` (zone, use, intervention, area, C_FI, values and limits, `complies`) and `notes`.
+
+**Example:**
+<pre><code class="python">
+...
+
+pro.new_component("Energy_indicators", "energy")
+pro.new_component("Comfort_indicators", "comfort").set_parameters({"tolerance": 1.0})
+pro.new_component("CTE_compliance", "cte").set_parameters({
+    "energy_indicators": "energy",
+    "comfort_indicators": "comfort",
+    "climate_zone": "B4",
+    "building_use": "RESIDENTIAL_PRIVATE",
+})
+pro.simulate()
+pro.component("cte").report()
+</code></pre>
