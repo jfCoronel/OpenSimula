@@ -48,3 +48,32 @@ class Pump(Component):
 
 
         
+
+def staged_pump_flows(pumps, flow):
+    """Flow of each pump of a group that moves a flow with staging.
+
+    In the order of the list, as many pumps run as needed for their nominal flows to
+    add up to the flow; those running share it in proportion to their nominal flow.
+
+    Args:
+        pumps (list): Pump components.
+        flow (float): flow to move (dm³/s).
+
+    Returns:
+        list: flow of each pump (dm³/s), 0 for those stopped.
+    """
+    nominal = [p.parameter("nominal_water_flow").value for p in pumps]
+    flows = [0.0] * len(pumps)
+    if flow <= 0 or not pumps:
+        return flows
+    n, total = 0, 0.0
+    for f in nominal:
+        n += 1
+        total += f
+        if total >= flow:
+            break
+    if total <= 0:
+        return flows
+    for i in range(n):
+        flows[i] = flow * nominal[i] / total
+    return flows

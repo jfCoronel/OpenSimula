@@ -11,6 +11,7 @@ from opensimula.Parameters import (
 )
 from opensimula.Variable import Variable
 from opensimula.energy import mode_from_plant, split_dhw
+from opensimula.components.Pump import staged_pump_flows
 
 
 class HVAC_water_circuit(Component):
@@ -39,6 +40,10 @@ class HVAC_water_circuit(Component):
         self.add_parameter(
             Parameter_options("pump_operation", "ALLWAYS_ON", ["ALLWAYS_ON", "ON_LOAD"])
         )
+        # CONSTANT: the design flow while on; VARIABLE: the flow of its coils, between
+        # minimum_flow and the design flow, its pumps staged
+        self.add_parameter(Parameter_options("flow_control", "CONSTANT", ["CONSTANT", "VARIABLE"]))
+        self.add_parameter(Parameter_float("minimum_flow", 0, "frac", min=0, max=1))
         # mixing valve: the supply is never above the heating setpoint nor below the
         # cooling one ("": no limit, the water of the plant)
         self.add_parameter(Parameter_math_exp("heating_supply_setpoint", "", "°C"))
@@ -81,6 +86,8 @@ class HVAC_water_circuit(Component):
         self.pumps = self.parameter("pumps").component
         self.design_flow = sum(p.parameter("nominal_water_flow").value for p in self.pumps)
         self.water_volume = self.parameter("water_volume").value
+        self.variable_flow = self.parameter("flow_control").value == "VARIABLE"
+        self.minimum_flow = self.parameter("minimum_flow").value
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -100,6 +107,7 @@ class HVAC_water_circuit(Component):
         self.Q_coils_used = self.coils_flow_used = 0
         self.Q_dhw = self.Q_dhw_used = 0
         self.water_flow = 0
+        self.pump_flows = [0] * len(self.pumps)
         self.Q_pump = self.Q_loss = self.delta_U = self.Q_plant = 0
 
     def _setpoint(self, key):
@@ -170,13 +178,20 @@ class HVAC_water_circuit(Component):
         self.T_supply = self._supply(T_plant, mode)
         load = self.Q_coils != 0
         pumps_on = self.on_off and (self.parameter("pump_operation").value == "ALLWAYS_ON" or load)
-        self.water_flow = self.design_flow if pumps_on else 0
+        if self.variable_flow:
+            self.water_flow = (min(max(self.coils_flow, self.minimum_flow * self.design_flow),
+                                   self.design_flow) if self.on_off else 0)
+            self.pump_flows = staged_pump_flows(self.pumps, self.water_flow)
+        else:
+            self.water_flow = self.design_flow if pumps_on else 0
+            self.pump_flows = [p.parameter("nominal_water_flow").value if pumps_on else 0
+                               for p in self.pumps]
         rho_cp = self.props["RHOCP_W"](self.T_supply) / 1000  # W/(dm³·K)
         self.var_dic["T_w"] = self.T_supply
         self.var_dic["m_w"] = self.water_flow
         if self.water_flow > 0:
             self.Q_pump = sum(
-                p.get_heat_gain(p.parameter("nominal_water_flow").value) for p in self.pumps
+                p.get_heat_gain(f) for p, f in zip(self.pumps, self.pump_flows) if f > 0
             )
             self.Q_loss = self.parameter("Q_loss").evaluate(self.var_dic)
             Q = self.Q_coils + self.Q_loss + self.Q_pump
@@ -227,7 +242,7 @@ class HVAC_water_circuit(Component):
             "delta_U": self.delta_U,
             "Q_plant": self.Q_plant,
             "pumps_power": sum(
-                p.get_power(p.parameter("nominal_water_flow").value) for p in self.pumps
+                p.get_power(f) for p, f in zip(self.pumps, self.pump_flows) if f > 0
             ) if on else 0,
         }
         for key, value in values.items():
