@@ -226,7 +226,7 @@ The [Examples](examples.md) are a good place to start: `opensimula examples` cop
 - **Save**, which writes the document being edited to the JSON file given next to it (the file opened, by default), even if it still has problems.
 - The **results viewer**, as `pro.results()`. It stays the same across simulations: after changing a parameter and simulating again, the variables already plotted, the frequency, the interval and the 3D view are kept, and show the new values.
 
-Relative file names in the project, such as the weather file of `File_met`, are read from the folder the command is run from (the working folder, shown at the top), as they are in a notebook. To open an ASHRAE 140 case, for example, run it from its test folder: `cd ASHRAE_140/LOAD_TEST` and `opensimula gui cases/case_600.json`. `--port` chooses the port of the app server and `--headless` does not open a browser; Ctrl+C in the terminal stops it.
+Relative file names in the project, such as the weather file of `File_met`, are read from the folder of the project file when they are found there; otherwise from the folder the command is run from (the folder used is shown under the project name). So a project next to its weather file opens from anywhere, and an ASHRAE 140 case, whose names are relative to its test folder, opens from that folder: `cd ASHRAE_140/LOAD_TEST` and `opensimula gui cases/case_600.json`. In a notebook they are read, as always, from the working folder of the notebook. `--port` chooses the port of the app server and `--headless` does not open a browser; Ctrl+C in the terminal stops it.
 
 ![OpenSimula app with the results of a simulation](img/gui_app.png)
 

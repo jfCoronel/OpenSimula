@@ -79,8 +79,47 @@ def copy_examples(folder="opensimula_examples"):
         print(f"  {name}")
     if kept:
         print(f"  ({len(kept)} already there, kept: {', '.join(kept)})")
-    print(f"\nOpen one with:\n  cd {target}\n  opensimula gui 01_schedules.json")
+    print(f"\nOpen one with:\n  opensimula gui {pathlib.Path(target) / '01_schedules.json'}")
     return 0
+
+
+def project_folder(path, current=None):
+    """Folder from which the relative file names of a project are read.
+
+    The files a project reads (the ``file_name`` of its File_met and File_data
+    components) are opened relative to the working folder. The folder of the project
+    file is preferred when they are found from it (examples, projects next to their
+    weather); otherwise the current folder when they are found from it (projects whose
+    names are relative to another folder, such as the ASHRAE 140 cases, relative to
+    their test folder); otherwise the folder of the project.
+
+    Args:
+        path (str or pathlib.Path): project file (JSON).
+        current (str or pathlib.Path, optional): current folder. Defaults to the
+            working folder.
+
+    Returns:
+        pathlib.Path: the folder.
+    """
+    import json
+
+    path = pathlib.Path(path).resolve()
+    current = pathlib.Path(current or pathlib.Path.cwd()).resolve()
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        names = [c["file_name"] for c in data.get("components", [])
+                 if c.get("type") in ("File_met", "File_data") and c.get("file_name")]
+    except (OSError, ValueError, AttributeError, TypeError):
+        return path.parent
+
+    def found(folder):
+        return all((folder / name).is_file() for name in names)
+
+    if found(path.parent):
+        return path.parent
+    if found(current):
+        return current
+    return path.parent
 
 
 def run_gui(project=None, port=None, headless=False):
