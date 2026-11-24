@@ -80,7 +80,7 @@ def test_tolerance_and_period():
 def test_multizone_system_each_zone_with_its_setpoint():
     pro = simulate(MZW, start="01/01/2001 00:00:00", days=7)
     r = pro.component("comfort").report()
-    zones = [z for z in r.zones.index if z != "TOTAL"]
+    zones = [z for z in r.zones.index if z not in ("TOTAL", "BUILDING")]
     assert len(zones) == 2
     on = values(pro, "ahu", "state") != 0
     for i, zone in enumerate(pro.component("ahu").parameter("spaces").value):
@@ -89,6 +89,17 @@ def test_multizone_system_each_zone_with_its_setpoint():
         outside = on & ((T > sp + 0.5) | (T < sp - 0.5))
         assert r.zones.loc[zone, "Hours outside"] == outside.sum()
     assert r.zones.loc["TOTAL", "Hours counted"] == 2 * on.sum()
+    # the building: each hour once, when any zone is outside (time, not zone-hours)
+    flags = [values(pro, "comfort", f"outside_{z}") != 0 for z in zones]
+    any_outside = flags[0] | flags[1]
+    assert any_outside.sum() > 0
+    assert r.zones.loc["BUILDING", "Hours counted"] == on.sum()
+    assert r.zones.loc["BUILDING", "Hours outside"] == any_outside.sum()
+    assert r.zones.loc["TOTAL", "Hours outside"] == flags[0].sum() + flags[1].sum()
+    assert np.array_equal(values(pro, "comfort", "building_outside"), any_outside.astype(float))
+    assert r.monthly.loc["Total", "BUILDING"] == any_outside.sum()
+    assert r.summary["building_hours_outside"] == any_outside.sum()
+    assert r.summary["building_share_outside"] == pytest.approx(any_outside.sum() / on.sum())
 
 
 def test_zone_without_system():

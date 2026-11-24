@@ -36,11 +36,14 @@ class Comfort_report:
     Shows as formatted tables in notebooks (Jupyter, marimo) and has ``to_html()``.
 
     Attributes:
-        zones (pandas.DataFrame): by zone (and "TOTAL"): hours counted, hours above
+        zones (pandas.DataFrame): by zone, "TOTAL" (zone-hours) and "BUILDING" (each
+            hour once, when any zone is counted or outside): hours counted, hours above
             and below the setpoints (beyond the tolerance), their share, degree-hours,
             maximum and minimum temperatures while counted.
-        monthly (pandas.DataFrame): hours outside the setpoints by month and zone.
-        summary (dict): share of hours outside of all the zones, tolerance, period.
+        monthly (pandas.DataFrame): hours outside the setpoints by month and zone, with
+            the zone-hours ("TOTAL") and the building hours ("BUILDING").
+        summary (dict): hours counted and outside, and their share, of the zones
+            (zone-hours) and of the building (``building_*``), tolerance, period.
     """
 
     def __init__(self, title, zones, monthly, summary, notes):
@@ -53,8 +56,11 @@ class Comfort_report:
     def _summary_lines(self):
         s = self.summary
         return [
-            f"Hours outside the setpoints: {s['hours_outside']:,.0f} of {s['hours_counted']:,.0f} "
-            f"zone-hours counted ({s['share_outside']:.1%})",
+            f"Building: {s['building_hours_outside']:,.0f} hours with some zone outside the "
+            f"setpoints of {s['building_hours_counted']:,.0f} hours counted "
+            f"({s['building_share_outside']:.1%})",
+            f"Zones: {s['hours_outside']:,.0f} zone-hours outside of {s['hours_counted']:,.0f} "
+            f"counted ({s['share_outside']:.1%})",
             f"Tolerance: {s['tolerance']} K; hours counted: {s['counted']}",
         ]
 

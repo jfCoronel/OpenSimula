@@ -57,6 +57,8 @@ class Comfort_indicators(Component):
             self.add_variable(Variable(f"outside_{name}", "flag",
                                        f"{name}: 1 above, -1 below the setpoints, 0 inside"))
         self.add_variable(Variable("zones_outside", "-", "Number of zones outside the setpoints"))
+        self.add_variable(Variable("building_outside", "flag",
+                                   "1 when any zone is outside the setpoints"))
         return errors
 
     def _zones(self):
@@ -95,6 +97,7 @@ class Comfort_indicators(Component):
             self.variable(f"outside_{zone.parameter('name').value}").values[:] = state["flag"]
             total += state["flag"] != 0
         self.variable("zones_outside").values[:] = total
+        self.variable("building_outside").values[:] = total > 0
 
     def _states(self):
         """Per zone: counted hours, temperature, setpoints and flag (1, -1, 0)."""
@@ -158,6 +161,24 @@ class Comfort_indicators(Component):
         total["T max [°C]"] = table["T max [°C]"].max()
         total["T min [°C]"] = table["T min [°C]"].min()
         table.loc["TOTAL"] = total
+        # the building: an hour counts once, whatever the number of zones (time, not
+        # zone-hours), as the hours outside setpoint of the CTE DB-HE
+        n = len(dates)
+        any_counted = np.zeros(n, dtype=bool)
+        any_above, any_below = np.zeros(n, dtype=bool), np.zeros(n, dtype=bool)
+        for s in states.values():
+            any_counted |= s["counted"]
+            any_above |= s["above"]
+            any_below |= s["below"]
+        any_outside = any_above | any_below
+        table.loc["BUILDING"] = {
+            "Hours counted": any_counted.sum() * h,
+            "Hours above": any_above.sum() * h,
+            "Hours below": any_below.sum() * h,
+            "Hours outside": any_outside.sum() * h,
+            "T max [°C]": total["T max [°C]"],
+            "T min [°C]": total["T min [°C]"],
+        }
         counted = table["Hours counted"]
         table["Outside [%]"] = np.where(counted > 0, 100 * table["Hours outside"] / counted.where(counted > 0, 1), np.nan)
         table.index.name = "zone"
@@ -165,19 +186,25 @@ class Comfort_indicators(Component):
         month.index = month.index.strftime("%b %Y")
         month.index.name = "month"
         month["TOTAL"] = month.sum(axis=1)
+        month["BUILDING"] = pd.Series(any_outside * h, index=dates).resample("ME").sum().values
         month.loc["Total"] = month.sum()
-        t = table.loc["TOTAL"]
+        t, b = table.loc["TOTAL"], table.loc["BUILDING"]
         summary = {
             "hours_counted": float(t["Hours counted"]),
             "hours_outside": float(t["Hours outside"]),
             "share_outside": float(t["Hours outside"] / t["Hours counted"]) if t["Hours counted"] > 0 else 0.0,
+            "building_hours_counted": float(b["Hours counted"]),
+            "building_hours_outside": float(b["Hours outside"]),
+            "building_share_outside": (float(b["Hours outside"] / b["Hours counted"])
+                                       if b["Hours counted"] > 0 else 0.0),
             "tolerance": self.parameter("tolerance").value,
             "counted": ("system on" if self.parameter("only_system_on").value else "all")
             + ("" if self.parameter("period").value.strip() == "1"
                else f" and period = {self.parameter('period').value}"),
         }
         notes = ["Hours of each zone counted while its system is on (and the period is not 0); "
-                 "the TOTAL row adds the zone-hours of every zone."]
+                 "the TOTAL row adds the zone-hours of every zone; the BUILDING row counts each "
+                 "hour once, when any zone is counted or outside (time, not zone-hours)."]
         free = [z.parameter("name").value for z, s in states.items() if not s["system"]]
         if free:
             notes.append("Zones with no system controlling them: " + ", ".join(free) + ".")
