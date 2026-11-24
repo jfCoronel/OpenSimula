@@ -7,11 +7,19 @@ import numpy as np
 import pytest
 
 import opensimula as osm
-from opensimula.components.DHW_demand import CTE_HOURLY_PROFILE
+from opensimula.cte import DHW_PROFILE_RESIDENTIAL, dhw_profile_schedules
 
 EXAMPLES = pathlib.Path(osm.__file__).parent / "examples"
 MZW = pathlib.Path(__file__).parent / "mzw_four_pipe.json"
 MET = str(EXAMPLES / "sevilla.met")
+
+
+def dhw_components(water_system, daily, parameters=None):
+    """A DHW_demand of `daily` l/day with the profile of dwellings of the DB-HE."""
+    return [*dhw_profile_schedules("profile"),
+            {"type": "DHW_demand", "name": "dhw", "water_system": water_system,
+             "input_variables": ["f = profile.values"], "volume_flow": f"{daily} * f",
+             **(parameters or {})}]
 
 
 def run(data, start="01/01/2001 00:00:00", days=7):
@@ -41,8 +49,7 @@ def instantaneous(dhw=None, plant=None):
         {"type": "HVAC_water_system", "name": "plant", "generators": ["gen"],
          "total_water_volume": 5, "heating_water_setpoint": "60", "pump_operation": "ON_LOAD",
          **(plant or {})},
-        {"type": "DHW_demand", "name": "dhw", "water_system": "plant", "daily_volume": "120",
-         **(dhw or {})},
+        *dhw_components("plant", 120, dhw),
         {"type": "Energy_indicators", "name": "energy"},
     ]}
 
@@ -53,7 +60,7 @@ def values(pro, component, variable):
 
 def test_demand_from_volume_profile_and_mains():
     pro = run(instantaneous(dhw={"distribution_losses": 0.1}), start="01/07/2001 00:00:00", days=2)
-    f = np.array(CTE_HOURLY_PROFILE * 2) / sum(CTE_HOURLY_PROFILE)
+    f = np.array(DHW_PROFILE_RESIDENTIAL * 2) / 100
     assert np.allclose(values(pro, "dhw", "volume_flow"), 120 * f)
     assert np.all(values(pro, "dhw", "T_mains") == 21)  # Sevilla in July (Anejo G)
     props = pro.component("dhw").props
@@ -89,9 +96,7 @@ def test_dhw_only_plant_energy_is_dhw():
 
 def test_combined_plant_splits_heating_and_dhw():
     data = json.loads(MZW.read_text(encoding="utf-8"))
-    data["components"] += [
-        {"type": "DHW_demand", "name": "dhw", "water_system": "hot_water", "daily_volume": "200"},
-    ]
+    data["components"] += dhw_components("hot_water", 200)
     pro = run(data)
     gen = pro.component("boiler_generator")
     fuel = values(pro, "boiler_generator", "fuel_power")
@@ -110,8 +115,7 @@ def test_combined_plant_splits_heating_and_dhw():
 
 def test_dhw_through_a_circuit_reaches_the_plant():
     data = json.loads((EXAMPLES / "10_energy_and_comfort.json").read_text(encoding="utf-8"))
-    data["components"].append({"type": "DHW_demand", "name": "dhw", "water_system": "north_circuit",
-                               "daily_volume": "120", "minimum_temperature": 40})
+    data["components"] += dhw_components("north_circuit", 120)
     pro = run(data)
     assert values(pro, "dhw", "Q_supplied").sum() > 0
     # the circuit passes the DHW part of its load to the plant
@@ -124,20 +128,44 @@ def test_dhw_through_a_circuit_reaches_the_plant():
     assert r.annual.loc["DHW", "TOTAL"] > 0
 
 
-def test_not_supplied_when_the_plant_is_off_or_too_cold():
+def test_not_supplied_when_the_plant_is_off_partly_when_too_cold():
     pro = run(instantaneous(plant={"system_on_off": "0"}), days=1)
     assert values(pro, "dhw", "Q_supplied").sum() == 0
     assert values(pro, "dhw", "Q_unmet").sum() == pytest.approx(values(pro, "dhw", "Q_demand").sum())
     assert values(pro, "dhw", "low_temperature").sum() == 0  # off, not cold
+    # water at 40 °C for a use at 60 °C: used as it comes, the heat up to T_supply met
     cold = run(instantaneous(plant={"heating_water_setpoint": "40"}), days=1)
-    assert values(cold, "dhw", "Q_supplied").sum() == 0
-    assert values(cold, "dhw", "low_temperature").sum() > 0
+    Q, Q_s = values(cold, "dhw", "Q_demand"), values(cold, "dhw", "Q_supplied")
+    T_s, T_m = values(cold, "dhw", "T_supply"), values(cold, "dhw", "T_mains")
+    use = Q > 0
+    assert np.all(T_s[use] < 60) and values(cold, "dhw", "low_temperature")[use].all()
+    assert np.allclose(Q_s[use], Q[use] * (T_s[use] - T_m[use]) / (60 - T_m[use]))
+    assert np.allclose(values(cold, "dhw", "Q_unmet"), Q - Q_s)
+
+
+def test_volume_flow_is_an_expression():
+    # any expression: here a constant use, and negative values count as no use
+    pro = run(instantaneous(dhw={"volume_flow": "10 - 20 * (f == 0)"}), days=1)
+    v = values(pro, "dhw", "volume_flow")
+    f = np.array(DHW_PROFILE_RESIDENTIAL)
+    assert np.allclose(v, np.where(f == 0, 0, 10))
+
+
+def test_use_temperature_is_an_expression():
+    # 40 °C in winter months, 45 °C otherwise
+    pro = run(instantaneous(dhw={"use_temperature": "40 + 5 * (T_month > 15)"}),
+              start="01/07/2001 00:00:00", days=1)
+    assert np.all(values(pro, "dhw", "T_use") == 45)
+    props = pro.component("dhw").props
+    v = values(pro, "dhw", "volume_flow")
+    expected = props["RHOCP_W"](45) / 1000 * v / 3600 * (45 - 21)
+    assert np.allclose(values(pro, "dhw", "Q_demand"), expected)
 
 
 def test_checks():
-    data = instantaneous(dhw={"hourly_profile": [1, 2, 3]})
+    data = instantaneous(dhw={"water_system": "not_defined"})
     sim = osm.Simulation()
     sim.console_print = False
     pro = sim.new_project("p")
     pro.read_dict(data)
-    assert any("hourly_profile" in m.text for m in pro.check() if m.level == "ERROR")
+    assert any("water_system" in m.text for m in pro.check() if m.level == "ERROR")

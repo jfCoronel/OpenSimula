@@ -1070,10 +1070,12 @@ Components and changes:
    needed, through a circuit.
 
 Order: (1) `DHW_demand` and the split of energy by service, with an example of a combined
-boiler (**done 2026-11-24**, branch `feat/dhw-demand`: `DHW_demand` (daily volume
-expression, Anejo D profile, Anejo G monthly mains of Sevilla by default, distribution
-losses, `minimum_temperature` 45 °C: met only while the plant can heat and gives water
-at least that hot, else `Q_unmet`, `low_temperature` flag); `add_coil_load(Q, flow,
+boiler (**done 2026-11-24**, branch `feat/dhw-demand`: `DHW_demand` (volume flow
+and use temperature as expressions, the Anejo D profile as schedules from
+`cte.dhw_profile_schedules()`, Anejo G monthly mains of Sevilla by default, distribution
+losses; water hotter than the use temperature mixed with mains water, colder used as it
+comes with the rest `Q_unmet` and the `low_temperature` flag; nothing while the plant
+cannot heat); `add_coil_load(Q, flow,
 dhw)` in plants and circuits, variable `Q_dhw`, `HVAC_water_system.dhw_share()`;
 generators and pumps split their energy HEATING/DHW (`energy.split_dhw`), transport mode
 2 = DHW for `BY_MODE`; service DHW in `SERVICES`. Test cases in `pruebas/2026-11-24_acs`:

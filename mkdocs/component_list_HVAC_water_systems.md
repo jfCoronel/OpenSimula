@@ -310,30 +310,28 @@ After the simulation we will have the following variables of this component:
 
 ### DHW_demand
 
-Demand of domestic hot water (DHW) served by a water plant or circuit. The demand is a daily volume of hot water at a reference temperature (60 °C, as the DB-HE gives it) spread over the day by an hourly profile. Each hour it takes from its plant or circuit the heat to warm that water from the mains temperature, plus the distribution losses: the plant sees it as one more coil that takes water at the supply temperature and gives it back at the mains temperature (the water drawn is replaced by mains water). The load is DHW for the energy indicators: the plant splits the energy of its generators and pumps between HEATING and DHW by the heat delivered to each kind of load.
+Demand of domestic hot water (DHW) served by a water plant or circuit. The demand is the instantaneous use of hot water (l/h) at a use temperature (60 °C by default, as the DB-HE gives the volumes), both expressions: the volume follows a schedule (for dwellings, the hourly profile of the DB-HE), a data file (`File_data`, e.g. measured uses) or anything else. Each time step it takes from its plant or circuit the heat to warm that water from the mains temperature, plus the distribution losses: the plant sees it as one more coil that takes water at the supply temperature and gives it back at the mains temperature (the water drawn is replaced by mains water). The load is DHW for the energy indicators: the plant splits the energy of its generators and pumps between HEATING and DHW by the heat delivered to each kind of load.
 
-The demand is met only while the plant or circuit is on, can heat and gives water at least at `minimum_temperature`; otherwise it is unmet that hour.
+Water from the plant hotter than the use temperature is mixed by the user with mains water: the whole demand is met, with less water from the plant. Water colder than the use temperature is used as it comes: only the heat from the mains temperature to the supply temperature is met, the rest is unmet (`Q_unmet`) and the time step is flagged (`low_temperature`). A plant or circuit that is off or cannot heat (e.g. a two-pipe plant cooling) meets nothing.
 
 #### Parameters
 
 - **water_system** [_component_, default = "not_defined", component type = HVAC_water_system or HVAC_water_circuit]: Plant or circuit that gives the hot water.
 - **input_variables** [_variable_list_, default = []]: Variables of other components used in the expressions.
-- **daily_volume** [_math_exp_, unit = "l/day", default = "100"]: Hot water used per day, at the reference temperature. An expression: it can follow a schedule (e.g. working days).
-- **reference_temperature** [_float_, unit = "°C", default = 60]: Temperature of the daily volume.
-- **hourly_profile** [_float_list_, unit = "%", default = DB-HE Anejo D table c]: 24 values, the share of the daily volume used in each hour (normalised to their sum). The default is the profile of dwellings of the DB-HE: [1, 0, 0, 0, 0, 1, 3, 10, 7, 7, 6, 6, 5, 5, 4, 3, 4, 4, 5, 7, 6, 6, 5, 5].
+- **volume_flow** [_math_exp_, unit = "l/h", default = "0"]: Hot water used, at the use temperature (negative values count as 0). Usually a daily volume times a schedule, e.g. `"120 * f"` with `f` the hourly profile below.
+- **use_temperature** [_math_exp_, unit = "°C", default = "60"]: Temperature of the water used. It can use `T_month` (as below) and the input variables.
 - **mains_monthly_temperatures** [_float_list_, unit = "°C", default = Sevilla, DB-HE Anejo G]: Mains water temperature of each month: [11, 11, 13, 14, 16, 19, 21, 21, 20, 16, 13, 11].
 - **mains_temperature** [_math_exp_, unit = "°C", default = "T_month"]: Mains water temperature; `T_month` is the value of the month from the previous parameter.
 - **distribution_losses** [_float_, unit = "frac", default = 0]: Losses of the distribution network without recirculation, as a fraction of the demand.
-- **minimum_temperature** [_float_, unit = "°C", default = 45]: Lowest supply temperature that meets the demand.
 
 #### Variables
 
-- **daily_volume** (l/day), **volume_flow** (l/h): Volume of the day and of the hour, at the reference temperature.
+- **volume_flow** (l/h), **T_use** (°C): Hot water used and its temperature.
 - **T_mains** (°C), **T_supply** (°C): Mains water temperature and supply temperature of the plant or circuit.
 - **water_flow** (dm³/s): Water taken from the plant, at its supply temperature.
 - **Q_demand** (W): Heat of the demand, with the distribution losses.
 - **Q_supplied** (W), **Q_unmet** (W): Heat given by the plant and heat not met.
-- **low_temperature** (flag): 1 the hours the demand is not met because the water is colder than `minimum_temperature`.
+- **low_temperature** (flag): 1 when the plant heats but its water is colder than the use temperature (demand partly unmet).
 
 The plants and circuits store the DHW part of the load of their coils in the variable **Q_dhw** (W).
 
@@ -341,10 +339,29 @@ The plants and circuits store the DHW part of the load of their coils in the var
 <pre><code class="python">
 ...
 
+from opensimula.cte import dhw_profile_schedules
+
+# Day, week and year schedules with the hourly profile of dwellings (DB-HE Anejo D table c)
+for c in dhw_profile_schedules("dhw_profile"):
+    pro.new_component(c.pop("type"), c.pop("name")).set_parameters(c)
 pro.new_component("DHW_demand", "dhw").set_parameters({
     "water_system": "boiler_plant",
-    "daily_volume": "120",
+    "input_variables": ["f = dhw_profile.values"],
+    "volume_flow": "120 * f",  # 120 l/day at 60 °C
     "mains_monthly_temperatures": [8, 8, 10, 12, 14, 17, 20, 19, 17, 13, 10, 8],
 })
 </code></pre>
+
+**Hourly profile of dwellings.** The DB-HE (Anejo D, table c) gives the share of the daily DHW demand used in each hour, the same every day:
+
+| Hour | % | Hour | % | Hour | % | Hour | % |
+|---|---|---|---|---|---|---|---|
+| 0 | 1 | 6 | 3 | 12 | 5 | 18 | 5 |
+| 1 | 0 | 7 | 10 | 13 | 5 | 19 | 7 |
+| 2 | 0 | 8 | 7 | 14 | 4 | 20 | 6 |
+| 3 | 0 | 9 | 7 | 15 | 3 | 21 | 6 |
+| 4 | 0 | 10 | 6 | 16 | 4 | 22 | 5 |
+| 5 | 1 | 11 | 6 | 17 | 4 | 23 | 5 |
+
+`opensimula.cte.dhw_profile_schedules(name)` returns it as three components (a Day_schedule, a Week_schedule and the Year_schedule `name`, as dicts) whose variable `values` is the fraction of the daily volume of each hour. The DB-HE gives no profile for other uses: there the schedule is the user's.
 
