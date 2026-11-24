@@ -1070,7 +1070,17 @@ Components and changes:
    needed, through a circuit.
 
 Order: (1) `DHW_demand` and the split of energy by service, with an example of a combined
-boiler; (2) `Water_tank`, DHW charging circuit, DHW priority; (3) solar thermal, with
+boiler (**done 2026-11-24**, branch `feat/dhw-demand`: `DHW_demand` (daily volume
+expression, Anejo D profile, Anejo G monthly mains of Sevilla by default, distribution
+losses, `minimum_temperature` 45 °C: met only while the plant can heat and gives water
+at least that hot, else `Q_unmet`, `low_temperature` flag); `add_coil_load(Q, flow,
+dhw)` in plants and circuits, variable `Q_dhw`, `HVAC_water_system.dhw_share()`;
+generators and pumps split their energy HEATING/DHW (`energy.split_dhw`), transport mode
+2 = DHW for `BY_MODE`; service DHW in `SERVICES`. Test cases in `pruebas/2026-11-24_acs`:
+instantaneous boiler 2226 kWh/year of demand, 2023 kWh of gas; DHW on the two-pipe plant
+of example 10: 521 kWh unmet in summer. Found: the plants work with constant flow, so a
+boiler's inlet is a mixture, not mains water (efficiency of condensing boilers): variable
+flow (B6) fixes it); (2) `Water_tank`, DHW charging circuit, DHW priority; (3) solar thermal, with
 the stratified tank; (4) HE4 in `CTE_compliance` (renewable share of the DHW demand,
 on-site and nearby perimeter, SCOP_dhw ≥ 2.5 for heat pumps) and the Anejo F reference
 demand helper (28 l/day·person, occupancy by bedrooms, centralisation factor). Later:

@@ -453,6 +453,14 @@ The HVAC components are of two kinds: **equipment** components, which only hold 
 
 **Circuits.** An `HVAC_water_circuit` hangs from a plant: its own pumps, availability and, with a mixing valve (`heating_supply_setpoint`, `cooling_supply_setpoint`), its own supply temperature. A plant can feed several circuits at different temperatures. For the coils a circuit is like a plant; for the plant it is one more coil.
 
+**Domestic hot water.** A `DHW_demand` hangs from a plant or a circuit, as a coil does: each hour it takes the heat to warm its hot water (a daily volume at 60 °C spread by an hourly profile, the one of the DB-HE for dwellings by default) from the mains temperature (by month, Sevilla by default). For the plant it takes water at the supply temperature and gives it back at the mains temperature, since the water drawn is replaced by mains water. The same plants then make every usual installation:
+
+- *Instantaneous gas boiler* (no tank): a plant with the boiler, a small water volume and a setpoint of 60 °C, and the DHW demand.
+- *Combined boiler or heat pump* (heating and DHW): the plant feeds the heating coils (or a heating circuit) and the DHW demand; the energy of its generators is split between the services HEATING and DHW by the heat that goes to each one every hour, and so is the energy of the pumps.
+- *Central DHW of a building*: one plant with several DHW demands; a recirculation loop is a circuit with its losses (`Q_loss`) and pump.
+
+The demand is met only while the plant (or circuit) gives water at least at `minimum_temperature` (45 °C by default): a plant that is off, cooling (a two-pipe plant in summer) or too cold leaves it unmet (`Q_unmet`), and the hours it is too cold are flagged. Distribution losses of a network without recirculation are a fraction of the demand. Storage tanks, DHW priority and solar thermal collectors are coming next (see the ROADMAP). Note: the plants work with a constant water flow, so the water entering a boiler is a mixture, not exactly the mains water of a real instantaneous boiler (it matters for the efficiency of condensing boilers); variable flow is planned.
+
 **Results.** Each component stores its own variables: each generator its load, part load, electric and fuel power and efficiency; each circuit its temperatures, flows and the load it gives to the plant; the plant the temperatures of the supply, return and generators, the flows of the primary, secondary and bypass, the balance of its water and the total electric (`electric_power`) and fuel (`generators_fuel_power`) power. The water balance of a plant is `delta_U = Q_generators + Q_coils + Q_process + Q_loss + Q_pump`.
 
 As an example, the water side of [example 09](examples.md#09-water-plant): a heat pump first, a condensing boiler as backup, and a circuit at 45 °C at most.

@@ -10,7 +10,7 @@ from opensimula.Parameters import (
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
-from opensimula.energy import Energy_use, mode_from_plant
+from opensimula.energy import mode_from_plant, split_dhw
 
 
 class HVAC_water_circuit(Component):
@@ -56,6 +56,7 @@ class HVAC_water_circuit(Component):
         self.add_variable(Variable("mixing_flow", unit="dm³/s"))  # return mixed in the supply
         self.add_variable(Variable("coils_flow", unit="dm³/s"))
         self.add_variable(Variable("Q_coils", unit="W"))
+        self.add_variable(Variable("Q_dhw", unit="W"))  # part of Q_coils of DHW demands
         self.add_variable(Variable("Q_loss", unit="W"))
         self.add_variable(Variable("Q_pump", unit="W"))
         self.add_variable(Variable("delta_U", unit="W"))
@@ -97,6 +98,7 @@ class HVAC_water_circuit(Component):
             ) / 2
         self.Q_coils = self.coils_flow = 0
         self.Q_coils_used = self.coils_flow_used = 0
+        self.Q_dhw = self.Q_dhw_used = 0
         self.water_flow = 0
         self.Q_pump = self.Q_loss = self.delta_U = self.Q_plant = 0
 
@@ -139,16 +141,18 @@ class HVAC_water_circuit(Component):
         """Water temperature to the cooling coils (°C)."""
         return self._supply(self.plant.get_cooling_coil_inlet_T(), -1)
 
-    def add_coil_load(self, Q_coil, water_flow=0):
+    def add_coil_load(self, Q_coil, water_flow=0, dhw=0.0):
         """Add the load of a coil in this iteration.
 
         Args:
             Q_coil (float): heat the coil gives to the water (W), positive when it heats
                 the water (cooling coil), negative when it cools it (heating coil).
             water_flow (float, optional): water flow through the coil (dm³/s).
+            dhw (float, optional): the part of Q_coil that is domestic hot water (W).
         """
         self.Q_coils += Q_coil
         self.coils_flow += water_flow
+        self.Q_dhw += dhw
 
     # _________________ Iteration: the load to the plant _________________
 
@@ -195,11 +199,14 @@ class HVAC_water_circuit(Component):
         else:
             self.delta_U = 0
         self.Q_plant = Q - self.delta_U
+        # the DHW part of the load given to the plant, in proportion to the coils'
+        dhw = self.Q_plant * self.Q_dhw / self.Q_coils if self.Q_coils != 0 else 0.0
         if self.Q_plant != 0 or self.plant_flow != 0:
-            self.plant.add_coil_load(self.Q_plant, self.plant_flow)
+            self.plant.add_coil_load(self.Q_plant, self.plant_flow, dhw)
         # the coils add their load again in the next iteration
         self.Q_coils_used, self.coils_flow_used = self.Q_coils, self.coils_flow
         self.Q_coils = self.coils_flow = 0
+        self.Q_dhw_used, self.Q_dhw = self.Q_dhw, 0
         return True
 
     def post_iteration(self, time_index, date, daylight_saving, converged):
@@ -214,6 +221,7 @@ class HVAC_water_circuit(Component):
             "mixing_flow": self.water_flow - self.plant_flow,
             "coils_flow": self.coils_flow_used,
             "Q_coils": self.Q_coils_used if on else 0,
+            "Q_dhw": self.Q_dhw_used if on else 0,
             "Q_loss": self.Q_loss,
             "Q_pump": self.Q_pump,
             "delta_U": self.delta_U,
@@ -232,6 +240,8 @@ class HVAC_water_circuit(Component):
             list: `Energy_use` items (W at each time step).
         """
         plant = self.parameter("water_system").component
-        return [Energy_use("ELECTRICITY", "WATER_TRANSPORT",
-                           np.array(self.variable("pumps_power").values, dtype=float),
-                           mode_from_plant(plant.variable("mode").values))]
+        coils = np.asarray(self.variable("Q_coils").values, dtype=float)
+        dhw = np.asarray(self.variable("Q_dhw").values, dtype=float)
+        share = np.clip(np.divide(dhw, coils, out=np.zeros_like(coils), where=coils < 0), 0, 1)
+        return split_dhw("ELECTRICITY", "WATER_TRANSPORT", self.variable("pumps_power").values,
+                         share, mode_from_plant(plant.variable("mode").values))

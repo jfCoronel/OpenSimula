@@ -125,6 +125,7 @@ Parameters (src/opensimula/Parameters.py) provide type-safe configuration:
 - **HVAC_water_system**: Water plant: `generators` (HVAC_water_generator), `sequencing`, optional secondary `pumps` (header)
 - **HVAC_water_generator**: A generator of a plant: equipment (Chiller_heat_pump or Boiler), its pump, `number_of_units`
 - **HVAC_water_circuit**: Secondary circuit fed by a plant (own pumps, mixing valve); coils can refer to it like to a plant
+- **DHW_demand**: Domestic hot water demand (daily volume, hourly profile, mains temperature) hanging from a plant or circuit like a coil; plants split generator energy HEATING/DHW (`Q_dhw`, `dhw_share()`)
 - **DX_unit**, **Water_coil**, **Fan**, **Pump**, **Chiller_heat_pump**, **Boiler**: Equipment models (manufacturer data, used by the systems)
 
 #### Schedule Components

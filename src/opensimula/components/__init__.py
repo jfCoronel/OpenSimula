@@ -29,6 +29,7 @@ from opensimula.components.Chiller_heat_pump import Chiller_heat_pump
 from opensimula.components.Boiler import Boiler
 from opensimula.components.HVAC_water_generator import HVAC_water_generator
 from opensimula.components.HVAC_water_circuit import HVAC_water_circuit
+from opensimula.components.DHW_demand import DHW_demand
 from opensimula.components.HVAC_water_system import HVAC_water_system
 from opensimula.components.Energy_indicators import Energy_indicators
 from opensimula.components.Comfort_indicators import Comfort_indicators
@@ -46,6 +47,7 @@ DEFAULT_COMPONENTS_ORDER = [
                     "HVAC_perfect_system",
                     "HVAC_DX_system",
                     "HVAC_SZW_system",
+                    "DHW_demand",
                     "HVAC_water_circuit",
                     "HVAC_water_generator",
                     "HVAC_water_system",

@@ -11,7 +11,7 @@ from opensimula.Parameters import (
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
-from opensimula.energy import Energy_use, mode_from_plant
+from opensimula.energy import mode_from_plant, split_dhw
 
 
 class HVAC_water_system(Component):  # HVAC Water system
@@ -59,6 +59,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.add_variable(Variable("bypass_flow", unit="dm³/s"))
         self.add_variable(Variable("Q_generators", unit="W"))
         self.add_variable(Variable("Q_coils", unit="W"))
+        self.add_variable(Variable("Q_dhw", unit="W"))  # part of Q_coils of DHW demands
         self.add_variable(Variable("Q_process", unit="W"))
         self.add_variable(Variable("Q_loss", unit="W"))
         self.add_variable(Variable("Q_pump", unit="W"))
@@ -147,9 +148,10 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.on_off = self.parameter("system_on_off").evaluate(self.var_dic)
         self.variable("on_off").values[time_index] = self.on_off
 
-        # Q_coils load
+        # Q_coils load (and its part of DHW demands)
         self.Q_coils = 0
         self.Q_coils_used = 0  # the one of the last iteration, the value stored
+        self.Q_dhw = self.Q_dhw_used = 0
         self.coils_flow = 0
         self.coils_flow_used = 0
 
@@ -209,16 +211,19 @@ class HVAC_water_system(Component):  # HVAC Water system
             return False
         return not (self.parameter("system_control").value == "SCHEDULE_CONTROL" and self.mode == 1)
 
-    def add_coil_load(self, Q_coil, water_flow=0):
+    def add_coil_load(self, Q_coil, water_flow=0, dhw=0.0):
         """Add the load of a coil in this iteration.
 
         Args:
             Q_coil (float): heat the coil gives to the water (W), positive when it heats
                 the water (cooling coil), negative when it cools it (heating coil).
             water_flow (float, optional): water flow through the coil (dm³/s).
+            dhw (float, optional): the part of Q_coil that is domestic hot water (W, same
+                sign): DHW demands and circuits feeding them.
         """
         self.Q_coils += Q_coil
         self.coils_flow += water_flow
+        self.Q_dhw += dhw
     
     def _update_expressions(self):
         self.T_avg = (self.T_WGO + self.T_WGI + self.T_WCI + self.T_WCO) / 4
@@ -263,6 +268,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         # of this iteration to store it, then start again from 0
         self.Q_coils_used = self.Q_coils
         self.Q_coils = 0
+        self.Q_dhw_used = self.Q_dhw
+        self.Q_dhw = 0
         self.coils_flow_used = self.coils_flow
         self.coils_flow = 0
         # Test convergence
@@ -495,6 +502,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         # of this iteration to store it, then start again from 0
         self.Q_coils_used = self.Q_coils
         self.Q_coils = 0
+        self.Q_dhw_used = self.Q_dhw
+        self.Q_dhw = 0
         self.coils_flow_used = self.coils_flow
         self.coils_flow = 0
 
@@ -617,6 +626,7 @@ class HVAC_water_system(Component):  # HVAC Water system
                 pump_power += g.get_pump_power(flow)
             self.variable("Q_generators").values[time_index] = self.Q_gen
             self.variable("Q_coils").values[time_index] = self.Q_coils_used
+            self.variable("Q_dhw").values[time_index] = self.Q_dhw_used if self.mode == 1 else 0
             self.variable("Q_process").values[time_index] = self.Q_process
             self.variable("Q_pump").values[time_index] = self.Q_pump
             self.variable("pumps_power").values[time_index] = pump_power
@@ -652,6 +662,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         Q_gen = self.Q_gen if running else 0
         self.variable("Q_generators").values[time_index] = Q_gen
         self.variable("Q_coils").values[time_index] = self.Q_coils_used if m_s > 0 else 0
+        self.variable("Q_dhw").values[time_index] = (
+            self.Q_dhw_used if m_s > 0 and self.mode == 1 else 0)
         self.variable("Q_process").values[time_index] = self.Q_process if m_s > 0 else 0
         self.variable("Q_pump").values[time_index] = self.Q_pump if self.on_off else 0
         self.variable("pumps_power").values[time_index] = pump_power + secondary_pump_power
@@ -672,6 +684,21 @@ class HVAC_water_system(Component):  # HVAC Water system
         Returns:
             list: `Energy_use` items (W at each time step).
         """
-        return [Energy_use("ELECTRICITY", "WATER_TRANSPORT",
-                           np.array(self.variable("secondary_pumps_power").values, dtype=float),
-                           mode_from_plant(self.variable("mode").values))]
+        return split_dhw("ELECTRICITY", "WATER_TRANSPORT",
+                         self.variable("secondary_pumps_power").values, self.dhw_share(),
+                         mode_from_plant(self.variable("mode").values))
+
+    def dhw_share(self):
+        """Fraction of the heat given by the plant that goes to DHW demands, at each
+        time step: the DHW part of the load of its coils over the load of its coils
+        and processes, while heating.
+
+        Returns:
+            numpy.ndarray: values from 0 to 1.
+        """
+        dhw = np.asarray(self.variable("Q_dhw").values, dtype=float)
+        total = (np.asarray(self.variable("Q_coils").values, dtype=float)
+                 + np.asarray(self.variable("Q_process").values, dtype=float))
+        heating = (total < 0) & (np.asarray(self.variable("mode").values) == 1)
+        share = np.divide(dhw, total, out=np.zeros_like(total), where=heating)
+        return np.clip(share, 0, 1)

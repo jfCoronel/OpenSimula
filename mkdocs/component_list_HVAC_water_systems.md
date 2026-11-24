@@ -307,3 +307,44 @@ After the simulation we will have the following variables of this component:
 - __delta_U__ [W]: Rate of change of the energy stored in its water.
 - __Q_plant__ [W]: Load given to the plant: Q_coils + Q_loss + Q_pump - delta_U.
 - __pumps_power__ [W]: Electric power of its pumps.
+
+### DHW_demand
+
+Demand of domestic hot water (DHW) served by a water plant or circuit. The demand is a daily volume of hot water at a reference temperature (60 °C, as the DB-HE gives it) spread over the day by an hourly profile. Each hour it takes from its plant or circuit the heat to warm that water from the mains temperature, plus the distribution losses: the plant sees it as one more coil that takes water at the supply temperature and gives it back at the mains temperature (the water drawn is replaced by mains water). The load is DHW for the energy indicators: the plant splits the energy of its generators and pumps between HEATING and DHW by the heat delivered to each kind of load.
+
+The demand is met only while the plant or circuit is on, can heat and gives water at least at `minimum_temperature`; otherwise it is unmet that hour.
+
+#### Parameters
+
+- **water_system** [_component_, default = "not_defined", component type = HVAC_water_system or HVAC_water_circuit]: Plant or circuit that gives the hot water.
+- **input_variables** [_variable_list_, default = []]: Variables of other components used in the expressions.
+- **daily_volume** [_math_exp_, unit = "l/day", default = "100"]: Hot water used per day, at the reference temperature. An expression: it can follow a schedule (e.g. working days).
+- **reference_temperature** [_float_, unit = "°C", default = 60]: Temperature of the daily volume.
+- **hourly_profile** [_float_list_, unit = "%", default = DB-HE Anejo D table c]: 24 values, the share of the daily volume used in each hour (normalised to their sum). The default is the profile of dwellings of the DB-HE: [1, 0, 0, 0, 0, 1, 3, 10, 7, 7, 6, 6, 5, 5, 4, 3, 4, 4, 5, 7, 6, 6, 5, 5].
+- **mains_monthly_temperatures** [_float_list_, unit = "°C", default = Sevilla, DB-HE Anejo G]: Mains water temperature of each month: [11, 11, 13, 14, 16, 19, 21, 21, 20, 16, 13, 11].
+- **mains_temperature** [_math_exp_, unit = "°C", default = "T_month"]: Mains water temperature; `T_month` is the value of the month from the previous parameter.
+- **distribution_losses** [_float_, unit = "frac", default = 0]: Losses of the distribution network without recirculation, as a fraction of the demand.
+- **minimum_temperature** [_float_, unit = "°C", default = 45]: Lowest supply temperature that meets the demand.
+
+#### Variables
+
+- **daily_volume** (l/day), **volume_flow** (l/h): Volume of the day and of the hour, at the reference temperature.
+- **T_mains** (°C), **T_supply** (°C): Mains water temperature and supply temperature of the plant or circuit.
+- **water_flow** (dm³/s): Water taken from the plant, at its supply temperature.
+- **Q_demand** (W): Heat of the demand, with the distribution losses.
+- **Q_supplied** (W), **Q_unmet** (W): Heat given by the plant and heat not met.
+- **low_temperature** (flag): 1 the hours the demand is not met because the water is colder than `minimum_temperature`.
+
+The plants and circuits store the DHW part of the load of their coils in the variable **Q_dhw** (W).
+
+**Example:**
+<pre><code class="python">
+...
+
+pro.new_component("DHW_demand", "dhw").set_parameters({
+    "water_system": "boiler_plant",
+    "daily_volume": "120",
+    "mains_monthly_temperatures": [8, 8, 10, 12, 14, 17, 20, 19, 17, 13, 10, 8],
+})
+</code></pre>
+
