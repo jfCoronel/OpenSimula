@@ -216,13 +216,13 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.mode = self.parameter("system_mode").evaluate(self.var_dic)
            
     def get_cooling_coil_inlet_T(self): 
-        if self.pre_iter: 
+        if self.pre_iter and self.tank is None:  # a tank: the water it has
             return self.T_cool_sp
         else:
             return self.T_WCI
 
     def get_heating_coil_inlet_T(self):
-        if self.pre_iter: 
+        if self.pre_iter and self.tank is None:  # a tank: the water it has
             return self.T_heat_sp
         else:
             return self.T_WCI
