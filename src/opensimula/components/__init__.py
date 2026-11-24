@@ -30,6 +30,7 @@ from opensimula.components.Boiler import Boiler
 from opensimula.components.HVAC_water_generator import HVAC_water_generator
 from opensimula.components.HVAC_water_circuit import HVAC_water_circuit
 from opensimula.components.DHW_demand import DHW_demand
+from opensimula.components.Water_tank import Water_tank
 from opensimula.components.HVAC_water_system import HVAC_water_system
 from opensimula.components.Energy_indicators import Energy_indicators
 from opensimula.components.Comfort_indicators import Comfort_indicators
