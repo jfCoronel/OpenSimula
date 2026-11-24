@@ -1196,6 +1196,31 @@ an office in B4: C_ep,nren 151 vs 104 kWh/m² (fails, cooling 94), C_ep,tot 186 
 HE0 with tests (cases with known limits: residential new B4, other uses with C_FI);
 (3) docs and a gallery example (residential, Anejo D profiles?); (4) phase 2, HE1.
 
+## Future: help links in the GUI (added 2026-11-24)
+
+Idea of the user: in the editor, each parameter field with a help link to the description
+of that parameter in the documentation; the same for the variables of the results viewer,
+which are only seen in its tree.
+
+- **Targets**: today the component pages (`component_list_*.md`) have an anchor per
+  component (`### DHW_demand` → `#dhw_demand`) but the parameters and variables are list
+  items without anchors. Options: (a) add anchors by hand (`attr_list`:
+  `- **daily_volume** {#dhw_demand-daily_volume}`); (b) better: one source, a short
+  description for each parameter and variable in the code (`add_parameter(...,
+  description=...)`, `Variable(..., description)` already has one) and the component
+  pages generated from it (a mkdocs hook or a script), with anchors
+  `<type>-<parameter>`; the editor and the viewer then show the description as a tooltip
+  and link to the anchor.
+- **Map type → page**: each component type belongs to one page (building, HVAC air, HVAC
+  water, utils...): a table in the code (or the generator writes it).
+- **Editor**: a small "?" next to each field (tooltip with description and unit, click
+  opens the docs at the anchor; the docs URL of the installed version).
+- **Results viewer**: the variables are rows of the tree: tooltip on hover (description,
+  unit) and a "?" on the row or in the legend of a plotted series; or an info line under
+  the tree for the selected variable.
+- Docs per version (the published site is the last one): link to the version installed,
+  or accept the latest.
+
 ## Future: importer of HULC projects (added 2026-11-19)
 
 Code by a student's TFG (final degree project) to import buildings made with HULC (the
