@@ -22,6 +22,38 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   one combined paper update for 0.9 + 0.10 when an editor is assigned or with the ping at
   the end of November.
 
+## Plan agreed 2026-11-24: systems for the importers
+
+The HULC importer (CALENER-GT systems) should not be left half done: the usual systems of
+HULC must exist first. The test building of the TFG (`edificio_pmt_atecyr_sis3.ctehexml`)
+already has two that OpenSimula lacks: a DHW system (gas boiler, 120 l/day at 60 °C) and a
+multisplit 4×1 (`SIS_Autonomo2`: outdoor unit `EQ_ED_UnidadExterior` with capacity /
+power curves vs temperature and part load, "Defecto" curves of the CALENER-GT catalogue,
+and indoor units `UT_ED_UnidadInterior` per zone). An importer of EnergyPlus IDF files
+(through epJSON) would open OpenSimula to that community. Order agreed:
+
+1. `CTE_compliance` HE0 (section below), in progress.
+2. **DHW**: demand (l/day, hourly profile of Anejo D, use and mains temperature of
+   Anejo G), storage tank with losses, generators (boiler, DHW heat pump, electric
+   heater, combined boiler with DHW priority) and **solar thermal** (collector η0, a1,
+   a2; needed for HE4).
+3. **Water emitters**: radiators (Q = Q_nom·(ΔT/50)^n, EN 442, radiant part) and a
+   simplified radiant floor, fed by water plants/circuits (boiler + radiators is the
+   usual Spanish dwelling).
+4. **Multizone direct expansion**: multisplit / VRF, one outdoor unit with curves and
+   indoor units per zone (CALENER-GT / DOE-2 style; heat recovery VRF later).
+5. **Ventilation**: mechanical ventilation with heat recovery and a primary-air AHU
+   serving several zones together with local terminals (fan coils...).
+6. **EnergyPlus IDF importer, phase 1** (can run in parallel): geometry, constructions,
+   `Schedule:Compact`, internal gains, infiltration, `ZoneHVAC:IdealLoadsAirSystem` →
+   `HVAC_perfect_system`; validation with the BESTEST / ASHRAE 140 IDFs of EnergyPlus
+   (BSD-3). Phase 2: `HVACTemplate:*` and simple equipment (PTAC/PTHP → DX).
+7. HULC importer, when 2-5 exist; more real `.ctehexml` files (residential, tertiary) to
+   see which systems appear; the default curves are in `BDCatalogo.bdc`.
+
+Later: water-cooled chillers and cooling towers, ground-source heat pumps, PV (HE5, monthly
+balance with kexp = 0), district heating.
+
 ## Where things stood (2026-11-13)
 
 - **v0.9.0 released (2026-11-13)**: PyPI, GitHub release `v0.9.0`, Zenodo version DOI
@@ -1075,7 +1107,9 @@ convert. The HHV (PCS) appears only in the reference boiler of the substitution 
 natural gas ≈ 1.11 (to check the exact value the CTE tools use; a parameter of
 `CTE_compliance` with that default).
 
-Order of work: (1) building count of hours in `Comfort_indicators`; (2) `CTE_compliance`
+Order of work: (1) building count of hours in `Comfort_indicators` (**done**, branch
+`feat/comfort-building-hours`: BUILDING row and column, `building_*` summary, variable
+`building_outside`); (2) `CTE_compliance`
 HE0 with tests (cases with known limits: residential new B4, other uses with C_FI);
 (3) docs and a gallery example (residential, Anejo D profiles?); (4) phase 2, HE1.
 

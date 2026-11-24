@@ -127,7 +127,8 @@ Hours each zone is outside the setpoints of the system that controls it. For eve
 
 - **outside_&lt;zone&gt;** (flag): For each zone, 1 above the cooling setpoint, -1 below the heating setpoint, 0 inside or not counted.
 - **zones_outside** (-): Number of zones outside the setpoints.
+- **building_outside** (flag): 1 when any zone is outside the setpoints.
 
 #### Functions
 
-- **report()**: Tables of the simulation, a `Comfort_report` that a notebook shows as HTML: `zones` (by zone and TOTAL: hours counted, above, below and outside, their percentage, degree-hours above and below, maximum and minimum temperature while counted), `monthly` (hours outside by month and zone) and `summary`.
+- **report()**: Tables of the simulation, a `Comfort_report` that a notebook shows as HTML: `zones` (by zone, TOTAL and BUILDING: hours counted, above, below and outside, their percentage, degree-hours above and below, maximum and minimum temperature while counted), `monthly` (hours outside by month and zone, TOTAL and BUILDING) and `summary`. TOTAL adds the zone-hours of every zone; BUILDING counts each hour once, when any zone is counted or outside: it measures time, not zone-hours, as the hours outside setpoint of the CTE DB-HE (several zones outside at the same time count once).
