@@ -116,7 +116,7 @@ def charging_circuit(plant_on="1", dead_band=0):
 def test_charging_circuit_balance_and_dhw_share():
     pro = simulate(charging_circuit())
     c = "dhw_circuit"
-    balance = (values(pro, c, "Q_coils") + values(pro, c, "Q_loss") + values(pro, c, "Q_pump")
+    balance = (values(pro, c, "Q_loads") + values(pro, c, "Q_loss") + values(pro, c, "Q_pump")
                - values(pro, c, "Q_plant") - values(pro, c, "delta_U"))
     assert np.allclose(balance, 0, atol=1e-6)
     assert np.allclose(values(pro, "tank", "temperature"), 60)
@@ -202,7 +202,7 @@ def test_stratified_balance_and_solar_fraction():
     for nodes in (1, 6):
         pro = simulate(stratified(nodes), days=365)
         p = "plant"
-        balance = (values(pro, p, "Q_generators") + values(pro, p, "Q_coils")
+        balance = (values(pro, p, "Q_generators") + values(pro, p, "Q_loads")
                    + values(pro, p, "Q_loss") + values(pro, p, "Q_pump") - values(pro, p, "delta_U"))
         assert abs(balance.sum()) < 1e-6 * values(pro, p, "Q_generators").sum()
         solar = values(pro, "solar_gen", "Q").sum()

@@ -67,8 +67,12 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.add_variable(Variable("secondary_flow", unit="dm³/s"))
         self.add_variable(Variable("bypass_flow", unit="dm³/s"))
         self.add_variable(Variable("Q_generators", unit="W"))
-        self.add_variable(Variable("Q_coils", unit="W"))
-        self.add_variable(Variable("Q_dhw", unit="W"))  # part of Q_coils of DHW demands
+        # loads of the coils (of air systems, directly or through circuits) and of DHW
+        # demands: Q_loads = Q_heating_coils + Q_cooling_coils + Q_dhw
+        self.add_variable(Variable("Q_loads", unit="W"))
+        self.add_variable(Variable("Q_heating_coils", unit="W"))
+        self.add_variable(Variable("Q_cooling_coils", unit="W"))
+        self.add_variable(Variable("Q_dhw", unit="W"))
         self.add_variable(Variable("Q_process", unit="W"))
         self.add_variable(Variable("Q_loss", unit="W"))
         self.add_variable(Variable("Q_pump", unit="W"))
@@ -181,10 +185,11 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.on_off = self.parameter("system_on_off").evaluate(self.var_dic)
         self.variable("on_off").values[time_index] = self.on_off
 
-        # Q_coils load (and its part of DHW demands)
+        # loads (variable Q_loads), its part of DHW demands and of heating and cooling coils
         self.Q_coils = 0
         self.Q_coils_used = 0  # the one of the last iteration, the value stored
         self.Q_dhw = self.Q_dhw_used = 0
+        self.Q_heat = self.Q_heat_used = self.Q_cool = self.Q_cool_used = 0
         self.coils_flow = 0
         self.coils_flow_used = 0
 
@@ -274,6 +279,10 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_coils += Q_coil
         self.coils_flow += water_flow
         self.Q_dhw += dhw
+        if Q_coil - dhw < 0:  # coils: heating ones take heat from the water
+            self.Q_heat += Q_coil - dhw
+        else:
+            self.Q_cool += Q_coil - dhw
     
     def _update_expressions(self):
         self.T_avg = (self.T_WGO + self.T_WGI + self.T_WCI + self.T_WCO) / 4
@@ -328,6 +337,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_coils = 0
         self.Q_dhw_used = self.Q_dhw
         self.Q_dhw = 0
+        self.Q_heat_used, self.Q_heat = self.Q_heat, 0
+        self.Q_cool_used, self.Q_cool = self.Q_cool, 0
         self.coils_flow_used = self.coils_flow
         self.coils_flow = 0
         # Test convergence
@@ -544,8 +555,9 @@ class HVAC_water_system(Component):  # HVAC Water system
             pump_power += g.get_pump_power(flow)
         self.variable("T_generators_out").values[time_index] = T_out
         self.variable("Q_generators").values[time_index] = self.Q_gen
-        self.variable("Q_coils").values[time_index] = self.Q_coils_used if self.mode == 1 else 0
+        self.variable("Q_loads").values[time_index] = self.Q_coils_used if self.mode == 1 else 0
         self.variable("Q_dhw").values[time_index] = self.Q_dhw_used if self.mode == 1 else 0
+        self._store_coils(time_index, self.mode == 1)
         self.variable("Q_process").values[time_index] = 0
         self.variable("Q_pump").values[time_index] = 0
         self.variable("Q_loss").values[time_index] = self.Q_tank_loss + self.parameter_Q_loss
@@ -759,6 +771,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_coils = 0
         self.Q_dhw_used = self.Q_dhw
         self.Q_dhw = 0
+        self.Q_heat_used, self.Q_heat = self.Q_heat, 0
+        self.Q_cool_used, self.Q_cool = self.Q_cool, 0
         self.coils_flow_used = self.coils_flow
         self.coils_flow = 0
 
@@ -863,7 +877,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.variable("coils_flow").values[time_index] = self.coils_flow_used
         if self.water_flow == 0:
             self.variable("Q_generators").values[time_index] = 0
-            self.variable("Q_coils").values[time_index] = 0
+            self.variable("Q_loads").values[time_index] = 0
+            self._store_coils(time_index, False)
             self.variable("Q_process").values[time_index] = 0
             self.variable("Q_pump").values[time_index] = 0
             self.variable("pumps_power").values[time_index] = 0
@@ -883,8 +898,9 @@ class HVAC_water_system(Component):  # HVAC Water system
                 fuel += f
                 pump_power += g.get_pump_power(flow)
             self.variable("Q_generators").values[time_index] = self.Q_gen
-            self.variable("Q_coils").values[time_index] = self.Q_coils_used
+            self.variable("Q_loads").values[time_index] = self.Q_coils_used
             self.variable("Q_dhw").values[time_index] = self.Q_dhw_used if self.mode == 1 else 0
+            self._store_coils(time_index, True)
             self.variable("Q_process").values[time_index] = self.Q_process
             self.variable("Q_pump").values[time_index] = self.Q_pump
             self.variable("pumps_power").values[time_index] = pump_power
@@ -920,9 +936,10 @@ class HVAC_water_system(Component):  # HVAC Water system
         ) if m_s > 0 else 0
         Q_gen = self.Q_gen if running else (self.Q_solar if self.on_off else 0)
         self.variable("Q_generators").values[time_index] = Q_gen
-        self.variable("Q_coils").values[time_index] = self.Q_coils_used if m_s > 0 else 0
+        self.variable("Q_loads").values[time_index] = self.Q_coils_used if m_s > 0 else 0
         self.variable("Q_dhw").values[time_index] = (
             self.Q_dhw_used if m_s > 0 and self.mode == 1 else 0)
+        self._store_coils(time_index, m_s > 0)
         self.variable("Q_process").values[time_index] = self.Q_process if m_s > 0 else 0
         self.variable("Q_pump").values[time_index] = self.Q_pump if self.on_off else 0
         self.variable("pumps_power").values[time_index] = pump_power + secondary_pump_power
@@ -948,6 +965,17 @@ class HVAC_water_system(Component):  # HVAC Water system
         return split_dhw("ELECTRICITY", "WATER_TRANSPORT",
                          self.variable("secondary_pumps_power").values, self.dhw_share(),
                          mode_from_plant(self.variable("mode").values))
+
+    def _store_coils(self, time_index, on):
+        """Store the loads of the heating and cooling coils (0 if the water does not
+        reach them; with SCHEDULE_CONTROL, those of the other mode are discarded)."""
+        heat = self.Q_heat_used if on else 0
+        cool = self.Q_cool_used if on else 0
+        if self.parameter("system_control").value == "SCHEDULE_CONTROL":
+            heat = heat if self.mode == 1 else 0
+            cool = cool if self.mode == -1 else 0
+        self.variable("Q_heating_coils").values[time_index] = heat
+        self.variable("Q_cooling_coils").values[time_index] = cool
 
     def is_dhw_only(self):
         """True if all the loads of the plant are DHW: DHW demands and circuits with only
@@ -975,7 +1003,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         if self.is_dhw_only():  # also its losses and the heat stored in a tank
             return (mode == 1).astype(float)
         dhw = np.asarray(self.variable("Q_dhw").values, dtype=float)
-        total = (np.asarray(self.variable("Q_coils").values, dtype=float)
+        total = (np.asarray(self.variable("Q_loads").values, dtype=float)
                  + np.asarray(self.variable("Q_process").values, dtype=float))
         heating = (total < 0) & (mode == 1)
         share = np.divide(dhw, total, out=np.zeros_like(total), where=heating)

@@ -257,7 +257,7 @@ def test_HVAC_water_system_losses():
 
 
 def test_water_system_stores_the_load_of_the_coils(monkeypatch):
-    """Q_coils was reset to 0 at the end of every iteration, before it was
+    """Q_coils (now Q_loads) was reset to 0 at the end of every iteration, before it was
     stored, so the variable was always 0 (the balance of the loop used it)."""
     import json
     import pathlib
@@ -275,7 +275,7 @@ def test_water_system_stores_the_load_of_the_coils(monkeypatch):
     pro = sim.new_project("fan coil")
     pro.read_dict(data)
     pro.simulate()
-    Q_coils = pro.component("water_system").variable("Q_coils").values
+    Q_coils = pro.component("water_system").variable("Q_loads").values
     state = pro.component("fan_coil").variable("state").values
     cooling = np.isin(state, [-1, -2])
     heating = np.isin(state, [1, 2])

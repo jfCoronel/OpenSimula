@@ -92,7 +92,7 @@ def test_solar_fraction_and_balance_of_a_year():
     assert values(pro, "dhw", "Q_unmet").sum() == pytest.approx(0, abs=1e-3)
     assert 0.6 < preheat / demand < 0.85  # Sevilla, 2 m², 150 l, 120 l/day
     p = "solar_plant"
-    balance = (values(pro, p, "Q_generators") + values(pro, p, "Q_coils") + values(pro, p, "Q_loss")
+    balance = (values(pro, p, "Q_generators") + values(pro, p, "Q_loads") + values(pro, p, "Q_loss")
                + values(pro, p, "Q_pump") - values(pro, p, "delta_U"))
     assert abs(balance.sum()) < 1e-4 * values(pro, p, "Q_generators").sum()
     assert values(pro, "solar_tank", "temperature").max() <= 90 + 1e-6

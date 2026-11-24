@@ -150,7 +150,7 @@ def test_the_fan_coil_gives_the_plant_its_latent_heat(folder, monkeypatch):
     Q_total = coil.variable("Q_total").values
     assert cooling.sum() > 10
     assert coil.variable("Q_latent").values[cooling].sum() > 0
-    Q_coils = pro.component("water_system").variable("Q_coils").values
+    Q_coils = pro.component("water_system").variable("Q_loads").values
     assert np.allclose(Q_coils[cooling], Q_total[cooling], rtol=1e-6, atol=1e-6)
     # the water leaves the coil warmer by the total heat, from the plant's temperature
     T_iw, T_ow = coil.variable("T_iw").values, coil.variable("T_ow").values

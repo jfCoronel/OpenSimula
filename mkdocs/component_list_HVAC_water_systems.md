@@ -246,7 +246,10 @@ After the simulation we will have the following variables of this component:
 - __bypass_flow__ [dm³/s]: Water flow through the header from the supply to the return (positive) or from the return to the supply (negative); 0 without a header.
 - __coils_flow__ [dm³/s]: Sum of the water flows the coils report (design flow times their part load).
 - __Q_generators__ [W]: Heat given to the water by the generators: positive heating, negative cooling.
-- __Q_coils__ [W]: Heat exchanged with the coils connected to the system, positive when heating the water, negative when cooling it.
+- __Q_loads__ [W]: Load of everything connected to the system: coils of air systems, circuits and DHW demands; positive when they heat the water, negative when they cool it. Q_loads = Q_heating_coils + Q_cooling_coils + Q_dhw (except with SCHEDULE_CONTROL, which discards the loads of the other mode).
+- __Q_heating_coils__ [W]: Load of the heating coils, of air systems directly or through circuits (negative).
+- __Q_cooling_coils__ [W]: Load of the cooling coils (positive).
+- __Q_dhw__ [W]: Load of the DHW demands (negative).
 - __Q_process__ [W]: Additional process heat load applied to the water.
 - __Q_loss__ [W]: Thermal losses of the water to the environment.
 - __Q_pump__ [W]: Heat given to the water by all the pumps.
@@ -308,11 +311,13 @@ After the simulation we will have the following variables of this component:
 - __plant_flow__ [dm³/s]: Water flow taken from the plant.
 - __mixing_flow__ [dm³/s]: Water flow of the return mixed into the supply by the mixing valve.
 - __coils_flow__ [dm³/s]: Sum of the water flows the coils report.
-- __Q_coils__ [W]: Heat exchanged with the coils, positive when they heat the water, negative when they cool it.
+- __Q_loads__ [W]: Load of its coils and DHW demands, positive when they heat the water, negative when they cool it: Q_loads = Q_heating_coils + Q_cooling_coils + Q_dhw.
+- __Q_heating_coils__, __Q_cooling_coils__ [W]: Load of its heating coils (negative) and of its cooling coils (positive).
+- __Q_dhw__ [W]: Load of its DHW demands (negative).
 - __Q_loss__ [W]: Heat losses (negative) or gains of the circuit.
 - __Q_pump__ [W]: Heat given to the water by its pumps.
 - __delta_U__ [W]: Rate of change of the energy stored in its water.
-- __Q_plant__ [W]: Load given to the plant: Q_coils + Q_loss + Q_pump - delta_U.
+- __Q_plant__ [W]: Load given to the plant: Q_loads + Q_loss + Q_pump - delta_U.
 - __pumps_power__ [W]: Electric power of its pumps.
 
 ### Solar_collector
@@ -445,7 +450,7 @@ Water from the plant hotter than the use temperature is mixed by the user with m
 - **Q_supplied** (W), **Q_unmet** (W): Heat given by the plant and heat not met.
 - **low_temperature** (flag): 1 when the plant heats but its water is colder than the use temperature (demand partly unmet).
 
-The plants and circuits store the DHW part of the load of their coils in the variable **Q_dhw** (W).
+The plants and circuits store the load of their DHW demands in the variable **Q_dhw** (W), part of their **Q_loads**.
 
 **Example:**
 <pre><code class="python">

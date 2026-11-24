@@ -56,14 +56,16 @@ def test_reheat_load_goes_to_the_hot_water_plant(winter):
     # the coils cool the hot water by what they give to the air: heating coil + reheat
     heating_coil = np.where(np.isin(values(winter, "ahu", "state"), [1, 2]),
                             values(winter, "ahu", "Q_sensible"), 0)
-    Q_coils = values(winter, "hot_water", "Q_coils")
+    Q_coils = values(winter, "hot_water", "Q_loads")
     assert np.allclose(-Q_coils, reheat + heating_coil, rtol=1e-6, atol=1e-6)
+    # only heating coils: all the load is theirs
+    assert np.allclose(values(winter, "hot_water", "Q_heating_coils"), Q_coils)
     assert values(winter, "boiler_generator", "Q").sum() > 0
     assert np.all(values(winter, "hot_water", "coils_flow")[reheat > 0] > 0)
 
 
 def test_cooling_load_goes_to_the_chilled_water_plant(summer):
-    Q_coils = values(summer, "chilled_water", "Q_coils")
+    Q_coils = values(summer, "chilled_water", "Q_loads")
     cooling = np.isin(values(summer, "ahu", "state"), [-1, -2])
     assert cooling.sum() > 0
     assert np.all(Q_coils[cooling] > 0)
@@ -72,6 +74,8 @@ def test_cooling_load_goes_to_the_chilled_water_plant(summer):
     Q_total = values(summer, "ahu", "Q_total")
     assert values(summer, "ahu", "Q_latent")[cooling].sum() > 0
     assert np.allclose(Q_coils[cooling], Q_total[cooling], rtol=1e-6, atol=1e-6)
+    assert np.allclose(values(summer, "chilled_water", "Q_cooling_coils"), Q_coils)
+    assert np.all(values(summer, "chilled_water", "Q_heating_coils") == 0)
     assert values(summer, "chiller_generator", "Q").min() < 0
     # chilled water at the setpoint while there is load
     T = values(summer, "chilled_water", "T_generators_out")
@@ -104,4 +108,4 @@ def test_no_cooling_from_a_plant_in_heating_mode():
     # cooled with it while the plant discarded the load (energy from nowhere)
     pro = simulate("01/07/2001 00:00:00", days=3, cooling_water_system="hot_water")
     assert np.all(~np.isin(values(pro, "ahu", "state"), [-1, -2]))
-    assert np.all(values(pro, "hot_water", "Q_coils") <= 0)
+    assert np.all(values(pro, "hot_water", "Q_loads") <= 0)

@@ -78,7 +78,7 @@ def test_instantaneous_boiler_takes_mains_water():
     assert np.allclose(T_in, values(pro, "dhw", "T_mains")[draw], atol=1.5)
     assert values(pro, "dhw", "Q_unmet").sum() == 0
     # energy balance of the plant
-    balance = (values(pro, "plant", "Q_generators") + values(pro, "plant", "Q_coils")
+    balance = (values(pro, "plant", "Q_generators") + values(pro, "plant", "Q_loads")
                + values(pro, "plant", "Q_loss") + values(pro, "plant", "Q_pump")
                - values(pro, "plant", "delta_U"))
     assert abs(balance.sum()) < 1e-3 * values(pro, "plant", "Q_generators").sum()
