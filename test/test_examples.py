@@ -19,6 +19,7 @@ NAMES = [
     "08_load_records",
     "09_water_plant",
     "10_energy_and_comfort",
+    "11_dhw_and_solar",
 ]
 # 01-07 build on each other; 08 starts again from 06 without the building
 PROGRESSIVE = NAMES[:7]
@@ -170,3 +171,18 @@ def test_the_energy_and_comfort_example_is_09_with_the_indicators(folder, monkey
     r = pro.component("energy").report()
     assert r.summary["reference_area"] == 96 and r.summary["primary_nren"] > 0
     assert pro.component("comfort").report().summary["hours_counted"] > 0
+
+
+def test_the_dhw_and_solar_example(folder, monkeypatch):
+    pro = _simulate(folder, "11_dhw_and_solar", monkeypatch, n_time_steps=24 * 31)
+    dhw = pro.component("dhw")
+    demand = np.sum(dhw.variable("Q_demand").values)
+    preheat = np.sum(dhw.variable("Q_preheat").values)
+    assert np.sum(dhw.variable("Q_unmet").values) == pytest.approx(0, abs=1e-6)
+    assert 0.4 < preheat / demand < 0.8  # January
+    # the boiler heats only the rest, from the temperature of the solar tank
+    boiler = np.sum(pro.component("boiler_generator").variable("Q").values)
+    stored = np.sum(pro.component("boiler_plant").variable("delta_U").values)
+    assert boiler - stored == pytest.approx(demand - preheat, rel=1e-3)
+    r = pro.component("energy").report()
+    assert r.annual.loc["DHW", "SOLAR_THERMAL"] > 0 and r.annual.loc["DHW", "NATURAL_GAS"] > 0

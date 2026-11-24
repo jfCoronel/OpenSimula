@@ -31,7 +31,7 @@ opensimula uses in different parts of the code the following Python packages, wh
 - nbformat
 - tqdm
 
-The quickest way to see OpenSimula working is the gallery of [Examples](examples.md): nine projects, from a schedule to a water plant with a heat pump and a boiler, that `opensimula examples` copies to a folder and `opensimula gui` opens in the browser.
+The quickest way to see OpenSimula working is the gallery of [Examples](examples.md): eleven projects, from a schedule to a water plant with a heat pump and a boiler, its energy and comfort indicators, and the hot water of a dwelling with solar collectors, that `opensimula examples` copies to a folder and `opensimula gui` opens in the browser.
 
 ### First example
 

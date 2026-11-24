@@ -6,6 +6,15 @@ This is the list of changes to opensimula between each release. For full details
 
 Domestic hot water and solar thermal on the water plants, CTE DB-HE verification (HE0 and HE4), energy and comfort indicators. **One variable of the water plants and circuits has a new name.**
 
+#### New
+
+- **Domestic hot water**: `DHW_demand` (hot water used and its temperature as expressions, mains temperature by month, distribution losses, `preheat_system` for a preheating in series) hanging from water plants and circuits as one more coil; the energy of the generators and pumps is split between HEATING and DHW.
+- **`Water_tank`**: storage tanks (DHW tanks, electric water heaters, buffer tanks) in a plant or in a DHW charging circuit, with losses, a thermostat with dead band and, in a plant, stratification (`number_of_nodes`).
+- **`Solar_collector`**: solar thermal collectors (EN ISO 9806) as generators of a plant with a tank; new carrier SOLAR_THERMAL.
+- **Variable water flow** in plants and circuits (`flow_control`, `minimum_flow`), with staged secondary pumps; an instantaneous boiler sees only the water drawn.
+- **`Energy_indicators`** (final and primary energy, CO₂ by carrier and service, RITE factors), **`Comfort_indicators`** (hours outside the setpoints) and **`CTE_compliance`** (CTE DB-HE: HE0 and HE4), with their reports in notebooks and in the app; helpers of the DB-HE in `opensimula.cte` (Anejo D, F and G).
+- Gallery: examples 10 (energy and comfort) and 11 (domestic hot water and solar).
+
 #### Changes that break compatibility
 
 - `HVAC_water_system` and `HVAC_water_circuit`: the variable `Q_coils` is now **`Q_loads`** (it is the load of the coils, the circuits and the DHW demands), split into the new **`Q_heating_coils`**, **`Q_cooling_coils`** and `Q_dhw`. Expressions and scripts that read `Q_coils` must use `Q_loads`.
