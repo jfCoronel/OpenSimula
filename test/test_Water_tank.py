@@ -147,3 +147,91 @@ def test_charging_circuit_dead_band():
     assert charging.sum() < (values(always, "dhw_circuit", "plant_flow") > 0).sum()
     T = values(pro, "tank", "temperature")
     assert T.max() <= 60 + 1e-6 and T.min() > 50
+
+
+# _________________ Stratified tank _________________
+
+def stratified(nodes=6, area=2.0, position=0.5, dead_band=5):
+    """One 200 l tank with solar collectors (bottom) and an electric heater (middle)."""
+    return {"name": "s", "time_step": 3600, "simulation_file_met": "sevilla", "components": [
+        {"type": "File_met", "name": "sevilla", "file_type": "MET", "file_name": MET},
+        {"type": "Solar_collector", "name": "collector", "area": area,
+         "nominal_water_flow": 0.02 * max(area, 0.5)},
+        {"type": "Pump", "name": "solar_pump", "nominal_water_flow": 0.04, "nominal_power": 30},
+        {"type": "HVAC_water_generator", "name": "solar_gen", "equipment": "collector",
+         "pump": "solar_pump"},
+        {"type": "Boiler", "name": "resistance", "fuel": "ELECTRICITY",
+         "nominal_heating_capacity": 1500, "nominal_efficiency": 1, "nominal_water_flow": 0.05},
+        {"type": "HVAC_water_generator", "name": "heater_gen", "equipment": "resistance"},
+        {"type": "Water_tank", "name": "tank", "volume": 200, "UA": 1.5, "number_of_nodes": nodes,
+         "backup_position": position, "dead_band": dead_band},
+        {"type": "HVAC_water_system", "name": "plant", "generators": ["solar_gen", "heater_gen"],
+         "tank": "tank", "heating_water_setpoint": "60", "initial_water_temp": 60},
+        *dhw("plant"),
+        {"type": "Energy_indicators", "name": "energy"},
+    ]}
+
+
+def tank_component(nodes):
+    sim = osm.Simulation()
+    pro = sim.new_project("p")
+    tank = pro.new_component("Water_tank", "t")
+    tank.set_parameters({"volume": 100, "number_of_nodes": nodes})
+    tank.pre_simulation(1, 3600)
+    return tank
+
+
+def test_mixing_and_draw_of_the_nodes():
+    tank = tank_component(4)
+    # a node warmer than the ones above rises: the out of order blocks take their mean
+    assert np.allclose(tank.mix([60, 40, 50, 20]), [60, 45, 45, 20])
+    assert np.allclose(tank.mix([30, 40, 50, 60]), [45, 45, 45, 45])
+    # a draw of half a node in an hour: the top leaves, mains water enters the bottom
+    T, T_out = tank.advect(np.array([60.0, 50, 40, 30]), 12.5 / 3600, 10, 3600)
+    assert T_out == 60
+    assert np.allclose(T, [55, 45, 35, 20])
+    # energy: what leaves minus what enters
+    assert np.sum(T) * 25 == pytest.approx((60 + 50 + 40 + 30) * 25 - 12.5 * (60 - 10))
+    # heat in a node, mixed upwards
+    T = tank.add_heat(np.array([50.0, 50, 50, 50]), 2, 1000, 4.18, 3600)
+    assert T[0] == pytest.approx(T[2]) and T[3] == 50 and T[0] > 50
+
+
+def test_stratified_balance_and_solar_fraction():
+    results = {}
+    for nodes in (1, 6):
+        pro = simulate(stratified(nodes), days=365)
+        p = "plant"
+        balance = (values(pro, p, "Q_generators") + values(pro, p, "Q_coils")
+                   + values(pro, p, "Q_loss") + values(pro, p, "Q_pump") - values(pro, p, "delta_U"))
+        assert abs(balance.sum()) < 1e-6 * values(pro, p, "Q_generators").sum()
+        solar = values(pro, "solar_gen", "Q").sum()
+        results[nodes] = solar / (solar + values(pro, "heater_gen", "Q").sum())
+        if nodes == 6:
+            T = np.array([values(pro, "tank", f"T_node_{i}") for i in range(1, 7)])
+            assert np.all(np.diff(T, axis=0) <= 1e-9)  # top warmest
+            assert np.allclose(values(pro, "tank", "temperature"), T.mean(axis=0))
+            assert values(pro, "dhw", "Q_unmet").sum() < 0.01 * values(pro, "dhw", "Q_demand").sum()
+    # with the bottom cold, the collectors give much more
+    assert results[6] > results[1] + 0.1
+
+
+def test_backup_heats_only_above_its_node():
+    pro = simulate(stratified(nodes=4, area=0, position=0.5, dead_band=0), days=3)
+    T = np.array([values(pro, "tank", f"T_node_{i}") for i in range(1, 5)])
+    # thermostat on node 2 (the heater at half height): the nodes above at 60 °C
+    assert np.allclose(T[:2, 24:], 60, atol=1e-6)
+    # the nodes below get only mains water: colder and colder
+    assert T[3, -1] < 30
+
+
+def test_stratified_tank_only_in_a_plant():
+    data = charging_circuit()
+    for c in data["components"]:
+        if c["type"] == "Water_tank":
+            c["number_of_nodes"] = 4
+    sim = osm.Simulation()
+    sim.console_print = False
+    pro = sim.new_project("p")
+    pro.read_dict(data)
+    assert any("stratified" in m.text for m in pro.check() if m.level == "ERROR")
