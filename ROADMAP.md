@@ -17,7 +17,8 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
 - **Next (agreed 2026-11-19)**: CTE indicators. Design closed 2026-11-23 (section
   "Planned: `Energy_indicators`..." below): `Energy_indicators` (0.11), `Comfort_indicators`,
   `CTE_compliance` later. Later candidates: B6
-  variable secondary flow and pump staging (0.11), small follow-ups (`File_data` dates,
+  variable secondary flow and pump staging (0.11; moved ahead of DHW steps 2-3 on
+  2026-11-24, see "B6: variable water flow"), small follow-ups (`File_data` dates,
   viewer CSV names with dots), HULC importer, marimo/WASM course. JOSS: wait (see memory),
   one combined paper update for 0.9 + 0.10 when an editor is assigned or with the ping at
   the end of November.
@@ -1207,6 +1208,30 @@ an office in B4: C_ep,nren 151 vs 104 kWh/m² (fails, cooling 94), C_ep,tot 186 
 10 h outside; (2) `CTE_compliance`
 HE0 with tests (cases with known limits: residential new B4, other uses with C_FI);
 (3) docs and a gallery example (residential, Anejo D profiles?); (4) phase 2, HE1.
+
+## B6: variable water flow (agreed 2026-11-24)
+
+Moved ahead of DHW steps 2-3: an instantaneous boiler (no tank, no pump, mains pressure)
+must see only the water drawn, at the mains temperature (condensing boilers).
+
+- **`flow_control`** in `HVAC_water_system` and `HVAC_water_circuit`: `CONSTANT`
+  (default, the current behaviour, bit-identical) or `VARIABLE` (two-way valves).
+- **`minimum_flow`** (fraction of the design flow, default 0): the flow never goes below
+  it while the plant (circuit) is on; a `Q_process` without flow needs it > 0 (warning).
+- **Plant without header, VARIABLE**: loop flow = flow asked by the coils, circuits and
+  DHW demands (`coils_flow`), limited to [minimum, design]; 0 → the water stands (only
+  losses). Generators share it in proportion to their nominal flow; their pumps at that
+  flow (`F_water` in the pump `power_expression`). `pump_operation` does not apply.
+- **Plant with header, VARIABLE**: secondary flow = `coils_flow` limited to [minimum,
+  secondary design]; secondary pumps staged: in the order of the list, as many as needed
+  (cumulative nominal flow ≥ flow), sharing the flow in proportion to their nominal flow.
+  Primary unchanged (each generator at its nominal flow while it runs, bypass).
+- **Circuit, VARIABLE**: its flow = that of its coils limited the same way, its pumps
+  staged as the secondary ones.
+- Checks: CONSTANT bit-identical (tests, ASHRAE 140 quick check 0 changes); instantaneous
+  boiler VARIABLE: T_generators_in = T_mains while drawing, energy balance; header and
+  circuit: less pump power than at constant flow; test case in `pruebas/` (condensing
+  instantaneous boiler, constant vs variable).
 
 ## Future: help links in the GUI (added 2026-11-24)
 
