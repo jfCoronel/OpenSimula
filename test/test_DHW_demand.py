@@ -128,6 +128,20 @@ def test_dhw_through_a_circuit_reaches_the_plant():
     assert r.annual.loc["DHW", "TOTAL"] > 0
 
 
+def test_instantaneous_boiler_without_pump():
+    # mains pressure moves the water: the generator has no pump, no electricity
+    data = instantaneous()
+    data["components"] = [c for c in data["components"] if c["type"] != "Pump"]
+    next(c for c in data["components"] if c["type"] == "HVAC_water_generator").pop("pump")
+    pro = run(data)
+    assert values(pro, "dhw", "Q_unmet").sum() == 0
+    assert values(pro, "plant", "Q_pump").sum() == 0
+    r = pro.component("energy").report(water_transport="BY_MODE")
+    assert "ELECTRICITY" not in r.annual.columns
+    assert r.annual.loc["DHW", "NATURAL_GAS"] == pytest.approx(
+        values(pro, "dhw", "Q_supplied").sum() / 0.92 / 1000, rel=0.02)
+
+
 def test_not_supplied_when_the_plant_is_off_partly_when_too_cold():
     pro = run(instantaneous(plant={"system_on_off": "0"}), days=1)
     assert values(pro, "dhw", "Q_supplied").sum() == 0

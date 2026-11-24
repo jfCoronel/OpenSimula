@@ -455,7 +455,7 @@ The HVAC components are of two kinds: **equipment** components, which only hold 
 
 **Domestic hot water.** A `DHW_demand` hangs from a plant or a circuit, as a coil does: each time step it takes the heat to warm the hot water used (`volume_flow`, l/h, at `use_temperature`, 60 °C by default; both expressions, the volume usually a daily volume times a schedule such as the hourly profile of the DB-HE for dwellings, or values from a data file) from the mains temperature (by month, Sevilla by default). For the plant it takes water at the supply temperature and gives it back at the mains temperature, since the water drawn is replaced by mains water. The same plants then make every usual installation:
 
-- *Instantaneous gas boiler* (no tank): a plant with the boiler, a small water volume and a setpoint of 60 °C, and the DHW demand.
+- *Instantaneous gas boiler* (no tank): a plant with the boiler, a small water volume and a setpoint of 60 °C, and the DHW demand; the generator without a pump, since the mains pressure moves the water.
 - *Combined boiler or heat pump* (heating and DHW): the plant feeds the heating coils (or a heating circuit) and the DHW demand; the energy of its generators is split between the services HEATING and DHW by the heat that goes to each one every hour, and so is the energy of the pumps.
 - *Central DHW of a building*: one plant with several DHW demands; a recirculation loop is a circuit with its losses (`Q_loss`) and pump.
 
