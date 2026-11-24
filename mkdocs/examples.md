@@ -49,7 +49,7 @@ There is no building and no weather: a project is just a list of components that
 
 **New:** `File_met`, `Calculator`, the project parameter `simulation_file_met`.
 
-`sevilla` reads the hourly weather of Sevilla from `sevilla.met`: temperature, humidity, solar radiation, wind and sky temperature, all of them variables of the component. `degree_hours` is a calculator: it takes variables of other components (`T = sevilla.temperature`) and computes new ones with mathematical expressions, here the heating and cooling degree-hours. The file name is relative, so it is read from the folder the app or the notebook is started from.
+`sevilla` reads the hourly weather of Sevilla from `sevilla.met`: temperature, humidity, solar radiation, wind and sky temperature, all of them variables of the component. `degree_hours` is a calculator: it takes variables of other components (`T = sevilla.temperature`) and computes new ones with mathematical expressions, here the heating and cooling degree-hours. The file name is relative: the app reads it from the folder of the project, and a notebook from its working folder.
 
 In the results viewer, pick both variables of `degree_hours` and set **Frequency** to Monthly and **Aggregation** to Sum: the bars are the degree-hours of each month.
 

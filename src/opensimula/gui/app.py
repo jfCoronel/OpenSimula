@@ -19,6 +19,7 @@ app = marimo.App(width="full", app_title="OpenSimula")
 @app.cell(hide_code=True)
 def _():
     import json
+    import os
     import pathlib
     import time
 
@@ -27,23 +28,27 @@ def _():
     import opensimula as osm
     from opensimula.editor import format_errors
 
-    return format_errors, json, mo, osm, pathlib, time
+    return format_errors, json, mo, os, osm, pathlib, time
 
 
 @app.cell(hide_code=True)
-def _(mo, osm, pathlib):
+def _(mo, os, osm, pathlib):
+    from opensimula.gui import project_folder
+
     def open_project(path=None):
         """A new simulation holding the project read from path, or an empty one.
 
-        Relative file names inside the project (weather files, data files) are
-        resolved from the working folder, the one the app was started from.
+        Relative file names inside the project (weather files, data files) are read
+        from the folder of the project file when they are there, otherwise from the
+        folder the app was started from (`project_folder`): the app moves to it.
         """
         sim = osm.Simulation()
         sim.console_print = False
         if path is None:
             project = sim.new_project("New project")
             return {"sim": sim, "project": project, "path": None, "problems": []}
-        path = pathlib.Path(path)
+        path = pathlib.Path(path).resolve()
+        os.chdir(project_folder(path))
         project = sim.new_project(path.stem)
         problems = []
         try:
@@ -88,8 +93,6 @@ def _(mo, osm, pathlib):
                 mo.hstack([open_button, new_button], justify="start"),
             ]),
         }),
-        mo.md(f"<small>Working folder: `{pathlib.Path.cwd()}`. Relative file names "
-              "in the project (weather, data) are read from it.</small>"),
     ])
     return browser, new_button, open_button
 
@@ -107,13 +110,14 @@ def _(browser, mo, new_button, open_button, open_project, set_session):
 
 
 @app.cell(hide_code=True)
-def _(get_session, mo, problem_list):
+def _(get_session, mo, pathlib, problem_list):
     session = get_session()
     editor_widget = session["project"].editor()
     _name = session["project"].parameter("name").value
     _where = f"`{session['path']}`" if session["path"] else "not saved yet"
     mo.vstack([
-        mo.md(f"## {_name}\n<small>{_where}</small>"),
+        mo.md(f"## {_name}\n<small>{_where}</small>\n\n<small>Relative file names "
+              f"(weather, data) are read from `{pathlib.Path.cwd()}`.</small>"),
         problem_list(session["problems"]) if session["problems"] else mo.md(""),
         mo.ui.anywidget(editor_widget),
     ])

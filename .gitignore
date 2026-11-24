@@ -135,3 +135,6 @@ paper/jats/
 
 # HULC catalogue used by future/hulc_to_opensimula (not redistributed)
 future/hulc_to_opensimula/BDCatalogo.bdc*
+
+# local test cases prepared for manual checks in the app (see ROADMAP)
+pruebas/
