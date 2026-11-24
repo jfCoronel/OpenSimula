@@ -436,7 +436,7 @@ Jupyter shell:
 
 ## HVAC systems and water plants
 
-The HVAC components are of two kinds: **equipment** components, which only hold the manufacturer's data of a piece of equipment and are not simulated by themselves (`DX_unit`, `Water_coil`, `Fan`, `Pump`, `Chiller_heat_pump`, `Boiler`), and **systems** (`HVAC_*`), which use them, are simulated in each time step and store the variables of the installation. An installation is put together by references between them:
+The HVAC components are of two kinds: **equipment** components, which only hold the manufacturer's data of a piece of equipment and are not simulated by themselves (`DX_unit`, `Water_coil`, `Fan`, `Pump`, `Chiller_heat_pump`, `Boiler`, `Solar_collector`, `Water_tank`), and **systems** (`HVAC_*`), which use them, are simulated in each time step and store the variables of the installation. An installation is put together by references between them:
 
 ![How the HVAC components refer to each other](img/hvac_components.svg)
 
@@ -446,23 +446,74 @@ The HVAC components are of two kinds: **equipment** components, which only hold 
 
 **Water plant.** An `HVAC_water_system` heats and/or cools water with its generators:
 
-- Each `HVAC_water_generator` has an equipment component, a `Chiller_heat_pump` (electric, heating and/or cooling according to its `chiller_type`) or a `Boiler` (fuel, heating only, efficiency on the lower heating value that may depend on the return temperature for condensing boilers), its own pump and its availability, and may have several identical units (`number_of_units`).
+- Each `HVAC_water_generator` has an equipment component, a `Chiller_heat_pump` (electric, heating and/or cooling according to its `chiller_type`), a `Boiler` (fuel, heating only, efficiency on the lower heating value that may depend on the return temperature for condensing boilers; an electric water heater is a `Boiler` with fuel ELECTRICITY and efficiency 1) or a `Solar_collector` (see below), its own pump (optional) and its availability, and may have several identical units (`number_of_units`).
 - The generators able to serve the mode share the load with the `sequencing` of the plant: "PRIORITY", in the order of the list, the next one when the previous is at full load (a heat pump first and a boiler as backup), or "EQUAL_LOAD", all of them at the same part load. When they cannot reach the setpoint they give their full capacity at the actual water temperature.
 - The mode, heating or cooling, follows the load of the coils ("LOAD_CONTROL") or a schedule ("SCHEDULE_CONTROL", e.g. heating and cooling seasons of a two-pipe installation). Heating and cooling at the same time need two plants (four pipes). Coils only take heat or cold from a plant that can give it in its mode.
 - Without secondary `pumps` the water of the coils goes through the generators, moved by their pumps. With them the plant has a header between the primary circuit of the generators and the secondary one: the primary pump of each generator moves water only while it runs, and the mixing in the header matters. A primary flow larger than the secondary returns hot water to the generators through the bypass (bad for a condensing boiler); a smaller one sends part of the return to the supply (the water to the coils is below the setpoint).
 
 **Circuits.** An `HVAC_water_circuit` hangs from a plant: its own pumps, availability and, with a mixing valve (`heating_supply_setpoint`, `cooling_supply_setpoint`), its own supply temperature. A plant can feed several circuits at different temperatures. For the coils a circuit is like a plant; for the plant it is one more coil.
 
-**Domestic hot water.** A `DHW_demand` hangs from a plant or a circuit, as a coil does: each time step it takes the heat to warm the hot water used (`volume_flow`, l/h, at `use_temperature`, 60 °C by default; both expressions, the volume usually a daily volume times a schedule such as the hourly profile of the DB-HE for dwellings, or values from a data file) from the mains temperature (by month, Sevilla by default). For the plant it takes water at the supply temperature and gives it back at the mains temperature, since the water drawn is replaced by mains water. The same plants then make every usual installation:
+**Domestic hot water.** A `DHW_demand` hangs from a plant or a circuit, as a coil does. Each time step it takes the heat to warm the hot water used from the mains temperature:
 
-- *Instantaneous gas boiler* (no tank): a plant with the boiler, a small water volume and a setpoint of 60 °C, and the DHW demand; the generator without a pump, since the mains pressure moves the water.
-- *Combined boiler or heat pump* (heating and DHW): the plant feeds the heating coils (or a heating circuit) and the DHW demand; the energy of its generators is split between the services HEATING and DHW by the heat that goes to each one every hour, and so is the energy of the pumps.
+- the hot water used is `volume_flow` (l/h) at `use_temperature` (60 °C by default), both expressions: usually a daily volume times a schedule (`opensimula.cte.dhw_profile_schedules()` gives the hourly profile of dwellings of the DB-HE as schedules, and `dhw_reference_demand()` the daily volume of Anejo F), or values from a data file;
+- the mains temperature is given by month (`mains_monthly_temperatures`, Sevilla by default; `opensimula.cte.mains_temperatures("Madrid")` gives those of Anejo G for any province capital) or by an expression;
+- for the plant it is a coil that takes water at the supply temperature and gives it back at the mains temperature, since the water drawn is replaced by mains water. Water hotter than the use temperature is mixed with mains water by the user; water colder is used as it comes and only the heat up to its temperature is met, the rest is unmet (`Q_unmet`, flagged by `low_temperature`). A plant that is off or cooling (a two-pipe plant in summer) meets nothing. Distribution losses of a network without recirculation are a fraction of the demand.
+
+The same plants then make every usual installation:
+
+- *Instantaneous gas boiler* (no tank): a plant with the boiler, a small water volume, a setpoint of 60 °C and `flow_control` "VARIABLE", and the DHW demand; the generator without a pump, since the mains pressure moves the water. With variable flow only the water drawn goes through the boiler and it enters at the mains temperature (with constant flow it would be a mixture close to the supply temperature, which matters for condensing boilers).
+- *Boiler, heat pump or electric water heater with a tank*: a `Water_tank` as the `tank` of the plant; the generators heat the tank and the demand draws from it.
+- *Combined boiler or heat pump* (heating and DHW): the plant feeds the heating coils (or a heating circuit) and the DHW demand, directly or, with a tank, through a charging circuit (an `HVAC_water_circuit` with `tank` and `tank_setpoint`: its pump charges the tank with water of the plant, and the tank keeps giving water while the plant is off). The energy of the generators and of the pumps is split between the services HEATING and DHW by the heat that goes to each one every hour.
 - *Central DHW of a building*: one plant with several DHW demands; a recirculation loop is a circuit with its losses (`Q_loss`) and pump.
-- *With a storage tank* (`Water_tank`, volume, losses UA·(T − T_room), thermostat dead band): in the plant for DHW-only installations (electric water heater, boiler or DHW heat pump with its tank; the generators heat the tank, the demand draws from it), or in a charging circuit of a plant that also heats (`tank` and `tank_setpoint` in the `HVAC_water_circuit`: its pump charges the tank with water of the plant; the tank keeps giving water while the plant is off).
+- *Solar thermal*: see below.
 
-Water hotter than the use temperature is mixed with mains water by the user; water colder is used as it comes and only the heat up to its temperature is met, the rest is unmet (`Q_unmet`, flagged by `low_temperature`); a plant that is off or cooling (a two-pipe plant in summer) meets nothing. Distribution losses of a network without recirculation are a fraction of the demand. When the generators fall short, all the loads of a plant share the shortfall (the water is colder): there is no DHW priority yet.
+When the generators fall short, all the loads of a plant share the shortfall (the water is colder): there is no DHW priority yet.
 
-**Solar thermal.** A `Solar_collector` (EN ISO 9806 data: area, η0, a1, a2, incidence angle modifier, tilt, azimuth) is the equipment of an `HVAC_water_generator` in a plant with a tank: the plant always takes the heat the sun gives (up to the maximum temperature of the collectors) and its other generators only what is missing up to the setpoint. The usual Spanish installation, a solar tank that preheats the water and a backup in series (an instantaneous or combined boiler, an electric water heater), is the solar plant as `preheat_system` of the DHW demand and the backup as its `water_system`: the backup heats the water from the temperature of the solar tank. Its heat is the renewable carrier SOLAR_THERMAL in the energy report; the solar fraction is `Q_preheat` / `Q_demand` of the DHW demand. A single tank with solar and backup inside needs a stratified tank (`number_of_nodes` of the `Water_tank`, 4 to 10): the mains water enters at the bottom, the collectors heat the bottom and the backup only the water above its heater (`backup_position`), so the bottom stays cold for the collectors. For an instantaneous boiler give the plant `flow_control` "VARIABLE": only the water drawn goes through the boiler and it enters at the mains temperature (with the default constant flow it is a mixture close to the supply temperature, which matters for condensing boilers).
+**Tanks and their thermostat.** A `Water_tank` has a volume, losses UA·(T − T_room) (UA from the standing losses of the ErP label: UA = S / 45) and a thermostat with a `dead_band`. Everything is decided once per time step (no on / off cycles inside it; the part load of a generator is the fraction of the step it would run):
+
+- *Tank of a plant*: the heating setpoint of the plant is the temperature of the tank. The generators start when the tank, without them, would end the step `dead_band` below the setpoint, and go on, also in the next steps, until it reaches the setpoint; they give the heat that takes it there, up to their capacity.
+- *Tank of a charging circuit*: the plant keeps its own water at its setpoint (e.g. 70 °C) whenever something asks it for heat; the circuit charges the tank (to `tank_setpoint`, e.g. 60 °C, with the same thermostat) while the plant can heat and its water is hotter than the tank, its pump running the fraction of the step the charge needs.
+- With no dead band the tank is held at its setpoint and recharges every hour, which keeps pumps and generators running all year: a dead band of 5-7 K is closer to real thermostats.
+- With `number_of_nodes` > 1 (only in a plant) the tank is stratified: the water drawn leaves at the top, the mains water enters at the bottom, and the backup heats only the water above its heater (`backup_position`), where its thermostat is.
+
+**Solar thermal.** A `Solar_collector` (EN ISO 9806 data: area, η0, a1, a2, incidence angle modifier, tilt, azimuth, heat exchanger) is the equipment of an `HVAC_water_generator` in a plant with a tank. It cannot be controlled: the plant always takes the heat the sun gives (up to the maximum temperature of the collectors) and its other generators only what is missing up to the setpoint. Two usual arrangements:
+
+- *Solar tank and backup in series* (the usual Spanish installation): the solar plant (collectors and tank) is the `preheat_system` of the DHW demand and the backup (an instantaneous or combined boiler, an electric water heater) its `water_system`: the backup heats the water from the temperature of the solar tank. The solar fraction is `Q_preheat` / `Q_demand` of the DHW demand.
+- *One tank with solar and backup inside*: it needs a stratified tank (4 to 10 nodes), so that the bottom stays cold for the collectors while the backup keeps the top at the setpoint; with a mixed tank the backup keeps it all hot and the collectors give much less (in Sevilla, 2 m² and 200 l: solar fraction 0.56 mixed, 0.75 stratified).
+
+The heat of the collectors is the renewable carrier SOLAR_THERMAL in the energy report, and the renewable contribution of HE4 for `CTE_compliance`.
+
+As an example, solar DHW for a dwelling with an instantaneous gas boiler in series:
+
+<pre><code class="python">
+...
+
+from opensimula.cte import dhw_profile_schedules
+
+# solar plant: collectors (with their pump) heating a 150 l tank
+pro.new_component("Solar_collector", "collector").set_parameters(
+    {"area": 2, "eta_0": 0.75, "a1": 3.5, "a2": 0.015, "tilt": 45, "nominal_water_flow": 0.04})
+pro.new_component("Pump", "solar_pump").set_parameters({"nominal_water_flow": 0.04, "nominal_power": 30})
+pro.new_component("HVAC_water_generator", "solar_gen").set_parameters(
+    {"equipment": "collector", "pump": "solar_pump"})
+pro.new_component("Water_tank", "solar_tank").set_parameters({"volume": 150, "UA": 1.2})
+pro.new_component("HVAC_water_system", "solar_plant").set_parameters(
+    {"generators": ["solar_gen"], "tank": "solar_tank"})
+# backup: instantaneous gas boiler, no pump, variable flow
+pro.new_component("Boiler", "boiler").set_parameters(
+    {"nominal_heating_capacity": 24000, "nominal_efficiency": 0.92, "nominal_water_flow": 0.3})
+pro.new_component("HVAC_water_generator", "boiler_gen").set_parameters({"equipment": "boiler"})
+pro.new_component("HVAC_water_system", "boiler_plant").set_parameters({
+    "generators": ["boiler_gen"], "total_water_volume": 5, "heating_water_setpoint": "60",
+    "flow_control": "VARIABLE"})
+# demand: 120 l/day at 60 °C with the profile of the DB-HE
+for c in dhw_profile_schedules("dhw_profile"):
+    pro.new_component(c.pop("type"), c.pop("name")).set_parameters(c)
+pro.new_component("DHW_demand", "dhw").set_parameters({
+    "water_system": "boiler_plant", "preheat_system": "solar_plant",
+    "input_variables": ["f = dhw_profile.values"], "volume_flow": "120 * f"})
+# Sevilla: solar fraction 0.72
+</code></pre>
 
 **Constant or variable flow.** Plants and circuits move the design flow while their pumps run (`flow_control` "CONSTANT", three-way valves). With "VARIABLE" (two-way valves) they move the flow their coils ask for, at least `minimum_flow`: the pumps work at that flow (give them a `power_expression` of `F_water`) and secondary pumps are staged.
 
@@ -504,12 +555,12 @@ The parameters and variables of every component are in the [component list](comp
 
 Two components look at a whole project after its simulation, without changing it: `Energy_indicators` (its energy use) and `Comfort_indicators` (the hours its zones are outside their setpoints). They are the last in the simulation order and read the variables of the others; they also store their own hourly variables, for the results viewer. See [example 10](examples.md#10-energy-and-comfort).
 
-**Energy.** Every component that uses energy reports it by **carrier** (ELECTRICITY, NATURAL_GAS, LPG, DIESEL, BIOMASS) and by **service**: HEATING and COOLING (the equipment: compressors, boilers), WATER_TRANSPORT (pumps), AIR_TRANSPORT (fans), LIGHTING and EQUIPMENT (of the spaces). Each power is counted once: a water plant reports its own secondary pumps and each of its generators its equipment and pump. Two carriers are not final energy:
+**Energy.** Every component that uses energy reports it by **carrier** (ELECTRICITY, NATURAL_GAS, LPG, DIESEL, BIOMASS) and by **service**: HEATING, COOLING and DHW (the equipment: compressors, boilers; a plant that also gives DHW splits the energy of its generators by the heat that goes to each service), WATER_TRANSPORT (pumps), AIR_TRANSPORT (fans), LIGHTING and EQUIPMENT (of the spaces). Each power is counted once: a water plant reports its own secondary pumps and each of its generators its equipment and pump. Three carriers are not final energy:
 
 - **AMBIENT**, the energy a heat pump takes from the environment while it heats (the heat given minus its electricity; none in cooling), and **SOLAR_THERMAL**, the heat of solar collectors. Both are renewable primary energy.
 - **THERMAL**, heat with no equipment behind it: that of an ideal system (`HVAC_perfect_system`) and that of the coils of a system with `water_source` "UNKNOWN", as services HEATING_WITHOUT_EQUIPMENT and COOLING_WITHOUT_EQUIPMENT. It becomes final energy only when the report is given a reference generator.
 
-`Energy_indicators` adds them up (all the systems and zones of the project, or those in `components` and `zones`), plus extra uses written as expressions, such as the domestic hot water, and converts the final energy to primary energy (renewable and non-renewable) and CO₂ with the factors of a region of the documento reconocido del RITE (2016) or custom ones. It is neutral: the rules of a regulation (which services count, reference systems, limits) are not in it.
+`Energy_indicators` adds them up (all the systems and zones of the project, or those in `components` and `zones`), plus extra uses written as expressions (e.g. lifts, or a DHW not simulated), and converts the final energy to primary energy (renewable and non-renewable) and CO₂ with the factors of a region of the documento reconocido del RITE (2016) or custom ones. It is neutral: the rules of a regulation (which services count, reference systems, limits) are not in it.
 
 **Comfort.** Every system that controls the temperature of zones reports their heating and cooling setpoints and when it is on. `Comfort_indicators` counts, per zone, the hours the air temperature is above the cooling setpoint or below the heating setpoint by more than a tolerance (0.5 K by default), while the system is on and, optionally, during a period such as the occupied hours.
 

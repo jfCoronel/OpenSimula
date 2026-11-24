@@ -1,0 +1,201 @@
+{
+    "name": "11 Domestic hot water and solar",
+    "description": "The hot water of a dwelling in Sevilla: a solar tank that preheats the water and a condensing combi boiler in series",
+    "time_step": 3600,
+    "n_time_steps": 8760,
+    "initial_time": "01/01/2001 00:00:00",
+    "simulation_file_met": "sevilla",
+    "components": [
+        {
+            "type": "File_met",
+            "name": "sevilla",
+            "description": "Hourly weather of Sevilla (Spain), MET format: the irradiance on the collectors and the outdoor temperature",
+            "file_type": "MET",
+            "file_name": "sevilla.met"
+        },
+        {
+            "type": "Day_schedule",
+            "name": "dhw_profile_day",
+            "description": "Share of the daily DHW volume used in each hour (DB-HE, Anejo D table c), fraction per hour",
+            "time_steps": [
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600,
+                3600
+            ],
+            "values": [
+                0.01,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.01,
+                0.03,
+                0.1,
+                0.07,
+                0.07,
+                0.06,
+                0.06,
+                0.05,
+                0.05,
+                0.04,
+                0.03,
+                0.04,
+                0.04,
+                0.05,
+                0.07,
+                0.06,
+                0.06,
+                0.05,
+                0.05
+            ],
+            "interpolation": "STEP"
+        },
+        {
+            "type": "Week_schedule",
+            "name": "dhw_profile_week",
+            "days_schedules": [
+                "dhw_profile_day"
+            ],
+            "description": "The same profile every day"
+        },
+        {
+            "type": "Year_schedule",
+            "name": "dhw_profile",
+            "periods": [],
+            "weeks_schedules": [
+                "dhw_profile_week"
+            ],
+            "description": "The profile all year: its variable 'values' times the daily volume is the hot water used (l/h)"
+        },
+        {
+            "type": "Solar_collector",
+            "name": "collector",
+            "description": "2 m² of flat plate collectors facing south, 45° (EN ISO 9806 data)",
+            "area": 2,
+            "eta_0": 0.75,
+            "a1": 3.5,
+            "a2": 0.015,
+            "b0": 0.15,
+            "K_diffuse": 0.9,
+            "tilt": 45,
+            "azimuth": 0,
+            "nominal_water_flow": 0.04,
+            "exchanger_effectiveness": 1,
+            "max_temperature": 90
+        },
+        {
+            "type": "Pump",
+            "name": "solar_pump",
+            "description": "Pump of the solar loop, 30 W, running while the collectors give heat",
+            "nominal_water_flow": 0.04,
+            "nominal_power": 30
+        },
+        {
+            "type": "HVAC_water_generator",
+            "name": "solar_generator",
+            "description": "The collectors with their pump: the plant always takes their heat",
+            "equipment": "collector",
+            "pump": "solar_pump"
+        },
+        {
+            "type": "Water_tank",
+            "name": "solar_tank",
+            "description": "150 l solar tank in a room at 20 °C, standing loss 54 W (UA = 54 / 45 = 1.2 W/K)",
+            "volume": 150,
+            "UA": 1.2,
+            "ambient_temperature": "20"
+        },
+        {
+            "type": "HVAC_water_system",
+            "name": "solar_plant",
+            "description": "Solar plant: the collectors heat the tank, which preheats the hot water (no other generator)",
+            "generators": [
+                "solar_generator"
+            ],
+            "tank": "solar_tank",
+            "heating_water_setpoint": "60",
+            "initial_water_temp": 20
+        },
+        {
+            "type": "Boiler",
+            "name": "boiler",
+            "description": "Condensing gas combi boiler, 24 kW: 0.98 with the water entering at 30 °C, 0.25 % less per K above",
+            "fuel": "NATURAL_GAS",
+            "nominal_heating_capacity": 24000,
+            "nominal_efficiency": 0.98,
+            "efficiency_expression": "1 - 0.0025 * max(T_wi - 30, 0)",
+            "nominal_water_flow": 0.3
+        },
+        {
+            "type": "HVAC_water_generator",
+            "name": "boiler_generator",
+            "description": "The boiler, without pump: the mains pressure moves the water",
+            "equipment": "boiler"
+        },
+        {
+            "type": "HVAC_water_system",
+            "name": "boiler_plant",
+            "description": "Instantaneous backup: 5 l of water at 60 °C, variable flow (only the water drawn goes through the boiler)",
+            "generators": [
+                "boiler_generator"
+            ],
+            "total_water_volume": 5,
+            "heating_water_setpoint": "60",
+            "initial_water_temp": 60,
+            "flow_control": "VARIABLE"
+        },
+        {
+            "type": "DHW_demand",
+            "name": "dhw",
+            "description": "Dwelling of 3 bedrooms: 112 l/day at 60 °C (DB-HE Anejo F), preheated in the solar tank and finished by the boiler; mains water of Sevilla (Anejo G)",
+            "water_system": "boiler_plant",
+            "preheat_system": "solar_plant",
+            "input_variables": [
+                "f = dhw_profile.values"
+            ],
+            "volume_flow": "112 * f",
+            "use_temperature": "60",
+            "mains_monthly_temperatures": [
+                11,
+                11,
+                13,
+                14,
+                16,
+                19,
+                21,
+                21,
+                20,
+                16,
+                13,
+                11
+            ]
+        },
+        {
+            "type": "Energy_indicators",
+            "name": "energy",
+            "description": "Final energy by carrier: gas of the boiler, electricity of the solar pump and the solar thermal energy (renewable)",
+            "conversion_factors": "PENINSULA",
+            "reference_area": 90
+        }
+    ]
+}
