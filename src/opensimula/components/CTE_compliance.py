@@ -12,19 +12,22 @@ from opensimula.Parameters import (
 )
 from opensimula.cte import (
     EXTRAPENINSULAR_REGIONS,
+    HE4_MIN_SCOP_DHW,
     HOURS_OUTSIDE_LIMIT,
     HOURS_OUTSIDE_TOLERANCE,
     REFERENCE_COOLING_EER,
     REFERENCE_HEATING_EFFICIENCY_HHV,
     CTE_report,
     he0_limits,
+    he4_minimum_share,
     winter_zone,
 )
 
 
 class CTE_compliance(Component):
-    """Verification of the Spanish CTE DB-HE 2019, section HE0 (limitation of the
-    energy use), on top of an Energy_indicators and a Comfort_indicators.
+    """Verification of the Spanish CTE DB-HE 2019, sections HE0 (limitation of the
+    energy use) and HE4 (renewable contribution to the DHW demand), on top of an
+    Energy_indicators and a Comfort_indicators.
 
     It applies the rules of the DB-HE to the energy of the project: only the EPB
     services count (heating, cooling, DHW, ventilation, humidity control and, in uses
@@ -35,13 +38,20 @@ class CTE_compliance(Component):
     per m² with the limits of the climate zone, use and intervention, and the hours
     outside setpoint of the building with 4 % of the occupation time.
 
+    HE4: the DHW demand is the heat the generators give to DHW (with the losses of
+    distribution, storage and recirculation) plus the demand not met; its renewable
+    part is the heat of the solar collectors, the ambient energy of electric heat pumps
+    whose seasonal SCOP_dhw (from the simulation) is at least 2.5, and the heat of
+    biomass boilers times fp,ren / fp,tot. It applies above 100 l/day (Anejo F), with a
+    minimum share of 70 % (60 % below 5000 l/day).
+
     Not a recognised procedure: HULC remains the official tool.
     """
 
     def __init__(self, name, project):
         Component.__init__(self, name, project)
         self.parameter("type").value = "CTE_compliance"
-        self.parameter("description").value = "Verification of CTE DB-HE, section HE0."
+        self.parameter("description").value = "Verification of CTE DB-HE, sections HE0 and HE4."
         self.add_parameter(Parameter_component("energy_indicators", "not_defined",
                                                ["Energy_indicators"]))
         self.add_parameter(Parameter_component("comfort_indicators", "not_defined",
@@ -54,6 +64,8 @@ class CTE_compliance(Component):
         self.add_parameter(Parameter_float("internal_load", 0, "W/m²", min=0))
         self.add_parameter(Parameter_string_list("non_epb_services", ["EQUIPMENT"]))
         self.add_parameter(Parameter_float("hhv_lhv_ratio", 1.11, "frac", min=1))
+        # HE4: DHW demand of Anejo F (l/day at 60 °C); 0: from the DHW_demand components
+        self.add_parameter(Parameter_float("dhw_daily_demand", 0, "l/day", min=0))
 
     def check(self):
         errors = super().check()
@@ -106,10 +118,91 @@ class CTE_compliance(Component):
                 gains += np.mean(z.variable(key).values)
         return (gains / area if area > 0 else 0.0), "simulated gains"
 
+    # ______________________ HE4 ______________________
+
+    def dhw_daily_demand(self):
+        """DHW demand (l/day at 60 °C) and where it comes from: the parameter, or the
+        mean of the simulated period of the DHW_demand components (their volume at
+        their use temperature taken to 60 °C with the mains temperature, Anejo F 3)."""
+        if self.parameter("dhw_daily_demand").value > 0:
+            return self.parameter("dhw_daily_demand").value, "parameter"
+        demands = [c for c in self.project().component_list()
+                   if c.parameter("type").value == "DHW_demand"]
+        total = 0.0
+        n = 0
+        for d in demands:
+            V = np.asarray(d.variable("volume_flow").values, dtype=float)  # l/h
+            T = np.asarray(d.variable("T_use").values, dtype=float)
+            T_m = np.asarray(d.variable("T_mains").values, dtype=float)
+            V60 = np.divide(V * (T - T_m), 60 - T_m, out=np.zeros_like(V), where=T_m < 60)
+            total += V60.sum()
+            n = len(V)
+        hours = n * self.project().parameter("time_step").value / 3600
+        return (total / hours * 24 if hours > 0 else 0.0), "DHW_demand components"
+
+    def he4(self):
+        """Renewable contribution to the DHW demand (HE4) over the simulated period.
+
+        Returns:
+            dict: ``demand`` and ``renewable`` (kWh), ``share``, ``daily_demand``
+                (l/day at 60 °C) and its ``daily_source``, ``minimum`` share (0 if HE4
+                does not apply) and ``generators`` (pandas.DataFrame: DHW heat,
+                renewable part and how it is counted, per generator).
+        """
+        energy = self.parameter("energy_indicators").component
+        factors = energy.factors()
+        dt_h = self.project().parameter("time_step").value / 3600
+        rows = {}
+        demand = renewable = 0.0
+        for g in energy._consumers():
+            if g.parameter("type").value != "HVAC_water_generator" or getattr(g, "plant", None) is None:
+                continue
+            share = g.plant.dhw_share()
+            Q = np.asarray(g.variable("Q").values, dtype=float)
+            Q_dhw = float(np.sum(np.where(Q > 0, Q, 0) * share)) * dt_h / 1000
+            if Q_dhw <= 0:
+                continue
+            equipment = g.parameter("equipment").component
+            kind = equipment.parameter("type").value
+            ren, how = 0.0, "not renewable"
+            if kind == "Solar_collector":
+                ren, how = Q_dhw, "solar thermal"
+            elif kind == "Chiller_heat_pump":
+                power = np.asarray(g.variable("power").values, dtype=float)
+                E = float(np.sum(np.where(Q > 0, power, 0) * share)) * dt_h / 1000
+                scop = Q_dhw / E if E > 0 else float("inf")
+                if scop >= HE4_MIN_SCOP_DHW:
+                    ren, how = Q_dhw - E, f"heat pump, SCOP_dhw {scop:.2f}: Q·(1 − 1/SCOP)"
+                else:
+                    how = f"heat pump, SCOP_dhw {scop:.2f} < {HE4_MIN_SCOP_DHW}: not counted"
+            elif kind == "Boiler" and equipment.parameter("fuel").value == "BIOMASS":
+                fp_ren, fp_nren, _ = factors["BIOMASS"]
+                ren, how = Q_dhw * fp_ren / (fp_ren + fp_nren), "biomass: Q·fp,ren/fp,tot"
+            rows[g.parameter("name").value] = (Q_dhw, ren, how)
+            demand += Q_dhw
+            renewable += ren
+        unmet = sum(float(np.sum(c.variable("Q_unmet").values)) * dt_h / 1000
+                    for c in self.project().component_list()
+                    if c.parameter("type").value == "DHW_demand")
+        if unmet > 0:
+            rows["DHW demand not met"] = (unmet, 0.0, "not renewable")
+            demand += unmet
+        table = pd.DataFrame.from_dict(rows, orient="index",
+                                       columns=["DHW heat [kWh]", "renewable [kWh]", "counted as"])
+        table.index.name = "generator"
+        if len(table):
+            table.loc["TOTAL"] = [demand, renewable, ""]
+        daily, source = self.dhw_daily_demand()
+        return {"demand": demand, "renewable": renewable,
+                "share": renewable / demand if demand > 0 else 0.0,
+                "daily_demand": daily, "daily_source": source,
+                "minimum": he4_minimum_share(daily), "generators": table}
+
     # ______________________ Report ______________________
 
     def report(self):
-        """Verification of HE0: C_ep,nren, C_ep,tot and hours outside setpoint.
+        """Verification of HE0 (C_ep,nren, C_ep,tot and hours outside setpoint) and HE4
+        (renewable share of the DHW demand, if there is DHW).
 
         Returns:
             opensimula.cte.CTE_report: requirements (value, limit, complies) and the EPB
@@ -167,6 +260,24 @@ class CTE_compliance(Component):
                          f"{comfort.parameter('name').value}).")
         else:
             notes.append("Hours outside setpoint not checked: no comfort_indicators.")
+        # HE4
+        tables = []
+        sections = "HE0"
+        he4 = self.he4()
+        if he4["demand"] > 0:
+            if he4["minimum"] > 0:
+                sections = "HE0 and HE4"
+                rows.append(("Renewable share of DHW (HE4 3.1)", 100 * he4["share"],
+                             100 * he4["minimum"], "%", he4["share"] >= he4["minimum"]))
+                notes.append(
+                    f"HE4: DHW demand {he4['daily_demand']:,.0f} l/day at 60 °C "
+                    f"({he4['daily_source']}), {he4['demand']:,.0f} kWh with the losses of "
+                    "distribution, storage and recirculation; only renewable energy produced on "
+                    "site or nearby counts.")
+            else:
+                notes.append(f"HE4 does not apply: DHW demand {he4['daily_demand']:,.0f} l/day "
+                             "at 60 °C, not above 100 l/day.")
+            tables.append(("DHW renewable contribution (HE4)", he4["generators"]))
         checks = pd.DataFrame(rows, columns=["requirement", "value", "limit", "unit", "complies"])
         checks = checks.set_index("requirement")
         thermal = any(u.carrier == "THERMAL" and u.values.sum() > 0 for u in energy.get_uses())
@@ -190,6 +301,12 @@ class CTE_compliance(Component):
             "cep_tot": float(cep_tot),
             "cep_tot_limit": float(tot_lim),
             "complies": bool(checks["complies"].all()),
+            "sections": sections,
+            "dhw_demand": he4["demand"],
+            "dhw_renewable": he4["renewable"],
+            "dhw_renewable_share": he4["share"],
+            "dhw_daily_demand": he4["daily_demand"],
+            "dhw_minimum_share": he4["minimum"],
         }
-        return CTE_report(f"CTE DB-HE, HE0: {self.parameter('name').value}", checks, services,
-                          summary, notes)
+        return CTE_report(f"CTE DB-HE, {sections}: {self.parameter('name').value}", checks,
+                          services, summary, notes, tables)
