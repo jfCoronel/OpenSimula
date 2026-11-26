@@ -84,7 +84,7 @@ Factors per kWh of final energy (fuels on the lower heating value; BIOMASS is de
 
 #### Variables
 
-- **electricity**, **natural_gas**, **lpg**, **diesel**, **biomass**, **ambient**, **thermal** (W): Power of each carrier.
+- **electricity**, **natural_gas**, **lpg**, **diesel**, **biomass**, **ambient**, **solar_thermal**, **thermal** (W): Power of each carrier.
 - **heating**, **cooling**, **dhw**, **water_transport**, **air_transport**, **lighting**, **equipment**, **heating_without_equipment**, **cooling_without_equipment** and one per extra service, in lower case (W): Final energy of each service (without AMBIENT; THERMAL for the services without equipment).
 - **primary_ren**, **primary_nren**, **primary_total** (W): Primary energy.
 - **CO2** (kg/h): CO₂ emissions.

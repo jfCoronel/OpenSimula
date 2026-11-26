@@ -11,6 +11,7 @@ This equipment can be used for one or more HVAC systems.
 - **nominal_power** [_float_, unit = "W", default = 1, min = 0]: Electrical power consumed by the pump at nominal conditions.
 - **pressure_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the pressure rise of the pump in conditions different from the nominal ones.
 - **power_expression** [_math_exp_, unit = "frac", default = "1"]: Mathematical expression to correct the electrical power consumed by the pump in conditions different from the nominal ones.
+- **power_to_heat_fraction** [_float_, unit = "frac", default = 1, min = 0, max = 1]: Fraction of the electrical power of the pump that ends up as heat in the water.
 
 All mathematical expressions can include the following independent variable.
 

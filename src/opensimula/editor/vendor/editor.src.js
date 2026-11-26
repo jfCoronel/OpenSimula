@@ -29,6 +29,25 @@ const DEBOUNCE_MS = 400;
 const isList = (sch) => sch?.["x-list"] === true;
 const itemSchema = (sch) => (isList(sch) ? sch.anyOf[1] : sch);
 
+// Help of a field: its description as a tooltip of the label and a "?" that opens
+// the documentation at the parameter (description and x-doc of the schema, written
+// by opensimula.help from the component pages of the documentation).
+function addHelp(element, text, url, unit) {
+  if (!text && !url) return;
+  const tip = text ? (unit ? `${text} [${unit}]` : text) : "";
+  if (tip) element.title = tip;
+  if (!url) return;
+  const link = document.createElement("a");
+  link.className = "osm-help";
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.textContent = "?";
+  link.title = tip ? `${tip}\n\nOpen the documentation` : "Open the documentation";
+  link.addEventListener("click", (event) => event.stopPropagation());
+  element.appendChild(link);
+}
+
 function fieldKind(sch) {
   const item = itemSchema(sch);
   if (item["x-ref"]) return "ref";
@@ -585,6 +604,7 @@ export default {
       title.className = "osm-detail-title";
       title.textContent =
         index === null ? "Project parameters" : `${container.type}: ${container.name ?? ""}`;
+      if (sch["x-doc"]) addHelp(title, `Documentation of ${container.type}`, sch["x-doc"]);
       detail.appendChild(title);
 
       const grid = document.createElement("div");
@@ -601,6 +621,7 @@ export default {
         const label = document.createElement("label");
         label.className = "osm-label";
         label.textContent = key;
+        addHelp(label, propSchema.description, propSchema["x-doc"], item["x-unit"]);
         grid.appendChild(label);
 
         const cell = document.createElement("div");

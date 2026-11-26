@@ -1,0 +1,4198 @@
+{
+ "common": {
+  "description": {
+   "anchor": "common-description",
+   "page": "component_list/",
+   "text": "Description of the component.",
+   "unit": ""
+  },
+  "name": {
+   "anchor": "common-name",
+   "page": "component_list/",
+   "text": "Name of the component.",
+   "unit": ""
+  },
+  "type": {
+   "anchor": "common-type",
+   "page": "component_list/",
+   "text": "Type of the component.",
+   "unit": ""
+  }
+ },
+ "components": {
+  "Boiler": {
+   "anchor": "boiler",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "auxiliary_power": {
+     "anchor": "boiler-auxiliary_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electric power of the burner fan, pumps inside the boiler and controls, while the boiler gives heat.",
+     "unit": "W"
+    },
+    "efficiency_expression": {
+     "anchor": "boiler-efficiency_expression",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mathematical expression to correct the efficiency in conditions different from the nominal ones; the efficiency is nominal_efficiency multiplied by it.",
+     "unit": "frac"
+    },
+    "expression_max_values": {
+     "anchor": "boiler-expression_max_values",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Maximum values allowed in the mathematical expression. The order is [ _T_wi_ [ºC], _T_wo_ [ºC], _F_water_ [frac], _F_load_ [frac] ]. If any variable exceeds these values, the maximum value is taken.",
+     "unit": "-"
+    },
+    "expression_min_values": {
+     "anchor": "boiler-expression_min_values",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Minimum values allowed in the mathematical expression, in the same order. If any variable is lower than these values, the minimum value is taken.",
+     "unit": "-"
+    },
+    "fuel": {
+     "anchor": "boiler-fuel",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Fuel of the boiler. Informative for now; it will be used for primary energy and CO₂ emissions.",
+     "unit": ""
+    },
+    "max_supply_temperature": {
+     "anchor": "boiler-max_supply_temperature",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Maximum supply water temperature: above it the boiler gives no heat.",
+     "unit": "°C"
+    },
+    "nominal_efficiency": {
+     "anchor": "boiler-nominal_efficiency",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Efficiency (heat given / fuel power, on the LHV) at nominal conditions.",
+     "unit": "frac"
+    },
+    "nominal_heating_capacity": {
+     "anchor": "boiler-nominal_heating_capacity",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat given at full load. The boiler gives at most this heat, whatever the water temperatures.",
+     "unit": "W"
+    },
+    "nominal_water_flow": {
+     "anchor": "boiler-nominal_water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Nominal water flow, to calculate _F_water_.",
+     "unit": "dm³/s"
+    }
+   },
+   "variables": {}
+  },
+  "Building": {
+   "anchor": "building",
+   "page": "component_list_building/",
+   "parameters": {
+    "azimuth": {
+     "anchor": "building-azimuth",
+     "page": "component_list_building/",
+     "text": "Angle formed between the x-axis of the building and the east (Global x-axis). The coordinates of all building elements refer to the building coordinate system.",
+     "unit": "°"
+    },
+    "initial_humidity": {
+     "anchor": "building-initial_humidity",
+     "page": "component_list_building/",
+     "text": "Initial absolute humidity of all building spaces at the beginning of the simulation.",
+     "unit": "g/kg"
+    },
+    "initial_temperature": {
+     "anchor": "building-initial_temperature",
+     "page": "component_list_building/",
+     "text": "Initial temperature of all building components at the beginning of the simulation.",
+     "unit": "°C"
+    },
+    "ref_point": {
+     "anchor": "building-ref_point",
+     "page": "component_list_building/",
+     "text": "Three-dimensional coordinate of the building reference point (coordinates origin). All surfaces in the building will be defined relative to the building's coordinate origin.",
+     "unit": "m"
+    }
+   },
+   "variables": {}
+  },
+  "Building_surface": {
+   "anchor": "building_surface",
+   "page": "component_list_building/",
+   "parameters": {
+    "altitude": {
+     "anchor": "building_surface-altitude",
+     "page": "component_list_building/",
+     "text": "Angle formed between the z-axis of the building and the y-axis of the surface.",
+     "unit": "°"
+    },
+    "azimuth": {
+     "anchor": "building_surface-azimuth",
+     "page": "component_list_building/",
+     "text": "Angle formed between the x-axis of the building and the projection of the x-axis of the surface.",
+     "unit": "°"
+    },
+    "construction": {
+     "anchor": "building_surface-construction",
+     "page": "component_list_building/",
+     "text": "Reference to the \"Construction\" component that defines its composition, not used for \"VIRTUAL\" surface_type.",
+     "unit": ""
+    },
+    "exterior_perimeter_fraction": {
+     "anchor": "building_surface-exterior_perimeter_fraction",
+     "page": "component_list_building/",
+     "text": "Part of the outer perimeter of the enclosure that is in contact with the ground outside the building. Used only for \"UNDERGROUND\" surface_type.",
+     "unit": "frac"
+    },
+    "exterior_perimeter_wall_thickness": {
+     "anchor": "building_surface-exterior_perimeter_wall_thickness",
+     "page": "component_list_building/",
+     "text": "Thickness of the exterior walls surrounding the slab in contact with the ground. Used only for \"UNDERGROUND\" surface_type.",
+     "unit": "m"
+    },
+    "ground_material": {
+     "anchor": "building_surface-ground_material",
+     "page": "component_list_building/",
+     "text": "Reference to the \"Material\" component that defines the ground thermal properties, used only for \"UNDERGROUND\" surface_type. A exterior layer of this material (0.5 m) will be added to the construction.",
+     "unit": ""
+    },
+    "groundwater_depth": {
+     "anchor": "building_surface-groundwater_depth",
+     "page": "component_list_building/",
+     "text": "Depth at which the water table is found. The average annual temperature at that depth is used. If its value is 0, there is no water table. Used only for \"UNDERGROUND\" surface_type.",
+     "unit": "m"
+    },
+    "h_cv": {
+     "anchor": "building_surface-h_cv",
+     "page": "component_list_building/",
+     "text": "Convective film coefficients of the exterior and interior surfaces or side 0 and 1, respectively. For \"VIRTUAL\" surface_type these values are not used, and for \"UNDERGROUND\" the first value is the exterior ground surface coefficient and the second is the interior coefficient.",
+     "unit": "W/m²K"
+    },
+    "height": {
+     "anchor": "building_surface-height",
+     "page": "component_list_building/",
+     "text": "Height of the rectangular surface. Only used if \"shape\" is equal to \"RECTANGLE\".",
+     "unit": "m"
+    },
+    "ref_point": {
+     "anchor": "building_surface-ref_point",
+     "page": "component_list_building/",
+     "text": "Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside (side 0), for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.",
+     "unit": "m"
+    },
+    "shape": {
+     "anchor": "building_surface-shape",
+     "page": "component_list_building/",
+     "text": "Shape of the surface, for a rectangle the parameters \"width\" and \"height\" will be used and for a polygon the parameters \"x-polygon\" and \"y-polygon\".",
+     "unit": ""
+    },
+    "spaces": {
+     "anchor": "building_surface-spaces",
+     "page": "component_list_building/",
+     "text": "Reference to the \"Space\" components for the side 0 and the side 1 in \"INTERIOR\" and \"VIRTUAL\" surface_type. For \"EXTERIOR\" and \"UNDERGROUND\" only de first element fo de list is used.",
+     "unit": ""
+    },
+    "surface_type": {
+     "anchor": "building_surface-surface_type",
+     "page": "component_list_building/",
+     "text": "Surface type: “EXTERIOR” for exterior walls, roofs, and ceilings; “INTERIOR” for interior walls or floors; ‘UNDERGROUND’ for buried walls or floors in contact with the ground; and “VIRTUAL” used to define gaps between two spaces. Spaces in opensimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.",
+     "unit": ""
+    },
+    "width": {
+     "anchor": "building_surface-width",
+     "page": "component_list_building/",
+     "text": "Width of the rectangular surface. Only used if \"shape\" is equal to \"RECTANGLE\".",
+     "unit": "m"
+    },
+    "x_polygon": {
+     "anchor": "building_surface-x_polygon",
+     "page": "component_list_building/",
+     "text": "List with the x-coordinates of the points defining the surface polygon. Only used if \"shape\" is equal to \"POLYGON\".",
+     "unit": "m"
+    },
+    "y_polygon": {
+     "anchor": "building_surface-y_polygon",
+     "page": "component_list_building/",
+     "text": "List with the y-coordinates of the points defining the surface polygon. Only used if \"shape\" is equal to \"POLYGON\".",
+     "unit": "m"
+    }
+   },
+   "variables": {
+    "E_dif": {
+     "anchor": "building_surface-var-e_dif",
+     "page": "component_list_building/",
+     "text": "Diffuse solar radiation incident on the exterior surface.",
+     "unit": "W/m²"
+    },
+    "E_dif_sunny": {
+     "anchor": "building_surface-var-e_dif_sunny",
+     "page": "component_list_building/",
+     "text": "Direct and diffuse solar radiation that would be incident on the exterior surface without shadows.",
+     "unit": "W/m²"
+    },
+    "E_dir": {
+     "anchor": "building_surface-var-e_dir",
+     "page": "component_list_building/",
+     "text": "Direct solar radiation incident on the exterior surface.",
+     "unit": "W/m²"
+    },
+    "E_dir_sunny": {
+     "anchor": "building_surface-var-e_dir_sunny",
+     "page": "component_list_building/",
+     "text": "Direct and diffuse solar radiation that would be incident on the exterior surface without shadows.",
+     "unit": "W/m²"
+    },
+    "T_rm": {
+     "anchor": "building_surface-var-t_rm",
+     "page": "component_list_building/",
+     "text": "Exterior radiant mean temperature.",
+     "unit": "°C"
+    },
+    "T_s0": {
+     "anchor": "building_surface-var-t_s0",
+     "page": "component_list_building/",
+     "text": "Surface temperatures",
+     "unit": "°C"
+    },
+    "T_s1": {
+     "anchor": "building_surface-var-t_s1",
+     "page": "component_list_building/",
+     "text": "Surface temperatures",
+     "unit": "°C"
+    },
+    "p_0": {
+     "anchor": "building_surface-var-p_0",
+     "page": "component_list_building/",
+     "text": "Conductive heat flux at the surfaces due to previous time steps.",
+     "unit": "W/m²"
+    },
+    "p_1": {
+     "anchor": "building_surface-var-p_1",
+     "page": "component_list_building/",
+     "text": "Conductive heat flux at the surfaces due to previous time steps.",
+     "unit": "W/m²"
+    },
+    "q_cd0": {
+     "anchor": "building_surface-var-q_cd0",
+     "page": "component_list_building/",
+     "text": "Conductive heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_cd1": {
+     "anchor": "building_surface-var-q_cd1",
+     "page": "component_list_building/",
+     "text": "Conductive heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_cv0": {
+     "anchor": "building_surface-var-q_cv0",
+     "page": "component_list_building/",
+     "text": "Convective heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_cv1": {
+     "anchor": "building_surface-var-q_cv1",
+     "page": "component_list_building/",
+     "text": "Convective heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_lwig0": {
+     "anchor": "building_surface-var-q_lwig0",
+     "page": "component_list_building/",
+     "text": "Radiant long wave heat flux at the surfaces due to internal gains.",
+     "unit": "W/m²"
+    },
+    "q_lwig1": {
+     "anchor": "building_surface-var-q_lwig1",
+     "page": "component_list_building/",
+     "text": "Radiant long wave heat flux at the surfaces due to internal gains.",
+     "unit": "W/m²"
+    },
+    "q_lwt0": {
+     "anchor": "building_surface-var-q_lwt0",
+     "page": "component_list_building/",
+     "text": "Radiant long wave heat flux at the surfaces due other surfaces temperatures.",
+     "unit": "W/m²"
+    },
+    "q_lwt1": {
+     "anchor": "building_surface-var-q_lwt1",
+     "page": "component_list_building/",
+     "text": "Radiant long wave heat flux at the surfaces due other surfaces temperatures.",
+     "unit": "W/m²"
+    },
+    "q_sol0": {
+     "anchor": "building_surface-var-q_sol0",
+     "page": "component_list_building/",
+     "text": "Solar heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_sol1": {
+     "anchor": "building_surface-var-q_sol1",
+     "page": "component_list_building/",
+     "text": "Solar heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_swig0": {
+     "anchor": "building_surface-var-q_swig0",
+     "page": "component_list_building/",
+     "text": "Radiant short wave heat flux at the surfaces due to internal gains.",
+     "unit": "W/m²"
+    },
+    "q_swig1": {
+     "anchor": "building_surface-var-q_swig1",
+     "page": "component_list_building/",
+     "text": "Radiant short wave heat flux at the surfaces due to internal gains.",
+     "unit": "W/m²"
+    }
+   }
+  },
+  "CTE_compliance": {
+   "anchor": "cte_compliance",
+   "page": "component_list_utils/",
+   "parameters": {
+    "building_use": {
+     "anchor": "cte_compliance-building_use",
+     "page": "component_list_utils/",
+     "text": "Use of the building.",
+     "unit": ""
+    },
+    "climate_zone": {
+     "anchor": "cte_compliance-climate_zone",
+     "page": "component_list_utils/",
+     "text": "Climate zone of the DB-HE (Anejo B): winter zone α, A, B, C, D or E followed by the summer zone 1 to 4 (\"alpha3\" also valid).",
+     "unit": ""
+    },
+    "comfort_indicators": {
+     "anchor": "cte_compliance-comfort_indicators",
+     "page": "component_list_utils/",
+     "text": "The Comfort_indicators for the hours outside setpoint (its tolerance should be 1 K). If not defined, the hours are not checked.",
+     "unit": ""
+    },
+    "dhw_daily_demand": {
+     "anchor": "cte_compliance-dhw_daily_demand",
+     "page": "component_list_utils/",
+     "text": "DHW demand of Anejo F (at 60 °C) that decides whether HE4 applies and its minimum share (e.g. from cte.dhw_reference_demand()). 0: the mean over the simulated period of the DHW_demand components, their volume taken to 60 °C with the mains temperature (Anejo F, 3).",
+     "unit": "l/day"
+    },
+    "energy_indicators": {
+     "anchor": "cte_compliance-energy_indicators",
+     "page": "component_list_utils/",
+     "text": "The Energy_indicators of the building or part of the building checked (one CTE_compliance per use: no compensation between uses).",
+     "unit": ""
+    },
+    "hhv_lhv_ratio": {
+     "anchor": "cte_compliance-hhv_lhv_ratio",
+     "page": "component_list_utils/",
+     "text": "Ratio of the higher to the lower heating value of natural gas, for the reference boiler.",
+     "unit": "frac"
+    },
+    "internal_load": {
+     "anchor": "cte_compliance-internal_load",
+     "page": "component_list_utils/",
+     "text": "Carga interna media C_FI for other uses. 0: the mean over the simulated period of the sensible gains of occupancy, lighting and equipment of the Space zones of the energy component; required when the zones include Load_space.",
+     "unit": "W/m²"
+    },
+    "intervention": {
+     "anchor": "cte_compliance-intervention",
+     "page": "component_list_utils/",
+     "text": "New building or extension, or change of use and reform (residential limits only).",
+     "unit": ""
+    },
+    "non_epb_services": {
+     "anchor": "cte_compliance-non_epb_services",
+     "page": "component_list_utils/",
+     "text": "Services of the energy component that are not EPB (e.g. lifts given as extra uses).",
+     "unit": ""
+    }
+   },
+   "variables": {}
+  },
+  "Calculator": {
+   "anchor": "calculator",
+   "page": "component_list_utils/",
+   "parameters": {
+    "input_variables": {
+     "anchor": "calculator-input_variables",
+     "page": "component_list_utils/",
+     "text": "List of variables from other components used in this component. They can appear in the expressions of the “output_expressions” parameter.",
+     "unit": ""
+    },
+    "output_expressions": {
+     "anchor": "calculator-output_expressions",
+     "page": "component_list_utils/",
+     "text": "List of output variable mathematical expressions.",
+     "unit": ""
+    },
+    "output_units": {
+     "anchor": "calculator-output_units",
+     "page": "component_list_utils/",
+     "text": "List of output variable units.",
+     "unit": ""
+    },
+    "output_variables": {
+     "anchor": "calculator-output_variables",
+     "page": "component_list_utils/",
+     "text": "List of output variable names.",
+     "unit": ""
+    }
+   },
+   "variables": {}
+  },
+  "Chiller_heat_pump": {
+   "anchor": "chiller_heat_pump",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "COP_expression": {
+     "anchor": "chiller_heat_pump-cop_expression",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mathematical expression to correct the COP, defined as the heating capacity divided by the electrical power consumption, in conditions different from the nominal ones. This expression should reflect the partial load behavior of the equipment. Used only when heating_power_expression is \"1\".",
+     "unit": "frac"
+    },
+    "EER_expression": {
+     "anchor": "chiller_heat_pump-eer_expression",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mathematical expression to correct the EER, defined as the cooling capacity divided by the electrical power consumption, in conditions different from the nominal ones. This expression should reflect the partial load behavior of the equipment. Used only when cooling_power_expression is \"1\".",
+     "unit": "frac"
+    },
+    "chiller_type": {
+     "anchor": "chiller_heat_pump-chiller_type",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Type of equipment. \"CHILLER\" provides only cooling, \"HEAT_PUMP\" provides only heating, \"CHILLER_HEAT_PUMP\" provides both cooling and heating.",
+     "unit": ""
+    },
+    "condensation_type": {
+     "anchor": "chiller_heat_pump-condensation_type",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Condensation type. \"AIR_CONDENSED\" for air-cooled equipment and \"WATER_CONDENSED\" for water-cooled equipment.",
+     "unit": ""
+    },
+    "cooling_capacity_expression": {
+     "anchor": "chiller_heat_pump-cooling_capacity_expression",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mathematical expression to correct the cooling capacity of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "cooling_power_expression": {
+     "anchor": "chiller_heat_pump-cooling_power_expression",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mathematical expression to correct the electrical power consumption at full load cooling operation in conditions different from the nominal ones. If left at the default value \"1\", the EER_expression will be used instead.",
+     "unit": "frac"
+    },
+    "expression_max_values": {
+     "anchor": "chiller_heat_pump-expression_max_values",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Maximum values allowed in the mathematical expressions. The order is [ _T_wo_ [ºC], _T_ci_ [ºC], _T_wbci_ [ºC], _F_water_ [frac], _F_load_ [frac] ]. If any variable exceeds these values, the maximum value is taken.",
+     "unit": "-"
+    },
+    "expression_min_values": {
+     "anchor": "chiller_heat_pump-expression_min_values",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Minimum values allowed in the mathematical expressions. The order is [ _T_wo_ [ºC], _T_ci_ [ºC], _T_wbci_ [ºC], _F_water_ [frac], _F_load_ [frac] ]. If any variable is lower than these values, the minimum value is taken.",
+     "unit": "-"
+    },
+    "heating_capacity_expression": {
+     "anchor": "chiller_heat_pump-heating_capacity_expression",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mathematical expression to correct the heating capacity of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "heating_power_expression": {
+     "anchor": "chiller_heat_pump-heating_power_expression",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mathematical expression to correct the electrical power consumption at full load heating operation in conditions different from the nominal ones. If left at the default value \"1\", the COP_expression will be used instead.",
+     "unit": "frac"
+    },
+    "nominal_cooling_capacity": {
+     "anchor": "chiller_heat_pump-nominal_cooling_capacity",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Cooling capacity at nominal cooling conditions.",
+     "unit": "W"
+    },
+    "nominal_cooling_conditions": {
+     "anchor": "chiller_heat_pump-nominal_cooling_conditions",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Nominal cooling conditions, in order: condenser inlet dry bulb temperature, chilled water inlet (return) temperature, chilled water outlet (supply) temperature.",
+     "unit": "ºC"
+    },
+    "nominal_cooling_power": {
+     "anchor": "chiller_heat_pump-nominal_cooling_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electrical power consumed by the equipment at nominal cooling conditions.",
+     "unit": "W"
+    },
+    "nominal_heating_capacity": {
+     "anchor": "chiller_heat_pump-nominal_heating_capacity",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heating capacity at nominal heating conditions.",
+     "unit": "W"
+    },
+    "nominal_heating_conditions": {
+     "anchor": "chiller_heat_pump-nominal_heating_conditions",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Nominal heating conditions, in order: source inlet dry bulb temperature, source inlet wet bulb temperature, hot water inlet (return) temperature, hot water outlet (supply) temperature.",
+     "unit": "ºC"
+    },
+    "nominal_heating_power": {
+     "anchor": "chiller_heat_pump-nominal_heating_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electrical power consumed by the equipment at nominal heating conditions.",
+     "unit": "W"
+    },
+    "nominal_water_flow": {
+     "anchor": "chiller_heat_pump-nominal_water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Nominal chilled or hot water flow.",
+     "unit": "dm³/s"
+    }
+   },
+   "variables": {}
+  },
+  "Comfort_indicators": {
+   "anchor": "comfort_indicators",
+   "page": "component_list_utils/",
+   "parameters": {
+    "input_variables": {
+     "anchor": "comfort_indicators-input_variables",
+     "page": "component_list_utils/",
+     "text": "Variables of other components used in period.",
+     "unit": ""
+    },
+    "only_system_on": {
+     "anchor": "comfort_indicators-only_system_on",
+     "page": "component_list_utils/",
+     "text": "Count only the hours the system of the zone is on. A zone with no system has then no hours counted; with False its hours are counted, but with no setpoints it is never outside.",
+     "unit": ""
+    },
+    "period": {
+     "anchor": "comfort_indicators-period",
+     "page": "component_list_utils/",
+     "text": "Hours counted only while it is not 0, e.g. the occupied hours.",
+     "unit": ""
+    },
+    "tolerance": {
+     "anchor": "comfort_indicators-tolerance",
+     "page": "component_list_utils/",
+     "text": "Temperature beyond the setpoint that counts as outside. Keep it above the convergence of the zones (0.01 K): with 0 the hours held at the setpoint would count.",
+     "unit": "K"
+    },
+    "zones": {
+     "anchor": "comfort_indicators-zones",
+     "page": "component_list_utils/",
+     "text": "Space or Load_space to look at. Empty: all those of the project.",
+     "unit": ""
+    }
+   },
+   "variables": {
+    "building_outside": {
+     "anchor": "comfort_indicators-var-building_outside",
+     "page": "component_list_utils/",
+     "text": "1 when any zone is outside the setpoints.",
+     "unit": "flag"
+    },
+    "outside_<zone>": {
+     "anchor": "comfort_indicators-var-outside_-zone",
+     "page": "component_list_utils/",
+     "text": "For each zone, 1 above the cooling setpoint, -1 below the heating setpoint, 0 inside or not counted.",
+     "unit": "flag"
+    },
+    "zones_outside": {
+     "anchor": "comfort_indicators-var-zones_outside",
+     "page": "component_list_utils/",
+     "text": "Number of zones outside the setpoints.",
+     "unit": "-"
+    }
+   }
+  },
+  "Construction": {
+   "anchor": "construction",
+   "page": "component_list_constructions/",
+   "parameters": {
+    "lw_epsilon": {
+     "anchor": "construction-lw_epsilon",
+     "page": "component_list_constructions/",
+     "text": "Long wave emissivity for surfaces 1 and 2.",
+     "unit": "frac"
+    },
+    "materials": {
+     "anchor": "construction-materials",
+     "page": "component_list_constructions/",
+     "text": "Materials list for each of the layers, defined from surface 1 to 2.",
+     "unit": "[_component-list_, default = [], component type = Material]"
+    },
+    "solar_alpha": {
+     "anchor": "construction-solar_alpha",
+     "page": "component_list_constructions/",
+     "text": "Solar absortance for surfaces 1 and 2.",
+     "unit": "frac"
+    },
+    "thicknesses": {
+     "anchor": "construction-thicknesses",
+     "page": "component_list_constructions/",
+     "text": "Thicknesses of each of the layers defined in the \"materials\" parameter. Must have the same number of elements as the \"materials\" parameter.",
+     "unit": "m"
+    }
+   },
+   "variables": {}
+  },
+  "DHW_demand": {
+   "anchor": "dhw_demand",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "distribution_losses": {
+     "anchor": "dhw_demand-distribution_losses",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Losses of the distribution network without recirculation, as a fraction of the demand.",
+     "unit": "frac"
+    },
+    "input_variables": {
+     "anchor": "dhw_demand-input_variables",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Variables of other components used in the expressions.",
+     "unit": ""
+    },
+    "mains_monthly_temperatures": {
+     "anchor": "dhw_demand-mains_monthly_temperatures",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mains water temperature of each month: [11, 11, 13, 14, 16, 19, 21, 21, 20, 16, 13, 11].",
+     "unit": "°C"
+    },
+    "mains_temperature": {
+     "anchor": "dhw_demand-mains_temperature",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mains water temperature; T_month is the value of the month from the previous parameter.",
+     "unit": "°C"
+    },
+    "preheat_system": {
+     "anchor": "dhw_demand-preheat_system",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Preheating in series, e.g. a solar tank: the water drawn enters it (mains water replaces it) and leaves at its temperature; it gives the heat up to that temperature (all the demand, mixed with mains water, if hotter than the use temperature) and the water_system (the backup) heats the rest from there.",
+     "unit": ""
+    },
+    "use_temperature": {
+     "anchor": "dhw_demand-use_temperature",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of the water used. It can use T_month (as below) and the input variables.",
+     "unit": "°C"
+    },
+    "volume_flow": {
+     "anchor": "dhw_demand-volume_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Hot water used, at the use temperature (negative values count as 0). Usually a daily volume times a schedule, e.g. \"120 * f\" with f the hourly profile below.",
+     "unit": "l/h"
+    },
+    "water_system": {
+     "anchor": "dhw_demand-water_system",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Plant or circuit that gives the hot water.",
+     "unit": ""
+    }
+   },
+   "variables": {
+    "Q_demand": {
+     "anchor": "dhw_demand-var-q_demand",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat of the demand, with the distribution losses.",
+     "unit": "W"
+    },
+    "Q_preheat": {
+     "anchor": "dhw_demand-var-q_preheat",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of the preheat system and heat it gives (mains temperature and 0 without one).",
+     "unit": "W"
+    },
+    "Q_supplied": {
+     "anchor": "dhw_demand-var-q_supplied",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat given by the plant and heat not met.",
+     "unit": "W"
+    },
+    "Q_unmet": {
+     "anchor": "dhw_demand-var-q_unmet",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat given by the plant and heat not met.",
+     "unit": "W"
+    },
+    "T_mains": {
+     "anchor": "dhw_demand-var-t_mains",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mains water temperature and supply temperature of the plant or circuit.",
+     "unit": "°C"
+    },
+    "T_preheat": {
+     "anchor": "dhw_demand-var-t_preheat",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of the preheat system and heat it gives (mains temperature and 0 without one).",
+     "unit": "°C"
+    },
+    "T_supply": {
+     "anchor": "dhw_demand-var-t_supply",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mains water temperature and supply temperature of the plant or circuit.",
+     "unit": "°C"
+    },
+    "T_use": {
+     "anchor": "dhw_demand-var-t_use",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Hot water used and its temperature.",
+     "unit": "°C"
+    },
+    "low_temperature": {
+     "anchor": "dhw_demand-var-low_temperature",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "1 when the plant heats but its water is colder than the use temperature (demand partly unmet).",
+     "unit": "flag"
+    },
+    "volume_flow": {
+     "anchor": "dhw_demand-var-volume_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Hot water used and its temperature.",
+     "unit": "l/h"
+    },
+    "water_flow": {
+     "anchor": "dhw_demand-var-water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water taken from the plant, at its supply temperature.",
+     "unit": "dm³/s"
+    }
+   }
+  },
+  "DX_unit": {
+   "anchor": "dx_unit",
+   "page": "component_list_HVAC_air_systems/",
+   "parameters": {
+    "COP_expression": {
+     "anchor": "dx_unit-cop_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the COP, defined as heating load supplied by de equipment divided by de electric power consumption, of the equipment in conditions different from the nominal ones. This expression should reflect the partial load behavior of the equipment.",
+     "unit": "frac"
+    },
+    "EER_expression": {
+     "anchor": "dx_unit-eer_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the EER, defined as cooling total load supplied by de equipment divided by de electric power consumption, of the equipment in conditions different from the nominal ones. This expression should reflect the partial load behavior of the equipment.",
+     "unit": "frac"
+    },
+    "cooling_power_expression": {
+     "anchor": "dx_unit-cooling_power_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the electric power consumption at cooling full load operation of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "dry_coil_model": {
+     "anchor": "dx_unit-dry_coil_model",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "When calculating the total and sensible capacity of the equipment under non-nominal conditions, it is possible that the total capacity is lower than the sensible capacity. In such a case it will be assumed that the coil does not dehumidify and that the total capacity is equal to the sensible capacity. We will use for both values the value of the sensible if the chosen option is “SENSIBLE” and the total if the chosen option is “TOTAL”. With the option “ADP” the apparatus dew point / bypass factor model is used instead: the bypass factor is obtained from the nominal total and sensible capacities and air flow (BF = exp(-A_0/m), with m the air mass flow), and the coil is dry when the humidity ratio of the apparatus dew point is not lower than the inlet one; the capacity of a dry coil is then the total capacity at the inlet wet bulb temperature where the coil starts to be wet, and a wet coil cannot remove more latent heat than the ADP model allows (sensible capacity = max(sensible expression, total capacity × SHR of the ADP model)). This avoids the extrapolation of the capacity expressions below the catalogue wet bulb temperatures to find the dry coil conditions.",
+     "unit": ""
+    },
+    "expression_max_values": {
+     "anchor": "dx_unit-expression_max_values",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Maximum values allowed in the mathematical expressions. The order is [ _T_idb_ [ºC] , _T_iwb_ [ºC] ,_T_odb_ [ºC], _T_owb_ [ºC], _F_air_ [frac], _F_load_ [frac] ]. If any variable exceeds these values, the maximum value is taken.",
+     "unit": "-"
+    },
+    "expression_min_values": {
+     "anchor": "dx_unit-expression_min_values",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Minimum values allowed in the mathematical expressions. The order is [ _T_idb_ [ºC] , _T_iwb_ [ºC] ,_T_odb_ [ºC], _T_owb_ [ºC], _F_air_ [frac], _F_load_ [frac] ]. If any variable is lower than these values, the minimum value is taken.",
+     "unit": "-"
+    },
+    "heating_capacity_expression": {
+     "anchor": "dx_unit-heating_capacity_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the heating capacity of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "heating_power_expression": {
+     "anchor": "dx_unit-heating_power_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the electric power consumption at heating full load operation of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "indoor_fan_operation": {
+     "anchor": "dx_unit-indoor_fan_operation",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If the value is “CONTINUOUS” the fan will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify “CYCLING” the fan will run a fraction of time equal to the partial load at which the equipment operates, therefore, when there is no load there will be no consumption of the fan.",
+     "unit": ""
+    },
+    "indoor_fan_power": {
+     "anchor": "dx_unit-indoor_fan_power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the indoor fan, this power will be added as heat to the air stream.",
+     "unit": "W"
+    },
+    "nominal_air_flow": {
+     "anchor": "dx_unit-nominal_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal inlet air flow.",
+     "unit": "m³/s"
+    },
+    "nominal_cooling_conditions": {
+     "anchor": "dx_unit-nominal_cooling_conditions",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal cooling conditions, in order: indoor dry bulb temperature, indoor wet bulb temperature, outdoor dry bulb temperature.",
+     "unit": "ºC"
+    },
+    "nominal_cooling_power": {
+     "anchor": "dx_unit-nominal_cooling_power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the equipment at nominal cooling conditions. It must include all the consumptions: compressor, external fan, etc. except the power specified in “indoor_fan_power”.",
+     "unit": "W"
+    },
+    "nominal_heating_capacity": {
+     "anchor": "dx_unit-nominal_heating_capacity",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Heating capacity at nominal heating conditions.",
+     "unit": "W"
+    },
+    "nominal_heating_conditions": {
+     "anchor": "dx_unit-nominal_heating_conditions",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal heating conditions, in order: indoor dry bulb temperature, outdoor dry bulb temperature, outdoor wet bulb temperature.",
+     "unit": "ºC"
+    },
+    "nominal_heating_power": {
+     "anchor": "dx_unit-nominal_heating_power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the equipment at nominal heating conditions. It must include all the consumptions: compressor, external fan, etc, except the power specified in “no_load_power”.",
+     "unit": "W"
+    },
+    "nominal_sensible_cooling_capacity": {
+     "anchor": "dx_unit-nominal_sensible_cooling_capacity",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Sensible cooling gross capacity at nominal cooling conditions.",
+     "unit": "W"
+    },
+    "nominal_total_cooling_capacity": {
+     "anchor": "dx_unit-nominal_total_cooling_capacity",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total cooling gross capacity at nominal cooling conditions.",
+     "unit": "W"
+    },
+    "power_dry_coil_correction": {
+     "anchor": "dx_unit-power_dry_coil_correction",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "When the total and sensible power are equal, dry coil, the power expression may be incorrect. If this parameter is activated the simulation will look for the wet bulb temperature that makes the total and sensible capacities equal (with \"dry_coil_model\" = \"ADP\", the wet bulb temperature where the coil starts to be wet) and use that temperature in the expression that corrects the cooling power.",
+     "unit": ""
+    },
+    "sensible_cooling_capacity_expression": {
+     "anchor": "dx_unit-sensible_cooling_capacity_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the sensible cooling capacity of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "total_cooling_capacity_expression": {
+     "anchor": "dx_unit-total_cooling_capacity_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the total cooling capacity of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    }
+   },
+   "variables": {}
+  },
+  "Day_schedule": {
+   "anchor": "day_schedule",
+   "page": "component_list_schedules/",
+   "parameters": {
+    "interpolation": {
+     "anchor": "day_schedule-interpolation",
+     "page": "component_list_schedules/",
+     "text": "Procedure used to obtain the values at each of the simulation instants. \"STEP\": The value changes in the form of a step. \"LINEAR\": The value changes linearly between the values defined in the schedule.",
+     "unit": ""
+    },
+    "time_steps": {
+     "anchor": "day_schedule-time_steps",
+     "page": "component_list_schedules/",
+     "text": "time steps where the values change.",
+     "unit": "s"
+    },
+    "values": {
+     "anchor": "day_schedule-values",
+     "page": "component_list_schedules/",
+     "text": "Values for the time steps defined in the previous parameter. It must always contain one more element than the parameter \"time_steps\".",
+     "unit": ""
+    }
+   },
+   "variables": {}
+  },
+  "Energy_indicators": {
+   "anchor": "energy_indicators",
+   "page": "component_list_utils/",
+   "parameters": {
+    "components": {
+     "anchor": "energy_indicators-components",
+     "page": "component_list_utils/",
+     "text": "Systems to count (HVAC_DX_system, HVAC_SZW_system, HVAC_MZW_system, HVAC_perfect_system, HVAC_water_generator, HVAC_water_system, HVAC_water_circuit). Empty: all those of the project.",
+     "unit": ""
+    },
+    "conversion_factors": {
+     "anchor": "energy_indicators-conversion_factors",
+     "page": "component_list_utils/",
+     "text": "Region of the factors of the documento reconocido del RITE \"Factores de emisión de CO₂ y coeficientes de paso a energía primaria\" (2016), table below. NATIONAL and EXTRAPENINSULAR are for statistics only.",
+     "unit": ""
+    },
+    "custom_CO2": {
+     "anchor": "energy_indicators-custom_co2",
+     "page": "component_list_utils/",
+     "text": "CO₂ per kWh of final energy of each custom carrier.",
+     "unit": "kg/kWh"
+    },
+    "custom_carriers": {
+     "anchor": "energy_indicators-custom_carriers",
+     "page": "component_list_utils/",
+     "text": "Carriers whose factors are given by the next three parameters, replacing those of the region.",
+     "unit": ""
+    },
+    "custom_fp_nren": {
+     "anchor": "energy_indicators-custom_fp_nren",
+     "page": "component_list_utils/",
+     "text": "Non-renewable primary energy per kWh of final energy of each custom carrier.",
+     "unit": "frac"
+    },
+    "custom_fp_ren": {
+     "anchor": "energy_indicators-custom_fp_ren",
+     "page": "component_list_utils/",
+     "text": "Renewable primary energy per kWh of final energy of each custom carrier.",
+     "unit": "frac"
+    },
+    "equipment_carrier": {
+     "anchor": "energy_indicators-equipment_carrier",
+     "page": "component_list_utils/",
+     "text": "Carrier of the equipment of the spaces (their other gains).",
+     "unit": ""
+    },
+    "extra_carriers": {
+     "anchor": "energy_indicators-extra_carriers",
+     "page": "component_list_utils/",
+     "text": "Carrier of each extra use.",
+     "unit": ""
+    },
+    "extra_expressions": {
+     "anchor": "energy_indicators-extra_expressions",
+     "page": "component_list_utils/",
+     "text": "Power of each extra use, evaluated at the end of each time step.",
+     "unit": "W"
+    },
+    "extra_services": {
+     "anchor": "energy_indicators-extra_services",
+     "page": "component_list_utils/",
+     "text": "Service of each extra use, e.g. \"DHW\".",
+     "unit": ""
+    },
+    "input_variables": {
+     "anchor": "energy_indicators-input_variables",
+     "page": "component_list_utils/",
+     "text": "Variables of other components used in the expressions of the extra uses.",
+     "unit": ""
+    },
+    "reference_area": {
+     "anchor": "energy_indicators-reference_area",
+     "page": "component_list_utils/",
+     "text": "Area of the indicators per m². 0: the sum of the floor_area of the zones.",
+     "unit": "m²"
+    },
+    "zones": {
+     "anchor": "energy_indicators-zones",
+     "page": "component_list_utils/",
+     "text": "Space or Load_space whose floor area is the reference area and whose lighting and equipment are counted. Empty: all those of the project.",
+     "unit": ""
+    }
+   },
+   "variables": {
+    "CO2": {
+     "anchor": "energy_indicators-var-co2",
+     "page": "component_list_utils/",
+     "text": "CO₂ emissions.",
+     "unit": "kg/h"
+    },
+    "ambient": {
+     "anchor": "energy_indicators-var-ambient",
+     "page": "component_list_utils/",
+     "text": "Power of each carrier.",
+     "unit": ""
+    },
+    "biomass": {
+     "anchor": "energy_indicators-var-biomass",
+     "page": "component_list_utils/",
+     "text": "Power of each carrier.",
+     "unit": ""
+    },
+    "diesel": {
+     "anchor": "energy_indicators-var-diesel",
+     "page": "component_list_utils/",
+     "text": "Power of each carrier.",
+     "unit": ""
+    },
+    "electricity": {
+     "anchor": "energy_indicators-var-electricity",
+     "page": "component_list_utils/",
+     "text": "Power of each carrier.",
+     "unit": ""
+    },
+    "lpg": {
+     "anchor": "energy_indicators-var-lpg",
+     "page": "component_list_utils/",
+     "text": "Power of each carrier.",
+     "unit": ""
+    },
+    "natural_gas": {
+     "anchor": "energy_indicators-var-natural_gas",
+     "page": "component_list_utils/",
+     "text": "Power of each carrier.",
+     "unit": ""
+    },
+    "primary_nren": {
+     "anchor": "energy_indicators-var-primary_nren",
+     "page": "component_list_utils/",
+     "text": "Primary energy.",
+     "unit": ""
+    },
+    "primary_ren": {
+     "anchor": "energy_indicators-var-primary_ren",
+     "page": "component_list_utils/",
+     "text": "Primary energy.",
+     "unit": ""
+    },
+    "primary_total": {
+     "anchor": "energy_indicators-var-primary_total",
+     "page": "component_list_utils/",
+     "text": "Primary energy.",
+     "unit": "W"
+    },
+    "solar_thermal": {
+     "anchor": "energy_indicators-var-solar_thermal",
+     "page": "component_list_utils/",
+     "text": "Power of each carrier.",
+     "unit": ""
+    },
+    "thermal": {
+     "anchor": "energy_indicators-var-thermal",
+     "page": "component_list_utils/",
+     "text": "Power of each carrier.",
+     "unit": "W"
+    }
+   }
+  },
+  "Fan": {
+   "anchor": "fan",
+   "page": "component_list_HVAC_air_systems/",
+   "parameters": {
+    "nominal_air_flow": {
+     "anchor": "fan-nominal_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal air flow.",
+     "unit": "m³/s"
+    },
+    "nominal_power": {
+     "anchor": "fan-nominal_power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the equipment at nominal cooling conditions.",
+     "unit": "W"
+    },
+    "nominal_pressure": {
+     "anchor": "fan-nominal_pressure",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal static pressure rise.",
+     "unit": "Pa"
+    },
+    "power_expression": {
+     "anchor": "fan-power_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the electrical power consumed by the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "pressure_expression": {
+     "anchor": "fan-pressure_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the static pressure rise of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    }
+   },
+   "variables": {}
+  },
+  "File_data": {
+   "anchor": "file_data",
+   "page": "component_list_files/",
+   "parameters": {
+    "file_name": {
+     "anchor": "file_data-file_name",
+     "page": "component_list_files/",
+     "text": "Name of the file containing the data.",
+     "unit": ""
+    },
+    "file_step": {
+     "anchor": "file_data-file_step",
+     "page": "component_list_files/",
+     "text": "Time step of the data file. The \"SIMULATION\" option assumes that each of the rows in the data file correspond to the time steps of the project simulation. The \"OWN\" option will be used when the time step of the data stored in the data file is different from the one used in the simulation. The parameters \"initial_time\" and \"time_step\" define the time step of the data in the file.",
+     "unit": ""
+    },
+    "file_type": {
+     "anchor": "file_data-file_type",
+     "page": "component_list_files/",
+     "text": "Data file type. \"CSV\", file with the values separated by comma. It must contain a first row with the variable names and from the second row the values for each time step. \"EXCEL\": excel file with a single sheet and the same format as described for CSV files.",
+     "unit": ""
+    },
+    "initial_time": {
+     "anchor": "file_data-initial_time",
+     "page": "component_list_files/",
+     "text": "Initial time of the data file with format \"DD/MM/YYYY hh:mm:ss\". Only used for the \"OWN\" option of the \"file_step\" parameter.",
+     "unit": ""
+    },
+    "time_step": {
+     "anchor": "file_data-time_step",
+     "page": "component_list_files/",
+     "text": "Time step in seconds for the data file. Only used for the \"OWN\" option of the \"file_step\" parameter.",
+     "unit": "s"
+    }
+   },
+   "variables": {}
+  },
+  "File_met": {
+   "anchor": "file_met",
+   "page": "component_list_files/",
+   "parameters": {
+    "file_name": {
+     "anchor": "file_met-file_name",
+     "page": "component_list_files/",
+     "text": "Name of the weather file containing the data.",
+     "unit": ""
+    },
+    "file_type": {
+     "anchor": "file_met-file_type",
+     "page": "component_list_files/",
+     "text": "Weather file type. \"MET\": MET format. .MET format (CTE documentation), \"TMY3\" TMY3 format TMY3 format description, \"TMY2\" TMY2 format TMY2 format description,\"WYEC2\" Weather Year for Energy Calculations 2 WYEC2 information.",
+     "unit": ""
+    },
+    "tilted_diffuse_model": {
+     "anchor": "file_met-tilted_diffuse_model",
+     "page": "component_list_files/",
+     "text": "Model used for the calculation of diffuse solar radiation on inclined surfaces. The simplest model is the isotropic model (“ISOTROPIC”) which only takes into account uniform diffuse radiation. The Hay-Davies model includes the influence of the circumsolar component and the Reindl and Perez model also includes the effect of the horizon brightening component. More information about diffuse models on tilted surface",
+     "unit": ""
+    }
+   },
+   "variables": {
+    "abs_humidity": {
+     "anchor": "file_met-var-abs_humidity",
+     "page": "component_list_files/",
+     "text": "Air absolute humidity (calculated).",
+     "unit": "g/kg"
+    },
+    "dew_point_temp": {
+     "anchor": "file_met-var-dew_point_temp",
+     "page": "component_list_files/",
+     "text": "Dew point air temperature (calculated).",
+     "unit": "°C"
+    },
+    "opaque_cloud_cover": {
+     "anchor": "file_met-var-opaque_cloud_cover",
+     "page": "component_list_files/",
+     "text": "Percentage of the sky covered, used for infrared radiation an sky temperature estimation (read from TMY3 files, 0 for MET files).",
+     "unit": "%"
+    },
+    "pressure": {
+     "anchor": "file_met-var-pressure",
+     "page": "component_list_files/",
+     "text": "Ambient absolute pressure (read from TMY3 files, calculated using standard atmosphere for MET files).",
+     "unit": "Pa"
+    },
+    "rel_humidity": {
+     "anchor": "file_met-var-rel_humidity",
+     "page": "component_list_files/",
+     "text": "Air relative humidity.",
+     "unit": "%"
+    },
+    "sky_temperature": {
+     "anchor": "file_met-var-sky_temperature",
+     "page": "component_list_files/",
+     "text": "Sky temperature, for radiant heat exchange (read from MET files, calculated in TMY3 files).",
+     "unit": "°C"
+    },
+    "sol_altitude": {
+     "anchor": "file_met-var-sol_altitude",
+     "page": "component_list_files/",
+     "text": "Solar altitude (degrees) (calculated).",
+     "unit": "°"
+    },
+    "sol_azimuth": {
+     "anchor": "file_met-var-sol_azimuth",
+     "page": "component_list_files/",
+     "text": "Solar azimuth (degrees from south: E-, W+) (calculated).",
+     "unit": "°"
+    },
+    "sol_diffuse": {
+     "anchor": "file_met-var-sol_diffuse",
+     "page": "component_list_files/",
+     "text": "Diffuse solar irradiance over horizontal surface.",
+     "unit": "W/m²"
+    },
+    "sol_direct": {
+     "anchor": "file_met-var-sol_direct",
+     "page": "component_list_files/",
+     "text": "Direct solar irradiance over horizontal surface.",
+     "unit": "W/m²"
+    },
+    "sol_hour": {
+     "anchor": "file_met-var-sol_hour",
+     "page": "component_list_files/",
+     "text": "Solar hour of the day (calculated).",
+     "unit": "h"
+    },
+    "temperature": {
+     "anchor": "file_met-var-temperature",
+     "page": "component_list_files/",
+     "text": "Dry bulb temperature.",
+     "unit": "°C"
+    },
+    "total_cloud_cover": {
+     "anchor": "file_met-var-total_cloud_cover",
+     "page": "component_list_files/",
+     "text": "Percentage of the sky covered by all the visible clouds (read from TMY3 files, 0 for MET files).",
+     "unit": "%"
+    },
+    "underground_temperature": {
+     "anchor": "file_met-var-underground_temperature",
+     "page": "component_list_files/",
+     "text": "Ground temperature, to be used as the temperature imposed on the outer surface of the enclosures in contact with the ground (currently not read from the file, it is calculated as the annual average air temperature).",
+     "unit": "°C"
+    },
+    "wet_bulb_temp": {
+     "anchor": "file_met-var-wet_bulb_temp",
+     "page": "component_list_files/",
+     "text": "Wet bulb air temperature (calculated).",
+     "unit": "°C"
+    },
+    "wind_direction": {
+     "anchor": "file_met-var-wind_direction",
+     "page": "component_list_files/",
+     "text": "Wind direction (degrees from north: E+, W-).",
+     "unit": "°"
+    },
+    "wind_speed": {
+     "anchor": "file_met-var-wind_speed",
+     "page": "component_list_files/",
+     "text": "Wind speed.",
+     "unit": "m/s"
+    }
+   }
+  },
+  "Frame": {
+   "anchor": "frame",
+   "page": "component_list_constructions/",
+   "parameters": {
+    "lw_epsilon": {
+     "anchor": "frame-lw_epsilon",
+     "page": "component_list_constructions/",
+     "text": "Long wave emissivity, for surfaces 1 and 2.",
+     "unit": "frac"
+    },
+    "solar_alpha": {
+     "anchor": "frame-solar_alpha",
+     "page": "component_list_constructions/",
+     "text": "Solar absortance for surfaces 1 and 2.",
+     "unit": "frac"
+    },
+    "thermal_resistance": {
+     "anchor": "frame-thermal_resistance",
+     "page": "component_list_constructions/",
+     "text": "Average surface-to-surface thermal resistance of the frame.",
+     "unit": "m²K/W"
+    }
+   },
+   "variables": {}
+  },
+  "Glazing": {
+   "anchor": "glazing",
+   "page": "component_list_constructions/",
+   "parameters": {
+    "U": {
+     "anchor": "glazing-u",
+     "page": "component_list_constructions/",
+     "text": "Thermal transmittance of glazing calculated according to EN 673:2011.",
+     "unit": "W/m²K"
+    },
+    "f_1_minus_rho_nor": {
+     "anchor": "glazing-f_1_minus_rho_nor",
+     "page": "component_list_constructions/",
+     "text": "Normalised curve of the variation for (1 - solar reflectance), depending on the cosine of the angle of incidence, _cos_theta_ (0º, at normal incidence).",
+     "unit": ""
+    },
+    "f_tau_nor": {
+     "anchor": "glazing-f_tau_nor",
+     "page": "component_list_constructions/",
+     "text": "Normalised curve of the variation of solar transmittance, depending on the cosine of the angle of incidence, _cos_theta_ (0º, at normal incidence).",
+     "unit": ""
+    },
+    "g": {
+     "anchor": "glazing-g",
+     "page": "component_list_constructions/",
+     "text": "Solar factor at normal incidence, calculated according to EN 410:2011, for surfaces 1 and 2.",
+     "unit": "frac"
+    },
+    "lw_epsilon": {
+     "anchor": "glazing-lw_epsilon",
+     "page": "component_list_constructions/",
+     "text": "Long wave emissivity, for surfaces 1 and 2.",
+     "unit": "frac"
+    },
+    "solar_rho": {
+     "anchor": "glazing-solar_rho",
+     "page": "component_list_constructions/",
+     "text": "Solar reflectance of glass at normal incidence, for surfaces 1 and 2.",
+     "unit": "frac"
+    },
+    "solar_tau": {
+     "anchor": "glazing-solar_tau",
+     "page": "component_list_constructions/",
+     "text": "Solar transmittance of glass at normal incidence.",
+     "unit": "frac"
+    }
+   },
+   "variables": {}
+  },
+  "HVAC_DX_system": {
+   "anchor": "hvac_dx_system",
+   "page": "component_list_HVAC_air_systems/",
+   "parameters": {
+    "air_flow": {
+     "anchor": "hvac_dx_system-air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Inlet air flow used for all the simulation.",
+     "unit": "m³/s"
+    },
+    "cooling_setpoint": {
+     "anchor": "hvac_dx_system-cooling_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Space Cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "°C"
+    },
+    "economizer": {
+     "anchor": "hvac_dx_system-economizer",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Free cooling using outside air (economizer). If the option selected is “NO” no economizer will be used, for the other options the economizer will be used with different control strategies explained below.",
+     "unit": ""
+    },
+    "economizer_DT": {
+     "anchor": "hvac_dx_system-economizer_dt",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "For economizers type “TEMPERATURE” and “TEMPERATURE_NOT_INTEGRATED” set the temperature difference between the return air and the outside air at which the economizer starts to operate.",
+     "unit": "ºC"
+    },
+    "economizer_enthalpy_limit": {
+     "anchor": "hvac_dx_system-economizer_enthalpy_limit",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "For economizers type ENTHALPY_LIMITED set the maximun outdoor air enthalpy at which the economizer does not operate.",
+     "unit": "kJ/kg"
+    },
+    "equipment": {
+     "anchor": "hvac_dx_system-equipment",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"DX_unit\" component used by this system.",
+     "unit": ""
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_dx_system-heating_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Space heating setpoint temperature. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "°C"
+    },
+    "input_variables": {
+     "anchor": "hvac_dx_system-input_variables",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "List of variables from other components used in this component. They may be used in parameters of the type math_exp.",
+     "unit": ""
+    },
+    "outdoor_air_fraction": {
+     "anchor": "hvac_dx_system-outdoor_air_fraction",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outdoor air flow fraction used for the simulation. The outside air is mixed with the return air from the room before it enters the indoor coil.",
+     "unit": "frac"
+    },
+    "spaces": {
+     "anchor": "hvac_dx_system-spaces",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Space\" or \"Load_space\" component to be air-conditioned by this system.",
+     "unit": ""
+    },
+    "system_on_off": {
+     "anchor": "hvac_dx_system-system_on_off",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "on/off"
+    }
+   },
+   "variables": {
+    "COP": {
+     "anchor": "hvac_dx_system-var-cop",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "System efficiency ratio for heating, defined as the thermal load supplied divided by the electrical power consumed.",
+     "unit": "frac"
+    },
+    "EER": {
+     "anchor": "hvac_dx_system-var-eer",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "System efficiency ratio for cooling, defined as the total thermal load supplied divided by the electrical power consumed.",
+     "unit": "frac"
+    },
+    "F_air": {
+     "anchor": "hvac_dx_system-var-f_air",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Actual supply air flow divided by nominal supply air flow.",
+     "unit": "frac"
+    },
+    "F_load": {
+     "anchor": "hvac_dx_system-var-f_load",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Partial load state of the system, calculated as the thermal power",
+     "unit": "frac"
+    },
+    "Q_latent": {
+     "anchor": "hvac_dx_system-var-q_latent",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Latent heat supplied by the system, positive for dehumidification.",
+     "unit": "W"
+    },
+    "Q_sensible": {
+     "anchor": "hvac_dx_system-var-q_sensible",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Sensible heat supplied by the system, positive for heating and cooling.",
+     "unit": "W"
+    },
+    "Q_total": {
+     "anchor": "hvac_dx_system-var-q_total",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total heat supplied by the system, sensible + latent.",
+     "unit": "W"
+    },
+    "T_MA": {
+     "anchor": "hvac_dx_system-var-t_ma",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mixed air dry bulb temperature, at the coil inlet of the indoor unit.",
+     "unit": "ºC"
+    },
+    "T_MAwb": {
+     "anchor": "hvac_dx_system-var-t_mawb",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mixed air wet bulb temperature, at the coil inlet of the indoor unit.",
+     "unit": "ºC"
+    },
+    "T_OA": {
+     "anchor": "hvac_dx_system-var-t_oa",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outdoor air dry bulb temperature.",
+     "unit": "ºC"
+    },
+    "T_OAwb": {
+     "anchor": "hvac_dx_system-var-t_oawb",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outdoor air wet bulb temperature.",
+     "unit": "ºC"
+    },
+    "T_SA": {
+     "anchor": "hvac_dx_system-var-t_sa",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air dry bulb temperature.",
+     "unit": "ºC"
+    },
+    "cooling_setpoint": {
+     "anchor": "hvac_dx_system-var-cooling_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Cooling setpoint temperature.",
+     "unit": "°C"
+    },
+    "efficiency_degradation": {
+     "anchor": "hvac_dx_system-var-efficiency_degradation",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "EER or COP degradation factor obtained from the _EER_expression_ or _COP_expression_ of the equipment.",
+     "unit": "frac"
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_dx_system-var-heating_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Heating setpoint temperature.",
+     "unit": "°C"
+    },
+    "indoor_fan_power": {
+     "anchor": "hvac_dx_system-var-indoor_fan_power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the indoor fan.",
+     "unit": "W"
+    },
+    "m_air_flow": {
+     "anchor": "hvac_dx_system-var-m_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Dry air mass flow rate supplied.",
+     "unit": "kg/s"
+    },
+    "outdoor_air_fraction": {
+     "anchor": "hvac_dx_system-var-outdoor_air_fraction",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "fraction of outside air in supply air.",
+     "unit": "frac"
+    },
+    "power": {
+     "anchor": "hvac_dx_system-var-power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the system (including indoor fan).",
+     "unit": "W"
+    },
+    "state": {
+     "anchor": "hvac_dx_system-var-state",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Operation of the system: off (0), heating (1), heating at maximum capacity (2), colling (-1), cooling at maximum capacity (-2), venting (3).",
+     "unit": "flag"
+    },
+    "w_SA": {
+     "anchor": "hvac_dx_system-var-w_sa",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air absolute humidity.",
+     "unit": "g/kg"
+    }
+   }
+  },
+  "HVAC_MZW_system": {
+   "anchor": "hvac_mzw_system",
+   "page": "component_list_HVAC_air_systems/",
+   "parameters": {
+    "air_flow": {
+     "anchor": "hvac_mzw_system-air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total system air flow at coil inlet for desgin conditions.",
+     "unit": "m³/s"
+    },
+    "air_flow_fractions": {
+     "anchor": "hvac_mzw_system-air_flow_fractions",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Fraction of total supply air flow assigned to each space. The sum of all fractions must equal 1.",
+     "unit": "frac"
+    },
+    "cooling_coil": {
+     "anchor": "hvac_mzw_system-cooling_coil",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Water_coil\" component used for cooling by this system.",
+     "unit": ""
+    },
+    "cooling_setpoint_position": {
+     "anchor": "hvac_mzw_system-cooling_setpoint_position",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Position where cooling setpoint is controlled. \"SYSTEM_OUTPUT\" controls temperature after supply fan, \"COIL_OUTPUT\" controls at coil outlet.",
+     "unit": ""
+    },
+    "cooling_water_flow": {
+     "anchor": "hvac_mzw_system-cooling_water_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Cooling coil design water flow.",
+     "unit": "dm³/s"
+    },
+    "cooling_water_system": {
+     "anchor": "hvac_mzw_system-cooling_water_system",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"HVAC_water_system\" component that supplies the cooling coil when \"water_source\" is \"WATER_SYSTEM\".",
+     "unit": ""
+    },
+    "economizer": {
+     "anchor": "hvac_mzw_system-economizer",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Free cooling using outside air (economizer). If the option selected is \"NO\" no economizer will be used, for the other options the economizer see HVAC_DX_system.",
+     "unit": ""
+    },
+    "economizer_DT": {
+     "anchor": "hvac_mzw_system-economizer_dt",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "For economizers type \"TEMPERATURE\" and \"TEMPERATURE_NOT_INTEGRATED\" set the temperature difference between the return air and the outside air at which the economizer starts to operate.",
+     "unit": "ºC"
+    },
+    "economizer_enthalpy_limit": {
+     "anchor": "hvac_mzw_system-economizer_enthalpy_limit",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "For economizers type ENTHALPY_LIMITED set the maximum outdoor air enthalpy at which the economizer does not operate.",
+     "unit": "kJ/kg"
+    },
+    "fan_operation": {
+     "anchor": "hvac_mzw_system-fan_operation",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If the value is \"CONTINUOUS\" the fans will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify \"CYCLING\" the fans will run a fraction of time equal to the partial load at which the equipment operates.",
+     "unit": ""
+    },
+    "heating_coil": {
+     "anchor": "hvac_mzw_system-heating_coil",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Water_coil\" component used for central heating by this system.",
+     "unit": ""
+    },
+    "heating_setpoint_position": {
+     "anchor": "hvac_mzw_system-heating_setpoint_position",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Position where heating setpoint is controlled. \"SYSTEM_OUTPUT\" controls temperature after supply fan, \"COIL_OUTPUT\" controls at coil outlet.",
+     "unit": ""
+    },
+    "heating_water_flow": {
+     "anchor": "hvac_mzw_system-heating_water_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Central heating coil design water flow.",
+     "unit": "dm³/s"
+    },
+    "heating_water_system": {
+     "anchor": "hvac_mzw_system-heating_water_system",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"HVAC_water_system\" component that supplies the central heating coil when \"water_source\" is \"WATER_SYSTEM\".",
+     "unit": ""
+    },
+    "inlet_cooling_water_temp": {
+     "anchor": "hvac_mzw_system-inlet_cooling_water_temp",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Inlet cooling water temperature used when \"water_source\" is \"UNKNOWN\".",
+     "unit": "°C"
+    },
+    "inlet_heating_water_temp": {
+     "anchor": "hvac_mzw_system-inlet_heating_water_temp",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Inlet heating water temperature used when \"water_source\" is \"UNKNOWN\".",
+     "unit": "°C"
+    },
+    "input_variables": {
+     "anchor": "hvac_mzw_system-input_variables",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "List of variables from other components used in this component. They may be used in parameters of the type math_exp.",
+     "unit": ""
+    },
+    "min_air_flow_fractions": {
+     "anchor": "hvac_mzw_system-min_air_flow_fractions",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Minimum air flow fraction for each space when VAV is enabled.",
+     "unit": "frac"
+    },
+    "outdoor_air_flow": {
+     "anchor": "hvac_mzw_system-outdoor_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Minimum outdoor air volumetric flow at return air conditions (where the air is exhausted), as an alternative to \"outdoor_air_fraction\" (only one of them can be used). Not available in VAV systems.",
+     "unit": "m³/s"
+    },
+    "outdoor_air_fraction": {
+     "anchor": "hvac_mzw_system-outdoor_air_fraction",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outdoor air flow fraction at the coil inlet used for the simulation (fraction of the supply mass flow). In VAV systems the outdoor air is obtained from the mass balance of supply, return and zone exhaust flows, and this parameter is not used.",
+     "unit": "frac"
+    },
+    "reheat": {
+     "anchor": "hvac_mzw_system-reheat",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Enable reheat coils for each zone.",
+     "unit": ""
+    },
+    "reheat_coils": {
+     "anchor": "hvac_mzw_system-reheat_coils",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "List of reheat coil references for each zone (required if reheat is enabled).",
+     "unit": ""
+    },
+    "reheat_water_source": {
+     "anchor": "hvac_mzw_system-reheat_water_source",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Same behaviour as \"water_source\" but applied to the reheat coils. If \"WATER_SYSTEM\" the reheat coils are connected to the \"HVAC_water_system\" referenced in \"reheat_water_system\".",
+     "unit": ""
+    },
+    "reheat_water_system": {
+     "anchor": "hvac_mzw_system-reheat_water_system",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"HVAC_water_system\" component that supplies the reheat coils when \"reheat_water_source\" is \"WATER_SYSTEM\".",
+     "unit": ""
+    },
+    "return_air_flow": {
+     "anchor": "hvac_mzw_system-return_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total return air flow at design conditions, used if return fan present.",
+     "unit": "m³/s"
+    },
+    "return_air_flow_fractions": {
+     "anchor": "hvac_mzw_system-return_air_flow_fractions",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Fraction of return air flow from each space. The sum of all fractions must equal 1.",
+     "unit": "frac"
+    },
+    "return_fan": {
+     "anchor": "hvac_mzw_system-return_fan",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Fan\" component used as return fan by this system (if present).",
+     "unit": ""
+    },
+    "spaces": {
+     "anchor": "hvac_mzw_system-spaces",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "List of references to the \"Space\" or \"Load_space\" components to be air-conditioned by this system.",
+     "unit": ""
+    },
+    "spaces_setpoint": {
+     "anchor": "hvac_mzw_system-spaces_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Space temperature setpoint for each zone. Used for reheat and VAV control.",
+     "unit": "°C"
+    },
+    "supply_cooling_setpoint": {
+     "anchor": "hvac_mzw_system-supply_cooling_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter.",
+     "unit": "°C"
+    },
+    "supply_fan": {
+     "anchor": "hvac_mzw_system-supply_fan",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Fan\" component used as supply fan by this system.",
+     "unit": ""
+    },
+    "supply_heating_setpoint": {
+     "anchor": "hvac_mzw_system-supply_heating_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air heating setpoint temperature. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter.",
+     "unit": "°C"
+    },
+    "system_on_off": {
+     "anchor": "hvac_mzw_system-system_on_off",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter.",
+     "unit": "on/off"
+    },
+    "vav": {
+     "anchor": "hvac_mzw_system-vav",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Enable Variable Air Volume (VAV) control for each zone.",
+     "unit": ""
+    },
+    "water_flow_control": {
+     "anchor": "hvac_mzw_system-water_flow_control",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If the selected option is \"ON_OFF\" the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time. If we select \"PROPORTIONAL\" it is assumed that the water flow rate is adjusted progressively.",
+     "unit": ""
+    },
+    "water_source": {
+     "anchor": "hvac_mzw_system-water_source",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If the value is \"UNKNOWN\", the simulation will be carried out assuming that the coils are always fed at a fixed inlet water temperature and flow, given by \"inlet_cooling_water_temp\"/\"inlet_heating_water_temp\" and \"cooling_water_flow\"/\"heating_water_flow\". If the value is \"WATER_SYSTEM\" the coils are connected to the \"HVAC_water_system\" components referenced in \"cooling_water_system\"/\"heating_water_system\", which supply the inlet water temperature and add the coil load to the water loop.",
+     "unit": ""
+    }
+   },
+   "variables": {
+    "F_flow": {
+     "anchor": "hvac_mzw_system-var-f_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total system air flow fraction (for VAV systems).",
+     "unit": "frac"
+    },
+    "F_flow_i": {
+     "anchor": "hvac_mzw_system-var-f_flow_i",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Air flow fraction for space i (relative to nominal flow).",
+     "unit": "frac"
+    },
+    "F_load": {
+     "anchor": "hvac_mzw_system-var-f_load",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Partial load state of the system, calculated as the thermal power supplied at a given instant divided by the cooling or heating capacity at the current operation conditions.",
+     "unit": "frac"
+    },
+    "Q_latent": {
+     "anchor": "hvac_mzw_system-var-q_latent",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Latent heat removed by the coil, positive for dehumidification.",
+     "unit": "W"
+    },
+    "Q_reheat_i": {
+     "anchor": "hvac_mzw_system-var-q_reheat_i",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reheat power supplied to space i (if reheat enabled).",
+     "unit": "W"
+    },
+    "Q_sensible": {
+     "anchor": "hvac_mzw_system-var-q_sensible",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Sensible heat supplied by the main coil, positive for heating and negative for cooling.",
+     "unit": "W"
+    },
+    "Q_total": {
+     "anchor": "hvac_mzw_system-var-q_total",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total heat supplied by the main coil, sensible + latent.",
+     "unit": "W"
+    },
+    "T_ADP": {
+     "anchor": "hvac_mzw_system-var-t_adp",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "ADP (Apparatus Dew Point) temperature of the coil.",
+     "unit": "ºC"
+    },
+    "T_CA": {
+     "anchor": "hvac_mzw_system-var-t_ca",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil outlet air dry bulb temperature.",
+     "unit": "ºC"
+    },
+    "T_MA": {
+     "anchor": "hvac_mzw_system-var-t_ma",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mixed air dry bulb temperature, at the coil inlet.",
+     "unit": "ºC"
+    },
+    "T_MAwb": {
+     "anchor": "hvac_mzw_system-var-t_mawb",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mixed air wet bulb temperature, at the coil inlet.",
+     "unit": "ºC"
+    },
+    "T_OA": {
+     "anchor": "hvac_mzw_system-var-t_oa",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outdoor air dry bulb temperature.",
+     "unit": "ºC"
+    },
+    "T_OAwb": {
+     "anchor": "hvac_mzw_system-var-t_oawb",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outdoor wet bulb temperature.",
+     "unit": "ºC"
+    },
+    "T_RA": {
+     "anchor": "hvac_mzw_system-var-t_ra",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Return air dry bulb temperature (after return fan if present).",
+     "unit": "ºC"
+    },
+    "T_SA": {
+     "anchor": "hvac_mzw_system-var-t_sa",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air dry bulb temperature (after supply fan).",
+     "unit": "ºC"
+    },
+    "T_SA_i": {
+     "anchor": "hvac_mzw_system-var-t_sa_i",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air temperature to space i (after reheat if enabled).",
+     "unit": "ºC"
+    },
+    "T_ZA": {
+     "anchor": "hvac_mzw_system-var-t_za",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mixed zone air temperature (weighted average from all zones).",
+     "unit": "ºC"
+    },
+    "T_iw": {
+     "anchor": "hvac_mzw_system-var-t_iw",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil inlet water temperature.",
+     "unit": "ºC"
+    },
+    "T_ow": {
+     "anchor": "hvac_mzw_system-var-t_ow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil outlet water temperature.",
+     "unit": "ºC"
+    },
+    "epsilon": {
+     "anchor": "hvac_mzw_system-var-epsilon",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil effectiveness.",
+     "unit": "frac"
+    },
+    "epsilon_adp": {
+     "anchor": "hvac_mzw_system-var-epsilon_adp",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil ADP effectiveness = 1 - Bypass Factor.",
+     "unit": "frac"
+    },
+    "m_air_flow": {
+     "anchor": "hvac_mzw_system-var-m_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total dry air mass flow rate at coil inlet.",
+     "unit": "kg/s"
+    },
+    "m_air_flow_i": {
+     "anchor": "hvac_mzw_system-var-m_air_flow_i",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Air mass flow rate supplied to space i.",
+     "unit": "kg/s"
+    },
+    "m_return_air_flow": {
+     "anchor": "hvac_mzw_system-var-m_return_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total dry air mass flow rate in return air.",
+     "unit": "kg/s"
+    },
+    "outdoor_air_fraction": {
+     "anchor": "hvac_mzw_system-var-outdoor_air_fraction",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Fraction of outside air in supply air.",
+     "unit": "frac"
+    },
+    "return_fan_power": {
+     "anchor": "hvac_mzw_system-var-return_fan_power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the return fan.",
+     "unit": "W"
+    },
+    "spaces_setpoint_i": {
+     "anchor": "hvac_mzw_system-var-spaces_setpoint_i",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Temperature setpoint for space i.",
+     "unit": "°C"
+    },
+    "state": {
+     "anchor": "hvac_mzw_system-var-state",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Operation of the system: off (0), heating (1), heating at maximum capacity (2), cooling (-1), cooling at maximum capacity (-2), venting (3).",
+     "unit": "flag"
+    },
+    "supply_cooling_setpoint": {
+     "anchor": "hvac_mzw_system-var-supply_cooling_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air cooling setpoint temperature.",
+     "unit": "°C"
+    },
+    "supply_fan_power": {
+     "anchor": "hvac_mzw_system-var-supply_fan_power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the supply fan.",
+     "unit": "W"
+    },
+    "supply_heating_setpoint": {
+     "anchor": "hvac_mzw_system-var-supply_heating_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air heating setpoint temperature.",
+     "unit": "°C"
+    },
+    "w_CA": {
+     "anchor": "hvac_mzw_system-var-w_ca",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil outlet air absolute humidity.",
+     "unit": "g/kg"
+    },
+    "w_RA": {
+     "anchor": "hvac_mzw_system-var-w_ra",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Return air absolute humidity.",
+     "unit": "g/kg"
+    },
+    "w_SA": {
+     "anchor": "hvac_mzw_system-var-w_sa",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air absolute humidity.",
+     "unit": "g/kg"
+    }
+   }
+  },
+  "HVAC_SZW_system": {
+   "anchor": "hvac_szw_system",
+   "page": "component_list_HVAC_air_systems/",
+   "parameters": {
+    "air_flow": {
+     "anchor": "hvac_szw_system-air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil inlet air flow used for all the simulation.",
+     "unit": "m³/s"
+    },
+    "cooling_coil": {
+     "anchor": "hvac_szw_system-cooling_coil",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Water_coil\" component used for cooling by this system.",
+     "unit": ""
+    },
+    "cooling_setpoint": {
+     "anchor": "hvac_szw_system-cooling_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Space cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "°C"
+    },
+    "cooling_water_flow": {
+     "anchor": "hvac_szw_system-cooling_water_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Cooling coil design water flow.",
+     "unit": "dm³/s"
+    },
+    "cooling_water_system": {
+     "anchor": "hvac_szw_system-cooling_water_system",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"HVAC_water_system\" component that supplies the cooling coil when \"water_source\" is \"WATER_SYSTEM\".",
+     "unit": ""
+    },
+    "economizer": {
+     "anchor": "hvac_szw_system-economizer",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Free cooling using outside air (economizer). If the option selected is \"NO\" no economizer will be used, for the other options the economizer see HVAC_DX_system.",
+     "unit": ""
+    },
+    "economizer_DT": {
+     "anchor": "hvac_szw_system-economizer_dt",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "For economizers type \"TEMPERATURE\" and \"TEMPERATURE_NOT_INTEGRATED\" set the temperature difference between the return air and the outside air at which the economizer starts to operate.",
+     "unit": "ºC"
+    },
+    "economizer_enthalpy_limit": {
+     "anchor": "hvac_szw_system-economizer_enthalpy_limit",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "For economizers type ENTHALPY_LIMITED set the maximum outdoor air enthalpy at which the economizer does not operate.",
+     "unit": "kJ/kg"
+    },
+    "fan_operation": {
+     "anchor": "hvac_szw_system-fan_operation",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If the value is \"CONTINUOUS\" the fans will always run, consuming electrical energy and adding heat to the air stream, even when there is no load. If we specify \"CYCLING\" the fans will run a fraction of time equal to the partial load at which the equipment operates, therefore, when there is no load there will be no consumption of the fan.",
+     "unit": ""
+    },
+    "heating_coil": {
+     "anchor": "hvac_szw_system-heating_coil",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Water_coil\" component used for heating by this system.",
+     "unit": ""
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_szw_system-heating_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Space heating setpoint temperature. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "°C"
+    },
+    "heating_water_flow": {
+     "anchor": "hvac_szw_system-heating_water_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Heating coil design water flow.",
+     "unit": "dm³/s"
+    },
+    "heating_water_system": {
+     "anchor": "hvac_szw_system-heating_water_system",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"HVAC_water_system\" component that supplies the heating coil when \"water_source\" is \"WATER_SYSTEM\".",
+     "unit": ""
+    },
+    "inlet_cooling_water_temp": {
+     "anchor": "hvac_szw_system-inlet_cooling_water_temp",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Inlet cooling water temperature used when \"water_source\" is \"UNKNOWN\".",
+     "unit": "°C"
+    },
+    "inlet_heating_water_temp": {
+     "anchor": "hvac_szw_system-inlet_heating_water_temp",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Inlet heating water temperature used when \"water_source\" is \"UNKNOWN\".",
+     "unit": "°C"
+    },
+    "input_variables": {
+     "anchor": "hvac_szw_system-input_variables",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "List of variables from other components used in this component. They may be used in parameters of the type math_exp.",
+     "unit": ""
+    },
+    "outdoor_air_flow": {
+     "anchor": "hvac_szw_system-outdoor_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Minimum outdoor air volumetric flow at return air conditions (where the air is exhausted), as an alternative to \"outdoor_air_fraction\" (only one of them can be used). The economizer can increase it.",
+     "unit": "m³/s"
+    },
+    "outdoor_air_fraction": {
+     "anchor": "hvac_szw_system-outdoor_air_fraction",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outdoor air flow fraction at the coil inlet used for the simulation (fraction of the supply mass flow).",
+     "unit": "frac"
+    },
+    "return_air_flow": {
+     "anchor": "hvac_szw_system-return_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Return air flow used if return fan present.",
+     "unit": "m³/s"
+    },
+    "return_fan": {
+     "anchor": "hvac_szw_system-return_fan",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Fan\" component used as return fan by this system (if present).",
+     "unit": ""
+    },
+    "space": {
+     "anchor": "hvac_szw_system-space",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Space\" or \"Load_space\" component to be air-conditioned by this system.",
+     "unit": ""
+    },
+    "supply_fan": {
+     "anchor": "hvac_szw_system-supply_fan",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Fan\" component used as supply fan by this system.",
+     "unit": ""
+    },
+    "system_on_off": {
+     "anchor": "hvac_szw_system-system_on_off",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "on/off"
+    },
+    "water_flow_control": {
+     "anchor": "hvac_szw_system-water_flow_control",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If the selected option is \"ON_OFF\" the coil will operate at design water flow the fraction of time necessary to give the sensible load (F_load) and zero flow the rest of the time, therefore the latent load will be calculated by multiplying the latent load at design flow by that fraction of time. If we select \"PROPORTIONAL\" it is assumed that the water flow rate is adjusted progressively, the required coil outlet temperature will be calculated and using the adp effectiveness the ADP and the supplied latent load will be obtained.",
+     "unit": ""
+    },
+    "water_source": {
+     "anchor": "hvac_szw_system-water_source",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If the value is \"UNKNOWN\", the simulation will be carried out assuming that the coils are always fed at a fixed inlet water temperature and flow, given by \"inlet_cooling_water_temp\"/\"inlet_heating_water_temp\" and \"cooling_water_flow\"/\"heating_water_flow\". If the value is \"WATER_SYSTEM\" the coils are connected to the \"HVAC_water_system\" components referenced in \"cooling_water_system\"/\"heating_water_system\", which supply the inlet water temperature and add the coil load to the water loop.",
+     "unit": ""
+    }
+   },
+   "variables": {
+    "F_load": {
+     "anchor": "hvac_szw_system-var-f_load",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Partial load state of the system, calculated as the thermal power supplied at a given instant divided by the cooling or heating capacity at the current operation conditions.",
+     "unit": "frac"
+    },
+    "Q_latent": {
+     "anchor": "hvac_szw_system-var-q_latent",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Latent heat removed by the coil, positive for dehumidification.",
+     "unit": "W"
+    },
+    "Q_sensible": {
+     "anchor": "hvac_szw_system-var-q_sensible",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Sensible heat supplied by the coil, positive for heating and negative for cooling.",
+     "unit": "W"
+    },
+    "Q_total": {
+     "anchor": "hvac_szw_system-var-q_total",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total heat supplied by the coil, sensible + latent.",
+     "unit": "W"
+    },
+    "T_ADP": {
+     "anchor": "hvac_szw_system-var-t_adp",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "ADP (Apparatus Dew Point) temperature of the coil.",
+     "unit": "ºC"
+    },
+    "T_CA": {
+     "anchor": "hvac_szw_system-var-t_ca",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil outlet air dry bulb temperature.",
+     "unit": "ºC"
+    },
+    "T_MA": {
+     "anchor": "hvac_szw_system-var-t_ma",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mixed air dry bulb temperature, at the coil inlet.",
+     "unit": "ºC"
+    },
+    "T_MAwb": {
+     "anchor": "hvac_szw_system-var-t_mawb",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mixed air wet bulb temperature, at the coil inlet.",
+     "unit": "ºC"
+    },
+    "T_OA": {
+     "anchor": "hvac_szw_system-var-t_oa",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outdoor air dry bulb temperature.",
+     "unit": "ºC"
+    },
+    "T_OAwb": {
+     "anchor": "hvac_szw_system-var-t_oawb",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outdoor wet bulb temperature.",
+     "unit": "ºC"
+    },
+    "T_RA": {
+     "anchor": "hvac_szw_system-var-t_ra",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Return air dry bulb temperature (after return fan if present).",
+     "unit": "ºC"
+    },
+    "T_SA": {
+     "anchor": "hvac_szw_system-var-t_sa",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air dry bulb temperature (after supply fan).",
+     "unit": "ºC"
+    },
+    "T_iw": {
+     "anchor": "hvac_szw_system-var-t_iw",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil inlet water temperature.",
+     "unit": "ºC"
+    },
+    "T_ow": {
+     "anchor": "hvac_szw_system-var-t_ow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil outlet water temperature.",
+     "unit": "ºC"
+    },
+    "cooling_setpoint": {
+     "anchor": "hvac_szw_system-var-cooling_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Cooling setpoint temperature.",
+     "unit": "°C"
+    },
+    "epsilon": {
+     "anchor": "hvac_szw_system-var-epsilon",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil effectiveness.",
+     "unit": "frac"
+    },
+    "epsilon_adp": {
+     "anchor": "hvac_szw_system-var-epsilon_adp",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil ADP effectiveness = 1 - Bypass Factor.",
+     "unit": "frac"
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_szw_system-var-heating_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Heating setpoint temperature.",
+     "unit": "°C"
+    },
+    "m_air_flow": {
+     "anchor": "hvac_szw_system-var-m_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Dry air mass flow rate at coil inlet.",
+     "unit": "kg/s"
+    },
+    "m_return_air_flow": {
+     "anchor": "hvac_szw_system-var-m_return_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Dry air mass flow rate in return air.",
+     "unit": "kg/s"
+    },
+    "outdoor_air_fraction": {
+     "anchor": "hvac_szw_system-var-outdoor_air_fraction",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Fraction of outside air in supply air.",
+     "unit": "frac"
+    },
+    "return_fan_power": {
+     "anchor": "hvac_szw_system-var-return_fan_power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the return fan.",
+     "unit": "W"
+    },
+    "state": {
+     "anchor": "hvac_szw_system-var-state",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Operation of the system: off (0), heating (1), heating at maximum capacity (2), cooling (-1), cooling at maximum capacity (-2), venting (3).",
+     "unit": "flag"
+    },
+    "supply_fan_power": {
+     "anchor": "hvac_szw_system-var-supply_fan_power",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Electrical power consumed by the supply fan.",
+     "unit": "W"
+    },
+    "w_CA": {
+     "anchor": "hvac_szw_system-var-w_ca",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Coil outlet air absolute humidity.",
+     "unit": "g/kg"
+    },
+    "w_SA": {
+     "anchor": "hvac_szw_system-var-w_sa",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Supply air absolute humidity.",
+     "unit": "g/kg"
+    }
+   }
+  },
+  "HVAC_perfect_system": {
+   "anchor": "hvac_perfect_system",
+   "page": "component_list_HVAC_air_systems/",
+   "parameters": {
+    "cooling_setpoint": {
+     "anchor": "hvac_perfect_system-cooling_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Space Cooling setpoint temperature. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "°C"
+    },
+    "dehumidifying_setpoint": {
+     "anchor": "hvac_perfect_system-dehumidifying_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Space relative humidity setpoint for dehumidification. If the relative humidity of the space is higher this value, latent heat is removed to maintain the relative humidity. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "%"
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_perfect_system-heating_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Space heating setpoint temperature. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "°C"
+    },
+    "humidifying_setpoint": {
+     "anchor": "hvac_perfect_system-humidifying_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Space relative humidity setpoint for humidification. If the relative humidity of the space is below this value, latent heat is added to maintain the relative humidity. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "%"
+    },
+    "input_variables": {
+     "anchor": "hvac_perfect_system-input_variables",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "List of variables from other components used in this component. They may be used in parameters of the type math_exp.",
+     "unit": ""
+    },
+    "outdoor_air_flow": {
+     "anchor": "hvac_perfect_system-outdoor_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outside air flow rate (ventilation) supplied to the space. This flow rate is only entered if the system is in operation. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "m³/s"
+    },
+    "spaces": {
+     "anchor": "hvac_perfect_system-spaces",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Reference to the \"Space\" or \"Load_space\" component to be controlled by this system.",
+     "unit": ""
+    },
+    "system_on_off": {
+     "anchor": "hvac_perfect_system-system_on_off",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "on/off"
+    }
+   },
+   "variables": {
+    "Q_latent": {
+     "anchor": "hvac_perfect_system-var-q_latent",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Latent heat supplied by the system, positive for humidification, negative for dehumidification.",
+     "unit": "W"
+    },
+    "Q_sensible": {
+     "anchor": "hvac_perfect_system-var-q_sensible",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Sensible heat supplied by the system, positive for heating and negative for cooling.",
+     "unit": "W"
+    },
+    "Q_total": {
+     "anchor": "hvac_perfect_system-var-q_total",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total heat supplied by the system, sum of latent and sensible.",
+     "unit": "W"
+    },
+    "cooling_setpoint": {
+     "anchor": "hvac_perfect_system-var-cooling_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Cooling setpoint temperature.",
+     "unit": "°C"
+    },
+    "dehumidifying_setpoint": {
+     "anchor": "hvac_perfect_system-var-dehumidifying_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "High relative humidity setpoint.",
+     "unit": "%"
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_perfect_system-var-heating_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Heating setpoint temperature.",
+     "unit": "°C"
+    },
+    "humidifying_setpoint": {
+     "anchor": "hvac_perfect_system-var-humidifying_setpoint",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Low relative humidity setpoint.",
+     "unit": "%"
+    },
+    "outdoor_air_flow": {
+     "anchor": "hvac_perfect_system-var-outdoor_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Outside air flow rate (ventilation) supplied to the space.",
+     "unit": "m³/s"
+    },
+    "state": {
+     "anchor": "hvac_perfect_system-var-state",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Operation of the system: off (0), heating (1), colling (-1), venting (3).",
+     "unit": "flag"
+    }
+   }
+  },
+  "HVAC_water_circuit": {
+   "anchor": "hvac_water_circuit",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "Q_loss": {
+     "anchor": "hvac_water_circuit-q_loss",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat losses (negative) or gains (positive) of the water of the circuit; may use T_w, its supply temperature, and m_w, its water flow.",
+     "unit": "W"
+    },
+    "cooling_supply_setpoint": {
+     "anchor": "hvac_water_circuit-cooling_supply_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Minimum supply temperature (mixing valve). Empty: no limit.",
+     "unit": "°C"
+    },
+    "flow_control": {
+     "anchor": "hvac_water_circuit-flow_control",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "\"CONSTANT\": the design flow of its pumps while they run. \"VARIABLE\": the flow its coils ask for, between minimum_flow and the design flow, its pumps staged as the secondary pumps of a plant.",
+     "unit": ""
+    },
+    "heating_supply_setpoint": {
+     "anchor": "hvac_water_circuit-heating_supply_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Maximum supply temperature (mixing valve). Empty: no limit.",
+     "unit": "°C"
+    },
+    "input_variables": {
+     "anchor": "hvac_water_circuit-input_variables",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "List of variables from other components used in this component. They may be used in parameters of the type math_exp.",
+     "unit": ""
+    },
+    "minimum_flow": {
+     "anchor": "hvac_water_circuit-minimum_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "With flow_control \"VARIABLE\", lowest flow as a fraction of the design flow while the circuit is on.",
+     "unit": "frac"
+    },
+    "pump_operation": {
+     "anchor": "hvac_water_circuit-pump_operation",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "If \"ALLWAYS_ON\" the pumps run whenever the circuit is on; if \"ON_LOAD\" only when its coils have a load. Only with flow_control \"CONSTANT\".",
+     "unit": ""
+    },
+    "pumps": {
+     "anchor": "hvac_water_circuit-pumps",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Pumps of the circuit, in parallel, at their nominal water flow.",
+     "unit": ""
+    },
+    "system_on_off": {
+     "anchor": "hvac_water_circuit-system_on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "If 0 the circuit is off: its pumps stop and its coils get no heat or cold. It is also off while its plant is off.",
+     "unit": "on/off"
+    },
+    "tank": {
+     "anchor": "hvac_water_circuit-tank",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "With a tank the circuit is a charging circuit (e.g. the DHW tank of a boiler that also heats): its coils (DHW demands) take the water of the tank, at its temperature, even while the plant is off; its pumps charge the tank with water of the plant while the tank is below tank_setpoint, the plant can heat and its water is hotter, running the fraction of the time step the charge needs (the water goes back to the plant at the temperature of the tank). The mixing valve and water_volume do not apply. The thermostat starts the charge dead_band below the setpoint (see Water_tank). If only DHW demands hang from the circuit, all its load to the plant (losses of the tank included) and its pumps count as DHW.",
+     "unit": ""
+    },
+    "tank_setpoint": {
+     "anchor": "hvac_water_circuit-tank_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Charging setpoint of the tank.",
+     "unit": "°C"
+    },
+    "water_system": {
+     "anchor": "hvac_water_circuit-water_system",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "The plant that feeds the circuit.",
+     "unit": ""
+    },
+    "water_volume": {
+     "anchor": "hvac_water_circuit-water_volume",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water volume of the circuit: the plant also gives the heat to warm it up or cool it down.",
+     "unit": "dm³"
+    }
+   },
+   "variables": {
+    "Q_cooling_coils": {
+     "anchor": "hvac_water_circuit-var-q_cooling_coils",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Load of its heating coils (negative) and of its cooling coils (positive).",
+     "unit": "W"
+    },
+    "Q_dhw": {
+     "anchor": "hvac_water_circuit-var-q_dhw",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Load of its DHW demands (negative).",
+     "unit": "W"
+    },
+    "Q_heating_coils": {
+     "anchor": "hvac_water_circuit-var-q_heating_coils",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Load of its heating coils (negative) and of its cooling coils (positive).",
+     "unit": ""
+    },
+    "Q_loads": {
+     "anchor": "hvac_water_circuit-var-q_loads",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Load of its coils and DHW demands, positive when they heat the water, negative when they cool it: Q_loads = Q_heating_coils + Q_cooling_coils + Q_dhw.",
+     "unit": "W"
+    },
+    "Q_loss": {
+     "anchor": "hvac_water_circuit-var-q_loss",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat losses (negative) or gains of the circuit.",
+     "unit": "W"
+    },
+    "Q_plant": {
+     "anchor": "hvac_water_circuit-var-q_plant",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Load given to the plant: Q_loads + Q_loss + Q_pump - delta_U.",
+     "unit": "W"
+    },
+    "Q_pump": {
+     "anchor": "hvac_water_circuit-var-q_pump",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat given to the water by its pumps.",
+     "unit": "W"
+    },
+    "T_plant": {
+     "anchor": "hvac_water_circuit-var-t_plant",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of the water from the plant.",
+     "unit": "°C"
+    },
+    "T_return": {
+     "anchor": "hvac_water_circuit-var-t_return",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Return water temperature of the circuit.",
+     "unit": "°C"
+    },
+    "T_supply": {
+     "anchor": "hvac_water_circuit-var-t_supply",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Supply water temperature of the circuit, to its coils.",
+     "unit": "°C"
+    },
+    "coils_flow": {
+     "anchor": "hvac_water_circuit-var-coils_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Sum of the water flows the coils report.",
+     "unit": "dm³/s"
+    },
+    "delta_U": {
+     "anchor": "hvac_water_circuit-var-delta_u",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Rate of change of the energy stored in its water.",
+     "unit": "W"
+    },
+    "mixing_flow": {
+     "anchor": "hvac_water_circuit-var-mixing_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow of the return mixed into the supply by the mixing valve.",
+     "unit": "dm³/s"
+    },
+    "on_off": {
+     "anchor": "hvac_water_circuit-var-on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Availability of the circuit (system_on_off).",
+     "unit": "flag"
+    },
+    "plant_flow": {
+     "anchor": "hvac_water_circuit-var-plant_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow taken from the plant.",
+     "unit": "dm³/s"
+    },
+    "pumps_power": {
+     "anchor": "hvac_water_circuit-var-pumps_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electric power of its pumps.",
+     "unit": "W"
+    },
+    "water_flow": {
+     "anchor": "hvac_water_circuit-var-water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow moved by its pumps.",
+     "unit": "dm³/s"
+    }
+   }
+  },
+  "HVAC_water_generator": {
+   "anchor": "hvac_water_generator",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "equipment": {
+     "anchor": "hvac_water_generator-equipment",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Equipment that heats and/or cools the water.",
+     "unit": ""
+    },
+    "input_variables": {
+     "anchor": "hvac_water_generator-input_variables",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "List of variables from other components used in this component. They may be used in parameters of the type math_exp.",
+     "unit": ""
+    },
+    "number_of_units": {
+     "anchor": "hvac_water_generator-number_of_units",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Number of identical units of the equipment.",
+     "unit": ""
+    },
+    "pump": {
+     "anchor": "hvac_water_generator-pump",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Primary pump of the generator, sized for its water flow (all its units). It moves the water through the generator while the generator is available. If not defined, its heat to the water and its power are considered zero.",
+     "unit": ""
+    },
+    "system_on_off": {
+     "anchor": "hvac_water_generator-system_on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Availability of the generator: if 0 it gives no heat or cold. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter.",
+     "unit": "on/off"
+    }
+   },
+   "variables": {
+    "F_load": {
+     "anchor": "hvac_water_generator-var-f_load",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Part load of the generator: load given divided by the capacity of all its units.",
+     "unit": "frac"
+    },
+    "Q": {
+     "anchor": "hvac_water_generator-var-q",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat given to the water, positive heating, negative cooling.",
+     "unit": "W"
+    },
+    "T_wi": {
+     "anchor": "hvac_water_generator-var-t_wi",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Inlet (return) water temperature.",
+     "unit": "°C"
+    },
+    "T_wo": {
+     "anchor": "hvac_water_generator-var-t_wo",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Outlet (supply) water temperature.",
+     "unit": "°C"
+    },
+    "efficiency": {
+     "anchor": "hvac_water_generator-var-efficiency",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "EER (cooling) or COP (heating) of a Chiller_heat_pump, efficiency on the LHV of a Boiler; with several units, heat given divided by the power (fuel power for a boiler) of all of them.",
+     "unit": "frac"
+    },
+    "fuel_power": {
+     "anchor": "hvac_water_generator-var-fuel_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Fuel power on the lower heating value (Boiler; 0 for a Chiller_heat_pump).",
+     "unit": "W"
+    },
+    "on_off": {
+     "anchor": "hvac_water_generator-var-on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Availability of the generator (system_on_off).",
+     "unit": "flag"
+    },
+    "power": {
+     "anchor": "hvac_water_generator-var-power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electric power of the equipment (for a Boiler, its auxiliary power).",
+     "unit": "W"
+    },
+    "pump_power": {
+     "anchor": "hvac_water_generator-var-pump_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electric power of its pump.",
+     "unit": "W"
+    },
+    "state": {
+     "anchor": "hvac_water_generator-var-state",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Operation: off (0), heating (1), cooling (-1).",
+     "unit": "flag"
+    },
+    "units_on": {
+     "anchor": "hvac_water_generator-var-units_on",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Number of units giving heat or cold.",
+     "unit": "-"
+    },
+    "water_flow": {
+     "anchor": "hvac_water_generator-var-water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow through the generator.",
+     "unit": "dm³/s"
+    }
+   }
+  },
+  "HVAC_water_system": {
+   "anchor": "hvac_water_system",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "Q_loss": {
+     "anchor": "hvac_water_system-q_loss",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Thermal losses (or gains, if negative) of the water loop to the environment.",
+     "unit": "W"
+    },
+    "Q_process": {
+     "anchor": "hvac_water_system-q_process",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Additional heat load applied directly to the water loop (positive heats the water, negative cools it), independent of the coils connected to the system.",
+     "unit": "W"
+    },
+    "convergence_DT": {
+     "anchor": "hvac_water_system-convergence_dt",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Convergence tolerance for the water loop outlet temperature at the generator, used by the iterative solution process.",
+     "unit": "°C"
+    },
+    "cooling_water_setpoint": {
+     "anchor": "hvac_water_system-cooling_water_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Chilled water outlet setpoint temperature at the generator when the system is cooling. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter.",
+     "unit": "°C"
+    },
+    "flow_control": {
+     "anchor": "hvac_water_system-flow_control",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "\"CONSTANT\": the water moves at the design flow while the pumps run (three-way valves). \"VARIABLE\" (two-way valves): the flow is the one the coils, circuits and DHW demands ask for, between minimum_flow and the design flow; with no demand the water stands. Without a header the generators share that flow in proportion to their nominal flows and their pumps work at it (the F_water of their power_expression); with a header it is the secondary flow, the secondary pumps are staged (in the order of the list, as many as needed, sharing the flow in proportion to their nominal flows) and the primary is unchanged. An instantaneous boiler for DHW then sees only the water drawn, at the mains temperature.",
+     "unit": ""
+    },
+    "generators": {
+     "anchor": "hvac_water_system-generators",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Generators of the loop, in order of priority.",
+     "unit": ""
+    },
+    "heating_water_setpoint": {
+     "anchor": "hvac_water_system-heating_water_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Hot water outlet setpoint temperature at the generator when the system is heating. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter.",
+     "unit": "°C"
+    },
+    "initial_water_temp": {
+     "anchor": "hvac_water_system-initial_water_temp",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water temperature used to initialize the loop at the first time step.",
+     "unit": "°C"
+    },
+    "input_variables": {
+     "anchor": "hvac_water_system-input_variables",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "List of variables from other components used in this component. They may be used in parameters of the type math_exp.",
+     "unit": ""
+    },
+    "minimum_flow": {
+     "anchor": "hvac_water_system-minimum_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "With flow_control \"VARIABLE\", lowest flow as a fraction of the design flow (of the generators, or of the secondary pumps with a header) while the system is on. A Q_process has no flow of its own: it needs a minimum flow above 0.",
+     "unit": "frac"
+    },
+    "pump_operation": {
+     "anchor": "hvac_water_system-pump_operation",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "If \"ALLWAYS_ON\" the pumps that move the water to the coils (those of the generators, or the secondary pumps with a header) run whenever the system is on. If \"ON_LOAD\" they only run when there is a heating or cooling load from the coils or the process load. Only with flow_control \"CONSTANT\".",
+     "unit": ""
+    },
+    "pumps": {
+     "anchor": "hvac_water_system-pumps",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Secondary pumps, in parallel. With them the plant has a header (primary / secondary); without them (the default) the loop is moved by the pumps of the generators.",
+     "unit": ""
+    },
+    "sequencing": {
+     "anchor": "hvac_water_system-sequencing",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "How the generators, and the units of each generator, share the load.",
+     "unit": ""
+    },
+    "system_control": {
+     "anchor": "hvac_water_system-system_control",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "If \"LOAD_CONTROL\" the system switches automatically between heating and cooling depending on the sign of the load requested by the coils and the process load. If \"SCHEDULE_CONTROL\" the operating mode is set with the \"system_mode\" parameter, and any load of the opposite sign is not satisfied.",
+     "unit": ""
+    },
+    "system_mode": {
+     "anchor": "hvac_water_system-system_mode",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Operating mode used only when \"system_control\" is \"SCHEDULE_CONTROL\": -1 for cooling, 0 for standby, 1 for heating. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter.",
+     "unit": "-1/0/1"
+    },
+    "system_on_off": {
+     "anchor": "hvac_water_system-system_on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "If this value is 0, the system will be off, otherwise it will be on. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter.",
+     "unit": "on/off"
+    },
+    "tank": {
+     "anchor": "hvac_water_system-tank",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Storage tank (DHW tank, electric water heater, buffer tank). Its water is the water of the plant (its volume replaces total_water_volume, its losses are added to Q_loss) and the plant works as with a header: the generators heat the tank up to the heating setpoint, moving water only while they run, and the loads take the water of the tank (without secondary pumps, the flow they ask for: e.g. the mains pressure of a DHW demand). The thermostat starts the generators when the tank, without them, would be dead_band below the setpoint and keeps them on up to it.",
+     "unit": ""
+    },
+    "total_water_volume": {
+     "anchor": "hvac_water_system-total_water_volume",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Total water volume of the loop, used to calculate its thermal inertia.",
+     "unit": "dm³"
+    },
+    "water_limits": {
+     "anchor": "hvac_water_system-water_limits",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Minimum and maximum water temperatures allowed in the loop, used to limit the values of the reported temperature variables.",
+     "unit": "°C"
+    }
+   },
+   "variables": {
+    "Q_cooling_coils": {
+     "anchor": "hvac_water_system-var-q_cooling_coils",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Load of the cooling coils (positive).",
+     "unit": "W"
+    },
+    "Q_dhw": {
+     "anchor": "hvac_water_system-var-q_dhw",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Load of the DHW demands (negative).",
+     "unit": "W"
+    },
+    "Q_generators": {
+     "anchor": "hvac_water_system-var-q_generators",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat given to the water by the generators: positive heating, negative cooling.",
+     "unit": "W"
+    },
+    "Q_heating_coils": {
+     "anchor": "hvac_water_system-var-q_heating_coils",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Load of the heating coils, of air systems directly or through circuits (negative).",
+     "unit": "W"
+    },
+    "Q_loads": {
+     "anchor": "hvac_water_system-var-q_loads",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Load of everything connected to the system: coils of air systems, circuits and DHW demands; positive when they heat the water, negative when they cool it. Q_loads = Q_heating_coils + Q_cooling_coils + Q_dhw (except with SCHEDULE_CONTROL, which discards the loads of the other mode).",
+     "unit": "W"
+    },
+    "Q_loss": {
+     "anchor": "hvac_water_system-var-q_loss",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Thermal losses of the water to the environment.",
+     "unit": "W"
+    },
+    "Q_process": {
+     "anchor": "hvac_water_system-var-q_process",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Additional process heat load applied to the water.",
+     "unit": "W"
+    },
+    "Q_pump": {
+     "anchor": "hvac_water_system-var-q_pump",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat given to the water by all the pumps.",
+     "unit": "W"
+    },
+    "T_generators_in": {
+     "anchor": "hvac_water_system-var-t_generators_in",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water temperature at the inlet of the generators.",
+     "unit": "°C"
+    },
+    "T_generators_out": {
+     "anchor": "hvac_water_system-var-t_generators_out",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water temperature at the outlet of the generators (mixed).",
+     "unit": "°C"
+    },
+    "T_mean": {
+     "anchor": "hvac_water_system-var-t_mean",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mean water temperature of the plant (the variable T_w of the expression Q_loss).",
+     "unit": "°C"
+    },
+    "T_return": {
+     "anchor": "hvac_water_system-var-t_return",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water temperature from the coils (secondary return).",
+     "unit": "°C"
+    },
+    "T_supply": {
+     "anchor": "hvac_water_system-var-t_supply",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water temperature to the coils (secondary supply).",
+     "unit": "°C"
+    },
+    "bypass_flow": {
+     "anchor": "hvac_water_system-var-bypass_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow through the header from the supply to the return (positive) or from the return to the supply (negative); 0 without a header.",
+     "unit": "dm³/s"
+    },
+    "coils_flow": {
+     "anchor": "hvac_water_system-var-coils_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Sum of the water flows the coils report (design flow times their part load).",
+     "unit": "dm³/s"
+    },
+    "cooling_water_setpoint": {
+     "anchor": "hvac_water_system-var-cooling_water_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Cooling water setpoint temperature.",
+     "unit": "°C"
+    },
+    "delta_U": {
+     "anchor": "hvac_water_system-var-delta_u",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Rate of change of the internal energy of the water.",
+     "unit": "W"
+    },
+    "electric_power": {
+     "anchor": "hvac_water_system-var-electric_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electric power of the plant: generators and pumps.",
+     "unit": "W"
+    },
+    "generators_fuel_power": {
+     "anchor": "hvac_water_system-var-generators_fuel_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Fuel power of the generators (boilers), on the lower heating value.",
+     "unit": "W"
+    },
+    "generators_power": {
+     "anchor": "hvac_water_system-var-generators_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electric power of the generators (heat pumps and chillers, auxiliary power of boilers).",
+     "unit": "W"
+    },
+    "heating_water_setpoint": {
+     "anchor": "hvac_water_system-var-heating_water_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heating water setpoint temperature.",
+     "unit": "°C"
+    },
+    "mode": {
+     "anchor": "hvac_water_system-var-mode",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Operating mode of the system: cooling (-1), standby (0), heating (1).",
+     "unit": "flag"
+    },
+    "on_off": {
+     "anchor": "hvac_water_system-var-on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Operation of the system: off (0), on (1).",
+     "unit": "flag"
+    },
+    "primary_flow": {
+     "anchor": "hvac_water_system-var-primary_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow through the generators.",
+     "unit": "dm³/s"
+    },
+    "pumps_power": {
+     "anchor": "hvac_water_system-var-pumps_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electric power of all the pumps (generators and secondary).",
+     "unit": "W"
+    },
+    "secondary_flow": {
+     "anchor": "hvac_water_system-var-secondary_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow to the coils (the same as the primary one without a header).",
+     "unit": "dm³/s"
+    },
+    "secondary_pumps_power": {
+     "anchor": "hvac_water_system-var-secondary_pumps_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electric power of the secondary pumps.",
+     "unit": "W"
+    }
+   }
+  },
+  "Load_space": {
+   "anchor": "load_space",
+   "page": "component_list_building/",
+   "parameters": {
+    "construction": {
+     "anchor": "load_space-construction",
+     "page": "component_list_building/",
+     "text": "Construction class, for the thermal mass: C_m = 80, 110, 165, 260 and 370 kJ/(m²·K) and A_m = 2.5, 2.5, 2.5, 3.0 and 3.5 m² per m² of floor (ISO 13790). With \"CUSTOM\", the next two parameters.",
+     "unit": ""
+    },
+    "convergence_DT": {
+     "anchor": "load_space-convergence_dt",
+     "page": "component_list_building/",
+     "text": "Convergence temperature tolerance, as in Space.",
+     "unit": "°C"
+    },
+    "convergence_Dw": {
+     "anchor": "load_space-convergence_dw",
+     "page": "component_list_building/",
+     "text": "Convergence humidity tolerance, as in Space.",
+     "unit": "g/kg"
+    },
+    "custom_mass_area": {
+     "anchor": "load_space-custom_mass_area",
+     "page": "component_list_building/",
+     "text": "Area of the mass surfaces per m² of floor, used with construction \"CUSTOM\".",
+     "unit": "m²/m²"
+    },
+    "custom_mass_capacity": {
+     "anchor": "load_space-custom_mass_capacity",
+     "page": "component_list_building/",
+     "text": "Heat capacity of the thermal mass per m² of floor, used with construction \"CUSTOM\".",
+     "unit": "kJ/(m²·K)"
+    },
+    "envelope_conductance": {
+     "anchor": "load_space-envelope_conductance",
+     "page": "component_list_building/",
+     "text": "Conductance of the envelope (windows and opaque elements, without infiltration) per m² of floor. About 1 for a zone with one façade, 2 for a small building exposed on every side.",
+     "unit": "W/(m²·K)"
+    },
+    "floor_area": {
+     "anchor": "load_space-floor_area",
+     "page": "component_list_building/",
+     "text": "Floor area of the zone. The thermal mass and the envelope conductance are given per m² of floor.",
+     "unit": "m²"
+    },
+    "height": {
+     "anchor": "load_space-height",
+     "page": "component_list_building/",
+     "text": "Height of the zone, for its air volume.",
+     "unit": "m"
+    },
+    "infiltration": {
+     "anchor": "load_space-infiltration",
+     "page": "component_list_building/",
+     "text": "Air changes per hour of infiltration to simulate.",
+     "unit": "1/h"
+    },
+    "input_variables": {
+     "anchor": "load_space-input_variables",
+     "page": "component_list_building/",
+     "text": "List of variables of other components used in the expressions of the loads, the reference conditions and the infiltrations (see Calculator).",
+     "unit": ""
+    },
+    "latent_load": {
+     "anchor": "load_space-latent_load",
+     "page": "component_list_building/",
+     "text": "Latent load: latent heat that keeps the zone at the reference humidity, positive humidifying and negative dehumidifying.",
+     "unit": "W"
+    },
+    "load_infiltration": {
+     "anchor": "load_space-load_infiltration",
+     "page": "component_list_building/",
+     "text": "Air changes per hour of infiltration the loads were calculated with (0 if they do not include infiltration).",
+     "unit": "1/h"
+    },
+    "reference_humidity": {
+     "anchor": "load_space-reference_humidity",
+     "page": "component_list_building/",
+     "text": "Relative humidity, at the reference temperature, the loads were calculated at.",
+     "unit": "%"
+    },
+    "reference_temperature": {
+     "anchor": "load_space-reference_temperature",
+     "page": "component_list_building/",
+     "text": "Temperature the loads were calculated at.",
+     "unit": "°C"
+    },
+    "sensible_load": {
+     "anchor": "load_space-sensible_load",
+     "page": "component_list_building/",
+     "text": "Sensible load: heat that keeps the zone at the reference temperature, positive heating and negative cooling.",
+     "unit": "W"
+    }
+   },
+   "variables": {
+    "abs_humidity": {
+     "anchor": "load_space-var-abs_humidity",
+     "page": "component_list_building/",
+     "text": "Absolute zone air humidity.",
+     "unit": "g/kg"
+    },
+    "infiltration_flow": {
+     "anchor": "load_space-var-infiltration_flow",
+     "page": "component_list_building/",
+     "text": "Simulated infiltration air flow.",
+     "unit": "m³/s"
+    },
+    "latent_load": {
+     "anchor": "load_space-var-latent_load",
+     "page": "component_list_building/",
+     "text": "Latent load at the reference humidity with the simulated infiltration.",
+     "unit": "W"
+    },
+    "mass_temperature": {
+     "anchor": "load_space-var-mass_temperature",
+     "page": "component_list_building/",
+     "text": "Temperature of the thermal mass node.",
+     "unit": "°C"
+    },
+    "reference_temperature": {
+     "anchor": "load_space-var-reference_temperature",
+     "page": "component_list_building/",
+     "text": "Reference temperature of the loads.",
+     "unit": "°C"
+    },
+    "rel_humidity": {
+     "anchor": "load_space-var-rel_humidity",
+     "page": "component_list_building/",
+     "text": "Relative zone air humidity.",
+     "unit": "%"
+    },
+    "sensible_load": {
+     "anchor": "load_space-var-sensible_load",
+     "page": "component_list_building/",
+     "text": "Sensible load at the reference temperature with the simulated infiltration (the record if both infiltrations are the same).",
+     "unit": "W"
+    },
+    "system_latent_heat": {
+     "anchor": "load_space-var-system_latent_heat",
+     "page": "component_list_building/",
+     "text": "Latent heat introduced by the control system, as in Space.",
+     "unit": "W"
+    },
+    "system_sensible_heat": {
+     "anchor": "load_space-var-system_sensible_heat",
+     "page": "component_list_building/",
+     "text": "Sensible heat introduced by the control system, as in Space.",
+     "unit": "W"
+    },
+    "temperature": {
+     "anchor": "load_space-var-temperature",
+     "page": "component_list_building/",
+     "text": "Zone air temperature.",
+     "unit": "°C"
+    },
+    "u_system_latent_heat": {
+     "anchor": "load_space-var-u_system_latent_heat",
+     "page": "component_list_building/",
+     "text": "Latent heat introduced by uncontrolled systems, as in Space.",
+     "unit": "W"
+    },
+    "u_system_sensible_heat": {
+     "anchor": "load_space-var-u_system_sensible_heat",
+     "page": "component_list_building/",
+     "text": "Sensible heat introduced by uncontrolled systems, as in Space.",
+     "unit": "W"
+    },
+    "unmet_sensible_heat": {
+     "anchor": "load_space-var-unmet_sensible_heat",
+     "page": "component_list_building/",
+     "text": "Sensible load not supplied by the systems (sensible_load minus the heat of the controlled and uncontrolled systems): positive when heating is missing, negative when cooling is missing.",
+     "unit": "W"
+    }
+   }
+  },
+  "Material": {
+   "anchor": "material",
+   "page": "component_list_constructions/",
+   "parameters": {
+    "conductivity": {
+     "anchor": "material-conductivity",
+     "page": "component_list_constructions/",
+     "text": "Material thermal conductivity.",
+     "unit": "W/(n·K)"
+    },
+    "density": {
+     "anchor": "material-density",
+     "page": "component_list_constructions/",
+     "text": "Material Density.",
+     "unit": "kg/m³"
+    },
+    "specific_heat": {
+     "anchor": "material-specific_heat",
+     "page": "component_list_constructions/",
+     "text": "Material specific heat.",
+     "unit": "J/(kg·K)"
+    },
+    "thermal_resistance": {
+     "anchor": "material-thermal_resistance",
+     "page": "component_list_constructions/",
+     "text": "Thermal resistance of material layer.",
+     "unit": "(m²·K)/W"
+    },
+    "use_resistance": {
+     "anchor": "material-use_resistance",
+     "page": "component_list_constructions/",
+     "text": "If the value is \"False\", conductivity, density and specific heat will be used. For \"True\" value, thermal resistance, density and specific heat will be used.",
+     "unit": ""
+    }
+   },
+   "variables": {}
+  },
+  "Opening": {
+   "anchor": "opening",
+   "page": "component_list_building/",
+   "parameters": {
+    "h_cv": {
+     "anchor": "opening-h_cv",
+     "page": "component_list_building/",
+     "text": "Convective film coefficients of the exterior and interior surfaces or side 0 an 1, respectively.",
+     "unit": "W/m²K"
+    },
+    "height": {
+     "anchor": "opening-height",
+     "page": "component_list_building/",
+     "text": "Height of the opening.",
+     "unit": "m"
+    },
+    "opening_type": {
+     "anchor": "opening-opening_type",
+     "page": "component_list_building/",
+     "text": "Reference to the \"Opening_type\" component that defines its composition.",
+     "unit": ""
+    },
+    "ref_point": {
+     "anchor": "opening-ref_point",
+     "page": "component_list_building/",
+     "text": "Two-dimensional coordinate of the opening reference point in the exterior wall coordinate system. The reference point is the lower left corner of the opening viewed from the outside.",
+     "unit": "m"
+    },
+    "setback": {
+     "anchor": "opening-setback",
+     "page": "component_list_building/",
+     "text": "Setback for rectangular openings (not used if shape = “POLYGON”). Distance between the outer surface of the window or door and the outer face of the enclosure in which it is located. Used to calculate the shadows cast in the opening.",
+     "unit": "m"
+    },
+    "shape": {
+     "anchor": "opening-shape",
+     "page": "component_list_building/",
+     "text": "Shape of the opening, for a rectangle the parameters \"width\" and \"height\" will be used and for a polygon the parameters \"x-polygon\" and \"y-polygon\".",
+     "unit": ""
+    },
+    "surface": {
+     "anchor": "opening-surface",
+     "page": "component_list_building/",
+     "text": "Reference to the \"Building_surface\" in which it is located, it must be \"EXTERIOR\" or \"INTERIOR\" surface_type.",
+     "unit": ""
+    },
+    "width": {
+     "anchor": "opening-width",
+     "page": "component_list_building/",
+     "text": "Width of the opening.",
+     "unit": "m"
+    },
+    "x_polygon": {
+     "anchor": "opening-x_polygon",
+     "page": "component_list_building/",
+     "text": "List with the x-coordinates of the points defining the opening polygon. Only used if \"shape\" is equal to \"POLYGON\".",
+     "unit": "m"
+    },
+    "y_polygon": {
+     "anchor": "opening-y_polygon",
+     "page": "component_list_building/",
+     "text": "List with the y-coordinates of the points defining the opening polygon. Only used if \"shape\" is equal to \"POLYGON\".",
+     "unit": "m"
+    }
+   },
+   "variables": {
+    "E_dif": {
+     "anchor": "opening-var-e_dif",
+     "page": "component_list_building/",
+     "text": "Diffuse solar radiation incident on the exterior surface.",
+     "unit": "W/m²"
+    },
+    "E_dif_sunny": {
+     "anchor": "opening-var-e_dif_sunny",
+     "page": "component_list_building/",
+     "text": "Direct and diffuse solar radiation that would be incident on the exterior surface without shadows.",
+     "unit": "W/m²"
+    },
+    "E_dif_tra": {
+     "anchor": "opening-var-e_dif_tra",
+     "page": "component_list_building/",
+     "text": "Direct and diffuse solar radiation transmitted through the opening.",
+     "unit": "W/m²"
+    },
+    "E_dir": {
+     "anchor": "opening-var-e_dir",
+     "page": "component_list_building/",
+     "text": "Direct solar radiation incident on the exterior surface.",
+     "unit": "W/m²"
+    },
+    "E_dir_sunny": {
+     "anchor": "opening-var-e_dir_sunny",
+     "page": "component_list_building/",
+     "text": "Direct and diffuse solar radiation that would be incident on the exterior surface without shadows.",
+     "unit": "W/m²"
+    },
+    "E_dir_tra": {
+     "anchor": "opening-var-e_dir_tra",
+     "page": "component_list_building/",
+     "text": "Direct and diffuse solar radiation transmitted through the opening.",
+     "unit": "W/m²"
+    },
+    "E_ref": {
+     "anchor": "opening-var-e_ref",
+     "page": "component_list_building/",
+     "text": "Solar radiation incident on the interior side of an exterior opening: the solar radiation that entered the space and is distributed over its surfaces.",
+     "unit": "W/m²"
+    },
+    "E_ref_tra": {
+     "anchor": "opening-var-e_ref_tra",
+     "page": "component_list_building/",
+     "text": "Part of E_ref transmitted back to the outside through the opening.",
+     "unit": "W/m²"
+    },
+    "T_rm": {
+     "anchor": "opening-var-t_rm",
+     "page": "component_list_building/",
+     "text": "Exterior radiant mean temperature.",
+     "unit": "°C"
+    },
+    "T_s0": {
+     "anchor": "opening-var-t_s0",
+     "page": "component_list_building/",
+     "text": "Surface temperatures",
+     "unit": "°C"
+    },
+    "T_s1": {
+     "anchor": "opening-var-t_s1",
+     "page": "component_list_building/",
+     "text": "Surface temperatures",
+     "unit": "°C"
+    },
+    "q_cd": {
+     "anchor": "opening-var-q_cd",
+     "page": "component_list_building/",
+     "text": "Conductive heat flux.",
+     "unit": "W/m²"
+    },
+    "q_cv0": {
+     "anchor": "opening-var-q_cv0",
+     "page": "component_list_building/",
+     "text": "Convective heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_cv1": {
+     "anchor": "opening-var-q_cv1",
+     "page": "component_list_building/",
+     "text": "Convective heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_lwig0": {
+     "anchor": "opening-var-q_lwig0",
+     "page": "component_list_building/",
+     "text": "Radiant long wave heat flux at the surfaces due to internal gains.",
+     "unit": "W/m²"
+    },
+    "q_lwig1": {
+     "anchor": "opening-var-q_lwig1",
+     "page": "component_list_building/",
+     "text": "Radiant long wave heat flux at the surfaces due to internal gains.",
+     "unit": "W/m²"
+    },
+    "q_lwt0": {
+     "anchor": "opening-var-q_lwt0",
+     "page": "component_list_building/",
+     "text": "Radiant long wave heat flux at the surfaces due other surfaces temperatures.",
+     "unit": "W/m²"
+    },
+    "q_lwt1": {
+     "anchor": "opening-var-q_lwt1",
+     "page": "component_list_building/",
+     "text": "Radiant long wave heat flux at the surfaces due other surfaces temperatures.",
+     "unit": "W/m²"
+    },
+    "q_sol0": {
+     "anchor": "opening-var-q_sol0",
+     "page": "component_list_building/",
+     "text": "Solar heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_sol01": {
+     "anchor": "opening-var-q_sol01",
+     "page": "component_list_building/",
+     "text": "Solar heat flux appearing on surface \"i\" due to the absorption of solar radiation on surface \"j\".",
+     "unit": "W/m²"
+    },
+    "q_sol1": {
+     "anchor": "opening-var-q_sol1",
+     "page": "component_list_building/",
+     "text": "Solar heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_sol10": {
+     "anchor": "opening-var-q_sol10",
+     "page": "component_list_building/",
+     "text": "Solar heat flux appearing on surface \"i\" due to the absorption of solar radiation on surface \"j\".",
+     "unit": "W/m²"
+    },
+    "q_sol_dir_trans": {
+     "anchor": "opening-var-q_sol_dir_trans",
+     "page": "component_list_building/",
+     "text": "Direct solar radiation passing through into space.",
+     "unit": "W/m²"
+    },
+    "q_swig0": {
+     "anchor": "opening-var-q_swig0",
+     "page": "component_list_building/",
+     "text": "Radiant short wave heat flux at the surfaces due to internal gains.",
+     "unit": "W/m²"
+    },
+    "q_swig1": {
+     "anchor": "opening-var-q_swig1",
+     "page": "component_list_building/",
+     "text": "Radiant short wave heat flux at the surfaces due to internal gains.",
+     "unit": "W/m²"
+    },
+    "theta_sun": {
+     "anchor": "opening-var-theta_sun",
+     "page": "component_list_building/",
+     "text": "Angle of incidence of the sun on the opening.",
+     "unit": "°"
+    }
+   }
+  },
+  "Opening_type": {
+   "anchor": "opening_type",
+   "page": "component_list_constructions/",
+   "parameters": {
+    "construction": {
+     "anchor": "opening_type-construction",
+     "page": "component_list_constructions/",
+     "text": "Reference to the \"Construction\" component used. If the opaque part of an opening is defined by a constraction, it will always be assumed to be in steady state for thermal calculations.",
+     "unit": ""
+    },
+    "frame": {
+     "anchor": "opening_type-frame",
+     "page": "component_list_constructions/",
+     "text": "Reference to the \"Frame\" component used.",
+     "unit": ""
+    },
+    "frame_fraction": {
+     "anchor": "opening_type-frame_fraction",
+     "page": "component_list_constructions/",
+     "text": "Fraction of the opening made up of a frame.",
+     "unit": "frac"
+    },
+    "glazing": {
+     "anchor": "opening_type-glazing",
+     "page": "component_list_constructions/",
+     "text": "Reference to the \"Glazing\" component used.",
+     "unit": ""
+    },
+    "glazing_fraction": {
+     "anchor": "opening_type-glazing_fraction",
+     "page": "component_list_constructions/",
+     "text": "Fraction of the opening made up of a glazing.",
+     "unit": "frac"
+    }
+   },
+   "variables": {}
+  },
+  "Pump": {
+   "anchor": "pump",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "nominal_power": {
+     "anchor": "pump-nominal_power",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Electrical power consumed by the pump at nominal conditions.",
+     "unit": "W"
+    },
+    "nominal_pressure": {
+     "anchor": "pump-nominal_pressure",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Nominal pressure rise produced by the pump.",
+     "unit": "Pa"
+    },
+    "nominal_water_flow": {
+     "anchor": "pump-nominal_water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Nominal inlet water flow.",
+     "unit": "dm³/s"
+    },
+    "power_expression": {
+     "anchor": "pump-power_expression",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mathematical expression to correct the electrical power consumed by the pump in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "power_to_heat_fraction": {
+     "anchor": "pump-power_to_heat_fraction",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Fraction of the electrical power of the pump that ends up as heat in the water.",
+     "unit": "frac"
+    },
+    "pressure_expression": {
+     "anchor": "pump-pressure_expression",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Mathematical expression to correct the pressure rise of the pump in conditions different from the nominal ones.",
+     "unit": "frac"
+    }
+   },
+   "variables": {}
+  },
+  "Solar_collector": {
+   "anchor": "solar_collector",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "K_diffuse": {
+     "anchor": "solar_collector-k_diffuse",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Incidence angle modifier of the diffuse irradiance.",
+     "unit": "frac"
+    },
+    "a1": {
+     "anchor": "solar_collector-a1",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat loss coefficient.",
+     "unit": "W/(m²·K)"
+    },
+    "a2": {
+     "anchor": "solar_collector-a2",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature dependence of the heat loss coefficient.",
+     "unit": "W/(m²·K²)"
+    },
+    "area": {
+     "anchor": "solar_collector-area",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Aperture area of the field.",
+     "unit": "m²"
+    },
+    "azimuth": {
+     "anchor": "solar_collector-azimuth",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Orientation of the collectors: 0 south, negative to the east, positive to the west (as the solar azimuth of the File_met).",
+     "unit": "°"
+    },
+    "b0": {
+     "anchor": "solar_collector-b0",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Incidence angle modifier constant of the beam irradiance.",
+     "unit": ""
+    },
+    "eta_0": {
+     "anchor": "solar_collector-eta_0",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Peak efficiency η0 (zero loss efficiency).",
+     "unit": "frac"
+    },
+    "exchanger_effectiveness": {
+     "anchor": "solar_collector-exchanger_effectiveness",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Effectiveness of the heat exchanger between the collector loop and the tank (1: no exchanger).",
+     "unit": "frac"
+    },
+    "max_temperature": {
+     "anchor": "solar_collector-max_temperature",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Maximum temperature of the tank: the collectors do not heat it above it.",
+     "unit": "°C"
+    },
+    "nominal_water_flow": {
+     "anchor": "solar_collector-nominal_water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Flow of the solar loop (typically 0.02 dm³/s per m², \"low flow\" installations about half).",
+     "unit": "dm³/s"
+    },
+    "tilt": {
+     "anchor": "solar_collector-tilt",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Tilt of the collectors from the horizontal.",
+     "unit": "°"
+    }
+   },
+   "variables": {
+    "effective_irradiance": {
+     "anchor": "solar_collector-var-effective_irradiance",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "With the incidence angle modifiers, K_b · G_b + K_d · G_d.",
+     "unit": "W/m²"
+    },
+    "irradiance": {
+     "anchor": "solar_collector-var-irradiance",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Total irradiance on the collector plane.",
+     "unit": "W/m²"
+    }
+   }
+  },
+  "Solar_surface": {
+   "anchor": "solar_surface",
+   "page": "component_list_building/",
+   "parameters": {
+    "altitude": {
+     "anchor": "solar_surface-altitude",
+     "page": "component_list_building/",
+     "text": "Angle formed between the z-axis of the building or global and the y-axis of the surface.",
+     "unit": "°"
+    },
+    "azimuth": {
+     "anchor": "solar_surface-azimuth",
+     "page": "component_list_building/",
+     "text": "Angle formed between the x-axis of the building or global and the projection of the x-axis of the surface.",
+     "unit": "°"
+    },
+    "building": {
+     "anchor": "solar_surface-building",
+     "page": "component_list_building/",
+     "text": "Reference to the building for which the surface will be defined. If coordinate_system = “BUILDING,” the coordinate origin will be that building.",
+     "unit": ""
+    },
+    "calculate_solar_radiation": {
+     "anchor": "solar_surface-calculate_solar_radiation",
+     "page": "component_list_building/",
+     "text": "Calculate the incident solar radiation, taking into account shadows, on this surface. Only if this parameter is True will the hourly variables for this component be calculated..",
+     "unit": ""
+    },
+    "cast_shadows": {
+     "anchor": "solar_surface-cast_shadows",
+     "page": "component_list_building/",
+     "text": "Use this surface to cast shadows on buildings and other solar surfaces.",
+     "unit": ""
+    },
+    "coordinate_system": {
+     "anchor": "solar_surface-coordinate_system",
+     "page": "component_list_building/",
+     "text": "Coordinate system used to define the surface.",
+     "unit": ""
+    },
+    "height": {
+     "anchor": "solar_surface-height",
+     "page": "component_list_building/",
+     "text": "Height of the rectangular surface. Only used if \"shape\" is equal to \"RECTANGLE\".",
+     "unit": "m"
+    },
+    "ref_point": {
+     "anchor": "solar_surface-ref_point",
+     "page": "component_list_building/",
+     "text": "Three-dimensional coordinate of the surface reference point. For rectangular surfaces the lower left corner of the surface viewed from the outside, for surfaces defined by polygons the three-dimensional location of the coordinate origin used to define the polygon in two dimensions.",
+     "unit": "m"
+    },
+    "shape": {
+     "anchor": "solar_surface-shape",
+     "page": "component_list_building/",
+     "text": "Shape of the surface, for a rectangle the parameters \"width\" and \"height\" will be used and for a polygon the parameters \"x-polygon\" and \"y-polygon\".",
+     "unit": ""
+    },
+    "width": {
+     "anchor": "solar_surface-width",
+     "page": "component_list_building/",
+     "text": "Width of the rectangular surface. Only used if \"shape\" is equal to \"RECTANGLE\".",
+     "unit": "m"
+    },
+    "x_polygon": {
+     "anchor": "solar_surface-x_polygon",
+     "page": "component_list_building/",
+     "text": "List with the x-coordinates of the points defining the surface polygon. Only used if \"shape\" is equal to \"POLYGON\".",
+     "unit": "m"
+    },
+    "y_polygon": {
+     "anchor": "solar_surface-y_polygon",
+     "page": "component_list_building/",
+     "text": "List with the y-coordinates of the points defining the surface polygon. Only used if \"shape\" is equal to \"POLYGON\".",
+     "unit": "m"
+    }
+   },
+   "variables": {
+    "E_dif": {
+     "anchor": "solar_surface-var-e_dif",
+     "page": "component_list_building/",
+     "text": "Diffuse solar radiation incident on the surface.",
+     "unit": "W/m²"
+    },
+    "E_dif_sunny": {
+     "anchor": "solar_surface-var-e_dif_sunny",
+     "page": "component_list_building/",
+     "text": "Direct and diffuse solar radiation that would be incident on the surface without shadows.",
+     "unit": "W/m²"
+    },
+    "E_dir": {
+     "anchor": "solar_surface-var-e_dir",
+     "page": "component_list_building/",
+     "text": "Direct solar radiation incident on the surface.",
+     "unit": "W/m²"
+    },
+    "E_dir_sunny": {
+     "anchor": "solar_surface-var-e_dir_sunny",
+     "page": "component_list_building/",
+     "text": "Direct and diffuse solar radiation that would be incident on the surface without shadows.",
+     "unit": "W/m²"
+    }
+   }
+  },
+  "Space": {
+   "anchor": "space",
+   "page": "component_list_building/",
+   "parameters": {
+    "building": {
+     "anchor": "space-building",
+     "page": "component_list_building/",
+     "text": "Reference to the \"Building\" component of which it is a part.",
+     "unit": ""
+    },
+    "convergence_DT": {
+     "anchor": "space-convergence_dt",
+     "page": "component_list_building/",
+     "text": "Convergence temperature tolerance. In the iterative process, convergence will be considered to have occurred when the difference between the temperature given by the space heat balance and the current estimate is less than this value.",
+     "unit": "°C"
+    },
+    "convergence_Dw": {
+     "anchor": "space-convergence_dw",
+     "page": "component_list_building/",
+     "text": "Convergence humidity tolerance. In the iterative process, convergence will be considered to have occurred when the difference between the absolute humidity given by the space moisture balance and the current estimate is less than this value.",
+     "unit": "g/kg"
+    },
+    "floor_area": {
+     "anchor": "space-floor_area",
+     "page": "component_list_building/",
+     "text": "Floor area of the space.",
+     "unit": "m²"
+    },
+    "furniture_weight": {
+     "anchor": "space-furniture_weight",
+     "page": "component_list_building/",
+     "text": "Weight of the furniture in the space. Used to increase the thermal inertia of the space which will be added to that of the air (for the furniture a specific heat of 1000 J/kg·K will be used).",
+     "unit": "kg/m²"
+    },
+    "spaces_type": {
+     "anchor": "space-spaces_type",
+     "page": "component_list_building/",
+     "text": "Reference to the \"Space_type\" component that defines its occupational and functional characteristics.",
+     "unit": ""
+    },
+    "volume": {
+     "anchor": "space-volume",
+     "page": "component_list_building/",
+     "text": "Volume of the space.",
+     "unit": "m³"
+    }
+   },
+   "variables": {
+    "abs_humidity": {
+     "anchor": "space-var-abs_humidity",
+     "page": "component_list_building/",
+     "text": "Absolute space air humidity.",
+     "unit": "g/kg"
+    },
+    "delta_int_energy": {
+     "anchor": "space-var-delta_int_energy",
+     "page": "component_list_building/",
+     "text": "Increase of internal energy of the space (air and furniture).",
+     "unit": "W"
+    },
+    "infiltration_flow": {
+     "anchor": "space-var-infiltration_flow",
+     "page": "component_list_building/",
+     "text": "Air flow rate infiltrated into the space from outside.",
+     "unit": "m³/s"
+    },
+    "infiltration_latent_heat": {
+     "anchor": "space-var-infiltration_latent_heat",
+     "page": "component_list_building/",
+     "text": "Latent heat due to air infiltration from outdoor.",
+     "unit": "W"
+    },
+    "infiltration_sensible_heat": {
+     "anchor": "space-var-infiltration_sensible_heat",
+     "page": "component_list_building/",
+     "text": "Sensible heat due to air infiltration from outdoor.",
+     "unit": "W"
+    },
+    "light_convective": {
+     "anchor": "space-var-light_convective",
+     "page": "component_list_building/",
+     "text": "Convective heat due to lighting.",
+     "unit": "W"
+    },
+    "light_radiant": {
+     "anchor": "space-var-light_radiant",
+     "page": "component_list_building/",
+     "text": "Radiant heat (short wave) due to lighting.",
+     "unit": "W"
+    },
+    "other_gains_convective": {
+     "anchor": "space-var-other_gains_convective",
+     "page": "component_list_building/",
+     "text": "Convective heat due to other gains.",
+     "unit": "W"
+    },
+    "other_gains_latent": {
+     "anchor": "space-var-other_gains_latent",
+     "page": "component_list_building/",
+     "text": "Latent heat due to other gains.",
+     "unit": "W"
+    },
+    "other_gains_radiant": {
+     "anchor": "space-var-other_gains_radiant",
+     "page": "component_list_building/",
+     "text": "Radiant heat (long wave) due to other gains.",
+     "unit": "W"
+    },
+    "people_convective": {
+     "anchor": "space-var-people_convective",
+     "page": "component_list_building/",
+     "text": "Convective heat due to occupancy.",
+     "unit": "W"
+    },
+    "people_latent": {
+     "anchor": "space-var-people_latent",
+     "page": "component_list_building/",
+     "text": "Latent heat due to occupancy.",
+     "unit": "W"
+    },
+    "people_radiant": {
+     "anchor": "space-var-people_radiant",
+     "page": "component_list_building/",
+     "text": "Radiant heat (long wave) due to occupancy.",
+     "unit": "W"
+    },
+    "rel_humidity": {
+     "anchor": "space-var-rel_humidity",
+     "page": "component_list_building/",
+     "text": "Relative space air humidity.",
+     "unit": "%"
+    },
+    "solar_direct_gains": {
+     "anchor": "space-var-solar_direct_gains",
+     "page": "component_list_building/",
+     "text": "Direct solar radiation gains.",
+     "unit": "W"
+    },
+    "surfaces_convective": {
+     "anchor": "space-var-surfaces_convective",
+     "page": "component_list_building/",
+     "text": "Convective heat flux exchanged between interior surfaces and space air.",
+     "unit": "W"
+    },
+    "system_latent_heat": {
+     "anchor": "space-var-system_latent_heat",
+     "page": "component_list_building/",
+     "text": "Latent heat introduced by control system in space. Positive for humidification and negative for dehumidification.",
+     "unit": "W"
+    },
+    "system_sensible_heat": {
+     "anchor": "space-var-system_sensible_heat",
+     "page": "component_list_building/",
+     "text": "Sensible heat introduced by the system responsible for space control. Positive for heating and negative for cooling.",
+     "unit": "W"
+    },
+    "temperature": {
+     "anchor": "space-var-temperature",
+     "page": "component_list_building/",
+     "text": "Space dry air temperature.",
+     "unit": "°C"
+    },
+    "u_system_latent_heat": {
+     "anchor": "space-var-u_system_latent_heat",
+     "page": "component_list_building/",
+     "text": "Latent heat introduced by uncontrolled systems in space.",
+     "unit": "W"
+    },
+    "u_system_sensible_heat": {
+     "anchor": "space-var-u_system_sensible_heat",
+     "page": "component_list_building/",
+     "text": "Sensible heat introduced by uncontrolled systems in space. Spaces can collect airflows from various types of systems, those that are not capable of controlling the room temperature are called ‘uncontrolled systems’. For example, a flow of outside air, a flow from a dedicated outdoor air system, etc.",
+     "unit": "W"
+    }
+   }
+  },
+  "Space_type": {
+   "anchor": "space_type",
+   "page": "component_list_building/",
+   "parameters": {
+    "infiltration": {
+     "anchor": "space_type-infiltration",
+     "page": "component_list_building/",
+     "text": "Air flow rate infiltrated into the space from outside and expressed in volumes of the space per hour. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value.",
+     "unit": "1/h"
+    },
+    "input_variables": {
+     "anchor": "space_type-input_variables",
+     "page": "component_list_building/",
+     "text": "List of variables from other components used in this component. They may be used in parameters of the type math_exp.",
+     "unit": ""
+    },
+    "light_density": {
+     "anchor": "space_type-light_density",
+     "page": "component_list_building/",
+     "text": "Lighting density, defined as the electrical lighting power [W] per m² of floor. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value. See example below.",
+     "unit": "W/m²"
+    },
+    "light_radiant_fraction": {
+     "anchor": "space_type-light_radiant_fraction",
+     "page": "component_list_building/",
+     "text": "Short wave radiant fraction of heat generated by lights. The rest of the heat is assumed to be convective.",
+     "unit": "frac"
+    },
+    "other_gains_density": {
+     "anchor": "space_type-other_gains_density",
+     "page": "component_list_building/",
+     "text": "Other gains density, defined as the heat generated by other gains (Household appliances, office automation, miscellaneous electrical equipment, etc.) [W] per m² of floor. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value. See example below.",
+     "unit": "W/m²"
+    },
+    "other_gains_latent_fraction": {
+     "anchor": "space_type-other_gains_latent_fraction",
+     "page": "component_list_building/",
+     "text": "Latent fraction of the heat generated by other gains. The convective fraction is calculated by subtracting the radiant and latent fractions.",
+     "unit": "frac"
+    },
+    "other_gains_radiant_fraction": {
+     "anchor": "space_type-other_gains_radiant_fraction",
+     "page": "component_list_building/",
+     "text": "Long wave radiant fraction of the heat generated by other gains. The convective fraction is calculated by subtracting the radiant and latent fractions.",
+     "unit": "frac"
+    },
+    "people_density": {
+     "anchor": "space_type-people_density",
+     "page": "component_list_building/",
+     "text": "Occupancy density, defined in persons per m² of floor. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter, to be able to reflect the time variation of this value. See example below",
+     "unit": "p/m²"
+    },
+    "people_latent": {
+     "anchor": "space_type-people_latent",
+     "page": "component_list_building/",
+     "text": "Latent heat generated by each of the occupants of the space.",
+     "unit": "W/p"
+    },
+    "people_radiant_fraction": {
+     "anchor": "space_type-people_radiant_fraction",
+     "page": "component_list_building/",
+     "text": "Long wave radiant fraction of heat generated by occupants. The rest of the heat is assumed to be convective.",
+     "unit": "frac"
+    },
+    "people_sensible": {
+     "anchor": "space_type-people_sensible",
+     "page": "component_list_building/",
+     "text": "Sensible heat generated by each of the occupants of the space.",
+     "unit": "W/p"
+    }
+   },
+   "variables": {
+    "infiltration_rate": {
+     "anchor": "space_type-var-infiltration_rate",
+     "page": "component_list_building/",
+     "text": "Air flow rate infiltrated into the space from outside, expressed in volumes of the space per hour.",
+     "unit": "1/h"
+    },
+    "light_convective": {
+     "anchor": "space_type-var-light_convective",
+     "page": "component_list_building/",
+     "text": "Convective heat due to lighting.",
+     "unit": "W/m²"
+    },
+    "light_radiant": {
+     "anchor": "space_type-var-light_radiant",
+     "page": "component_list_building/",
+     "text": "Radiant heat (short wave) due to lighting.",
+     "unit": "W/m²"
+    },
+    "other_gains_convective": {
+     "anchor": "space_type-var-other_gains_convective",
+     "page": "component_list_building/",
+     "text": "Convective heat due to other gains.",
+     "unit": "W/m²"
+    },
+    "other_gains_latent": {
+     "anchor": "space_type-var-other_gains_latent",
+     "page": "component_list_building/",
+     "text": "Latent heat due to other gains.",
+     "unit": "W/m²"
+    },
+    "other_gains_radiant": {
+     "anchor": "space_type-var-other_gains_radiant",
+     "page": "component_list_building/",
+     "text": "Radiant heat (long wave) due to other gains.",
+     "unit": "W/m²"
+    },
+    "people_convective": {
+     "anchor": "space_type-var-people_convective",
+     "page": "component_list_building/",
+     "text": "Convective heat due to occupancy.",
+     "unit": "W/m²"
+    },
+    "people_latent": {
+     "anchor": "space_type-var-people_latent",
+     "page": "component_list_building/",
+     "text": "Latent heat due to occupancy.",
+     "unit": "W/m²"
+    },
+    "people_radiant": {
+     "anchor": "space_type-var-people_radiant",
+     "page": "component_list_building/",
+     "text": "Radiant heat (long wave) due to occupancy.",
+     "unit": "W/m²"
+    }
+   }
+  },
+  "Water_coil": {
+   "anchor": "water_coil",
+   "page": "component_list_HVAC_air_systems/",
+   "parameters": {
+    "cooling_adp_epsilon_expression": {
+     "anchor": "water_coil-cooling_adp_epsilon_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the ADP cooling effectiveness of the equipment in conditions different from the nominal ones. The ADP effectiveness is defined as 1 - bypass factor.",
+     "unit": "frac"
+    },
+    "cooling_epsilon_expression": {
+     "anchor": "water_coil-cooling_epsilon_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the total cooling effectiveness of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "expression_max_values": {
+     "anchor": "water_coil-expression_max_values",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Maximum values allowed in the mathematical expressions. The order is [ _T_idb_ [ºC] , _T_iwb_ [ºC] ,_T_iw_ [ºC], _F_air_ [frac], _F_water_ [frac] ]. If any variable exceeds these values, the maximum value is taken.",
+     "unit": "-"
+    },
+    "expression_min_values": {
+     "anchor": "water_coil-expression_min_values",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Minimum values allowed in the mathematical expressions. The order is [ _T_idb_ [ºC] , _T_iwb_ [ºC] ,_T_iw_ [ºC], _F_air_ [frac], _F_water_ [frac] ]. If any variable is lower than these values, the minimum value is taken.",
+     "unit": "-"
+    },
+    "heating_epsilon_expression": {
+     "anchor": "water_coil-heating_epsilon_expression",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Mathematical expression to correct the heating effectiveness of the equipment in conditions different from the nominal ones.",
+     "unit": "frac"
+    },
+    "nominal_air_flow": {
+     "anchor": "water_coil-nominal_air_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal inlet air flow.",
+     "unit": "m³/s"
+    },
+    "nominal_cooling_conditions": {
+     "anchor": "water_coil-nominal_cooling_conditions",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal cooling conditions, in order: inlet dry bulb temperature, inlet wet bulb temperature, inlet water temperature.",
+     "unit": "ºC"
+    },
+    "nominal_cooling_water_flow": {
+     "anchor": "water_coil-nominal_cooling_water_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal inlet cooling water flow.",
+     "unit": "dm³/s"
+    },
+    "nominal_heating_capacity": {
+     "anchor": "water_coil-nominal_heating_capacity",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Heating capacity at nominal heating conditions.",
+     "unit": "W"
+    },
+    "nominal_heating_conditions": {
+     "anchor": "water_coil-nominal_heating_conditions",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal heating conditions, in order: inlet dry bulb temperature, inlet wet bulb temperature, inlet water temperature.",
+     "unit": "ºC"
+    },
+    "nominal_heating_water_flow": {
+     "anchor": "water_coil-nominal_heating_water_flow",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Nominal inlet heating water flow.",
+     "unit": "dm³/s"
+    },
+    "nominal_sensible_cooling_capacity": {
+     "anchor": "water_coil-nominal_sensible_cooling_capacity",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Sensible cooling capacity at nominal cooling conditions.",
+     "unit": "W"
+    },
+    "nominal_total_cooling_capacity": {
+     "anchor": "water_coil-nominal_total_cooling_capacity",
+     "page": "component_list_HVAC_air_systems/",
+     "text": "Total cooling capacity at nominal cooling conditions.",
+     "unit": "W"
+    }
+   },
+   "variables": {}
+  },
+  "Water_tank": {
+   "anchor": "water_tank",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "UA": {
+     "anchor": "water_tank-ua",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat loss coefficient. From the standing loss of the ErP label, S in W (measured with 45 K between the water and the room): UA = S / 45; from a standing loss Q in kWh/24h at 45 K (EN 12897): UA = Q · 1000 / (24 · 45). E.g. S = 60 W → UA = 1.33 W/K; Q = 1.5 kWh/24h → UA = 1.39 W/K.",
+     "unit": "W/K"
+    },
+    "ambient_temperature": {
+     "anchor": "water_tank-ambient_temperature",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of the room the tank is in, e.g. that of a space (T = space.temperature) or the outdoor air.",
+     "unit": "°C"
+    },
+    "backup_position": {
+     "anchor": "water_tank-backup_position",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Height of the backup heater and its thermostat in a stratified tank, as a fraction of the height from the bottom (0.5: in the middle): only the water above it is kept at the setpoint.",
+     "unit": "frac"
+    },
+    "dead_band": {
+     "anchor": "water_tank-dead_band",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Dead band of the thermostat: the heating starts when the water, without it, would be this much below the setpoint, and goes on up to the setpoint. With 0 the tank is held at the setpoint.",
+     "unit": "K"
+    },
+    "input_variables": {
+     "anchor": "water_tank-input_variables",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Variables of other components used in the expression.",
+     "unit": ""
+    },
+    "number_of_nodes": {
+     "anchor": "water_tank-number_of_nodes",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Number of layers of a stratified tank (1: fully mixed). Only in a plant. 4 to 10 nodes are usual; the results change little above 6.",
+     "unit": ""
+    },
+    "volume": {
+     "anchor": "water_tank-volume",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water volume.",
+     "unit": "dm³"
+    }
+   },
+   "variables": {
+    "Q_loss": {
+     "anchor": "water_tank-var-q_loss",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat lost by the tank (positive).",
+     "unit": "W"
+    },
+    "T_ambient": {
+     "anchor": "water_tank-var-t_ambient",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of the room.",
+     "unit": "°C"
+    },
+    "T_node_1": {
+     "anchor": "water_tank-var-t_node_1",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of each node of a stratified tank, from the top.",
+     "unit": ""
+    },
+    "T_node_N": {
+     "anchor": "water_tank-var-t_node_n",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of each node of a stratified tank, from the top.",
+     "unit": "°C"
+    },
+    "temperature": {
+     "anchor": "water_tank-var-temperature",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of the water (the mean one in a stratified tank).",
+     "unit": "°C"
+    }
+   }
+  },
+  "Week_schedule": {
+   "anchor": "week_schedule",
+   "page": "component_list_schedules/",
+   "parameters": {
+    "days_schedules": {
+     "anchor": "week_schedule-days_schedules",
+     "page": "component_list_schedules/",
+     "text": "Day_schedule used for the different days of the week. It can contain one value (it will be the one used for all days) or seven values, the Day_schedules for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.",
+     "unit": ""
+    }
+   },
+   "variables": {}
+  },
+  "Year_schedule": {
+   "anchor": "year_schedule",
+   "page": "component_list_schedules/",
+   "parameters": {
+    "periods": {
+     "anchor": "year_schedule-periods",
+     "page": "component_list_schedules/",
+     "text": "Ends of the different periods. Each of them must be in \"dd:mm\" format.",
+     "unit": ""
+    },
+    "weeks_schedules": {
+     "anchor": "year_schedule-weeks_schedules",
+     "page": "component_list_schedules/",
+     "text": "Week_schedule to be used in the different periods. It must always contain one more element than the parameter \"periods\".",
+     "unit": ""
+    }
+   },
+   "variables": {
+    "values": {
+     "anchor": "year_schedule-var-values",
+     "page": "component_list_schedules/",
+     "text": "values obtained using year, weeks and days schedules for each of the simulation time steps.",
+     "unit": ""
+    }
+   }
+  }
+ },
+ "docs_url": "https://opensimula.jfcoronel.org/"
+}

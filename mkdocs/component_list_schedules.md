@@ -35,7 +35,7 @@ Using `"interpolation": "LINEAR"` this would be the result
 Component used for simple definition of week variation of a value. It uses to Day_schedule components
 
 #### Parameters
-- **days-schedules** [_component-list_, default = ["not_defined"], component type = Day_schedule]: Day_schedule used for the different days of the week. It can contain one value (it will be the one used for all days) or seven values, the Day_schedules for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
+- **days_schedules** [_component-list_, default = ["not_defined"], component type = Day_schedule]: Day_schedule used for the different days of the week. It can contain one value (it will be the one used for all days) or seven values, the Day_schedules for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
 
 
 **Example:**
@@ -58,7 +58,7 @@ Component used for simple definition of year variation of a value. It uses to We
 #### Parameters
 - **periods** [_string-list_, default = ["01/06"]]: Ends of the different periods. Each of them must be in "dd:mm" format. 
 The begining of the first period is "01/01" and the end of the last period "31/12"
-- **weeks_schedules** [_component-list_, default = ["not_defined","not_defined]]: Week_schedule to be used in the different periods. It must always contain one more element than the parameter "periods".
+- **weeks_schedules** [_component-list_, default = ["not_defined","not_defined"]]: Week_schedule to be used in the different periods. It must always contain one more element than the parameter "periods".
 
 **Example:**
 <pre><code class="python">

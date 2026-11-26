@@ -221,10 +221,10 @@ opensimula gui project.json
 
 The [Examples](examples.md) are a good place to start: `opensimula examples` copies them to a folder, ready to open. The project file is optional: without it the app starts with an empty project, and **Open or create a project** opens another JSON file or starts a new one. The page has, from top to bottom:
 
-- The **editor** of the project, with its 3D view and its graph, exactly as `pro.editor()`.
+- The **editor** of the project, with its 3D view and its graph, exactly as `pro.editor()`. Every parameter shows its description when the mouse is over its name, and its "?" opens the [component list](component_list.md) at it.
 - **Simulate**, which applies every edit to the project, checks it and simulates it, with a progress bar. Problems found by the check are listed instead of simulating, and the warnings of the simulation (time steps that did not converge…) under the time it took.
 - **Save**, which writes the document being edited to the JSON file given next to it (the file opened, by default), even if it still has problems.
-- The **results viewer**, as `pro.results()`. It stays the same across simulations: after changing a parameter and simulating again, the variables already plotted, the frequency, the interval and the 3D view are kept, and show the new values.
+- The **results viewer**, as `pro.results()`: the variables show their description when the mouse is over them, and their "?" opens the documentation at them. It stays the same across simulations: after changing a parameter and simulating again, the variables already plotted, the frequency, the interval and the 3D view are kept, and show the new values.
 
 Relative file names in the project, such as the weather file of `File_met`, are read from the folder of the project file when they are found there; otherwise from the folder the command is run from (the folder used is shown under the project name). So a project next to its weather file opens from anywhere, and an ASHRAE 140 case, whose names are relative to its test folder, opens from that folder: `cd ASHRAE_140/LOAD_TEST` and `opensimula gui cases/case_600.json`. In a notebook they are read, as always, from the working folder of the notebook. `--port` chooses the port of the app server and `--headless` does not open a browser; Ctrl+C in the terminal stops it.
 

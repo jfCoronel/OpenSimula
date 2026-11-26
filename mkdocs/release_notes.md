@@ -14,6 +14,7 @@ Domestic hot water and solar thermal on the water plants, CTE DB-HE verification
 - **Variable water flow** in plants and circuits (`flow_control`, `minimum_flow`), with staged secondary pumps; an instantaneous boiler sees only the water drawn.
 - **`Energy_indicators`** (final and primary energy, CO₂ by carrier and service, RITE factors), **`Comfort_indicators`** (hours outside the setpoints) and **`CTE_compliance`** (CTE DB-HE: HE0 and HE4), with their reports in notebooks and in the app; helpers of the DB-HE in `opensimula.cte` (Anejo D, F and G).
 - Gallery: examples 10 (energy and comfort) and 11 (domestic hot water and solar).
+- **Help in the app**: every parameter in the editor and every variable in the results viewer shows its description as a tooltip, and a "?" opens the documentation at it (anchors for every parameter and variable of the component pages).
 
 #### Changes that break compatibility
 

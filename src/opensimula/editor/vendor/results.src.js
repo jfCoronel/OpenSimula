@@ -340,6 +340,18 @@ function render({ model, el }) {
             h("span", { text: variable.name }),
             h("span", { class: "osm-r-unit", text: variable.unit }),
           ]);
+          // help: the description as a tooltip, "?" opens the documentation
+          const tip = variable.help ? `${variable.help}${variable.unit ? ` [${variable.unit}]` : ""}` : "";
+          if (tip) row.title = tip;
+          if (variable.doc) {
+            const link = h("a", { class: "osm-r-help", text: "?" });
+            link.href = variable.doc;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.title = tip ? `${tip}\n\nOpen the documentation` : "Open the documentation";
+            link.addEventListener("click", (event) => event.stopPropagation());
+            row.appendChild(link);
+          }
           if (item) row.classList.add("selected");
           if (!item && full) {
             row.classList.add("disabled");

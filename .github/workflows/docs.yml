@@ -6,6 +6,7 @@ on:
     paths:
       - "mkdocs/**"
       - "mkdocs.yml"
+      - "mkdocs_hooks.py"  # anchors of the parameters and variables
       - "src/opensimula/**"  # API reference, generated from the docstrings
       - ".github/workflows/docs.yml"
   workflow_dispatch:
