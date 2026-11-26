@@ -3,6 +3,7 @@ from opensimula.Component import Component  # noqa: N999
 from opensimula.Iterative_process import Iterative_process
 from opensimula.Message import Message
 from opensimula.Parameters import (
+    Parameter_boolean,
     Parameter_component,
     Parameter_component_list,
     Parameter_float,
@@ -44,6 +45,9 @@ class HVAC_water_system(Component):  # HVAC Water system
         # CONSTANT: the design flow while on (three-way valves); VARIABLE: the flow the
         # coils ask for (two-way valves), between minimum_flow and the design flow
         self.add_parameter(Parameter_options("flow_control", "CONSTANT", ["CONSTANT", "VARIABLE"]))
+        # DHW first: the DHW demands and the DHW charging circuits get water at the heating
+        # setpoint, up to the capacity of the generators; the other loads the rest
+        self.add_parameter(Parameter_boolean("dhw_priority", False))
         self.add_parameter(Parameter_float("minimum_flow", 0, "frac", min=0, max=1))
         self.add_parameter(
             Parameter_options("system_control", "LOAD_CONTROL", ["LOAD_CONTROL", "SCHEDULE_CONTROL"]) # LOAD_CONTROL: system cooling/heating based on load, SCHEDULE_CONTROL: system cooling based on cooling_mode and heating based on heating_mode
@@ -149,6 +153,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.solar_generators = [i for i, g in enumerate(self.generators) if g.is_solar]
         # generators in series at the outlet, in the order of the list
         self.series_generators = [i for i, g in enumerate(self.generators) if g.is_series]
+        self.dhw_priority = self.parameter("dhw_priority").value
+        self.priority_capacity = self.priority_used = 0.0
         self.stratified = self.tank is not None and self.tank.n_nodes > 1
         self.backup_on_pre = False
         self.Q_solar = 0
@@ -210,6 +216,14 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_heat = self.Q_heat_used = self.Q_cool = self.Q_cool_used = 0
         self.coils_flow = 0
         self.coils_flow_used = 0
+        # DHW priority: the capacity of the generators in parallel that heat, at the
+        # setpoint, for the DHW loads of this time step
+        self.priority_used = 0.0
+        self.priority_capacity = 0.0
+        if self.dhw_priority and self.on_off:
+            self.priority_capacity = sum(
+                g.get_capacity(1, self.T_heat_sp, self.T_WCO_pre, g.nominal_water_flow())
+                for g in self.generators)
 
         # Pump defined
         if self.pump is None: # Pump defined
@@ -271,6 +285,23 @@ class HVAC_water_system(Component):  # HVAC Water system
             return self.T_heat_sp
         else:
             return self.T_WCI
+
+    def dhw_supply_T(self):
+        """Water temperature to the DHW loads (DHW demands, DHW charging circuits): with
+        DHW priority the heating setpoint while the plant can heat (the generators work
+        for them first), otherwise the supply of the plant."""
+        if self.dhw_priority and self.can_heat():
+            return self.T_heat_sp
+        return self.get_heating_coil_inlet_T()
+
+    def take_dhw_heat(self, Q):
+        """Heat a DHW load takes with DHW priority (W, positive): at most what is left
+        of the capacity of the generators in this iteration. Without priority, Q."""
+        if not (self.dhw_priority and self.can_heat()):
+            return Q
+        allowed = max(0.0, min(Q, self.priority_capacity - self.priority_used))
+        self.priority_used += allowed
+        return allowed
 
     def can_heat(self):
         """True if the coils can take heat from the plant: it is on and, with
@@ -363,6 +394,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_cool_used, self.Q_cool = self.Q_cool, 0
         self.coils_flow_used = self.coils_flow
         self.coils_flow = 0
+        self.priority_used = 0.0
         # Test convergence
         return self.itera_T.converged() 
 
@@ -834,6 +866,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_cool_used, self.Q_cool = self.Q_cool, 0
         self.coils_flow_used = self.coils_flow
         self.coils_flow = 0
+        self.priority_used = 0.0  # the DHW loads take their heat again
 
     def _simulate_generator(self): # Heating or cooling mode
         Q = self.Q_coils + self.Q_process + self.Q_loss + self.Q_pump

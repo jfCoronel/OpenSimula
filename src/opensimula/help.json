@@ -2728,6 +2728,12 @@
      "text": "Chilled water outlet setpoint temperature at the generator when the system is cooling. The mathematical expression may contain any of the variables declared in the \"input_variables\" parameter.",
      "unit": "°C"
     },
+    "dhw_priority": {
+     "anchor": "hvac_water_system-dhw_priority",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "DHW first: while the plant can heat, the DHW demands hanging from it and the DHW charging circuits (circuits with a tank and only DHW demands) get water at the heating setpoint, even if the water of the plant is colder, and take their heat first, up to the capacity of its generators in the time step; the other loads get the rest (their water is colder). It is the diverting valve of a combi boiler or of a boiler that charges a DHW tank. With enough capacity it changes nothing.",
+     "unit": ""
+    },
     "flow_control": {
      "anchor": "hvac_water_system-flow_control",
      "page": "component_list_HVAC_water_systems/",

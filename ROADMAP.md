@@ -1292,6 +1292,19 @@ must see only the water drawn, at the mains temperature (condensing boilers).
   circuit: less pump power than at constant flow; test case in `pruebas/` (condensing
   instantaneous boiler, constant vs variable).
 
+## DHW priority (done 2026-11-26, for 0.11)
+
+Option C (time sharing) done as "DHW first" in the plant balance: `HVAC_water_system.
+dhw_priority`; while the plant can heat, the DHW demands on the plant and the DHW charging
+circuits (tank, only DHW demands) get water at the heating setpoint (`dhw_supply_T()`)
+and take their heat first through `take_dhw_heat(Q)`, up to the capacity of the
+generators at the setpoint (computed per time step, used per iteration); the heat leaves
+the plant balance, so its water cools and the heating coils get less. No effect with
+enough capacity. Four-pipe test plant + 200 l tank, boiler 4 kW in January: tank min
+30 °C without priority, 55 °C with it (its dead band). Found: without priority at full
+capacity the plant balance has a residual of 1.4 kWh/month (at-capacity path, before
+this change): to look at.
+
 ## Generators in series (done 2026-11-26, for 0.11)
 
 Asked by the user: solar tank + instantaneous boiler needed two plants (`preheat_system`),

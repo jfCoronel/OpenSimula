@@ -467,7 +467,7 @@ The same plants then make every usual installation:
 - *Central DHW of a building*: one plant with several DHW demands; a recirculation loop is a circuit with its losses (`Q_loss`) and pump.
 - *Solar thermal*: see below.
 
-When the generators fall short, all the loads of a plant share the shortfall (the water is colder): there is no DHW priority yet.
+When the generators fall short, all the loads of a plant share the shortfall (the water is colder), unless the plant has `dhw_priority`: then the DHW demands and DHW charging circuits get water at the setpoint and take their heat first, up to the capacity of the generators, and the heating gets the rest.
 
 **Tanks and their thermostat.** A `Water_tank` has a volume, losses UA·(T − T_room) (UA from the standing losses of the ErP label: UA = S / 45) and a thermostat with a `dead_band`. Everything is decided once per time step (no on / off cycles inside it; the part load of a generator is the fraction of the step it would run):
 
