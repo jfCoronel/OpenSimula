@@ -20,6 +20,11 @@ Domestic hot water and solar thermal on the water plants, CTE DB-HE verification
 - Gallery: examples 10 (energy and comfort) and 11 (domestic hot water and solar).
 - **Help in the app**: every parameter in the editor and every variable in the results viewer shows its description as a tooltip, and a "?" opens the documentation at it (anchors for every parameter and variable of the component pages).
 
+#### Fixes that change results
+
+- `HVAC_water_system`: in a time step that does not converge (it ends at `n_max_iteration`, e.g. a plant short of capacity whose loads come and go with its temperature), the plant stored the relaxed estimate of its temperature, which did not satisfy its energy balance; now the temperature of the balance of the last iteration (a plant with a 4 kW boiler and a DHW tank, January: 1.4 kWh that were lost, +0.7 % of heat of the boiler). Time steps that converge do not change.
+- `HVAC_water_system` with a `Water_tank` and generators in series: the state and the losses of the tank are those of its water, not of the supply.
+
 #### Changes that break compatibility
 
 - `HVAC_water_system` and `HVAC_water_circuit`: the variable `Q_coils` is now **`Q_loads`** (it is the load of the coils, the circuits and the DHW demands), split into the new **`Q_heating_coils`**, **`Q_cooling_coils`** and `Q_dhw`. Expressions and scripts that read `Q_coils` must use `Q_loads`.
