@@ -96,6 +96,18 @@ class HVAC_water_system(Component):  # HVAC Water system
         if self.project().parameter("simulation_file_met").value == "not_defined":
             msg = f"{self.parameter('name').value}, file_met must be defined in the project 'simulation_file_met'."
             errors.append(Message(msg, "ERROR"))
+        series = [g for g in self.parameter("generators").component
+                  if g is not None and g.parameter("connection").value == "SERIES"]
+        if series and self.parameter("tank").value == "not_defined":
+            msg = (f"{self.parameter('name').value}, generators in SERIES (at the outlet) need a "
+                   "plant with a tank.")
+            errors.append(Message(msg, "ERROR"))
+        if any(g.parameter("equipment").component is not None
+               and g.parameter("equipment").component.parameter("type").value == "Solar_collector"
+               for g in series):
+            msg = (f"{self.parameter('name').value}, a Solar_collector generator cannot be in "
+                   "SERIES: it heats the tank (PARALLEL).")
+            errors.append(Message(msg, "ERROR"))
         if (self.parameter("tank").value == "not_defined" and any(
                 g is not None and g.parameter("equipment").component is not None
                 and g.parameter("equipment").component.parameter("type").value == "Solar_collector"
@@ -135,6 +147,8 @@ class HVAC_water_system(Component):  # HVAC Water system
                      if self.parameter("tank").value != "not_defined" else None)
         self.has_header = len(self.secondary_pumps) > 0 or self.tank is not None
         self.solar_generators = [i for i, g in enumerate(self.generators) if g.is_solar]
+        # generators in series at the outlet, in the order of the list
+        self.series_generators = [i for i, g in enumerate(self.generators) if g.is_series]
         self.stratified = self.tank is not None and self.tank.n_nodes > 1
         self.backup_on_pre = False
         self.Q_solar = 0
@@ -168,6 +182,10 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_generators = [0] * len(self.generators)
         self.water_flow = self.design_water_flow
         self.T_WCI = self.T_WCI_pre
+        if self.tank is not None and time_index > 0:
+            # the state is the water of the tank, not the supply: generators in series
+            # heat the supply after it (the coils see that supply first)
+            self.T_WCI_pre = self.tank.variable("temperature").values[time_index - 1]
         self.T_WCO = self.T_WCO_pre
         self.T_WGI = self.T_WGI_pre
         self.T_WGO = self.T_WGO_pre
@@ -205,6 +223,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.water_volume = (self.tank.get_volume() if self.tank is not None
                              else self.parameter("total_water_volume").value)
         self.Q_tank_loss = 0
+        self.Q_series = 0.0  # heat of the generators in series, of the last iteration
+        self.series_ops = {}
         # thermostat of a tank: heating in the previous time step without reaching the
         # setpoint goes on; otherwise it starts dead_band below the setpoint
         self.tank_charging_pre = (
@@ -292,7 +312,9 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_loss = self.parameter("Q_loss").evaluate(self.var_dic)
         self.parameter_Q_loss = self.Q_loss
         if self.tank is not None and not self.stratified:  # losses of the tank
-            self.Q_tank_loss = -self.tank.get_loss(self.T_WCI)
+            # at the temperature of the tank (T_S), not of the supply after the generators
+            # in series; T_S of the previous iteration (or time step)
+            self.Q_tank_loss = -self.tank.get_loss(getattr(self, "T_S", self.T_WCI_pre))
             self.Q_loss += self.Q_tank_loss
         self.Q_process = self.parameter("Q_process").evaluate(self.var_dic)
 
@@ -461,7 +483,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.rho_cp = rho_cp
         heating = self.on_off and self.can_heat()
         self.mode = 1 if heating else 0
-        Q_coils = self.Q_coils if heating else 0
+        Q_series_pre = self.Q_series
+        Q_coils = (self.Q_coils + Q_series_pre) if heating else 0  # the tank gives the rest
         m = self.coils_flow if heating else 0
         # draw: two passes, the second with the return temperature that gives the load
         T, T_out = tank.advect(T0, m, T0[-1], dt)
@@ -524,8 +547,9 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.water_flow = self.secondary_flow = m
         self.T_S = self.itera_T.estimate_next_x(T_out if m > 0 else T[0])
         self.T_WCI = self.T_S
+        self._series(self.T_S, m if heating else 0)
         self._end_iteration_()
-        return self.itera_T.converged()
+        return self.itera_T.converged() and self._series_converged(Q_series_pre)
 
     def parameter_loss_per_node(self, rho_cp):
         """Temperature change of each node by the Q_loss expression of the plant."""
@@ -535,7 +559,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         T = self.nodes
         rho_cp = self.rho_cp
         self.variable("mode").values[time_index] = self.mode
-        self.variable("T_supply").values[time_index] = self.T_S
+        self.variable("T_supply").values[time_index] = self.T_WCI
         self.variable("T_return").values[time_index] = self.T_ret
         self.variable("T_mean").values[time_index] = float(np.mean(T))
         self.variable("T_generators_in").values[time_index] = self.T_backup_in
@@ -547,7 +571,9 @@ class HVAC_water_system(Component):  # HVAC Water system
         for i, (g, Q_g, flow) in enumerate(zip(self.generators, self.Q_generators, self.generator_flows)):
             T_wi = self.nodes_pre[self.tank.solar_node] if g.is_solar else self.T_backup_in
             T_wo = T_wi + Q_g / (rho_cp * flow) if flow > 0 else T_wi
-            if not g.is_solar and Q_g > 0:
+            if i in self.series_ops:
+                Q_g, T_wi, T_wo, flow = self.series_ops[i]
+            elif not g.is_solar and Q_g > 0:
                 T_out = T_wo
             p, f, _ = g.set_operation(time_index, Q_g, T_wo, T_wi, flow, self.sequencing)
             power += p
@@ -568,7 +594,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.variable("electric_power").values[time_index] = power + pump_power
         self.variable("delta_U").values[time_index] = float(
             np.sum(rho_cp * self.tank.node_volume() * (T - self.nodes_pre)) / self.delta_t)
-        self.tank.set_state(time_index, float(np.mean(T)), T)
+        self.tank.set_state(time_index, float(np.mean(T)), T, loss=-self.Q_tank_loss)
         self.backup_on_pre = self.backup_on
 
     # _________________ Plant with a header (primary / secondary) _________________
@@ -584,6 +610,10 @@ class HVAC_water_system(Component):  # HVAC Water system
         goes to the supply. Each generator tries to give the setpoint at its outlet.
         """
         Q_sec = self._check_mode_header()
+        # the generators in series give part of the load of the coils: the tank gives
+        # the rest (their heat of the previous iteration)
+        Q_series_pre = self.Q_series
+        Q_sec = Q_sec + Q_series_pre
         m_s = self.secondary_flow
         cpV_dt = self.rho_cp * self.water_volume / self.delta_t
         nominal = [g.nominal_water_flow() if g.on_off else 0 for g in self.generators]
@@ -630,8 +660,37 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.Q_solar = Q_solar
         self.T_S = self.itera_T.estimate_next_x(T_S)
         self._header_temperatures(Q_sec, nominal)
+        self._series(self.T_S, m_s)
         self._end_iteration_()
-        return self.itera_T.converged()
+        return self.itera_T.converged() and self._series_converged(Q_series_pre)
+
+    def _series(self, T_in, flow):
+        """The generators in series at the outlet: the water leaving the plant at T_in
+        with flow goes through them in the order of the list; each heats it towards
+        the heating setpoint as far as its capacity allows. Sets the supply to the
+        loads (T_WCI), their heat (Q_series, in Q_generators and Q_gen) and
+        series_ops {index: (Q, T_in, T_out, flow)} for the post iteration."""
+        self.series_ops = {}
+        Q_total = 0.0
+        T = T_in
+        if self.series_generators and flow > 0 and self.on_off and self.mode == 1:
+            for i in self.series_generators:
+                g = self.generators[i]
+                Q = g.get_series_heat(T, self.T_heat_sp, flow, self.rho_cp)
+                T_out = T + Q / (self.rho_cp * flow)
+                self.series_ops[i] = (Q, T, T_out, flow)
+                self.Q_generators[i] = Q
+                Q_total += Q
+                T = T_out
+        self.Q_series = Q_total
+        self.Q_gen += Q_total
+        self.T_WCI = T
+        if self.series_ops:
+            self.generator_flows = [flow if i in self.series_ops else f
+                                    for i, f in enumerate(self.generator_flows)]
+
+    def _series_converged(self, Q_series_pre):
+        return abs(self.Q_series - Q_series_pre) <= max(1e-3 * abs(self.Q_series), 0.01)
 
     def _running_pumps_heat(self, nominal):
         """Heat of the primary pumps of the generators running."""
@@ -923,10 +982,13 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.variable("bypass_flow").values[time_index] = m_p - m_s
         self.variable("coils_flow").values[time_index] = self.coils_flow_used
         power = fuel = pump_power = 0
-        for g, Q_g, flow in zip(self.generators, self.Q_generators, self.generator_flows):
+        for i, (g, Q_g, flow) in enumerate(zip(self.generators, self.Q_generators, self.generator_flows)):
             Q_g = Q_g if (running or (g.is_solar and self.on_off)) and flow > 0 else 0
-            T_wo = self.T_WGI + Q_g / (self.rho_cp * flow) if flow > 0 else self.T_WGI
-            p, f, _ = g.set_operation(time_index, Q_g, T_wo, self.T_WGI, flow, self.sequencing)
+            T_wi = self.T_WGI
+            T_wo = T_wi + Q_g / (self.rho_cp * flow) if flow > 0 else T_wi
+            if i in self.series_ops:
+                Q_g, T_wi, T_wo, flow = self.series_ops[i]
+            p, f, _ = g.set_operation(time_index, Q_g, T_wo, T_wi, flow, self.sequencing)
             power += p
             fuel += f
             pump_power += g.get_pump_power(flow)
@@ -953,7 +1015,7 @@ class HVAC_water_system(Component):  # HVAC Water system
         )
         self.running_pre = list(self.running)
         if self.tank is not None:
-            self.tank.set_state(time_index, self.T_S)
+            self.tank.set_state(time_index, self.T_S, loss=-self.Q_tank_loss)
 
     def get_energy_use(self):
         """Electricity of its secondary pumps (water transport); its generators

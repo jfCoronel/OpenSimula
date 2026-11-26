@@ -661,7 +661,7 @@
     "preheat_system": {
      "anchor": "dhw_demand-preheat_system",
      "page": "component_list_HVAC_water_systems/",
-     "text": "Preheating in series, e.g. a solar tank: the water drawn enters it (mains water replaces it) and leaves at its temperature; it gives the heat up to that temperature (all the demand, mixed with mains water, if hotter than the use temperature) and the water_system (the backup) heats the rest from there.",
+     "text": "Preheating by another system: the water drawn enters it (mains water replaces it) and leaves at its temperature; it gives the heat up to that temperature (all the demand, mixed with mains water, if hotter than the use temperature) and the water_system (the backup) heats the rest from there. For installations whose preheating and backup are separate systems, e.g. a central solar plant of a block of flats preheating the water of every flat, each with its own boiler, or two tanks in series. A solar tank with a boiler after it is one plant with the boiler in series (connection \"SERIES\" of its generator).",
      "unit": ""
     },
     "use_temperature": {
@@ -2588,6 +2588,12 @@
    "anchor": "hvac_water_generator",
    "page": "component_list_HVAC_water_systems/",
    "parameters": {
+    "connection": {
+     "anchor": "hvac_water_generator-connection",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "\"PARALLEL\": the generator heats or cools the water of the plant (or of its tank), sharing the load with the other generators in parallel. \"SERIES\" (only in a plant with a tank, heating): the generator is at the outlet of the plant, after the tank and the generators in parallel; the water that leaves to the loads goes through it, and it heats it up to the heating setpoint of the plant as far as its capacity allows, with the flow of the loads (an instantaneous boiler after a solar tank, a boiler after a buffer tank). Several generators in series heat the water one after the other, in the order of the generators of the plant.",
+     "unit": ""
+    },
     "equipment": {
      "anchor": "hvac_water_generator-equipment",
      "page": "component_list_HVAC_water_systems/",

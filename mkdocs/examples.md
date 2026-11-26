@@ -34,7 +34,7 @@ pro.results("office.temperature", "office.system_sensible_heat")
 | [08 Load records](#08-load-records) | The system of 06 against a record of the loads, without the building | 12 |
 | [09 Water plant](#09-water-plant) | A heat pump and a backup boiler, two circuits with their fan coils | 24 |
 | [10 Energy and comfort](#10-energy-and-comfort) | Final and primary energy, CO₂ and hours outside the setpoints | 26 |
-| [11 Domestic hot water and solar](#11-domestic-hot-water-and-solar) | The hot water of a dwelling: solar tank and a combi boiler in series | 14 |
+| [11 Domestic hot water and solar](#11-domestic-hot-water-and-solar) | The hot water of a dwelling: solar tank and a combi boiler in series | 13 |
 
 ### 01 Schedules
 
@@ -161,17 +161,16 @@ In the year the installation uses 5010 kWh of final energy, 52 kWh/m² of the 96
 
 ### 11 Domestic hot water and solar
 
-**New:** `DHW_demand`, `Solar_collector`, `Water_tank`, `preheat_system`, variable flow (`flow_control`).
+**New:** `DHW_demand`, `Solar_collector`, `Water_tank`, generators in series (`connection` "SERIES").
 
-The hot water of a dwelling of three bedrooms in Sevilla, without the building: 112 l/day at 60 °C (four persons of 28 l, DB-HE Anejo F), used with the hourly profile of dwellings of the DB-HE (Anejo D, the schedules `dhw_profile`, made by `opensimula.cte.dhw_profile_schedules()`), and heated from the mains water of Sevilla (Anejo G: 11 °C in winter, 21 °C in summer). It is the usual Spanish installation, two water plants in series:
+The hot water of a dwelling of three bedrooms in Sevilla, without the building: 112 l/day at 60 °C (four persons of 28 l, DB-HE Anejo F), used with the hourly profile of dwellings of the DB-HE (Anejo D, the schedules `dhw_profile`, made by `opensimula.cte.dhw_profile_schedules()`), and heated from the mains water of Sevilla (Anejo G: 11 °C in winter, 21 °C in summer). It is the usual Spanish installation, solar collectors with a tank and a combi boiler after it, and it is one water plant, `dhw_plant`, with the tank `solar_tank` as its water and two generators:
 
-- `solar_plant`: 2 m² of collectors facing south at 45° heat a 150 l tank. Its only generator is the collector field with its pump: it cannot be controlled, the plant takes all the heat the sun gives (the tank up to 90 °C).
-- `boiler_plant`: a condensing combi boiler with only 5 l of water, without pump (the mains pressure moves the water) and with variable flow, so that only the water drawn goes through it.
-- `dhw`: the demand. Its water enters the solar tank (`preheat_system`), where mains water replaces it, and the boiler (`water_system`) heats it from the temperature of the tank to 60 °C. When the tank is hotter than 60 °C the user mixes it with mains water and the boiler does nothing.
+- `solar_generator`: 2 m² of collectors facing south at 45°, with their pump, heating the 150 l tank (`connection` "PARALLEL", the default). It cannot be controlled: the plant takes all the heat the sun gives (the tank up to 90 °C).
+- `boiler_generator`: a condensing combi boiler, `connection` "SERIES": it is at the outlet of the tank, and when the water drawn leaves the tank below 60 °C it heats it up to 60 °C; only the water drawn goes through it, and without pump (the mains pressure moves it). When the tank is hotter than 60 °C the user mixes its water with mains water and the boiler does nothing.
+- `dhw`, the demand, hangs from the plant: its water leaves the plant and mains water enters the tank.
 
-In the year the demand is 2078 kWh. The collectors receive 1938 kWh/m² and give 1766 kWh (a mean efficiency of 0.46); the tank loses 319 of them, and 1544 kWh reach the hot water: a **solar fraction of 74 %**, 56 % in December and 97 % in August. The boiler gives the other 534 kWh with 559 kWh of gas, at 0.95: it receives water already preheated, so it condenses less than with mains water. `energy` shows the solar heat as SOLAR_THERMAL, renewable energy produced on site, which is not counted in the final energy (652 kWh: 559 of gas and 93 of electricity of the solar pump) but is 70 % of the primary energy. Look in the results viewer at `solar_tank.temperature` (from 19 °C in winter mornings to 87 °C in summer), `dhw.T_preheat` and `boiler_plant.T_generators_in`.
+In the year the demand is 2078 kWh. The collectors receive 1938 kWh/m² and give 1765 kWh (a mean efficiency of 0.46), of which the tank loses 320: the **solar fraction is 74 %**, 56 % in December and 97 % in August. The boiler gives the other 537 kWh with 563 kWh of gas, at 0.95: it receives water already preheated (46 °C on average while it works), so it condenses less than with mains water. `energy` shows the solar heat as SOLAR_THERMAL, renewable energy produced on site, which is not counted in the final energy (655 kWh: 563 of gas and 93 of electricity of the solar pump) but is 68 % of the primary energy. Look in the results viewer at `solar_tank.temperature` (from 19 °C in winter mornings to 87 °C in summer), `dhw_plant.T_supply` (60 °C or more while water is drawn) and `boiler_generator.T_wi` and `Q`.
 
 ![Monthly heat for the hot water, solar and gas boiler](img/examples/11_dhw_and_solar.png)
 
-*Try:* change `area` of `collector` (1 or 4 m²) or `volume` of `solar_tank`, and look at the solar fraction (`dhw.Q_preheat` / `dhw.Q_demand`); remove `preheat_system` of `dhw` to see the boiler alone; add a `CTE_compliance` (`"energy_indicators": "energy"`) to check HE4, the renewable contribution to the hot water (at least 60 % below 5000 l/day); or replace the two plants by one stratified tank with solar and an electric heater inside (`number_of_nodes` 6 in the `Water_tank`, see the [user guide](user_guide.md#hvac-systems-and-water-plants)).
-
+*Try:* change `area` of `collector` (1 or 4 m²) or `volume` of `solar_tank`, and look at the solar fraction; move the boiler into the tank (`connection` "PARALLEL" and a stratified tank, `number_of_nodes` 6: the backup keeps the top of the tank at 60 °C); add a `CTE_compliance` (`"energy_indicators": "energy"`) to check HE4, the renewable contribution to the hot water (at least 60 % below 5000 l/day); or, for a block of flats with a central solar tank and a boiler in each flat, give every `DHW_demand` its own plant with its boiler as `water_system` and the solar plant as `preheat_system` (see the [user guide](user_guide.md#hvac-systems-and-water-plants)).

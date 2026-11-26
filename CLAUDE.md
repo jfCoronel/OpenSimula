@@ -129,7 +129,7 @@ Parameters (src/opensimula/Parameters.py) provide type-safe configuration:
 - **HVAC_MZW_system**: Multi-zone water-based HVAC
 - **HVAC_perfect_system**: Ideal loads system for testing
 - **HVAC_water_system**: Water plant: `generators` (HVAC_water_generator), `sequencing`, optional secondary `pumps` (header)
-- **HVAC_water_generator**: A generator of a plant: equipment (Chiller_heat_pump or Boiler), its pump, `number_of_units`
+- **HVAC_water_generator**: A generator of a plant: equipment (Chiller_heat_pump, Boiler or Solar_collector), its pump, `number_of_units`, `connection` PARALLEL (heats the water/tank of the plant) or SERIES (at the outlet of a plant with a tank, heats the supply to the setpoint, in list order)
 - **HVAC_water_circuit**: Secondary circuit fed by a plant (own pumps, mixing valve); coils can refer to it like to a plant
 - **DHW_demand**: Domestic hot water demand (volume flow and use temperature as expressions, e.g. a schedule with the DB-HE profile from `cte.dhw_profile_schedules()`; mains temperature) hanging from a plant or circuit like a coil; plants split generator energy HEATING/DHW (`Q_dhw`, `dhw_share()`)
 - **Water_tank**: Storage tank (volume, UA, ambient temperature, thermostat dead band; `number_of_nodes` > 1 stratified, only in a plant: draw at the top, mains at the bottom, solar on the bottom node, backup at `backup_position`, inversions mixed) referred by a plant (`tank`: its water, works as a header) or a circuit (`tank`, `tank_setpoint`: DHW charging circuit)

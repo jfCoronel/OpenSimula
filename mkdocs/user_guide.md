@@ -461,7 +461,7 @@ The HVAC components are of two kinds: **equipment** components, which only hold 
 
 The same plants then make every usual installation:
 
-- *Instantaneous gas boiler* (no tank): a plant with the boiler, a small water volume, a setpoint of 60 °C and `flow_control` "VARIABLE", and the DHW demand; the generator without a pump, since the mains pressure moves the water. With variable flow only the water drawn goes through the boiler and it enters at the mains temperature (with constant flow it would be a mixture close to the supply temperature, which matters for condensing boilers).
+- *Instantaneous gas boiler* (no tank): a plant with the boiler, a small water volume, a setpoint of 60 °C and `flow_control` "VARIABLE", and the DHW demand (after a solar tank, a generator in series, see below); the generator without a pump, since the mains pressure moves the water. With variable flow only the water drawn goes through the boiler and it enters at the mains temperature (with constant flow it would be a mixture close to the supply temperature, which matters for condensing boilers).
 - *Boiler, heat pump or electric water heater with a tank*: a `Water_tank` as the `tank` of the plant; the generators heat the tank and the demand draws from it.
 - *Combined boiler or heat pump* (heating and DHW): the plant feeds the heating coils (or a heating circuit) and the DHW demand, directly or, with a tank, through a charging circuit (an `HVAC_water_circuit` with `tank` and `tank_setpoint`: its pump charges the tank with water of the plant, and the tank keeps giving water while the plant is off). The energy of the generators and of the pumps is split between the services HEATING and DHW by the heat that goes to each one every hour.
 - *Central DHW of a building*: one plant with several DHW demands; a recirculation loop is a circuit with its losses (`Q_loss`) and pump.
@@ -478,39 +478,37 @@ When the generators fall short, all the loads of a plant share the shortfall (th
 
 **Solar thermal.** A `Solar_collector` (EN ISO 9806 data: area, η0, a1, a2, incidence angle modifier, tilt, azimuth, heat exchanger) is the equipment of an `HVAC_water_generator` in a plant with a tank. It cannot be controlled: the plant always takes the heat the sun gives (up to the maximum temperature of the collectors) and its other generators only what is missing up to the setpoint. Two usual arrangements:
 
-- *Solar tank and backup in series* (the usual Spanish installation): the solar plant (collectors and tank) is the `preheat_system` of the DHW demand and the backup (an instantaneous or combined boiler, an electric water heater) its `water_system`: the backup heats the water from the temperature of the solar tank. The solar fraction is `Q_preheat` / `Q_demand` of the DHW demand.
-- *One tank with solar and backup inside*: it needs a stratified tank (4 to 10 nodes), so that the bottom stays cold for the collectors while the backup keeps the top at the setpoint; with a mixed tank the backup keeps it all hot and the collectors give much less (in Sevilla, 2 m² and 200 l: solar fraction 0.56 mixed, 0.75 stratified).
+- *Solar tank and a boiler after it* (the usual Spanish installation): one plant with the solar tank as its `tank`, the collectors as a generator in parallel and the boiler (instantaneous or combined, or an electric water heater) as a generator with `connection` "SERIES": it is at the outlet of the tank and heats the water drawn up to the setpoint when the tank is colder. The solar fraction is 1 − (heat of the boiler) / `Q_demand` of the DHW demand.
+- *One tank with solar and backup inside*: the backup in parallel, in a stratified tank (4 to 10 nodes), so that the bottom stays cold for the collectors while the backup keeps the top at the setpoint; with a mixed tank the backup keeps it all hot and the collectors give much less (in Sevilla, 2 m² and 200 l: solar fraction 0.56 mixed, 0.75 stratified).
+- *Central solar plant and a backup in each flat*: the solar plant is the `preheat_system` of the DHW demand of every flat and the boiler or water heater of the flat its `water_system`: each backup heats the water of its flat from the temperature of the solar tank.
 
 The heat of the collectors is the renewable carrier SOLAR_THERMAL in the energy report, and the renewable contribution of HE4 for `CTE_compliance`.
 
-As an example, solar DHW for a dwelling with an instantaneous gas boiler in series:
+As an example, solar DHW for a dwelling with an instantaneous gas boiler after the solar tank ([example 11](examples.md#11-domestic-hot-water-and-solar)):
 
 <pre><code class="python">
 ...
 
 from opensimula.cte import dhw_profile_schedules
 
-# solar plant: collectors (with their pump) heating a 150 l tank
+# the collectors (with their pump) heat the 150 l tank; the boiler is at its outlet
 pro.new_component("Solar_collector", "collector").set_parameters(
     {"area": 2, "eta_0": 0.75, "a1": 3.5, "a2": 0.015, "tilt": 45, "nominal_water_flow": 0.04})
 pro.new_component("Pump", "solar_pump").set_parameters({"nominal_water_flow": 0.04, "nominal_power": 30})
 pro.new_component("HVAC_water_generator", "solar_gen").set_parameters(
     {"equipment": "collector", "pump": "solar_pump"})
-pro.new_component("Water_tank", "solar_tank").set_parameters({"volume": 150, "UA": 1.2})
-pro.new_component("HVAC_water_system", "solar_plant").set_parameters(
-    {"generators": ["solar_gen"], "tank": "solar_tank"})
-# backup: instantaneous gas boiler, no pump, variable flow
 pro.new_component("Boiler", "boiler").set_parameters(
     {"nominal_heating_capacity": 24000, "nominal_efficiency": 0.92, "nominal_water_flow": 0.3})
-pro.new_component("HVAC_water_generator", "boiler_gen").set_parameters({"equipment": "boiler"})
-pro.new_component("HVAC_water_system", "boiler_plant").set_parameters({
-    "generators": ["boiler_gen"], "total_water_volume": 5, "heating_water_setpoint": "60",
-    "flow_control": "VARIABLE"})
+pro.new_component("HVAC_water_generator", "boiler_gen").set_parameters(
+    {"equipment": "boiler", "connection": "SERIES"})
+pro.new_component("Water_tank", "solar_tank").set_parameters({"volume": 150, "UA": 1.2})
+pro.new_component("HVAC_water_system", "dhw_plant").set_parameters({
+    "generators": ["solar_gen", "boiler_gen"], "tank": "solar_tank", "heating_water_setpoint": "60"})
 # demand: 120 l/day at 60 °C with the profile of the DB-HE
 for c in dhw_profile_schedules("dhw_profile"):
     pro.new_component(c.pop("type"), c.pop("name")).set_parameters(c)
 pro.new_component("DHW_demand", "dhw").set_parameters({
-    "water_system": "boiler_plant", "preheat_system": "solar_plant",
+    "water_system": "dhw_plant",
     "input_variables": ["f = dhw_profile.values"], "volume_flow": "120 * f"})
 # Sevilla: solar fraction 0.72
 </code></pre>
