@@ -1304,8 +1304,9 @@ of each parameter (and of the component), tooltip on the label and "?" link. Vie
 Docs fixed on the way (typos in names: `sytem_on_off`, `days-schedules`, `space_type`,
 `system_sensible_latent`; unbalanced defaults; undocumented `power_to_heat_fraction`,
 `E_dir_sunny`, `E_dif_sunny`, `E_dir_tra`, `E_dif_tra`, `theta_sun`,
-`infiltration_latent_heat`). Left: `Opening` variables `E_ref`, `E_ref_tra`, `debug_f`
-are never computed (always 0): remove them. Later, option (b) (descriptions in the
+`infiltration_latent_heat`). `Opening.debug_f` (never computed) removed; `E_ref`,
+`E_ref_tra` are computed by `Building` (solar radiation on the interior side of exterior
+openings and its part transmitted back out): documented. Later, option (b) (descriptions in the
 code) if the two places drift.
 
 Idea of the user: in the editor, each parameter field with a help link to the description

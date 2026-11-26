@@ -68,7 +68,6 @@ class Opening(Component):
         self.add_variable(Variable("q_lwig1", "W/m²"))
         self.add_variable(Variable("q_lwt0", "W/m²"))
         self.add_variable(Variable("q_lwt1", "W/m²"))
-        self.add_variable(Variable("debug_f", ""))
 
     def check(self):
         errors = super().check()

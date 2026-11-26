@@ -3293,6 +3293,18 @@
      "text": "Direct and diffuse solar radiation transmitted through the opening.",
      "unit": "W/m²"
     },
+    "E_ref": {
+     "anchor": "opening-var-e_ref",
+     "page": "component_list_building/",
+     "text": "Solar radiation incident on the interior side of an exterior opening: the solar radiation that entered the space and is distributed over its surfaces.",
+     "unit": "W/m²"
+    },
+    "E_ref_tra": {
+     "anchor": "opening-var-e_ref_tra",
+     "page": "component_list_building/",
+     "text": "Part of E_ref transmitted back to the outside through the opening.",
+     "unit": "W/m²"
+    },
     "T_rm": {
      "anchor": "opening-var-t_rm",
      "page": "component_list_building/",

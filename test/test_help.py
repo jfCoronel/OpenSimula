@@ -13,8 +13,6 @@ from opensimula import help as osm_help
 from opensimula.editor.schema import component_types, project_json_schema
 
 DOCS = pathlib.Path(__file__).parent.parent / "mkdocs"
-# variables that no component computes yet (always 0): not documented on purpose
-UNDOCUMENTED_VARIABLES = {("Opening", "E_ref"), ("Opening", "E_ref_tra"), ("Opening", "debug_f")}
 
 
 def test_parse_items():
@@ -57,8 +55,7 @@ def test_every_parameter_and_variable_is_documented():
             if osm_help.parameter_help(type_name, key)[0] is None:
                 missing.append((type_name, "parameter", key))
         for key in comp.variable_dict():
-            if (type_name, key) not in UNDOCUMENTED_VARIABLES and \
-                    osm_help.variable_help(type_name, key)[0] is None:
+            if osm_help.variable_help(type_name, key)[0] is None:
                 missing.append((type_name, "variable", key))
         assert osm_help.component_help(type_name), type_name
     assert missing == []

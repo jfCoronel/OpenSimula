@@ -323,6 +323,8 @@ After the simulation we will have the following variables of this component, all
 - __q_sol_dir_trans__ [W/m²]: Direct solar radiation passing through into space.
 - __E_dir_tra, E_dif_tra__ [W/m²]: Direct and diffuse solar radiation transmitted through the opening.
 - __theta_sun__ [°]: Angle of incidence of the sun on the opening.
+- __E_ref__ [W/m²]: Solar radiation incident on the interior side of an exterior opening: the solar radiation that entered the space and is distributed over its surfaces.
+- __E_ref_tra__ [W/m²]: Part of E_ref transmitted back to the outside through the opening.
 - __q_cv0, q_cv1__ [W/m²]: Convective heat flux at the surfaces.
 - __q_sol0, q_sol1__ [W/m²]: Solar heat flux at the surfaces.
 - __q_sol01, q_sol10__ [W/m²]: Solar heat flux appearing on surface "i" due to the absorption of solar radiation on surface "j". 
