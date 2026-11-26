@@ -277,7 +277,9 @@ class HVAC_water_circuit(Component):
                        if self._on_off else self.Q_tank_loss)
         Q_free = (self.Q_coils if self._on_off else 0) + self.Q_loss
         T_free = T_pre + Q_free / C
-        T_plant = self.plant.get_heating_coil_inlet_T()
+        # DHW priority of the plant: water at its setpoint for a DHW tank
+        priority = getattr(self.plant, "dhw_priority", False) and self.is_dhw_only()
+        T_plant = self.plant.dhw_supply_T() if priority else self.plant.get_heating_coil_inlet_T()
         self.T_plant = T_plant
         fraction = Q_charge = Q_pump_full = 0
         start = self.charging_pre or T_free < self.tank_sp - self.tank.get_dead_band()
@@ -289,6 +291,9 @@ class HVAC_water_circuit(Component):
                               for p in self.pumps)
             fraction = min(Q_need / (Q_max + Q_pump_full), 1)
             Q_charge = fraction * Q_max
+            if priority:  # up to the capacity of the generators of the plant
+                Q_charge = self.plant.take_dhw_heat(Q_charge)
+                fraction = Q_charge / Q_max
         self.pump_fraction = fraction
         self.water_flow = self.plant_flow = fraction * self.design_flow  # mean of the step
         self.Q_pump = fraction * Q_pump_full

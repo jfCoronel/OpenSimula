@@ -109,8 +109,11 @@ class DHW_demand(Component):
                                            -self.Q_preheat)
                 T_in = min(self.T_preheat, self.T_use)
         Q_rest = self.Q_demand - self.Q_preheat
-        # the water system heats the rest, from T_in
-        self.T_supply = self.plant.get_heating_coil_inlet_T()
+        # the water system heats the rest, from T_in (a plant with DHW priority gives
+        # water at its setpoint, up to the capacity of its generators)
+        priority = getattr(self.plant, "dhw_priority", False)
+        self.T_supply = (self.plant.dhw_supply_T() if priority
+                         else self.plant.get_heating_coil_inlet_T())
         can_heat = Q_rest > 0 and self.plant.can_heat()
         self.too_cold = can_heat and self.T_supply < self.T_use
         dT = self.T_supply - T_in
@@ -121,6 +124,8 @@ class DHW_demand(Component):
         # hotter than T_use: mixed with mains water, the whole demand; colder: used as
         # it comes, only the heat up to T_supply
         Q = Q_rest * min(dT / (self.T_use - T_in), 1)
+        if priority:
+            Q = self.plant.take_dhw_heat(Q)
         rho_cp = self.props["RHOCP_W"](self.T_supply) / 1000
         self.water_flow = Q / (rho_cp * dT)  # from the plant, at T_supply
         self.plant.add_coil_load(-Q, self.water_flow, -Q)
