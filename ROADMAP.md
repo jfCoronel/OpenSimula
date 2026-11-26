@@ -744,6 +744,9 @@ generator per loop, more than one pump, and the usual primary/secondary separati
 - **Follow-ups found in B2** (the first two done, see above):
   - `File_data` with `file_step` "SIMULATION" ignores the dates: a simulation that does not
     start on 1 January reads the file from its first row. Use "OWN" with `initial_time`.
+    **Done 2026-11-26 (option B)**: new `file_step` "ANNUAL" (rows of a year from 1 January,
+    row of the date of each step, modulo the rows), warning of "SIMULATION" with a file of a
+    year and a start other than 1 January; examples 08-10 use "ANNUAL".
 
 ## Planned: `Load_space`, air systems against load records (discussed 2026-11-19)
 

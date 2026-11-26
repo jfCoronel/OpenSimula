@@ -77,8 +77,9 @@
         {
             "type": "File_data",
             "name": "load_record",
-            "description": "Hourly sensible and latent loads of the box of the examples (one row per hour, positive heating), calculated with the ideal system of example 05 holding 24 °C and 50 % all year, with no outdoor air and 0.5 air changes per hour",
-            "file_name": "office_loads.csv"
+            "description": "Hourly sensible and latent loads of the box of the examples (one row per hour, positive heating), calculated with the ideal system of example 05 holding 24 °C and 50 % all year, with no outdoor air and 0.5 air changes per hour; file_step ANNUAL: the rows are the hours of the year from 1 January, read by the date of each time step",
+            "file_name": "office_loads.csv",
+            "file_step": "ANNUAL"
         },
         {
             "type": "Load_space",
