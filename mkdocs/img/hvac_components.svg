@@ -102,13 +102,15 @@
   <text x="826" y="262" class="param">or the plant;</text>
   <text x="826" y="276" class="param">preheat_system</text>
 
-  <!-- storage tank: of the plant or of a charging circuit -->
+  <!-- storage tank: of the plant or of a (charging) circuit -->
   <rect x="560" y="400" width="200" height="56" rx="6" class="optional"/>
   <text x="660" y="421" text-anchor="middle" class="name">Water_tank</text>
-  <text x="660" y="438" text-anchor="middle" class="uses">mixed or stratified, losses;</text>
-  <text x="660" y="451" text-anchor="middle" class="uses">optional (also of a circuit)</text>
+  <text x="660" y="438" text-anchor="middle" class="uses">mixed or stratified, losses,</text>
+  <text x="660" y="451" text-anchor="middle" class="uses">thermostat; optional</text>
   <path d="M 660 356 L 660 398" class="link"/>
   <text x="668" y="382" class="param">tank</text>
+  <path d="M 760 200 C 792 220, 792 300, 778 340 C 770 365, 768 390, 742 398" class="link"/>
+  <text x="776" y="390" class="param">tank</text>
 
   <!-- legend -->
   <rect x="20" y="505" width="18" height="12" rx="2" class="zone"/>

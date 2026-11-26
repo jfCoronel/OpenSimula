@@ -2457,7 +2457,7 @@
     "tank": {
      "anchor": "hvac_water_circuit-tank",
      "page": "component_list_HVAC_water_systems/",
-     "text": "With a tank the circuit is a charging circuit (e.g. the DHW tank of a boiler that also heats): its coils (DHW demands) take the water of the tank, at its temperature, even while the plant is off; its pumps charge the tank with water of the plant while the tank is below tank_setpoint, the plant can heat and its water is hotter, running the fraction of the time step the charge needs (the water goes back to the plant at the temperature of the tank). The mixing valve and water_volume do not apply. The thermostat starts the charge dead_band below the setpoint (see Water_tank). If only DHW demands hang from the circuit, all its load to the plant (losses of the tank included) and its pumps count as DHW.",
+     "text": "With a tank the circuit is a charging circuit (e.g. the DHW tank of a boiler that also heats): its coils (DHW demands) take the water of the tank, at its temperature, even while the plant is off; its pumps charge the tank with water of the plant while the tank is below tank_setpoint, the plant can heat and its water is hotter, running the fraction of the time step the charge needs (the water goes back to the plant at the temperature of the tank). The mixing valve and water_volume do not apply. The thermostat starts the charge dead_band below the setpoint (see Water_tank); in a stratified tank the water of the plant charges the node of the coil (backup_position), where the thermostat is. If only DHW demands hang from the circuit, all its load to the plant (losses of the tank included) and its pumps count as DHW.",
      "unit": ""
     },
     "tank_setpoint": {
@@ -4123,7 +4123,7 @@
     "number_of_nodes": {
      "anchor": "water_tank-number_of_nodes",
      "page": "component_list_HVAC_water_systems/",
-     "text": "Number of layers of a stratified tank (1: fully mixed). Only in a plant. 4 to 10 nodes are usual; the results change little above 6.",
+     "text": "Number of layers of a stratified tank (1: fully mixed), in a plant or in a charging circuit. 4 to 10 nodes are usual; the results change little above 6.",
      "unit": ""
     },
     "volume": {

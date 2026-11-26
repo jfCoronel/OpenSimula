@@ -285,7 +285,7 @@ The pumps of the circuit move their nominal water flow while it is on. The mixin
 - **cooling_supply_setpoint** [_math_exp_, unit = "°C", default = ""]: Minimum supply temperature (mixing valve). Empty: no limit.
 - **Q_loss** [_math_exp_, unit = "W", default = "0"]: Heat losses (negative) or gains (positive) of the water of the circuit; may use `T_w`, its supply temperature, and `m_w`, its water flow.
 - **water_volume** [_float_, unit = "dm³", default = 0, min = 0]: Water volume of the circuit: the plant also gives the heat to warm it up or cool it down.
-- **tank** [_component_, default = "not_defined", component type = Water_tank]: With a tank the circuit is a charging circuit (e.g. the DHW tank of a boiler that also heats): its coils (DHW demands) take the water of the tank, at its temperature, even while the plant is off; its pumps charge the tank with water of the plant while the tank is below `tank_setpoint`, the plant can heat and its water is hotter, running the fraction of the time step the charge needs (the water goes back to the plant at the temperature of the tank). The mixing valve and `water_volume` do not apply. The thermostat starts the charge `dead_band` below the setpoint (see Water_tank). If only DHW demands hang from the circuit, all its load to the plant (losses of the tank included) and its pumps count as DHW.
+- **tank** [_component_, default = "not_defined", component type = Water_tank]: With a tank the circuit is a charging circuit (e.g. the DHW tank of a boiler that also heats): its coils (DHW demands) take the water of the tank, at its temperature, even while the plant is off; its pumps charge the tank with water of the plant while the tank is below `tank_setpoint`, the plant can heat and its water is hotter, running the fraction of the time step the charge needs (the water goes back to the plant at the temperature of the tank). The mixing valve and `water_volume` do not apply. The thermostat starts the charge `dead_band` below the setpoint (see Water_tank); in a stratified tank the water of the plant charges the node of the coil (`backup_position`), where the thermostat is. If only DHW demands hang from the circuit, all its load to the plant (losses of the tank included) and its pumps count as DHW.
 - **tank_setpoint** [_math_exp_, unit = "°C", default = "60"]: Charging setpoint of the tank.
 
 **Example:**
@@ -376,12 +376,12 @@ pro.new_component("DHW_demand", "dhw").set_parameters({
 
 Water storage tank: a DHW tank, an electric water heater or a buffer tank. Equipment data, like a Boiler: it is used by the `HVAC_water_system` or the `HVAC_water_circuit` that refers to it in its `tank` parameter, whose water is then the water of the tank. Its heat losses are UA·(T − T_ambient).
 
-By default the tank is fully mixed (one temperature). With `number_of_nodes` > 1 (only in a plant) it is **stratified**: N layers of the same volume, node 1 at the top and node N at the bottom. Each time step:
+By default the tank is fully mixed (one temperature). With `number_of_nodes` > 1 it is **stratified** (in a plant or in a charging circuit): N layers of the same volume, node 1 at the top and node N at the bottom. Each time step:
 
 1. the water drawn by the loads leaves at the top and the same flow comes back at the bottom (mains water for a DHW demand), pushing the layers up;
 2. each node loses UA/N·(T_node − T_ambient);
 3. the solar collectors heat the bottom node, taking its water (the coldest: they work better);
-4. the other generators heat the node of the backup heater (`backup_position`), where its thermostat is, up to the setpoint of the plant (with the `dead_band`), as much as their capacity gives;
+4. the other generators heat the node of the backup heater (`backup_position`), where its thermostat is, up to the setpoint of the plant (with the `dead_band`), as much as their capacity gives; in a charging circuit, the water of the plant heats that node (the coil of the tank) up to `tank_setpoint`, the pump running the fraction of the step needed;
 5. heated water rises: a layer warmer than the one above mixes with it.
 
 The water to the loads is the mean temperature of the water leaving the top in the time step. With the backup in the middle of the tank, the bottom stays cold for the collectors, which is why a single tank with solar and backup needs the stratification (with one node the backup keeps the whole tank hot and the solar fraction falls: 0.56 instead of 0.75 in the example below).
@@ -393,7 +393,7 @@ The water to the loads is the mean temperature of the water leaving the top in t
 - **dead_band** [_float_, unit = "K", default = 0, min = 0]: Dead band of the thermostat: the heating starts when the water, without it, would be this much below the setpoint, and goes on up to the setpoint. With 0 the tank is held at the setpoint.
 - **input_variables** [_variable_list_, default = []]: Variables of other components used in the expression.
 - **ambient_temperature** [_math_exp_, unit = "°C", default = "20"]: Temperature of the room the tank is in, e.g. that of a space (`T = space.temperature`) or the outdoor air.
-- **number_of_nodes** [_int_, default = 1, min = 1, max = 50]: Number of layers of a stratified tank (1: fully mixed). Only in a plant. 4 to 10 nodes are usual; the results change little above 6.
+- **number_of_nodes** [_int_, default = 1, min = 1, max = 50]: Number of layers of a stratified tank (1: fully mixed), in a plant or in a charging circuit. 4 to 10 nodes are usual; the results change little above 6.
 - **backup_position** [_float_, unit = "frac", default = 0.5]: Height of the backup heater and its thermostat in a stratified tank, as a fraction of the height from the bottom (0.5: in the middle): only the water above it is kept at the setpoint.
 
 #### Variables

@@ -22,12 +22,13 @@ class Water_tank(Component):
     temperature an expression (e.g. the temperature of the space it is in). The system
     that holds it stores its temperature and losses in the variables of the tank.
 
-    With ``number_of_nodes`` > 1 (only in a plant) the tank is stratified: N layers of
-    the same volume, from the top (node 1) to the bottom (node N). The water drawn
-    leaves at the top and the water that comes back (mains water for DHW) enters at the
-    bottom, pushing the layers up; the solar collectors heat the bottom node and the
-    other generators the node at ``backup_position``, where the thermostat is; heated
-    water rises (a layer warmer than the one above mixes with it).
+    With ``number_of_nodes`` > 1 the tank is stratified: N layers of the same volume,
+    from the top (node 1) to the bottom (node N). The water drawn leaves at the top and
+    the water that comes back (mains water for DHW) enters at the bottom, pushing the
+    layers up; the solar collectors heat the bottom node and the other generators (or,
+    in a charging circuit, the water of the plant) the node at ``backup_position``,
+    where the thermostat is; heated water rises (a layer warmer than the one above
+    mixes with it).
     """
 
     def __init__(self, name, project):
@@ -50,12 +51,6 @@ class Water_tank(Component):
 
     def check(self):
         errors = super().check()
-        if self.parameter("number_of_nodes").value > 1:
-            users = self.referring_components(["HVAC_water_circuit"])
-            if users:
-                msg = (f"{self.parameter('name').value}, a stratified tank (number_of_nodes > 1) "
-                       "can only be the tank of a plant (HVAC_water_system).")
-                errors.append(Message(msg, "ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -157,6 +152,45 @@ class Water_tank(Component):
         for s, c in blocks:
             out += [s / c] * c
         return np.array(out)
+
+    def draw_and_losses(self, T0, flow, Q_loads, rho_cp, dt):
+        """A time step of a stratified tank without its heaters: the water drawn by the
+        loads leaves at the top and comes back at the bottom at the temperature that
+        gives their load, then each node loses heat.
+
+        Args:
+            T0 (numpy.ndarray): temperatures of the nodes at the start, top first.
+            flow (float): flow of the loads (dm³/s).
+            Q_loads (float): heat of the loads to the water (W, negative when they take it).
+            rho_cp (float): W/(dm³·K).
+            dt (float): time step (s).
+
+        Returns:
+            tuple: (temperatures, mean temperature of the water leaving at the top,
+                temperature of the water coming back, heat lost in W).
+        """
+        T, T_out = self.advect(T0, flow, T0[-1], dt)
+        if flow > 0:  # second pass, with the return that gives the load
+            T_ret = T_out + Q_loads / (rho_cp * flow)
+            T, T_out = self.advect(T0, flow, T_ret, dt)
+        else:
+            T_ret = T_out
+        T, lost = self.losses(T, rho_cp, dt)
+        return T, T_out, T_ret, lost
+
+    def heat_to_setpoint(self, T, node, setpoint, rho_cp, dt):
+        """Heat (W) that, given to a node and mixed, leaves that node at the setpoint
+        (0 if it is already there)."""
+        if T[node] >= setpoint:
+            return 0.0
+        low, high = 0.0, rho_cp * self.get_volume() * (setpoint - T[node]) / dt
+        for _ in range(60):
+            mid = (low + high) / 2
+            if self.add_heat(T, node, mid, rho_cp, dt)[node] < setpoint:
+                low = mid
+            else:
+                high = mid
+        return high
 
     def add_heat(self, T, node, Q, rho_cp, dt):
         """Temperatures after giving the heat Q (W) to a node and mixing."""

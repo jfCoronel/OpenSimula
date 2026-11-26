@@ -518,17 +518,10 @@ class HVAC_water_system(Component):  # HVAC Water system
         Q_series_pre = self.Q_series
         Q_coils = (self.Q_coils + Q_series_pre) if heating else 0  # the tank gives the rest
         m = self.coils_flow if heating else 0
-        # draw: two passes, the second with the return temperature that gives the load
-        T, T_out = tank.advect(T0, m, T0[-1], dt)
-        if m > 0:
-            T_ret = T_out + Q_coils / (rho_cp * m)
-            T, T_out = tank.advect(T0, m, T_ret, dt)
-        else:
-            T_ret = T_out
-        self.T_ret = T_ret
-        # losses of the tank and Q_loss of the plant (shared by the nodes)
-        T, lost = tank.losses(T, rho_cp, dt)
+        # draw (back at the bottom at the temperature that gives the load) and losses
+        T, T_out, self.T_ret, lost = tank.draw_and_losses(T0, m, Q_coils, rho_cp, dt)
         self.Q_tank_loss = -lost
+        # Q_loss of the plant (shared by the nodes)
         T = T + self.parameter_loss_per_node(rho_cp)
         # solar collectors, on the bottom node, at most up to their maximum temperature
         solar = [0.0] * len(self.generators)
@@ -558,14 +551,8 @@ class HVAC_water_system(Component):  # HVAC Water system
         sp = self.T_heat_sp
         start = self.backup_on_pre or T[j] < sp - tank.get_dead_band()
         if heating and start and T[j] < sp:
-            low, high = 0.0, rho_cp * tank.get_volume() * (sp - T[j]) / dt
-            for _ in range(60):  # the heat that leaves the node of the heater at sp
-                mid = (low + high) / 2
-                if tank.add_heat(T, j, mid, rho_cp, dt)[j] < sp:
-                    low = mid
-                else:
-                    high = mid
-            Q_backup, self.f_load = self._generators_load(1, high, sp, T[j], nominal)
+            Q_need = tank.heat_to_setpoint(T, j, sp, rho_cp, dt)
+            Q_backup, self.f_load = self._generators_load(1, Q_need, sp, T[j], nominal)
             T = tank.add_heat(T, j, Q_backup, rho_cp, dt)
         self.backup_on = Q_backup > 0 and T[j] < sp - 1e-6
         self.Q_generators = [q + s for q, s in zip(self.Q_generators, solar)]
