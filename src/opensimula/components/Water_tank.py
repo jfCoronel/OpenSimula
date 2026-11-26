@@ -89,15 +89,19 @@ class Water_tank(Component):
         """Heat lost by the tank with its water at T (W, positive when it loses)."""
         return self.parameter("UA").value * (T - self.T_ambient)
 
-    def set_state(self, time_index, T, nodes=None):
-        """Store the temperature of the water (the mean one), the losses and, for a
-        stratified tank, the temperature of its nodes."""
+    def set_state(self, time_index, T, nodes=None, loss=None):
+        """Store the temperature of the water (the mean one), the losses (those the
+        system holding it used in its balance, if given) and, for a stratified tank,
+        the temperature of its nodes."""
         self.variable("temperature").values[time_index] = T
         self.variable("T_ambient").values[time_index] = self.T_ambient
-        if nodes is None:
+        if loss is not None:
+            self.variable("Q_loss").values[time_index] = loss
+        elif nodes is None:
             self.variable("Q_loss").values[time_index] = self.get_loss(T)
         else:
             self.variable("Q_loss").values[time_index] = sum(self.get_loss(t) for t in nodes) / len(nodes)
+        if nodes is not None:
             for i, t in enumerate(nodes):
                 self.variable(f"T_node_{i + 1}").values[time_index] = t
             self.nodes = np.array(nodes, dtype=float)

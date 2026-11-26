@@ -382,4 +382,4 @@ class HVAC_water_circuit(Component):
         }
         for key, value in values.items():
             self.variable(key).values[time_index] = value
-        self.tank.set_state(time_index, self.T_tank)
+        self.tank.set_state(time_index, self.T_tank, loss=-self.Q_tank_loss)

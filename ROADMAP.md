@@ -1292,6 +1292,21 @@ must see only the water drawn, at the mains temperature (condensing boilers).
   circuit: less pump power than at constant flow; test case in `pruebas/` (condensing
   instantaneous boiler, constant vs variable).
 
+## Generators in series (done 2026-11-26, for 0.11)
+
+Asked by the user: solar tank + instantaneous boiler needed two plants (`preheat_system`),
+unnatural for one installation. `HVAC_water_generator.connection` "PARALLEL" (default) /
+"SERIES": in a plant with a tank, the generators in series are at the outlet, after the
+tank and the parallel generators; the water drawn goes through them in the order of the
+`generators` list and each heats it to the heating setpoint (capacity limited, flow of
+the loads). The tank gives the rest (its load = loads + series heat of the previous
+iteration; convergence also on the series heat). Fixed on the way: the state of a tank
+plant is the tank temperature (was T_supply of the previous step) and its losses are at
+the tank temperature (were at the supply); the tank stores the losses used in the
+balance. `preheat_system` kept for separate systems (central solar + a boiler per flat,
+two tanks in series). Example 11 is now one plant (`dhw_plant`): solar 1765 kWh, boiler
+537 kWh, solar fraction 74 % (two plants: 1766 / 534).
+
 ## Future: help links in the GUI (added 2026-11-24)
 
 **Done 2026-11-26 (option (a), branch `feat/gui-help-links`, for 0.11)**: the component

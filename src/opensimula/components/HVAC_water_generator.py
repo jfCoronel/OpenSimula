@@ -5,6 +5,7 @@ from opensimula.Parameters import (
     Parameter_component,
     Parameter_int,
     Parameter_math_exp,
+    Parameter_options,
     Parameter_variable_list,
 )
 from opensimula.Variable import Variable
@@ -20,6 +21,12 @@ class HVAC_water_generator(Component):
     the plant always takes its heat), and has its own primary pump. The plant (HVAC_water_system) decides
     the load it gives in each time step; the generator turns it into the
     equipment's load, part load, power and efficiency, and stores them.
+
+    With ``connection`` "SERIES" (plants with a tank) it is not one of the generators
+    that heat the water of the plant ("PARALLEL") but is at the outlet of the plant:
+    the water that leaves to the loads goes through it, and it heats it up to the
+    heating setpoint as far as its capacity allows (e.g. an instantaneous boiler after a
+    solar tank); several in series, in the order of the generators of the plant.
 
     It may have ``number_of_units`` identical units of the equipment, in
     parallel: its capacity and water flow are those of one unit times the number
@@ -37,6 +44,8 @@ class HVAC_water_generator(Component):
         )
         self.add_parameter(Parameter_int("number_of_units", 1, "", min=1))
         self.add_parameter(Parameter_component("pump", "not_defined", ["Pump"]))
+        # PARALLEL: heats the water of the plant; SERIES: at the outlet of the plant
+        self.add_parameter(Parameter_options("connection", "PARALLEL", ["PARALLEL", "SERIES"]))
         self.add_parameter(Parameter_variable_list("input_variables", []))
         self.add_parameter(Parameter_math_exp("system_on_off", "1", "on/off"))
 
@@ -70,6 +79,7 @@ class HVAC_water_generator(Component):
         equipment_type = self.parameter("equipment").component.parameter("type").value
         self.is_boiler = equipment_type == "Boiler"
         self.is_solar = equipment_type == "Solar_collector"
+        self.is_series = self.parameter("connection").value == "SERIES"
         self.pump = self.get_pump()
         self.n_units = self.parameter("number_of_units").value
         self.file_met = self.project().parameter("simulation_file_met").component
@@ -99,7 +109,7 @@ class HVAC_water_generator(Component):
     def can_heat(self):
         """True if the equipment can heat and the generator is available (not a solar
         collector: the plant does not ask it for a load, see get_solar_heat)."""
-        if not self.on_off or self.is_solar:
+        if not self.on_off or self.is_solar or self.is_series:
             return False
         if self.is_boiler:
             return True
@@ -110,6 +120,17 @@ class HVAC_water_generator(Component):
         if not self.on_off or self.is_boiler or self.is_solar:
             return False
         return self.equipment.parameter("chiller_type").value != "HEAT_PUMP"
+
+    def get_series_heat(self, T_in, T_out, water_flow, rho_cp):
+        """Heat of a generator in series (W): what it gives to the water leaving the
+        plant, entering at T_in with water_flow, to heat it up to T_out (the setpoint),
+        at most its capacity."""
+        if not self.is_series or not self.on_off or water_flow <= 0 or T_out <= T_in:
+            return 0.0
+        if not self.is_boiler and self.equipment.parameter("chiller_type").value == "CHILLER":
+            return 0.0
+        Q_required = rho_cp * water_flow * (T_out - T_in)
+        return self._load_of_units(1, T_out, T_in, water_flow, Q_required)[0]
 
     def get_solar_heat(self, T_in):
         """Heat of a solar collector generator (W) heating water at T_in at its

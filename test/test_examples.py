@@ -175,14 +175,18 @@ def test_the_energy_and_comfort_example_is_09_with_the_indicators(folder, monkey
 
 def test_the_dhw_and_solar_example(folder, monkeypatch):
     pro = _simulate(folder, "11_dhw_and_solar", monkeypatch, n_time_steps=24 * 31)
-    dhw = pro.component("dhw")
-    demand = np.sum(dhw.variable("Q_demand").values)
-    preheat = np.sum(dhw.variable("Q_preheat").values)
-    assert np.sum(dhw.variable("Q_unmet").values) == pytest.approx(0, abs=1e-6)
-    assert 0.4 < preheat / demand < 0.8  # January
-    # the boiler heats only the rest, from the temperature of the solar tank
-    boiler = np.sum(pro.component("boiler_generator").variable("Q").values)
-    stored = np.sum(pro.component("boiler_plant").variable("delta_U").values)
-    assert boiler - stored == pytest.approx(demand - preheat, rel=1e-3)
+    v = lambda c, n: np.asarray(pro.component(c).variable(n).values, dtype=float)
+    demand = v("dhw", "Q_demand").sum()
+    assert v("dhw", "Q_unmet").sum() == pytest.approx(0, abs=1e-6)
+    # one plant: the boiler, in series at the outlet of the tank, heats only what the
+    # tank does not give, from the temperature of the tank
+    boiler = v("boiler_generator", "Q")
+    assert 0.4 < 1 - boiler.sum() / demand < 0.8  # solar fraction in January
+    on = boiler > 0
+    assert np.allclose(v("boiler_generator", "T_wi")[on], v("solar_tank", "temperature")[on])
+    assert np.all(v("dhw_plant", "T_supply")[v("dhw", "Q_demand") > 0] >= 60 - 1e-6)
+    balance = (v("dhw_plant", "Q_generators") + v("dhw_plant", "Q_loads") + v("dhw_plant", "Q_loss")
+               + v("dhw_plant", "Q_pump") - v("dhw_plant", "delta_U"))
+    assert abs(balance.sum()) < 1e-3 * v("dhw_plant", "Q_generators").sum()
     r = pro.component("energy").report()
     assert r.annual.loc["DHW", "SOLAR_THERMAL"] > 0 and r.annual.loc["DHW", "NATURAL_GAS"] > 0

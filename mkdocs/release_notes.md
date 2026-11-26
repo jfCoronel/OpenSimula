@@ -11,6 +11,7 @@ Domestic hot water and solar thermal on the water plants, CTE DB-HE verification
 - **Domestic hot water**: `DHW_demand` (hot water used and its temperature as expressions, mains temperature by month, distribution losses, `preheat_system` for a preheating in series) hanging from water plants and circuits as one more coil; the energy of the generators and pumps is split between HEATING and DHW.
 - **`Water_tank`**: storage tanks (DHW tanks, electric water heaters, buffer tanks) in a plant or in a DHW charging circuit, with losses, a thermostat with dead band and, in a plant, stratification (`number_of_nodes`).
 - **`Solar_collector`**: solar thermal collectors (EN ISO 9806) as generators of a plant with a tank; new carrier SOLAR_THERMAL.
+- **Generators in series** (`connection` "SERIES" of `HVAC_water_generator`): at the outlet of a plant with a tank, they heat the water that leaves to the loads up to the setpoint (an instantaneous boiler after a solar tank: one plant).
 - **Variable water flow** in plants and circuits (`flow_control`, `minimum_flow`), with staged secondary pumps; an instantaneous boiler sees only the water drawn.
 - **`Energy_indicators`** (final and primary energy, CO₂ by carrier and service, RITE factors), **`Comfort_indicators`** (hours outside the setpoints) and **`CTE_compliance`** (CTE DB-HE: HE0 and HE4), with their reports in notebooks and in the app; helpers of the DB-HE in `opensimula.cte` (Anejo D, F and G).
 - Gallery: examples 10 (energy and comfort) and 11 (domestic hot water and solar).

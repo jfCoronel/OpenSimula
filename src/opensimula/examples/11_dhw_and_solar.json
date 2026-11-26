@@ -1,6 +1,6 @@
 {
     "name": "11 Domestic hot water and solar",
-    "description": "The hot water of a dwelling in Sevilla: a solar tank that preheats the water and a condensing combi boiler in series",
+    "description": "The hot water of a dwelling in Sevilla: a solar tank and a condensing combi boiler in series at its outlet, one water plant",
     "time_step": 3600,
     "n_time_steps": 8760,
     "initial_time": "01/01/2001 00:00:00",
@@ -113,7 +113,7 @@
         {
             "type": "HVAC_water_generator",
             "name": "solar_generator",
-            "description": "The collectors with their pump: the plant always takes their heat",
+            "description": "The collectors with their pump, heating the tank: the plant always takes their heat",
             "equipment": "collector",
             "pump": "solar_pump"
         },
@@ -127,10 +127,11 @@
         },
         {
             "type": "HVAC_water_system",
-            "name": "solar_plant",
-            "description": "Solar plant: the collectors heat the tank, which preheats the hot water (no other generator)",
+            "name": "dhw_plant",
+            "description": "The DHW installation: the collectors heat the 150 l tank (in parallel) and the boiler, in series at the outlet, heats the water drawn up to 60 °C when the tank is colder",
             "generators": [
-                "solar_generator"
+                "solar_generator",
+                "boiler_generator"
             ],
             "tank": "solar_tank",
             "heating_water_setpoint": "60",
@@ -149,27 +150,15 @@
         {
             "type": "HVAC_water_generator",
             "name": "boiler_generator",
-            "description": "The boiler, without pump: the mains pressure moves the water",
-            "equipment": "boiler"
-        },
-        {
-            "type": "HVAC_water_system",
-            "name": "boiler_plant",
-            "description": "Instantaneous backup: 5 l of water at 60 °C, variable flow (only the water drawn goes through the boiler)",
-            "generators": [
-                "boiler_generator"
-            ],
-            "total_water_volume": 5,
-            "heating_water_setpoint": "60",
-            "initial_water_temp": 60,
-            "flow_control": "VARIABLE"
+            "description": "The combi boiler, in series at the outlet of the tank and without pump (the mains pressure moves the water): instantaneous, only the water drawn goes through it",
+            "equipment": "boiler",
+            "connection": "SERIES"
         },
         {
             "type": "DHW_demand",
             "name": "dhw",
-            "description": "Dwelling of 3 bedrooms: 112 l/day at 60 °C (DB-HE Anejo F), preheated in the solar tank and finished by the boiler; mains water of Sevilla (Anejo G)",
-            "water_system": "boiler_plant",
-            "preheat_system": "solar_plant",
+            "description": "Dwelling of 3 bedrooms: 112 l/day at 60 °C (DB-HE Anejo F), from the plant; mains water of Sevilla (Anejo G)",
+            "water_system": "dhw_plant",
             "input_variables": [
                 "f = dhw_profile.values"
             ],
