@@ -76,7 +76,10 @@ datas.set_parameters(param)
 #### Variables
 The component will generate a variable for each of the columns of the data file, 
 using as name and unit for the variable the first row of the file. 
-The unit must be written after the name in square brackets.
+The unit must be written after the name in square brackets. The characters that cannot be in the name of a
+variable (dots, spaces, hyphens...) become "_": the columns of the CSV of the results viewer, such as
+`office.system_sensible_heat [W]`, give the variable `office_system_sensible_heat` (unit W), which can be
+used in `input_variables`. Two columns that give the same name are an error.
 
 For example for the following CSV file:
 

@@ -2,6 +2,7 @@ import pandas as pd
 import datetime as dt
 import numpy as np
 import math
+import re
 from opensimula.Message import Message
 from opensimula.Parameters import Parameter_string, Parameter_options, Parameter_int
 from opensimula.Component import Component
@@ -42,10 +43,16 @@ class File_data(Component):
             elif self.parameter("file_type").value == "EXCEL":
                 self._df_ = pd.read_excel(self.parameter("file_name").value)
             # Create Variable
+            names = {}
             for col in self._df_.columns:
                 if self._is_numeric_(col):
-                    self.add_variable(Variable(self._extract_name_(
-                        col), unit=self._extract_unit_(col)))
+                    name = self._extract_name_(col)
+                    if name in names:
+                        msg = (f"Error in component: {self.parameter('name').value}, columns "
+                               f"{names[name]!r} and {col!r} give the same variable {name!r}")
+                        errors.append(Message(msg, "ERROR"))
+                    names[name] = col
+                    self.add_variable(Variable(name, unit=self._extract_unit_(col)))
 
         except Exception as ex:
             if type(ex).__name__ == "FileNotFoundError":
@@ -116,10 +123,13 @@ class File_data(Component):
                 k = k + 1
 
     def _extract_name_(self, name):
-        if name.rfind("[") == -1:
-            return name
-        else:
-            return name[0: name.rfind("[")].strip()
+        """Name of the variable of a column "name [unit]": the characters that cannot be
+        in the name of a variable (dots, spaces...) become "_", so that the columns of
+        the CSV of the results viewer ("office.system_sensible_heat [W]") can be used in
+        input_variables ("load_record.office_system_sensible_heat")."""
+        if name.rfind("[") != -1:
+            name = name[0: name.rfind("[")]
+        return re.sub(r"[^0-9A-Za-z_]+", "_", name.strip()).strip("_")
 
     def _extract_unit_(self, name):
         if name.rfind("[") == -1:

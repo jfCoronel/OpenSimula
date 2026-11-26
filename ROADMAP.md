@@ -849,7 +849,9 @@ takes the place of a `Space` in `HVAC_DX_system`, `HVAC_SZW_system`, `HVAC_MZW_s
 - **Follow-up**: the results viewer exports CSV columns as `office.system_sensible_heat
   [W]`; `File_data` reads them, but a name with a dot cannot be used in
   `input_variables`. The docs say to rename the columns; better: `File_data` could replace
-  the dots, or the viewer export short names.
+  the dots, or the viewer export short names. **Done 2026-11-26**: `File_data` turns the characters that
+  cannot be in a variable name into "_" (`office.system_sensible_heat [W]` →
+  `office_system_sensible_heat`); two columns with the same resulting name: error.
 
 ## Planned: `Energy_indicators`, and `CTE_compliance` on top of it (design closed 2026-11-23)
 

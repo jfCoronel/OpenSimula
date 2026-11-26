@@ -122,7 +122,7 @@ When the system does not supply the load, at night, at weekends, or when the DX 
 
 ![Office temperature with the DX system, with the building and with the load record, 8-12 October](img/examples/08_load_records.png)
 
-*Try:* change `construction` to `MEDIUM` or `HEAVY` and look at how the temperature swings while the office is closed; or make your own record: in example 05, set the ideal system to 24 °C and 50 % all day, simulate, pick `office.system_sensible_heat` and `office.system_latent_heat` in the results viewer and download them with **CSV**. Rename their columns to `Q_sensible [W]` and `Q_latent [W]` (a variable name cannot have the dot of `office.`) and give the file to `load_record`.
+*Try:* change `construction` to `MEDIUM` or `HEAVY` and look at how the temperature swings while the office is closed; or make your own record: in example 05, set the ideal system to 24 °C and 50 % all day, simulate, pick `office.system_sensible_heat` and `office.system_latent_heat` in the results viewer and download them with **CSV**. Give the file to `load_record`: its columns become the variables `office_system_sensible_heat` and `office_system_latent_heat` (the dots of the names become `_`), to use in the `input_variables` of `office` (or rename the columns to `Q_sensible [W]` and `Q_latent [W]`).
 
 ### 09 Water plant
 

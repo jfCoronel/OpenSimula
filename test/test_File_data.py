@@ -129,3 +129,38 @@ def test_warning_annual_file_read_by_simulation_steps(tmp_path):
     assert any("ANNUAL" in m.text for m in p.check() if m.level == "WARNING")
     sim, p = annual(tmp_path, "01/01/2001 00:00:00", 48, file_step="SIMULATION")
     assert not any("ANNUAL" in m.text for m in p.check() if m.level == "WARNING")
+
+
+def test_names_of_the_csv_of_the_results_viewer(tmp_path):
+    """The columns "component.variable [unit]" of the CSV of the viewer: the dots become
+    "_", so that the variables can be used in input_variables."""
+    import pandas as pd
+    path = tmp_path / "viewer.csv"
+    pd.DataFrame({"date": ["01/01/2001 00:30:00", "01/01/2001 01:30:00"],
+                  "office.system_sensible_heat [W]": [100.0, 200.0],
+                  "outdoor temperature [°C]": [5.0, 6.0]}).to_csv(path, index=False)
+    sim = osim.Simulation()
+    sim.console_print = False
+    p = sim.new_project("p")
+    p.read_dict({"name": "p", "n_time_steps": 2, "components": [
+        {"type": "File_data", "name": "record", "file_name": str(path)},
+        {"type": "Calculator", "name": "calc", "input_variables": ["Q = record.office_system_sensible_heat"],
+         "output_variables": ["double"], "output_units": ["W"], "output_expressions": ["2 * Q"]}]})
+    assert [m.text for m in p.check() if m.level == "ERROR"] == []
+    p.simulate()
+    record = p.component("record")
+    assert record.variable("office_system_sensible_heat").unit == "W"
+    assert list(record.variable("outdoor_temperature").values) == [5.0, 6.0]
+    assert list(p.component("calc").variable("double").values) == [200.0, 400.0]
+
+
+def test_two_columns_with_the_same_name(tmp_path):
+    import pandas as pd
+    path = tmp_path / "twice.csv"
+    pd.DataFrame({"a.b [W]": [1.0], "a b [W]": [2.0]}).to_csv(path, index=False)
+    sim = osim.Simulation()
+    sim.console_print = False
+    p = sim.new_project("p")
+    p.read_dict({"name": "p", "n_time_steps": 1, "components": [
+        {"type": "File_data", "name": "record", "file_name": str(path)}]})
+    assert any("same variable" in m.text for m in p.check() if m.level == "ERROR")
