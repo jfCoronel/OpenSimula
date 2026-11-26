@@ -83,7 +83,7 @@ Component used to define each of the building's spaces. The spaces of a building
 #### Parameters
 
 - **building** [_component_, default = "not_defined", component type = Building]: Reference to the "Building" component of which it is a part.
-- **space_type** [_component_, default = "not_defined", component type = Space_type]: Reference to the "Space_type" component that defines its occupational and functional characteristics.
+- **spaces_type** [_component_, default = "not_defined", component type = Space_type]: Reference to the "Space_type" component that defines its occupational and functional characteristics.
 - **floor_area** [_float_, unit = "m²", default = 1, min = 0]: Floor area of the space.
 - **volume** [_float_, unit = "m³", default = 1, min = 0]: Volume of the space.
 - **furniture_weight** [_float_, unit = "kg/m²", default = 10, min = 0]: Weight of the furniture in the space. Used to increase the thermal inertia of the space which will be added to that of the air (for the furniture a specific heat of 1000 J/kg·K will be used).
@@ -122,12 +122,13 @@ After the simulation we will have the following variables of this component:
 - __solar_direct_gains__ [W]: Direct solar radiation gains.
 - __infiltration_flow__ [m³/s]: Air flow rate infiltrated into the space from outside.
 - __infiltration_sensible_heat__ [W]: Sensible heat due to air infiltration from outdoor.
+- __infiltration_latent_heat__ [W]: Latent heat due to air infiltration from outdoor.
 - __surfaces_convective__ [W]: Convective heat flux exchanged between interior surfaces and space air.
 - __delta_int_energy__ [W]: Increase of internal energy of the space (air and furniture).
 - __u_system_sensible_heat__ [W]: Sensible heat introduced by uncontrolled systems in space. Spaces can collect airflows from various types of systems, those that are not capable of controlling the room temperature are called ‘uncontrolled systems’. For example, a flow of outside air, a flow from a dedicated outdoor air system, etc.
-- __u_system_sensible_latent__ [W]: Latent heat introduced by uncontrolled systems in space.
+- __u_system_latent_heat__ [W]: Latent heat introduced by uncontrolled systems in space.
 - __system_sensible_heat__ [W]: Sensible heat introduced by the system responsible for space control. Positive for heating and negative for cooling.
-- __system_sensible_latent__ [W]: Latent heat introduced by control system in space. Positive for humidification and negative for dehumidification.
+- __system_latent_heat__ [W]: Latent heat introduced by control system in space. Positive for humidification and negative for dehumidification.
 
 
 ### Load_space
@@ -226,7 +227,7 @@ Component to define the Building surfaces of the building: vertical or inclined 
 - **altitude** [_float_, unit = "°", default = 0, min = -90, max = 90]: Angle formed between the z-axis of the building and the y-axis of the surface.
 - **surface_type** [_option_, default = "EXTERIOR", options = ["EXTERIOR", "INTERIOR", "UNDERGROUND", "VIRTUAL"]]: Surface type: “EXTERIOR” for exterior walls, roofs, and ceilings; “INTERIOR” for interior walls or floors; ‘UNDERGROUND’ for buried walls or floors in contact with the ground; and “VIRTUAL” used to define gaps between two spaces. Spaces in opensimula must be completely enclosed by surfaces for the radiant exchange calculation to work correctly.
 - **construction** [_component_, default = "not_defined", component type = Construction]: Reference to the "Construction" component that defines its composition, not used for "VIRTUAL" surface_type.
-- **spaces** [_component-list_, default = ["not_defined","not_defined], component type = Space]: Reference to the "Space" components for the side 0 and the side 1 in "INTERIOR" and "VIRTUAL" surface_type. For "EXTERIOR" and "UNDERGROUND" only de first element fo de list is used.
+- **spaces** [_component-list_, default = ["not_defined","not_defined"], component type = Space]: Reference to the "Space" components for the side 0 and the side 1 in "INTERIOR" and "VIRTUAL" surface_type. For "EXTERIOR" and "UNDERGROUND" only de first element fo de list is used.
 - **h_cv** [_float-list_, unit = "W/m²K", default = [19.3,2], min = 0]: Convective film coefficients of the exterior and interior surfaces or side 0 and 1, respectively. For "VIRTUAL" surface_type these values are not used, and for "UNDERGROUND" the first value is the exterior ground surface coefficient and the second is the interior coefficient.
 - **ground_material** [_component_, default = "not_defined", component type = Material]: Reference to the "Material" component that defines the ground thermal properties, used only for "UNDERGROUND" surface_type. A exterior layer of this material (0.5 m) will be added to the construction.
 - **exterior_perimeter_fraction** [_float_, unit = "frac", default = 1, min = 0, max = 1]: Part of the outer perimeter of the enclosure that is in contact with the ground outside the building. Used only for "UNDERGROUND" surface_type.
@@ -274,6 +275,7 @@ After the simulation we will have the following variables of this component, all
 - __T_rm__ [°C]: Exterior radiant mean temperature.
 - __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
 - __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
+- __E_dir_sunny, E_dif_sunny__ [W/m²]: Direct and diffuse solar radiation that would be incident on the exterior surface without shadows.
 
 These variables will be 0 for “VIRTUAL” surface_type, and some of the variables only make sense for exterior surfaces, such as _E_dir_, _E_dif_, or _T_rm_.        
 ### Opening
@@ -319,6 +321,8 @@ After the simulation we will have the following variables of this component, all
 - __T_s0, T_s1__ [°C]: Surface temperatures
 - __q_cd__ [W/m²]: Conductive heat flux.
 - __q_sol_dir_trans__ [W/m²]: Direct solar radiation passing through into space.
+- __E_dir_tra, E_dif_tra__ [W/m²]: Direct and diffuse solar radiation transmitted through the opening.
+- __theta_sun__ [°]: Angle of incidence of the sun on the opening.
 - __q_cv0, q_cv1__ [W/m²]: Convective heat flux at the surfaces.
 - __q_sol0, q_sol1__ [W/m²]: Solar heat flux at the surfaces.
 - __q_sol01, q_sol10__ [W/m²]: Solar heat flux appearing on surface "i" due to the absorption of solar radiation on surface "j". 
@@ -328,6 +332,7 @@ After the simulation we will have the following variables of this component, all
 - __T_rm__ [°C]: Exterior radiant mean temperature.
 - __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
 - __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
+- __E_dir_sunny, E_dif_sunny__ [W/m²]: Direct and diffuse solar radiation that would be incident on the exterior surface without shadows.
 
 ### Solar_surface
 
@@ -373,4 +378,5 @@ After the simulation we will have the following variables of this component:
 
 - __E_dir__ [W/m²]: Direct solar radiation incident on the surface.
 - __E_dif__ [W/m²]: Diffuse solar radiation incident on the surface.
+- __E_dir_sunny, E_dif_sunny__ [W/m²]: Direct and diffuse solar radiation that would be incident on the surface without shadows.
 

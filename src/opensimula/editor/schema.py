@@ -14,6 +14,8 @@ prefix:
 - ``x-ref``: parameter holding the *name* of another component, with the list
   of component types it accepts.
 - ``x-format``: syntax of a string parameter (``variable-ref``, ``math-exp``).
+- ``x-doc``: link to the parameter (or the component) in the documentation; the
+  standard ``description`` keyword has its description (both from ``opensimula.help``).
 """
 
 import inspect
@@ -21,6 +23,7 @@ import math
 import sys
 
 from opensimula import components as _components
+from opensimula import help as _help
 from opensimula.Component import Component
 from opensimula.Simulation import Simulation
 
@@ -167,6 +170,11 @@ def _container_properties(container):
 
 def _component_schema(comp, type_name):
     properties = _container_properties(comp)
+    for key, prop in properties.items():
+        text, url = _help.parameter_help(type_name, key)
+        if text:
+            prop["description"] = text
+            prop["x-doc"] = url
     # The discriminator. It is pinned to the class name, which is what
     # Project._load_from_dict_ looks up, not to the component's own "type"
     # parameter value; test_editor_schema checks that the two agree.
@@ -174,6 +182,7 @@ def _component_schema(comp, type_name):
     return {
         "title": type_name,
         "description": comp.parameter("description").value,
+        **({"x-doc": _help.component_help(type_name)} if _help.component_help(type_name) else {}),
         "type": "object",
         "properties": properties,
         "required": ["type"],

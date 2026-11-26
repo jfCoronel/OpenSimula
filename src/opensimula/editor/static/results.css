@@ -80,6 +80,29 @@
     margin-left: auto;
 }
 
+/* "?" of a variable: shown on hover, opens the documentation at the variable */
+.osm-results .osm-r-variable .osm-r-help {
+    flex: none;
+    width: 1.05em;
+    height: 1.05em;
+    line-height: 1.05em;
+    border-radius: 50%;
+    font-size: 0.72em;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-muted);
+    border: 1px solid var(--text-muted);
+    visibility: hidden;
+}
+.osm-results .osm-r-variable:hover .osm-r-help {
+    visibility: visible;
+}
+.osm-results .osm-r-variable .osm-r-help:hover {
+    color: #0969da;
+    border-color: #0969da;
+}
+
 .osm-results .osm-r-group:hover,
 .osm-results .osm-r-component:hover,
 .osm-results .osm-r-variable:hover {

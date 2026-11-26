@@ -22,6 +22,7 @@ import anywidget
 import numpy as np
 import pandas as pd
 import traitlets
+from opensimula import help as osm_help
 
 _STATIC = pathlib.Path(__file__).parent / "static"
 
@@ -119,11 +120,15 @@ class ResultsViewer(anywidget.AnyWidget):
         n = self._project_.parameter("n_time_steps").value
         catalog = []
         for component in self._project_.component_list():
-            variables = [
-                {"name": key, "unit": var.unit}
-                for key, var in component.variable_dict().items()
-                if var.values is not None and len(var.values) == n
-            ]
+            type_name = component.parameter("type").value
+            variables = []
+            for key, var in component.variable_dict().items():
+                if var.values is None or len(var.values) != n:
+                    continue
+                # help of the variable: its description and link in the documentation
+                text, url = osm_help.variable_help(type_name, key)
+                variables.append({"name": key, "unit": var.unit,
+                                  "help": text or var.description or "", "doc": url or ""})
             if variables:
                 catalog.append({
                     "name": component.parameter("name").value,

@@ -10,6 +10,7 @@ theme:
 extra_css:
     - css/mkdocstrings.css
     - css/navbar.css
+    - css/help.css
 
 nav:
     - Home: index.md
@@ -30,6 +31,9 @@ nav:
             - Parameters: api/parameters.md
             - Variable and Message: api/variable.md
             - Iterative_process: api/iterative_process.md
+
+hooks:
+    - mkdocs_hooks.py
 
 plugins:
     - search

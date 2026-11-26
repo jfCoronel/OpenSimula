@@ -1,0 +1,7 @@
+/* The parameter or variable a help link of the app points to (anchors added by
+   mkdocs_hooks.py): highlighted while it is the target of the address. */
+li:has(> a.osm-anchor:target) {
+    background-color: #fff4cc;
+    outline: 4px solid #fff4cc;
+    border-radius: 2px;
+}

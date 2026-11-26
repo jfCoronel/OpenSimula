@@ -118,6 +118,35 @@
     word-break: break-word;
 }
 
+/* "?" after a label (and the title of a component): its description as a tooltip,
+   a click opens the documentation at the parameter. */
+.osm-help {
+    display: inline-block;
+    margin-left: 0.3rem;
+    width: 1.05em;
+    height: 1.05em;
+    line-height: 1.05em;
+    border-radius: 50%;
+    font-size: 0.72em;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: 0.1em;
+    color: #57606a;
+    border: 1px solid #c8cdd3;
+    opacity: 0.55;
+}
+.osm-help:hover,
+.osm-help:focus {
+    opacity: 1;
+    color: #0969da;
+    border-color: #0969da;
+    text-decoration: none;
+}
+.osm-label[title] {
+    cursor: help;
+}
+
 /* Too narrow for two columns: the label goes above its field, so the field,
    the unit and the reset button get the full width instead of being squeezed
    out by a long parameter name. */

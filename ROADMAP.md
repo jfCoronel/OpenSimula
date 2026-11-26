@@ -1294,6 +1294,20 @@ must see only the water drawn, at the mains temperature (condensing boilers).
 
 ## Future: help links in the GUI (added 2026-11-24)
 
+**Done 2026-11-26 (option (a), branch `feat/gui-help-links`, for 0.11)**: the component
+pages stay the source; `opensimula/help.py` reads them (`parse_item`, `parse_page`) and
+writes `help.json` (shipped; `python -m opensimula.help mkdocs`); `mkdocs_hooks.py`
+adds the anchors `<type>-<param>` / `<type>-var-<variable>` / `common-<param>` and
+`css/help.css` highlights the target. Editor: `description` and `x-doc` in the schema
+of each parameter (and of the component), tooltip on the label and "?" link. Viewer:
+`help` and `doc` per variable in the catalog, tooltip on the row and "?" on hover.
+Docs fixed on the way (typos in names: `sytem_on_off`, `days-schedules`, `space_type`,
+`system_sensible_latent`; unbalanced defaults; undocumented `power_to_heat_fraction`,
+`E_dir_sunny`, `E_dif_sunny`, `E_dir_tra`, `E_dif_tra`, `theta_sun`,
+`infiltration_latent_heat`). Left: `Opening` variables `E_ref`, `E_ref_tra`, `debug_f`
+are never computed (always 0): remove them. Later, option (b) (descriptions in the
+code) if the two places drift.
+
 Idea of the user: in the editor, each parameter field with a help link to the description
 of that parameter in the documentation; the same for the variables of the results viewer,
 which are only seen in its tree.

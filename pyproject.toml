@@ -54,6 +54,8 @@ where = ["src"]
 "opensimula.editor" = ["static/*.js", "static/*.css"]
 # the examples copied by `opensimula examples`
 "opensimula.examples" = ["*.json", "*.met", "*.csv"]
+# the help of the parameters and variables for the app (python -m opensimula.help)
+"opensimula" = ["help.json"]
 
 [build-system]
 requires = ["setuptools>=61.2", "wheel"]

@@ -53,6 +53,12 @@ uv run mkdocs build --clean
 # docstrings of src/opensimula; keep docstrings in that format (Args:/Returns: with types)
 # GitHub Actions (.github/workflows/docs.yml) publishes the site to GitHub Pages
 # (opensimula.jfcoronel.org) whenever mkdocs/ changes on main
+
+# Help of the app (tooltips and "?" links of the editor and results viewer): read from
+# the parameter / variable list items of mkdocs/component_list_*.md; after changing them
+uv run python -m opensimula.help mkdocs   # rewrites src/opensimula/help.json
+# mkdocs_hooks.py adds the anchors (<type>-<param>, <type>-var-<variable>);
+# test/test_help.py checks help.json is up to date and everything is documented
 ```
 
 ## Architecture Overview
