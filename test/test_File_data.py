@@ -86,3 +86,46 @@ def test_File_data_SIMULATION_every_column_starts_at_the_first_row():
     for column, name in zip(data.columns, ("n", "temperature", "humidity")):
         values = p1.component("datas").variable(name).values
         assert list(values) == list(data[column].iloc[rows])
+
+
+# _________________ file_step ANNUAL: rows of a year from 1 January _________________
+
+def annual(tmp_path, start, n_time_steps, time_step=3600, file_step="ANNUAL"):
+    """A file of 8760 hourly rows whose value is the number of the row."""
+    import pandas as pd
+    path = tmp_path / "year.csv"
+    pd.DataFrame({"row [-]": range(8760)}).to_csv(path, index=False)
+    sim = osim.Simulation()
+    sim.console_print = False
+    p = sim.new_project("p")
+    p.read_dict({"name": "p", "time_step": time_step, "n_time_steps": n_time_steps,
+                 "initial_time": start, "components": [
+                     {"type": "File_data", "name": "year", "file_name": str(path),
+                      "file_step": file_step}]})
+    return sim, p
+
+
+def test_annual_reads_the_row_of_the_date(tmp_path):
+    sim, p = annual(tmp_path, "01/07/2001 00:00:00", 48)
+    p.simulate()
+    rows = p.component("year").variable("row").values
+    assert rows[0] == 181 * 24 and rows[47] == 181 * 24 + 47  # 1 July is day 182
+
+
+def test_annual_again_every_year(tmp_path):
+    sim, p = annual(tmp_path, "31/12/2001 22:00:00", 4)
+    p.simulate()
+    assert list(p.component("year").variable("row").values) == [8758, 8759, 0, 1]
+
+
+def test_annual_with_shorter_time_steps(tmp_path):
+    sim, p = annual(tmp_path, "01/01/2001 00:00:00", 8, time_step=900)
+    p.simulate()
+    assert list(p.component("year").variable("row").values) == [0, 0, 0, 0, 1, 1, 1, 1]
+
+
+def test_warning_annual_file_read_by_simulation_steps(tmp_path):
+    sim, p = annual(tmp_path, "01/07/2001 00:00:00", 48, file_step="SIMULATION")
+    assert any("ANNUAL" in m.text for m in p.check() if m.level == "WARNING")
+    sim, p = annual(tmp_path, "01/01/2001 00:00:00", 48, file_step="SIMULATION")
+    assert not any("ANNUAL" in m.text for m in p.check() if m.level == "WARNING")

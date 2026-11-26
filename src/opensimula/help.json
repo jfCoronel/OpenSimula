@@ -1118,7 +1118,7 @@
     "file_step": {
      "anchor": "file_data-file_step",
      "page": "component_list_files/",
-     "text": "Time step of the data file. The \"SIMULATION\" option assumes that each of the rows in the data file correspond to the time steps of the project simulation. The \"OWN\" option will be used when the time step of the data stored in the data file is different from the one used in the simulation. The parameters \"initial_time\" and \"time_step\" define the time step of the data in the file.",
+     "text": "Time step of the data file. \"SIMULATION\": each row of the file is a time step of the simulation, the first row the first time step, whatever its date. \"ANNUAL\": the rows are the time steps of a year (of time_step seconds) from 1 January at 00:00; each time step of the simulation reads the row of its date, so a file of a year (e.g. 8760 hourly rows) works whatever the start of the simulation, and again every year of a longer one. \"OWN\": the rows start at initial_time and follow every time_step, and the values are interpolated to the instants of the simulation.",
      "unit": ""
     },
     "file_type": {
@@ -1136,7 +1136,7 @@
     "time_step": {
      "anchor": "file_data-time_step",
      "page": "component_list_files/",
-     "text": "Time step in seconds for the data file. Only used for the \"OWN\" option of the \"file_step\" parameter.",
+     "text": "Time step in seconds of the rows of the data file. Only used for the \"ANNUAL\" and \"OWN\" options of the \"file_step\" parameter.",
      "unit": "s"
     }
    },

@@ -16,8 +16,11 @@ class File_data(Component):
         self.add_parameter(Parameter_string("file_name", "data.csv"))
         self.add_parameter(Parameter_options(
             "file_type", "CSV", ["CSV", "EXCEL"]))
+        # SIMULATION: row i is time step i of the simulation; ANNUAL: the rows are the
+        # time steps of a year from 1 January 00:00, read by the date of each step;
+        # OWN: rows from initial_time every time_step, interpolated
         self.add_parameter(Parameter_options(
-            "file_step", "SIMULATION", ["SIMULATION", "OWN"]))
+            "file_step", "SIMULATION", ["SIMULATION", "ANNUAL", "OWN"]))
         self.add_parameter(Parameter_string(
             "initial_time", "01/01/2001 00:00:00"))
         self.add_parameter(Parameter_int("time_step", 3600, "s", min=1))
@@ -51,7 +54,27 @@ class File_data(Component):
             else:
                 msg = f"Error in component: {self.parameter('name').value}, error reading file: {self.parameter('file_name').value}"
                 errors.append(Message(msg, "ERROR"))                
+        if not errors and self.parameter("file_step").value == "SIMULATION":
+            errors += self._check_annual_file()
         return errors
+
+    def _check_annual_file(self):
+        """Warning: a file of one year of rows read with SIMULATION by a simulation that
+        does not start on 1 January (its rows would not match the dates)."""
+        project = self.project()
+        step = project.parameter("time_step").value
+        try:
+            start = dt.datetime.strptime(project.parameter("initial_time").value, "%d/%m/%Y %H:%M:%S")
+        except ValueError:
+            return []
+        year = {365 * 86400 // step, 366 * 86400 // step}
+        if len(self._df_) in year and (start.month, start.day, start.hour, start.minute) != (1, 1, 0, 0):
+            msg = (f"Warning: {self.parameter('name').value}, the file has a year of rows but the "
+                   f"simulation starts on {start:%d/%m}: with file_step \"SIMULATION\" its first "
+                   "row is read for the first time step. Use \"ANNUAL\" if the rows start on "
+                   "1 January.")
+            return [Message(msg, "WARNING")]
+        return []
 
     def pre_simulation(self, n_time_steps, delta_t):
         super().pre_simulation(n_time_steps, delta_t)
@@ -78,7 +101,13 @@ class File_data(Component):
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
-        if self.parameter("file_step").value == "OWN":
+        if self.parameter("file_step").value == "ANNUAL":
+            # the row of the date: time steps of the file from 1 January 00:00 of its year
+            seconds = (date - dt.datetime(date.year, 1, 1)).total_seconds()
+            row = int(seconds // self.parameter("time_step").value) % len(self._df_)
+            for k, var in enumerate(self._variables_.values()):
+                var.values[time_index] = self.data_array[row][k]
+        elif self.parameter("file_step").value == "OWN":
             i, j, f = self._get_interpolation_tuple_(date)
             k = 0
             for key, var in self._variables_.items():
