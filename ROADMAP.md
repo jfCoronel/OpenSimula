@@ -23,6 +23,17 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   one combined paper update for 0.9 + 0.10 when an editor is assigned or with the ping at
   the end of November.
 
+## Where things stand (2026-11-26): 0.11.0 prepared
+
+- **v0.11.0 prepared (2026-11-26)**, branch `release/0.11.0`: version in pyproject/uv.lock,
+  CITATION (version and date; the version DOI after Zenodo), release notes 0.11.0 with
+  "Upgrading from 0.10" (`Q_coils` → `Q_loads`), index. Since 0.10: indicators and CTE
+  HE0/HE4, DHW (demand, tanks mixed/stratified in plants and circuits, solar, generators
+  in series, DHW priority), variable flow, help links in the app (`help.json`,
+  `mkdocs_hooks.py`), `File_data` ANNUAL and names, gallery 10-11, fixes (latent heat of
+  cooling coils, balance of non-converged steps). PRs #66-#88. Left: PyPI (the user),
+  GitHub release `v0.11.0` and Zenodo version DOI into CITATION, JOSS ping.
+
 ## Where things stand (2026-11-24, end of the day)
 
 - Merged on `main` (not released; next version, see the release notes): `Energy_indicators`,

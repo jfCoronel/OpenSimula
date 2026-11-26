@@ -48,6 +48,6 @@ information generated during the simulation.
 
 ## Release notes
 
-__Current Version 0.10.0__ (November 19, 2026): water plants with several generators (heat pumps, chillers and boilers), a header between the primary and the secondary, and secondary circuits; zones defined by load records. It breaks the compatibility of the water systems with 0.9.
+__Current Version 0.11.0__ (November 26, 2026): domestic hot water and solar thermal on the water plants (demands, storage tanks, solar collectors, generators in series, DHW priority), variable water flow, energy and comfort indicators, verification of the Spanish CTE DB-HE (HE0 and HE4), and help in the app for every parameter and variable. One variable of the water plants has a new name (`Q_coils` is `Q_loads`).
 
-The changes of every version, and how to upgrade from 0.9, are in the [Release notes](release_notes.md).
+The changes of every version, and how to upgrade from earlier ones, are in the [Release notes](release_notes.md).
