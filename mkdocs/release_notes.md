@@ -9,7 +9,7 @@ Domestic hot water and solar thermal on the water plants, CTE DB-HE verification
 #### New
 
 - **Domestic hot water**: `DHW_demand` (hot water used and its temperature as expressions, mains temperature by month, distribution losses, `preheat_system` for a preheating in series) hanging from water plants and circuits as one more coil; the energy of the generators and pumps is split between HEATING and DHW.
-- **`Water_tank`**: storage tanks (DHW tanks, electric water heaters, buffer tanks) in a plant or in a DHW charging circuit, with losses, a thermostat with dead band and, in a plant, stratification (`number_of_nodes`).
+- **`Water_tank`**: storage tanks (DHW tanks, electric water heaters, buffer tanks) in a plant or in a DHW charging circuit, with losses, a thermostat with dead band and stratification (`number_of_nodes`).
 - **`Solar_collector`**: solar thermal collectors (EN ISO 9806) as generators of a plant with a tank; new carrier SOLAR_THERMAL.
 - **DHW priority** of a water plant (`dhw_priority`): the DHW loads take the heat of the generators first, and the heating gets the rest.
 - **Generators in series** (`connection` "SERIES" of `HVAC_water_generator`): at the outlet of a plant with a tank, they heat the water that leaves to the loads up to the setpoint (an instantaneous boiler after a solar tank: one plant).

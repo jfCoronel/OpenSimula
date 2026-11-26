@@ -31,7 +31,8 @@ class HVAC_water_circuit(Component):
     With a ``tank`` (Water_tank) it is a charging circuit: its coils (e.g. DHW
     demands) take the water of the tank, and its pumps charge the tank with water of
     the plant while the tank is below ``tank_setpoint`` and the plant can heat and is
-    hotter; they run the fraction of the time step the charge needs.
+    hotter; they run the fraction of the time step the charge needs. A stratified tank
+    is charged on the node of its coil (``backup_position``), where the thermostat is.
     """
 
     def __init__(self, name, project):
@@ -121,11 +122,18 @@ class HVAC_water_circuit(Component):
             self.T_tank_pre = (self.tank_sp if time_index == 0
                                else self.variable("T_supply").values[time_index - 1])
             self.T_tank = self.T_tank_pre
+            T_thermostat = self.T_tank_pre
+            if self.tank.n_nodes > 1:  # stratified: the nodes, the thermostat on its node
+                if time_index == 0 or self.tank.nodes is None:
+                    self.tank.nodes = np.full(self.tank.n_nodes, self.tank_sp)
+                self.nodes_pre = np.array(self.tank.nodes)
+                self.nodes = self.nodes_pre
+                T_thermostat = self.nodes_pre[self.tank.backup_node]
             # charging in the previous time step without reaching the setpoint: the
             # thermostat goes on up to it
             self.charging_pre = (time_index > 0
                                  and self.variable("plant_flow").values[time_index - 1] > 0
-                                 and self.T_tank_pre < self.tank_sp - 1e-6)
+                                 and T_thermostat < self.tank_sp - 1e-6)
         self.Q_coils = self.coils_flow = 0
         self.Q_coils_used = self.coils_flow_used = 0
         self.Q_dhw = self.Q_dhw_used = 0
@@ -267,6 +275,8 @@ class HVAC_water_circuit(Component):
         """Charging circuit: the tank, fully mixed, takes the load of its coils, its
         losses and the charge from the plant (water of the plant in, water of the tank
         back), and the heat of its pumps while they run."""
+        if self.tank.n_nodes > 1:
+            return self._iteration_stratified_tank()
         T_pre = self.T_tank_pre
         rho_cp = self.props["RHOCP_W"](T_pre) / 1000  # W/(dm³·K)
         C = rho_cp * self.tank.get_volume() / self.delta_t
@@ -277,16 +287,26 @@ class HVAC_water_circuit(Component):
                        if self._on_off else self.Q_tank_loss)
         Q_free = (self.Q_coils if self._on_off else 0) + self.Q_loss
         T_free = T_pre + Q_free / C
-        # DHW priority of the plant: water at its setpoint for a DHW tank
+        start = self.charging_pre or T_free < self.tank_sp - self.tank.get_dead_band()
+        Q_need = C * (self.tank_sp - T_free) if start and T_free < self.tank_sp else 0.0
+        Q_charge = self._charging(T_free, Q_need, rho_cp)
+        self.T_tank = T_free + (Q_charge + self.Q_pump) / C
+        self.T_supply = self.T_tank
+        self.T_return = self.T_tank  # charging water back to the plant
+        self.delta_U = C * (self.T_tank - T_pre)
+        return self._charge_to_plant(Q_charge)
+
+    def _charging(self, T_charged, Q_need, rho_cp):
+        """Charge of the tank from the plant (W) for the heat Q_need of the thermostat,
+        with the water of the plant (DHW priority: at its setpoint) against the water at
+        T_charged; sets T_plant, the fraction of the step the pumps run and their heat."""
         priority = getattr(self.plant, "dhw_priority", False) and self.is_dhw_only()
         T_plant = self.plant.dhw_supply_T() if priority else self.plant.get_heating_coil_inlet_T()
         self.T_plant = T_plant
         fraction = Q_charge = Q_pump_full = 0
-        start = self.charging_pre or T_free < self.tank_sp - self.tank.get_dead_band()
-        if (start and self.on_off and self.plant.can_heat() and T_free < self.tank_sp
-                and T_plant > T_free and self.design_flow > 0):
-            Q_need = C * (self.tank_sp - T_free)
-            Q_max = rho_cp * self.design_flow * (T_plant - T_free)  # pumps the whole step
+        if (Q_need > 0 and self.on_off and self.plant.can_heat() and T_plant > T_charged
+                and self.design_flow > 0):
+            Q_max = rho_cp * self.design_flow * (T_plant - T_charged)  # pumps the whole step
             Q_pump_full = sum(p.get_heat_gain(p.parameter("nominal_water_flow").value)
                               for p in self.pumps)
             fraction = min(Q_need / (Q_max + Q_pump_full), 1)
@@ -297,10 +317,39 @@ class HVAC_water_circuit(Component):
         self.pump_fraction = fraction
         self.water_flow = self.plant_flow = fraction * self.design_flow  # mean of the step
         self.Q_pump = fraction * Q_pump_full
-        self.T_tank = T_free + (Q_charge + self.Q_pump) / C
-        self.T_supply = self.T_tank
-        self.T_return = self.T_tank  # charging water back to the plant
-        self.delta_U = C * (self.T_tank - T_pre)
+        return Q_charge
+
+    def _iteration_stratified_tank(self):
+        """Charging circuit with a stratified tank: the water drawn leaves at the top and
+        mains water enters at the bottom, the nodes lose heat, and the water of the plant
+        charges the node of the coil (backup_position, where the thermostat is) up to
+        the setpoint; heated water rises."""
+        tank, dt = self.tank, self.delta_t
+        T0 = self.nodes_pre
+        rho_cp = self.props["RHOCP_W"](float(np.mean(T0))) / 1000
+        on = self._on_off
+        T, T_out, _, lost = tank.draw_and_losses(T0, self.coils_flow if on else 0,
+                                                 self.Q_coils if on else 0, rho_cp, dt)
+        self.Q_tank_loss = -lost
+        self.var_dic["T_w"] = float(np.mean(T0))
+        self.var_dic["m_w"] = self.design_flow
+        Q_loss = self.parameter("Q_loss").evaluate(self.var_dic) if on else 0
+        T = T + Q_loss * dt / (rho_cp * tank.get_volume())
+        self.Q_loss = Q_loss + self.Q_tank_loss
+        j = tank.backup_node
+        start = self.charging_pre or T[j] < self.tank_sp - tank.get_dead_band()
+        Q_need = tank.heat_to_setpoint(T, j, self.tank_sp, rho_cp, dt) if start else 0.0
+        Q_charge = self._charging(T[j], Q_need, rho_cp)
+        T = tank.add_heat(T, j, Q_charge + self.Q_pump, rho_cp, dt)
+        self.nodes = T
+        self.T_tank = self.T_supply = T_out if on and self.coils_flow > 0 else T[0]
+        self.T_return = T0[j]  # charging water back to the plant at the node of the coil
+        self.delta_U = float(np.sum(rho_cp * tank.node_volume() * (T - T0)) / dt)
+        return self._charge_to_plant(Q_charge)
+
+    def _charge_to_plant(self, Q_charge):
+        """The charge is the load of the circuit for its plant; the loads of the coils
+        start again in the next iteration."""
         self.Q_plant = -Q_charge
         dhw = self.Q_plant if self.is_dhw_only() else (
             self.Q_plant * self.Q_dhw / self.Q_coils if self.Q_coils != 0 else 0.0)
@@ -387,4 +436,8 @@ class HVAC_water_circuit(Component):
         }
         for key, value in values.items():
             self.variable(key).values[time_index] = value
-        self.tank.set_state(time_index, self.T_tank, loss=-self.Q_tank_loss)
+        if self.tank.n_nodes > 1:
+            self.tank.set_state(time_index, float(np.mean(self.nodes)), self.nodes,
+                                loss=-self.Q_tank_loss)
+        else:
+            self.tank.set_state(time_index, self.T_tank, loss=-self.Q_tank_loss)

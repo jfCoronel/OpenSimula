@@ -225,13 +225,23 @@ def test_backup_heats_only_above_its_node():
     assert T[3, -1] < 30
 
 
-def test_stratified_tank_only_in_a_plant():
-    data = charging_circuit()
+def test_stratified_tank_in_a_charging_circuit():
+    """The DHW tank of the charging circuit stratified (6 nodes, coil in the middle)."""
+    data = charging_circuit(dead_band=5)
     for c in data["components"]:
         if c["type"] == "Water_tank":
-            c["number_of_nodes"] = 4
-    sim = osm.Simulation()
-    sim.console_print = False
-    pro = sim.new_project("p")
-    pro.read_dict(data)
-    assert any("stratified" in m.text for m in pro.check() if m.level == "ERROR")
+            c.update({"number_of_nodes": 6, "backup_position": 0.5})
+    pro = simulate(data)
+    c = "dhw_circuit"
+    balance = (values(pro, c, "Q_loads") + values(pro, c, "Q_loss") + values(pro, c, "Q_pump")
+               - values(pro, c, "Q_plant") - values(pro, c, "delta_U"))
+    assert np.allclose(balance, 0, atol=1e-6)
+    T = np.array([values(pro, "tank", f"T_node_{i}") for i in range(1, 7)])
+    assert np.all(np.diff(T, axis=0) <= 1e-9)  # top warmest
+    # the thermostat on the node of the coil (node 3): from 55 °C up to 60 °C
+    assert T[2].max() <= 60 + 1e-6 and T[2, 24:].min() > 55 - 1.5
+    # the bottom gets the mains water and is not heated by the coil
+    assert T[5].min() < 40
+    assert values(pro, "dhw", "Q_unmet").sum() < 0.02 * values(pro, "dhw", "Q_demand").sum()
+    # the whole charge is DHW for the plant
+    assert np.allclose(values(pro, "hot_water", "Q_dhw"), values(pro, c, "Q_plant"))

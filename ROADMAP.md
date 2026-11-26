@@ -1292,6 +1292,15 @@ must see only the water drawn, at the mains temperature (condensing boilers).
   circuit: less pump power than at constant flow; test case in `pruebas/` (condensing
   instantaneous boiler, constant vs variable).
 
+## Stratified tank in charging circuits (done 2026-11-26, for 0.11)
+
+`HVAC_water_circuit` with a stratified `Water_tank`: draw and losses as in a plant, the
+water of the plant charges the node of the coil (`backup_position`, thermostat with
+dead band, `tank_setpoint`), the pump the fraction of the step needed. The physics shared
+with the plant moved to `Water_tank` (`draw_and_losses`, `heat_to_setpoint`); the mixed
+charging path uses the same `_charging()`. Diagram of the user guide: `tank` arrow
+also from the circuit.
+
 ## DHW priority (done 2026-11-26, for 0.11)
 
 Option C (time sharing) done as "DHW first" in the plant balance: `HVAC_water_system.
