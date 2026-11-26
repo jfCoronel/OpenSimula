@@ -372,17 +372,13 @@ class HVAC_water_system(Component):  # HVAC Water system
             else: # Heating or cooling
                 self._simulate_generator()            
         
-        # Resto de temperaturas
-        self.T_WGO = self.itera_T.estimate_next_x(self.T_WGO)     
-        if self.water_flow == 0: 
-            deltaT = self.T_WGO - self.T_WGO_pre
-            self.T_WGI = self.T_WGI_pre + deltaT
-            self.T_WCI = self.T_WCI_pre + deltaT
-            self.T_WCO = self.T_WCO_pre + deltaT
-        else:          
-            self.T_WCI = self.T_WGO + (self.Q_loss/2)/(self.rho_cp * self.water_flow)
-            self.T_WCO = self.T_WCI + (self.Q_coils + self.Q_process)/(self.rho_cp * self.water_flow)
-            self.T_WGI = self.T_WCO + (self.Q_loss/2+self.Q_pump)/(self.rho_cp * self.water_flow)
+        # the temperature that satisfies the balance of this iteration, kept in case
+        # the time step does not converge (the relaxed one does not satisfy it)
+        self.T_WGO_balance = self.T_WGO
+        self._loop_loads = (self.Q_coils, self.Q_process, self.Q_loss, getattr(self, "Q_pump", 0),
+                            self.water_flow)
+        self.T_WGO = self.itera_T.estimate_next_x(self.T_WGO)
+        self._loop_temperatures(*self._loop_loads)
 
         # The coils add their load again in the next iteration: keep the one
         # of this iteration to store it, then start again from 0
@@ -397,6 +393,18 @@ class HVAC_water_system(Component):  # HVAC Water system
         self.priority_used = 0.0
         # Test convergence
         return self.itera_T.converged() 
+
+    def _loop_temperatures(self, Q_coils, Q_process, Q_loss, Q_pump, water_flow):
+        """Temperatures of the loop of a plant without header from T_WGO."""
+        if water_flow == 0:
+            deltaT = self.T_WGO - self.T_WGO_pre
+            self.T_WGI = self.T_WGI_pre + deltaT
+            self.T_WCI = self.T_WCI_pre + deltaT
+            self.T_WCO = self.T_WCO_pre + deltaT
+        else:
+            self.T_WCI = self.T_WGO + (Q_loss/2)/(self.rho_cp * water_flow)
+            self.T_WCO = self.T_WCI + (Q_coils + Q_process)/(self.rho_cp * water_flow)
+            self.T_WGI = self.T_WCO + (Q_loss/2+Q_pump)/(self.rho_cp * water_flow)
 
     def _check_mode(self):
         if self.on_off:
@@ -677,6 +685,8 @@ class HVAC_water_system(Component):  # HVAC Water system
             self.Q_generators = [q_g + s for q_g, s in zip(self.Q_generators, solar)]
             self.Q_gen += Q_solar
         self.Q_solar = Q_solar
+        self.T_S_balance = T_S  # satisfies the balance of this iteration (see post_iteration)
+        self._header_args = (Q_sec, nominal)
         self.T_S = self.itera_T.estimate_next_x(T_S)
         self._header_temperatures(Q_sec, nominal)
         self._series(self.T_S, m_s)
@@ -943,8 +953,18 @@ class HVAC_water_system(Component):  # HVAC Water system
             self._post_iteration_stratified(time_index)
             return
         if self.has_header:
+            if not converged and hasattr(self, "T_S_balance"):
+                # not converged: store the temperature that satisfies the balance of the
+                # last iteration, not the relaxed estimate (the energy must add up)
+                self.T_S = self.T_S_balance
+                self._header_temperatures(*self._header_args)
+                if self.series_ops and self.secondary_flow > 0:
+                    self.T_WCI = self.T_S + self.Q_series / (self.rho_cp * self.secondary_flow)
             self._post_iteration_header(time_index)
             return
+        if not converged and hasattr(self, "T_WGO_balance"):
+            self.T_WGO = self.T_WGO_balance  # as above
+            self._loop_temperatures(*self._loop_loads)
         self.variable("primary_flow").values[time_index] = self.water_flow
         self.variable("secondary_flow").values[time_index] = self.water_flow
         self.variable("mode").values[time_index] = self.mode

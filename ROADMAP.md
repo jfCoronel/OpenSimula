@@ -1316,8 +1316,13 @@ generators at the setpoint (computed per time step, used per iteration); the hea
 the plant balance, so its water cools and the heating coils get less. No effect with
 enough capacity. Four-pipe test plant + 200 l tank, boiler 4 kW in January: tank min
 30 °C without priority, 55 °C with it (its dead band). Found: without priority at full
-capacity the plant balance has a residual of 1.4 kWh/month (at-capacity path, before
-this change): to look at.
+capacity the plant balance has a residual of 1.4 kWh/month: **fixed 2026-11-26** (branch
+`fix/balance-at-capacity`): it was one time step that did not converge (a 6-iteration
+cycle up to n_max_iteration: with load the water falls to 22 °C, then the charging
+circuit and the coils stop, the water recovers, the load comes back) and the plant stored
+the relaxed temperature; now, when a step does not converge, it stores the temperature
+of the balance of the last iteration (`T_WGO_balance`, `T_S_balance`). The cycle itself
+remains (hourly steps; it is in the warnings of non-converged steps).
 
 ## Generators in series (done 2026-11-26, for 0.11)
 

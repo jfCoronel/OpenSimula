@@ -62,3 +62,15 @@ def test_dhw_demand_of_a_combi_plant():
     # the peaks of the demand above 1.5 kW are not met
     assert v(pro, "dhw", "Q_unmet").sum() == pytest.approx(
         np.sum(np.clip(v(pro, "dhw", "Q_demand") - 1500, 0, None)), rel=0.05, abs=1)
+
+
+def test_balance_when_a_time_step_does_not_converge():
+    """With the boiler short, the start of a morning does not converge (the load of the
+    tank comes and goes with the temperature of the plant): the plant stores the
+    temperature that satisfies the balance of the last iteration, not the relaxed one."""
+    pro = charging(False, 4000)
+    assert not pro._sim_df["converged"].all()
+    p = "hot_water"
+    residual = (v(pro, p, "Q_generators") + v(pro, p, "Q_loads") + v(pro, p, "Q_process")
+                + v(pro, p, "Q_loss") + v(pro, p, "Q_pump") - v(pro, p, "delta_U"))
+    assert np.abs(residual).max() < 1
