@@ -32,8 +32,8 @@ identifiers:
 repository-code: "https://github.com/jfCoronel/OpenSimula"
 url: "https://jfcoronel.github.io/OpenSimula/"
 license: MIT
-version: 0.10.0
-date-released: "2026-11-19"
+version: 0.11.0
+date-released: "2026-11-26"
 keywords:
   - building energy simulation
   - HVAC

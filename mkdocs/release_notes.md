@@ -2,32 +2,34 @@
 
 This is the list of changes to opensimula between each release. For full details, see the commit logs.
 
-### Next version (not released yet)
+### 0.11.0 (November 26, 2026)
 
-Domestic hot water and solar thermal on the water plants, CTE DB-HE verification (HE0 and HE4), energy and comfort indicators. **One variable of the water plants and circuits has a new name.**
+Domestic hot water and solar thermal on the water plants, energy and comfort indicators, verification of the Spanish CTE DB-HE (HE0 and HE4), and help in the app. **One variable of the water plants and circuits has a new name**: see [Upgrading from 0.10](#upgrading-from-010).
 
 #### New
 
-- **Domestic hot water**: `DHW_demand` (hot water used and its temperature as expressions, mains temperature by month, distribution losses, `preheat_system` for a preheating in series) hanging from water plants and circuits as one more coil; the energy of the generators and pumps is split between HEATING and DHW.
-- **`Water_tank`**: storage tanks (DHW tanks, electric water heaters, buffer tanks) in a plant or in a DHW charging circuit, with losses, a thermostat with dead band and stratification (`number_of_nodes`).
-- **`Solar_collector`**: solar thermal collectors (EN ISO 9806) as generators of a plant with a tank; new carrier SOLAR_THERMAL.
-- `File_data`: the characters that cannot be in the name of a variable (dots, spaces...) become "_" in the names of the variables of its columns, so the CSV of the results viewer (`office.system_sensible_heat [W]`) can be read and used in `input_variables`.
-- `File_data`: `file_step` "ANNUAL", rows of a year from 1 January read by the date of each time step, whatever the start of the simulation (examples 08-10 use it); "SIMULATION" warns when a file of a year is read by a simulation that does not start on 1 January.
+- **Domestic hot water**: `DHW_demand`, the hot water used (l/h) and its temperature as expressions, the mains temperature by month and the distribution losses, hanging from a water plant or circuit as one more coil. The energy of the generators and pumps is split between the services HEATING and DHW by the heat that goes to each one. A preheating by another system (`preheat_system`), e.g. a central solar plant with a boiler in each flat.
+- **`Water_tank`**: storage tanks (DHW tanks, electric water heaters, buffer tanks) as the water of a plant or of a DHW charging circuit, with losses, a thermostat with dead band and stratification (`number_of_nodes`).
+- **`Solar_collector`**: solar thermal collectors (EN ISO 9806) as generators of a plant with a tank; new carrier SOLAR_THERMAL, renewable.
+- **Generators in series** (`connection` "SERIES" of `HVAC_water_generator`): at the outlet of a plant with a tank they heat the water that leaves to the loads up to the setpoint, e.g. an instantaneous boiler after a solar tank, in one plant.
 - **DHW priority** of a water plant (`dhw_priority`): the DHW loads take the heat of the generators first, and the heating gets the rest.
-- **Generators in series** (`connection` "SERIES" of `HVAC_water_generator`): at the outlet of a plant with a tank, they heat the water that leaves to the loads up to the setpoint (an instantaneous boiler after a solar tank: one plant).
 - **Variable water flow** in plants and circuits (`flow_control`, `minimum_flow`), with staged secondary pumps; an instantaneous boiler sees only the water drawn.
-- **`Energy_indicators`** (final and primary energy, CO₂ by carrier and service, RITE factors), **`Comfort_indicators`** (hours outside the setpoints) and **`CTE_compliance`** (CTE DB-HE: HE0 and HE4), with their reports in notebooks and in the app; helpers of the DB-HE in `opensimula.cte` (Anejo D, F and G).
+- **`Energy_indicators`** (final and primary energy and CO₂ by carrier and service, factors of the RITE), **`Comfort_indicators`** (hours outside the setpoints) and **`CTE_compliance`** (CTE DB-HE, HE0 and HE4), with their reports in notebooks and in the app; helpers of the DB-HE in `opensimula.cte` (hourly DHW profile, reference DHW demand and mains water temperatures of Anejos D, F and G).
+- **Help in the app**: every parameter in the editor and every variable in the results viewer shows its description as a tooltip, and a "?" opens the documentation at it.
+- `File_data`: `file_step` "ANNUAL", the rows of a year from 1 January read by the date of each time step, whatever the start of the simulation; "SIMULATION" warns when a file of a year is read by a simulation that does not start on 1 January. The characters that cannot be in the name of a variable become "_", so the CSV of the results viewer can be read and used in `input_variables`.
 - Gallery: examples 10 (energy and comfort) and 11 (domestic hot water and solar).
-- **Help in the app**: every parameter in the editor and every variable in the results viewer shows its description as a tooltip, and a "?" opens the documentation at it (anchors for every parameter and variable of the component pages).
 
 #### Fixes that change results
 
-- `HVAC_water_system`: in a time step that does not converge (it ends at `n_max_iteration`, e.g. a plant short of capacity whose loads come and go with its temperature), the plant stored the relaxed estimate of its temperature, which did not satisfy its energy balance; now the temperature of the balance of the last iteration (a plant with a 4 kW boiler and a DHW tank, January: 1.4 kWh that were lost, +0.7 % of heat of the boiler). Time steps that converge do not change.
-- `HVAC_water_system` with a `Water_tank` and generators in series: the state and the losses of the tank are those of its water, not of the supply.
+- `HVAC_SZW_system` and `HVAC_MZW_system`: the cooling coils fed by a water system gave the plant only their sensible heat; now also the latent heat of the condensed water (fan coil test: cooling generation +11.8 %; examples 07 and 09: electricity of the chiller +3.6 % and +3.8 %).
+- `HVAC_water_system`: in a time step that does not converge (it ends at `n_max_iteration`, e.g. a plant short of capacity whose loads come and go with its temperature), the plant stored the relaxed estimate of its temperature, which did not satisfy its energy balance; now the temperature of the balance of the last iteration. Time steps that converge do not change.
+- The ASHRAE 140 validation results do not change.
 
-#### Changes that break compatibility
+#### Upgrading from 0.10
 
-- `HVAC_water_system` and `HVAC_water_circuit`: the variable `Q_coils` is now **`Q_loads`** (it is the load of the coils, the circuits and the DHW demands), split into the new **`Q_heating_coils`**, **`Q_cooling_coils`** and `Q_dhw`. Expressions and scripts that read `Q_coils` must use `Q_loads`.
+1. `HVAC_water_system` and `HVAC_water_circuit`: the variable `Q_coils` is now **`Q_loads`** (the load of the coils, the circuits and the DHW demands), split into the new **`Q_heating_coils`**, **`Q_cooling_coils`** and `Q_dhw`. Expressions and scripts that read `Q_coils` must use `Q_loads`.
+2. The examples copied with `opensimula examples` from 0.10 are not overwritten: copy them again to a new folder to get examples 10 and 11 (examples 08-10 now read their load file with `file_step` "ANNUAL", with the same results).
+3. A project that lists its own `simulation_order` gets the new component types (`DHW_demand`, `Water_tank`, `Solar_collector`, `Energy_indicators`, `Comfort_indicators`, `CTE_compliance`) at the beginning; add them to the list to place them (the indicators, at the end).
 
 ### 0.10.0 (November 19, 2026)
 
