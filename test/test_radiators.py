@@ -138,3 +138,13 @@ def test_zone_setpoints_and_checks():
     p = sim.new_project("p")
     p.read_dict(data)
     assert any("water_system" in m.text for m in p.check() if m.level == "ERROR")
+
+
+def test_heat_of_uncontrolled_systems_is_stored():
+    """The heat of an uncontrolled system (Q_s: radiators, MZW reheat) was not in the
+    variable u_system_sensible_heat of the zone (only that of its air)."""
+    pro = simulate(office(days=7))
+    assert np.allclose(values(pro, "office", "u_system_sensible_heat"),
+                       values(pro, "radiators", "Q") - values(pro, "radiators", "Q_radiant")
+                       if "Q_radiant" in pro.component("radiators").variable_dict()
+                       else values(pro, "radiators", "Q"))

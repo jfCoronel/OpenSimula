@@ -280,7 +280,7 @@ class Thermal_zone(Component):
         self._acumulate_u_systems()
         self.variable("u_system_sensible_heat").values[time_i] = self.props["C_PA"] * (
             self._M_T_a_u_systems - self._M_a_u_systems * self._T
-        )
+        ) + self._Q_s_u_systems  # their air and their heat (e.g. radiators)
         self.variable("system_sensible_heat").values[time_i] = (
             self.control_system["M_a"]
             * self.props["C_PA"]
@@ -288,7 +288,7 @@ class Thermal_zone(Component):
             + self.control_system["Q_s"]
         )
         self.variable("u_system_latent_heat").values[time_i] = self.props["LAMBDA"] * (
-            self._M_w_a_u_systems - self._M_a_u_systems * self._w
+            self._M_w_a_u_systems - self._M_a_u_systems * self._w + self._M_w_u_systems
         )
         self.variable("system_latent_heat").values[time_i] = (
             self.control_system["M_a"]
