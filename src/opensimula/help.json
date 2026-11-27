@@ -256,6 +256,12 @@
      "text": "Surface temperatures",
      "unit": "°C"
     },
+    "T_source": {
+     "anchor": "building_surface-var-t_source",
+     "page": "component_list_building/",
+     "text": "Temperature of the source plane; only if the construction has source_layer.",
+     "unit": "°C"
+    },
     "p_0": {
      "anchor": "building_surface-var-p_0",
      "page": "component_list_building/",
@@ -326,6 +332,12 @@
      "anchor": "building_surface-var-q_sol1",
      "page": "component_list_building/",
      "text": "Solar heat flux at the surfaces.",
+     "unit": "W/m²"
+    },
+    "q_source": {
+     "anchor": "building_surface-var-q_source",
+     "page": "component_list_building/",
+     "text": "Heat of the source plane of the construction (pipes of a radiant floor, set by an HVAC_radiant_floor_system); only if the construction has source_layer. It is included in q_cd0 and q_cd1.",
      "unit": "W/m²"
     },
     "q_swig0": {
@@ -2402,6 +2414,158 @@
     }
    }
   },
+  "HVAC_radiant_floor_system": {
+   "anchor": "hvac_radiant_floor_system",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "control": {
+     "anchor": "hvac_radiant_floor_system-control",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "\"PROPORTIONAL\": a zone thermostat opens the valve in proportion to the air temperature within the throttling range. \"NONE\": the valve is always open.",
+     "unit": ""
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_radiant_floor_system-heating_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heating setpoint of the zone.",
+     "unit": "°C"
+    },
+    "input_variables": {
+     "anchor": "hvac_radiant_floor_system-input_variables",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Variables of other components used in the expressions.",
+     "unit": ""
+    },
+    "nominal_water_flow": {
+     "anchor": "hvac_radiant_floor_system-nominal_water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow of all the circuits with the valve fully open (EN 1264 designs: a drop of 5-10 K at the design heat).",
+     "unit": "dm³/s"
+    },
+    "number_of_circuits": {
+     "anchor": "hvac_radiant_floor_system-number_of_circuits",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Number of circuits that share the flow (for the convection of the water in the pipes).",
+     "unit": ""
+    },
+    "pipe_conductivity": {
+     "anchor": "hvac_radiant_floor_system-pipe_conductivity",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Conductivity of the pipes (PE-X about 0.35).",
+     "unit": "W/(m·K)"
+    },
+    "pipe_diameter": {
+     "anchor": "hvac_radiant_floor_system-pipe_diameter",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Outer diameter of the pipes.",
+     "unit": "m"
+    },
+    "pipe_spacing": {
+     "anchor": "hvac_radiant_floor_system-pipe_spacing",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Distance between the pipes, T.",
+     "unit": "m"
+    },
+    "pipe_wall_thickness": {
+     "anchor": "hvac_radiant_floor_system-pipe_wall_thickness",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Thickness of the wall of the pipes.",
+     "unit": "m"
+    },
+    "space": {
+     "anchor": "hvac_radiant_floor_system-space",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Zone heated by the floor (that of the thermostat).",
+     "unit": ""
+    },
+    "surfaces": {
+     "anchor": "hvac_radiant_floor_system-surfaces",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Surfaces with the pipes; their constructions must have source_layer.",
+     "unit": ""
+    },
+    "system_on_off": {
+     "anchor": "hvac_radiant_floor_system-system_on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "If 0 the floor is off (its valve closed).",
+     "unit": "on/off"
+    },
+    "throttling_range": {
+     "anchor": "hvac_radiant_floor_system-throttling_range",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Range of air temperatures, centred on the heating setpoint, from the valve fully open to closed.",
+     "unit": "K"
+    },
+    "water_system": {
+     "anchor": "hvac_radiant_floor_system-water_system",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Plant or circuit that gives the hot water.",
+     "unit": ""
+    }
+   },
+   "variables": {
+    "Q": {
+     "anchor": "hvac_radiant_floor_system-var-q",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat of the water to the source planes (it reaches the zones through the surfaces, with the delay of the floor).",
+     "unit": "W"
+    },
+    "T_source": {
+     "anchor": "hvac_radiant_floor_system-var-t_source",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Temperature of the source plane (mean by area).",
+     "unit": "°C"
+    },
+    "T_wi": {
+     "anchor": "hvac_radiant_floor_system-var-t_wi",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water inlet (supply of the water system) and outlet temperatures.",
+     "unit": "°C"
+    },
+    "T_wo": {
+     "anchor": "hvac_radiant_floor_system-var-t_wo",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water inlet (supply of the water system) and outlet temperatures.",
+     "unit": "°C"
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_radiant_floor_system-var-heating_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heating setpoint of the zone.",
+     "unit": "°C"
+    },
+    "on_off": {
+     "anchor": "hvac_radiant_floor_system-var-on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Availability of the floor.",
+     "unit": "flag"
+    },
+    "q_source": {
+     "anchor": "hvac_radiant_floor_system-var-q_source",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Q per m² of the surfaces.",
+     "unit": "W/m²"
+    },
+    "state": {
+     "anchor": "hvac_radiant_floor_system-var-state",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "1 while it gives heat, 0 otherwise.",
+     "unit": "flag"
+    },
+    "valve": {
+     "anchor": "hvac_radiant_floor_system-var-valve",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Opening of the valve.",
+     "unit": "frac"
+    },
+    "water_flow": {
+     "anchor": "hvac_radiant_floor_system-var-water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow through the pipes.",
+     "unit": "dm³/s"
+    }
+   }
+  },
   "HVAC_radiator_system": {
    "anchor": "hvac_radiator_system",
    "page": "component_list_HVAC_water_systems/",
@@ -3457,6 +3621,12 @@
      "text": "Surface temperatures",
      "unit": "°C"
     },
+    "T_source": {
+     "anchor": "opening-var-t_source",
+     "page": "component_list_building/",
+     "text": "Temperature of the source plane; only if the construction has source_layer.",
+     "unit": "°C"
+    },
     "q_cd": {
      "anchor": "opening-var-q_cd",
      "page": "component_list_building/",
@@ -3527,6 +3697,12 @@
      "anchor": "opening-var-q_sol_dir_trans",
      "page": "component_list_building/",
      "text": "Direct solar radiation passing through into space.",
+     "unit": "W/m²"
+    },
+    "q_source": {
+     "anchor": "opening-var-q_source",
+     "page": "component_list_building/",
+     "text": "Heat of the source plane of the construction (pipes of a radiant floor, set by an HVAC_radiant_floor_system); only if the construction has source_layer. It is included in q_cd0 and q_cd1.",
      "unit": "W/m²"
     },
     "q_swig0": {

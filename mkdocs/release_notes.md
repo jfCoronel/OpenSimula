@@ -7,6 +7,7 @@ This is the list of changes to opensimula between each release. For full details
 #### New
 
 - **Radiators**: `Radiator` (EN 442 characteristic equation) and `HVAC_radiator_system`, the radiators of a zone fed by a water plant or circuit, with a thermostatic valve or without control; an uncontrolled system of the zone, so it can share it with a cooling system. Their radiant part goes to the surfaces of the zone (by area, or among floor, ceiling and walls) with the long-wave radiosity of the building, or to the thermal mass of a `Load_space`; any system can do the same (`radiant_to_air()`, `add_radiant_system()` of the zones).
+- **Radiant floor**: `HVAC_radiant_floor_system`, a radiant floor (or ceiling) fed by a water plant or circuit, with the pipes in an active layer of the floor construction (new `source_layer` of `Construction`: the transfer functions of a heat source plane, exact as those of the conduction, with the heat to each side and the temperature of the plane). The water gives the plane the heat of the effectiveness of the pipes (resistances of EN ISO 11855); zone thermostat with a throttling range. The floor stores heat and gives it to the zones above and below with its own delay; new variables `q_source` and `T_source` of the surfaces.
 
 #### Fixes that change results
 

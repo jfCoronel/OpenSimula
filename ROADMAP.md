@@ -27,7 +27,7 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
 
 - **0.12**: all the systems of the plan of 2026-11-24, released together: radiators and
   radiant panels (done: #92, #93), radiant floor with an active layer in the floor
-  construction (option (b), in progress), multisplit / VRF, ventilation with heat recovery
+  construction (option (b), done: #95 and this one), multisplit / VRF, ventilation with heat recovery
   and primary-air AHU. No release in between: each step is merged (commit and push) and
   goes into the "Next version" of the release notes.
 - **0.13**: the importers, EnergyPlus IDF (phase 1) and HULC.
@@ -100,12 +100,15 @@ and indoor units `UT_ED_UnidadInterior` per zone). An importer of EnergyPlus IDF
    `feat/radiant-floor`: `Construction.source_layer` and the transfer functions of the
    source plane (split H = H_A·H_B: q_cd1 = (B_A/B)·q_s, q_cd0 = ((D_A·B − D·B_A)/B)·q_s,
    T_plane = (B_B·T0 + (A_B·B − B_B·A)·T1 + B_B·B_A·q_s)/B, same roots and d), checked in
-   steady state and against a fine finite-difference model (tests); (2) next: the source in
-   Building_surface / Building (current coefficient in the surface equation, history in p,
-   variables q_source, T_source) and `HVAC_radiant_floor_system` (effectiveness model
-   water–pipe plane, ISO 11855 resistances, zone thermostat with throttling range, heating
-   only), and the diagram of the user guide (radiator and radiant floor water_system to a
-   plant or a circuit).
+   steady state and against a fine finite-difference model (tests); (2) **done
+   2026-11-27**, branch `feat/radiant-floor-system`: the source in Building_surface /
+   Building (`source_flux` set by the system, current coefficient in the surface
+   equations, history in p, variables q_source and T_source; `Building.source_response`,
+   `source_temperatures`) and `HVAC_radiant_floor_system` (surfaces with source_layer,
+   effectiveness water–plane with the ISO 11855 resistances, proportional thermostat with
+   throttling range, heating only, coil load to the plant); checked against finite
+   differences (Richardson, 0.02 W/m²), air balance of the zone, slab between two zones;
+   user guide diagram with the emitters fed by a plant or a circuit.
 4. **Multizone direct expansion**: multisplit / VRF, one outdoor unit with curves and
    indoor units per zone (CALENER-GT / DOE-2 style; heat recovery VRF later).
 5. **Ventilation**: mechanical ventilation with heat recovery and a primary-air AHU

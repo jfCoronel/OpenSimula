@@ -169,6 +169,17 @@ class Building_surface(Surface):
 
     # ____________ pre_simulation ____________
     def pre_simulation(self, n_time_steps, delta_t):
+        # heat source plane (active layer of the construction, e.g. radiant floor)
+        construction = self.parameter("construction").component
+        self._has_source_ = (self.parameter("surface_type").value != "VIRTUAL"
+                             and construction is not None and construction.has_source())
+        for key in ("q_source", "T_source"):
+            if key in self._variables_:
+                self.del_variable(self._variables_[key])
+        if self._has_source_:
+            self.add_variable(Variable("q_source", "W/m²"))  # heat of the source
+            self.add_variable(Variable("T_source", "°C"))  # temperature of the source plane
+        self.source_flux = 0.0  # W/m², set by the system of the source in each iteration
         super().pre_simulation(n_time_steps, delta_t)
         self._file_met = self.project().parameter("simulation_file_met").component
         self._albedo = self.project().parameter("albedo").value
@@ -315,6 +326,19 @@ class Building_surface(Surface):
                 self.variable("q_cd1").values,
                 self._T_ini,
             )
+            if self._has_source_:
+                p_0, p_1 = self._construction_.get_P_source(
+                    time_i, self.variable("q_source").values)
+                self._p_0_ += p_0
+                self._p_1_ += p_1
+                self._T_source_coef_ = self._construction_.get_T_source(
+                    time_i,
+                    self.variable("T_s0").values,
+                    self.variable("T_s1").values,
+                    self.variable("q_source").values,
+                    self.variable("T_source").values,
+                    self._T_ini,
+                )
             self.variable("p_0").values[time_i] = self._p_0_
             self.variable("p_1").values[time_i] = self._p_1_
         if self._surface_type_ == "EXTERIOR":
@@ -432,18 +456,41 @@ class Building_surface(Surface):
 
     def _calculate_exterior_T_s0_(self, time_i):
         T_s0 = (self.f_0 - self.k_01 * self.variable("T_s1").values[time_i]) / self.k[0]
+        if self._has_source_:
+            T_s0 -= self.area * self._construction_.get_source_A()[0] * self.source_flux / self.k[0]
         self.variable("T_s0").values[time_i] = T_s0
 
+    # ________ heat source plane ____________
+    def has_source(self):
+        """True if the construction of the surface has an active layer (heat source)."""
+        return getattr(self, "_has_source_", False)
+
+    def source_temperature(self, T_s0, T_s1, q_source):
+        """Temperature of the source plane in the current time step for the given
+        surface temperatures and source flux (°C)."""
+        t_0, t_1, t_s, h = self._T_source_coef_
+        return t_0 * T_s0 + t_1 * T_s1 + t_s * q_source + h
+
     def _calculate_heat_fluxes_(self, time_i):
+        s_0, s_1 = 0.0, 0.0
+        if self._has_source_:
+            s_0, s_1 = self._construction_.get_source_A()
+            q = self.source_flux
+            self.variable("q_source").values[time_i] = q
+            self.variable("T_source").values[time_i] = self.source_temperature(
+                self.variable("T_s0").values[time_i], self.variable("T_s1").values[time_i], q)
+            s_0, s_1 = s_0 * q, s_1 * q
         self.variable("q_cd0").values[time_i] = (
             self.a_0 * self.variable("T_s0").values[time_i]
             + self.a_01 * self.variable("T_s1").values[time_i]
             + self.variable("p_0").values[time_i]
+            + s_0
         )
         self.variable("q_cd1").values[time_i] = (
             self.a_01 * self.variable("T_s0").values[time_i]
             + self.a_1 * self.variable("T_s1").values[time_i]
             + self.variable("p_1").values[time_i]
+            + s_1
         )
         if self._surface_type_ == "EXTERIOR":
             self.variable("q_cv0").values[time_i] = self.parameter("h_cv").value[0] * (

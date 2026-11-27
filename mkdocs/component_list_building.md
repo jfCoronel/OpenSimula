@@ -276,6 +276,8 @@ After the simulation we will have the following variables of this component, all
 - __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
 - __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
 - __E_dir_sunny, E_dif_sunny__ [W/m²]: Direct and diffuse solar radiation that would be incident on the exterior surface without shadows.
+- __q_source__ [W/m²]: Heat of the source plane of the construction (pipes of a radiant floor, set by an `HVAC_radiant_floor_system`); only if the construction has `source_layer`. It is included in q_cd0 and q_cd1.
+- __T_source__ [°C]: Temperature of the source plane; only if the construction has `source_layer`.
 
 These variables will be 0 for “VIRTUAL” surface_type, and some of the variables only make sense for exterior surfaces, such as _E_dir_, _E_dif_, or _T_rm_.        
 ### Opening
@@ -335,6 +337,8 @@ After the simulation we will have the following variables of this component, all
 - __E_dir__ [W/m²]: Direct solar radiation incident on the exterior surface.
 - __E_dif__ [W/m²]: Diffuse solar radiation incident on the exterior surface.
 - __E_dir_sunny, E_dif_sunny__ [W/m²]: Direct and diffuse solar radiation that would be incident on the exterior surface without shadows.
+- __q_source__ [W/m²]: Heat of the source plane of the construction (pipes of a radiant floor, set by an `HVAC_radiant_floor_system`); only if the construction has `source_layer`. It is included in q_cd0 and q_cd1.
+- __T_source__ [°C]: Temperature of the source plane; only if the construction has `source_layer`.
 
 ### Solar_surface
 

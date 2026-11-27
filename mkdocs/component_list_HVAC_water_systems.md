@@ -556,3 +556,61 @@ pro.new_component("HVAC_radiator_system", "panels").set_parameters({
     "water_system": "boiler_plant", "radiant_distribution": [0.5, 0, 0.5]})
 </code></pre>
 
+### HVAC_radiant_floor_system
+
+Radiant floor (or ceiling) of a `Space` fed by a water plant or circuit; heating only. The pipes are in the heat source plane of the construction of its `surfaces` (`source_layer` of the Construction): the transfer functions of the construction give, in each time step, the heat that goes from the plane to each side and the temperature of the plane, so the floor stores heat and gives it to the room with its own delay. For the plant it is one more coil (`Q_heating_coils`), and the energy is reported by its generators.
+
+The water gives the source plane, with the effectiveness of the pipes,
+
+Q = ε·ρ·c·m·(T_wi − T_plane),  ε = 1 − exp(−UA / (ρ·c·m)),
+
+with UA = area / R_t and R_t (m²K/W per m² of floor) the resistances between the water and the plane of the thermal resistance method of EN ISO 11855: the convection of the water inside the pipes (laminar, Nu = 4.36, or turbulent, Gnielinski, with the flow of each circuit), the wall of the pipe, T·ln(d / d_i) / (2π·λ_pipe), and the layer around the pipes, T·ln(T / (π·d)) / (2π·λ), with T the pipe spacing, d and d_i the outer and inner diameters and λ the conductivity of the layer just before the source plane (that of `source_layer`). The water leaves at T_wo = T_wi − Q / (ρ·c·m), between T_wi and the temperature of the plane. With several surfaces the flow is shared by area and the heat is the same per m² in all of them.
+
+The surfaces can be exterior, underground or interior (both sides in the building: a slab between two zones heats the zone above and, through its insulation, a little the one below). Usually the pipes are in the screed: split the screed in two layers and put `source_layer` after the first one, counting from side 0. Mind the side 0 of the surface: for a floor of the zone (`altitude` −90) side 1 is the room, so the layers go from below (insulation, screed) to the room (tiles); for an interior slab defined as the ceiling of the zone below, side 0 is that zone and side 1 the zone above.
+
+A zone thermostat opens the valve in proportion to the air temperature (`control` "PROPORTIONAL"): fully open at heating_setpoint − throttling_range / 2 and closed at heating_setpoint + throttling_range / 2. With "NONE" the valve is always open. The water flow is the valve opening times `nominal_water_flow`. Lower the supply temperature of the plant (35-45 °C), or feed the floor from an `HVAC_water_circuit` with a mixing valve.
+
+For the zone it is an uncontrolled system, like the radiators: the zone may have another system that controls it, e.g. one that only cools.
+
+#### Parameters
+
+- **space** [_component_, default = "not_defined", component type = Space]: Zone heated by the floor (that of the thermostat).
+- **surfaces** [_component_list_, default = [], component type = Building_surface]: Surfaces with the pipes; their constructions must have `source_layer`.
+- **water_system** [_component_, default = "not_defined", component type = HVAC_water_system or HVAC_water_circuit]: Plant or circuit that gives the hot water.
+- **nominal_water_flow** [_float_, unit = "dm³/s", default = 0.1, min = 0]: Water flow of all the circuits with the valve fully open (EN 1264 designs: a drop of 5-10 K at the design heat).
+- **number_of_circuits** [_int_, default = 1, min = 1]: Number of circuits that share the flow (for the convection of the water in the pipes).
+- **pipe_spacing** [_float_, unit = "m", default = 0.15, min = 0.01]: Distance between the pipes, T.
+- **pipe_diameter** [_float_, unit = "m", default = 0.016, min = 0.001]: Outer diameter of the pipes.
+- **pipe_wall_thickness** [_float_, unit = "m", default = 0.002, min = 0]: Thickness of the wall of the pipes.
+- **pipe_conductivity** [_float_, unit = "W/(m·K)", default = 0.35, min = 0.001]: Conductivity of the pipes (PE-X about 0.35).
+- **input_variables** [_variable_list_, default = []]: Variables of other components used in the expressions.
+- **heating_setpoint** [_math_exp_, unit = "°C", default = "20"]: Heating setpoint of the zone.
+- **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: If 0 the floor is off (its valve closed).
+- **control** [_option_, default = "PROPORTIONAL", options = ["PROPORTIONAL", "NONE"]]: "PROPORTIONAL": a zone thermostat opens the valve in proportion to the air temperature within the throttling range. "NONE": the valve is always open.
+- **throttling_range** [_float_, unit = "K", default = 2, min = 0.01]: Range of air temperatures, centred on the heating setpoint, from the valve fully open to closed.
+
+#### Variables
+
+- **on_off** (flag): Availability of the floor.
+- **state** (flag): 1 while it gives heat, 0 otherwise.
+- **heating_setpoint** (°C): Heating setpoint of the zone.
+- **Q** (W): Heat of the water to the source planes (it reaches the zones through the surfaces, with the delay of the floor).
+- **q_source** (W/m²): Q per m² of the surfaces.
+- **T_source** (°C): Temperature of the source plane (mean by area).
+- **valve** (frac): Opening of the valve.
+- **water_flow** (dm³/s): Water flow through the pipes.
+- **T_wi** (°C), **T_wo** (°C): Water inlet (supply of the water system) and outlet temperatures.
+
+**Example** (radiant floor in the floor of an office, from a plant at 40 °C):
+<pre><code class="python">
+...
+
+pro.new_component("Construction", "radiant_floor").set_parameters({
+    "materials": ["insulation", "screed", "screed", "tile"],
+    "thicknesses": [0.05, 0.03, 0.03, 0.01],
+    "source_layer": 2})  # the pipes 4 cm under the floor surface
+...
+pro.new_component("HVAC_radiant_floor_system", "floor_heating").set_parameters({
+    "space": "office", "surfaces": ["office_floor"], "water_system": "boiler_plant",
+    "nominal_water_flow": 0.15, "heating_setpoint": "20"})
+</code></pre>

@@ -55,6 +55,8 @@ class Construction(Component):
         thicknesses.insert(0, thickness)
         self.parameter("materials").value = materials
         self.parameter("thicknesses").value = thicknesses
+        if self.has_source():  # the source stays in the same plane
+            self.parameter("source_layer").value = self.parameter("source_layer").value + 1
 
     # Functions for Transfer Function Calculation
 
@@ -154,6 +156,54 @@ class Construction(Component):
             p0 += -self._coef_Q[i] * q_0
             p1 += -self._coef_Q[i] * q_1
         return (p0, p1)
+
+    def get_source_A(self):
+        """Current time coefficients of the source: heat to side 0 and side 1 (W/m², as
+        q_cd0 and q_cd1) per W/m² of source.
+
+        Returns:
+            tuple: (s_0, s_1).
+        """
+        return (self._coef_S0[0], self._coef_S1[0])
+
+    def get_P_source(self, time_i, q_source):
+        """Part of the history terms p_0 and p_1 due to the past source fluxes (the past
+        conduction fluxes q_cd0, q_cd1, with the source included, are in get_P).
+
+        Args:
+            time_i (int): time step.
+            q_source (numpy.ndarray): source flux of the past time steps (W/m²).
+
+        Returns:
+            tuple: (p_0, p_1).
+        """
+        p0 = p1 = 0.0
+        for i in range(1, len(self._coef_S0)):
+            j = time_i - i
+            if j >= 0:
+                p0 += self._coef_S0[i] * q_source[j]
+                p1 += self._coef_S1[i] * q_source[j]
+        return (p0, p1)
+
+    def get_T_source(self, time_i, T_s0, T_s1, q_source, T_source, T_ini):
+        """Temperature of the source plane: T = t_0·T_s0 + t_1·T_s1 + t_s·q_source + h,
+        with the current values of the time step and the history h.
+
+        Returns:
+            tuple: (t_0, t_1, t_s, h).
+        """
+        h = 0.0
+        for i in range(1, len(self._coef_TP0)):
+            j = time_i - i
+            if j < 0:
+                h += (self._coef_TP0[i] + self._coef_TP1[i]) * T_ini
+            else:
+                h += (self._coef_TP0[i] * T_s0[j] + self._coef_TP1[i] * T_s1[j]
+                      + self._coef_TPS[i] * q_source[j])
+        for i in range(1, len(self._coef_Q)):
+            j = time_i - i
+            h -= self._coef_Q[i] * (T_ini if j < 0 else T_source[j])
+        return (self._coef_TP0[0], self._coef_TP1[0], self._coef_TPS[0], h)
 
     def _resis_layer_(self, layer):
         material = self.parameter("materials").component[layer]

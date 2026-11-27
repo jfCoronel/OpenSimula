@@ -26,6 +26,15 @@ which puts that heat into the surfaces (or the mass) in each iteration. The syst
 the zone, as an uncontrolled system, its convective heat plus `radiant_to_air()` times
 its radiant heat (see `HVAC_radiator_system`).
 
+A system that heats the source plane of a construction (`source_layer`, radiant floor)
+sets `source_flux` (W/m²) of its `Building_surface`s in each iteration and their
+`source_space` (its zone). The building adds the source to the surface equations (its
+current coefficient; the history goes into p_0 and p_1) and its effect on the air of the
+other spaces to their F; `Building.source_response(surface)` gives the response of the
+air of each space to 1 W/m² (the system gives its own zone that heat as an uncontrolled
+system) and `Building.source_temperatures(surfaces, q, space, T_space)` the temperature
+of the plane (see `HVAC_radiant_floor_system`).
+
 ### Documentation of a component and the help of the app
 
 The parameters and variables of each component are described once, in its section of
