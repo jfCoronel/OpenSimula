@@ -22,7 +22,7 @@ affiliations:
     index: 1
   - name: Departamento de Máquinas y Motores Térmicos, Escuela Técnica Superior de Ingeniería de Algeciras, Universidad de Cádiz, Spain
     index: 2
-date: 12 November 2026
+date: 27 November 2026
 bibliography: paper.bib
 ---
 
@@ -33,7 +33,7 @@ their heating, ventilation and air-conditioning (HVAC) systems. A simulation is 
 components (weather files, schedules, materials and constructions, spaces and surfaces,
 HVAC equipment and systems) that reference each other and are advanced together in time
 steps, typically hourly over a year. Models are defined as Python dictionaries or JSON
-files, run from a script or a Jupyter or marimo notebook, and their results are returned as
+files, run from a script, a Jupyter or marimo notebook or a browser app, and their results are returned as
 NumPy arrays and pandas DataFrames [@harris2020; @mckinney2010], so they can be analysed,
 plotted and post-processed with the scientific Python ecosystem without intermediate files.
 The package includes the input definitions of the ANSI/ASHRAE Standard 140-2023 test cases
@@ -103,11 +103,18 @@ constructions solved with conduction transfer functions; exterior, interior, gro
 and virtual surfaces; windows with angle-dependent glazing properties; external shading
 computed geometrically with Shapely [@shapely] on a 3D model of the building, which can be
 displayed with Plotly [@plotly]; interior long-wave radiation between surfaces by radiosity
-[@coronel2012]; ideal loads systems; direct-expansion units and systems; and single-zone and
-multi-zone water-based air systems with coils, fans, pumps, chillers and heat pumps.
+[@coronel2012]; zones defined by load records instead of a building; ideal loads systems;
+direct-expansion units and systems; single-zone and multi-zone water-based air systems with
+coils and fans; water plants with several generators (chillers, heat pumps, boilers and solar
+thermal collectors), primary and secondary circuits, variable flow and mixed or stratified
+storage tanks; and domestic hot water demands. Other components compute energy and CO₂
+indicators, the hours outside setpoints and the Spanish building code (CTE DB-HE) checks.
 Psychrometric properties are computed with PsychroLib [@meyer2019]. New component types are
 added by subclassing `Component`, declaring parameters and variables and implementing the
 simulation methods; the API reference documents these base classes.
+
+A browser app (`opensimula gui`) combines a form editor generated from the parameter
+definitions and a results viewer, both linked to the documentation.
 
 The design favours readability and accessibility of every intermediate value over speed:
 the core is plain Python and NumPy, and an annual hourly simulation of a single-zone Standard
@@ -126,7 +133,7 @@ reference programs; it also generates the validation page of the documentation. 
 comparison runs in continuous integration on every change to the code, so that any change in
 the results of the 135 test projects is detected.
 
-With version 0.8.10, 2,446 of the 2,740 single-valued outputs (89 %) lie inside the range of
+With version 0.11.0, as since 0.8.10, 2,446 of the 2,740 single-valued outputs (89 %) lie inside the range of
 the reference programs, and almost half of the remaining ones are within 1 % of the nearest
 bound. \autoref{fig:loads} shows the annual heating and cooling loads of the building
 envelope cases. The comparison also guides the development of the models: in version 0.8.10
@@ -144,7 +151,8 @@ reference programs (grey) and OpenSimula (dots inside the range, crosses outside
 
 OpenSimula has been developed at the Universidad de Sevilla since 2023, in collaboration with
 the Universidad de Cádiz, and is distributed on PyPI, with each release archived on Zenodo.
-It has been presented at the CYTEF 2026 congress [@coronel2026cytef].
+It has been presented at the CYTEF 2026 congress [@coronel2026cytef]. A gallery of eleven
+progressive examples, shipped with the package, is used in teaching.
 
 More than three bachelor's and master's theses at the Universidad de Sevilla have used OpenSimula
 as their simulation tool, and more are in progress. One of them, close to completion,
