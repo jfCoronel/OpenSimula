@@ -2,7 +2,7 @@ import math
 import numpy as np
 from scipy.optimize import brentq
 from opensimula.Message import Message
-from opensimula.Parameters import Parameter_component_list, Parameter_float_list
+from opensimula.Parameters import Parameter_component_list, Parameter_float_list, Parameter_int
 from opensimula.Component import Component
 
 class Construction(Component):
@@ -19,6 +19,9 @@ class Construction(Component):
         self.add_parameter(Parameter_component_list(
             "materials", [], ["Material"]))
         self.add_parameter(Parameter_float_list("thicknesses", [], "m", min=0))
+        # active layer: a heat source (e.g. the pipes of a radiant floor) in the plane
+        # after this layer (1 to number of layers - 1, from side 0); 0: none
+        self.add_parameter(Parameter_int("source_layer", 0, "", min=0))
 
     def check(self):
         errors = super().check()
@@ -26,7 +29,16 @@ class Construction(Component):
         if len(self.parameter("materials").value) != len(self.parameter("thicknesses").value):
             msg =f"Error: {self.parameter('name').value}, material and thicknesses parameters must have same length"
             errors.append(Message(msg, "error"))
+        k = self.parameter("source_layer").value
+        if k > 0 and k >= len(self.parameter("materials").value):
+            msg = (f"Error: {self.parameter('name').value}, source_layer must be between 1 and the "
+                   "number of layers - 1 (the source is in the plane after that layer)")
+            errors.append(Message(msg, "ERROR"))
         return errors
+
+    def has_source(self):
+        """True if the construction has an active layer (a heat source plane)."""
+        return self.parameter("source_layer").value > 0
 
     def add_exterior_layer(self, material_name, thickness):
         """Add a new exterior layer (at index 0) to the construction.
@@ -212,6 +224,22 @@ class Construction(Component):
             H = np.dot(H, self._H_Matrix_Layer_(s, i))
         return H
 
+    def _H_range_(self, s, first, last):
+        """Transmission matrix of the layers first..last-1."""
+        H = np.eye(2)
+        for i in range(first, last):
+            H = np.dot(H, self._H_Matrix_Layer_(s, i))
+        return H
+
+    def _dH_range_(self, s, first, last):
+        """Derivative of the transmission matrix of the layers first..last-1."""
+        H = np.zeros((2, 2))
+        for i in range(first, last):
+            P1 = self._H_range_(s, first, i)
+            P2 = self._H_range_(s, i + 1, last)
+            H = H + np.dot(P1, np.dot(self._dH_Matrix_Layer_(s, i), P2))
+        return H
+
     def _dH_Matrix_(self, s):
         H = np.zeros((2, 2))
         n = len(self.parameter("materials").value)
@@ -327,3 +355,67 @@ class Construction(Component):
         self._coef_T_b = b
         self._coef_T_c = c
         self._coef_Q = d
+        if self.has_source():
+            self._calc_source_trans_fun_(delta_t, roots, d)
+
+    def _numerator_(self, N, dN, roots, d, delta_t):
+        """Coefficients of the numerator of a transfer function N(s)/B(s) (B: element
+        [0, 1] of the transmission matrix of the construction, whose roots give the
+        denominator d), from the response to a ramp, as for the conduction ones.
+
+        Args:
+            N (callable): N(s).
+            dN (callable): derivative of N(s).
+        """
+        n_coef = len(roots) + 1
+        H_0, dH_0 = self._H_Matrix_(0), self._dH_Matrix_(0)
+        B_0, dB_0 = H_0[0, 1], dH_0[0, 1]
+        C0 = N(0) / B_0
+        C1 = (dN(0) * B_0 - N(0) * dB_0) / (B_0 * B_0)
+        e = [N(r) / (r * r * self._dH_Matrix_(r)[0, 1]) for r in roots]
+        o = []
+        for i in range(1, n_coef + 1):
+            o.append(C1 + i * C0 * delta_t
+                     + sum(e[j] * math.exp(-i * roots[j] * delta_t) for j in range(len(roots))))
+        g = np.convolve([1 / delta_t, -2 / delta_t, 1 / delta_t], d)
+        return np.resize(np.convolve(g, o), n_coef)
+
+    def _calc_source_trans_fun_(self, delta_t, roots, d):
+        """Transfer functions of the heat source plane: the conduction fluxes at the two
+        sides (as q_cd0 and q_cd1, heat from the construction to its surfaces) per W/m²
+        of source, and the temperature of the source plane from the two surface
+        temperatures and the source. The construction is split at the plane, H = H_A·H_B;
+        with the source q_s: q_cd1 = (B_A/B)·q_s, q_cd0 = ((D_A·B − D·B_A)/B)·q_s and
+        T_s = (B_B·T_0 + (A_B·B − B_B·A)·T_1 + B_B·B_A·q_s)/B, with the same
+        denominator (roots of B) as the conduction transfer functions."""
+        n = len(self.parameter("materials").value)
+        k = self.parameter("source_layer").value
+
+        def parts(s):
+            return (self._H_range_(s, 0, k), self._H_range_(s, k, n),
+                    self._dH_range_(s, 0, k), self._dH_range_(s, k, n),
+                    self._H_Matrix_(s), self._dH_Matrix_(s))
+
+        def num(f, df):
+            return (lambda s: f(*parts(s))), (lambda s: df(*parts(s)))
+
+        # q_cd1 per q_s: B_A
+        S1 = num(lambda HA, HB, dA, dB, H, dH: HA[0, 1],
+                 lambda HA, HB, dA, dB, H, dH: dA[0, 1])
+        # q_cd0 per q_s: D_A·B − D·B_A
+        S0 = num(lambda HA, HB, dA, dB, H, dH: HA[1, 1] * H[0, 1] - H[1, 1] * HA[0, 1],
+                 lambda HA, HB, dA, dB, H, dH: (dA[1, 1] * H[0, 1] + HA[1, 1] * dH[0, 1]
+                                                - dH[1, 1] * HA[0, 1] - H[1, 1] * dA[0, 1]))
+        # temperature of the plane: per T_0 (B_B), per T_1 (A_B·B − B_B·A), per q_s (B_B·B_A)
+        TP0 = num(lambda HA, HB, dA, dB, H, dH: HB[0, 1],
+                  lambda HA, HB, dA, dB, H, dH: dB[0, 1])
+        TP1 = num(lambda HA, HB, dA, dB, H, dH: HB[0, 0] * H[0, 1] - HB[0, 1] * H[0, 0],
+                  lambda HA, HB, dA, dB, H, dH: (dB[0, 0] * H[0, 1] + HB[0, 0] * dH[0, 1]
+                                                 - dB[0, 1] * H[0, 0] - HB[0, 1] * dH[0, 0]))
+        TPS = num(lambda HA, HB, dA, dB, H, dH: HB[0, 1] * HA[0, 1],
+                  lambda HA, HB, dA, dB, H, dH: dB[0, 1] * HA[0, 1] + HB[0, 1] * dA[0, 1])
+        self._coef_S0 = self._numerator_(*S0, roots, d, delta_t)
+        self._coef_S1 = self._numerator_(*S1, roots, d, delta_t)
+        self._coef_TP0 = self._numerator_(*TP0, roots, d, delta_t)
+        self._coef_TP1 = self._numerator_(*TP1, roots, d, delta_t)
+        self._coef_TPS = self._numerator_(*TPS, roots, d, delta_t)
