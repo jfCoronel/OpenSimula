@@ -73,6 +73,12 @@ and indoor units `UT_ED_UnidadInterior` per zone). An importer of EnergyPlus IDF
 3. **Water emitters**: radiators (Q = Q_nom·(ΔT/50)^n, EN 442, radiant part) and a
    simplified radiant floor, fed by water plants/circuits (boiler + radiators is the
    usual Spanish dwelling).
+   **Radiators done 2026-11-27** (branch `feat/radiators`): `Radiator` (EN 442 with the
+   log mean ΔT, T_wo from the water balance, `flow_for`), `HVAC_radiator_system` (zone
+   `space`, `number_of_units`, `water_system`, THERMOSTATIC / NONE, uncontrolled system of
+   the zone, all heat convective; coil load to the plant). Next: radiant part of emitters
+   (Building would have to take radiant heat from systems in the iteration) and the
+   radiant floor (screed node, or a heat source layer in the floor construction).
 4. **Multizone direct expansion**: multisplit / VRF, one outdoor unit with curves and
    indoor units per zone (CALENER-GT / DOE-2 style; heat recovery VRF later).
 5. **Ventilation**: mechanical ventilation with heat recovery and a primary-air AHU

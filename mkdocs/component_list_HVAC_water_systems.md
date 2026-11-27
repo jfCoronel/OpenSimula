@@ -485,3 +485,57 @@ pro.new_component("DHW_demand", "dhw").set_parameters({
 
 `opensimula.cte.dhw_profile_schedules(name)` returns it as three components (a Day_schedule, a Week_schedule and the Year_schedule `name`, as dicts) whose variable `values` is the fraction of the daily volume of each hour. The DB-HE gives no profile for other uses: there the schedule is the user's.
 
+### Radiator
+
+Radiator, with the data of its EN 442 test. Equipment data, like a Water_coil: an `HVAC_radiator_system` uses it. Its heat output follows the characteristic equation of EN 442:
+
+Q = Q_nom · (ΔT_lm / ΔT_lm,nom)^n
+
+with ΔT_lm the logarithmic mean temperature difference between the water, entering at T_wi and leaving at T_wo, and the air of the room T_a: ΔT_lm = (T_wi − T_wo) / ln((T_wi − T_a) / (T_wo − T_a)); ΔT_lm,nom is that of the nominal conditions (75 / 65 / 20 °C: 49.83 K). For a water flow m the outlet temperature is the one at which the heat given by the water, ρ·c·m·(T_wi − T_wo), is the heat to the room. So the output falls with the temperature of the water: a radiator of 1000 W at 75 / 65 / 20 °C gives about 465 W with water at 50 °C and its nominal flow.
+
+#### Parameters
+
+- **nominal_heat_output** [_float_, unit = "W", default = 1000, min = 0]: Heat output at the nominal conditions.
+- **exponent** [_float_, default = 1.3, min = 0.5, max = 2]: Exponent n of the characteristic equation (about 1.3 for panel radiators, 1.25-1.35 for most).
+- **nominal_conditions** [_float_list_, unit = "°C", default = [75, 65, 20]]: Water inlet, water outlet and air temperatures of the nominal heat output.
+- **nominal_water_flow** [_float_, unit = "dm³/s", default = 0, min = 0]: Water flow of one radiator with the valve fully open. 0: the flow of the nominal conditions (nominal heat output with the temperature drop of the nominal conditions).
+
+### HVAC_radiator_system
+
+Radiators of a zone (`Space` or `Load_space`) fed by a water plant or circuit; heating only. The radiators, `number_of_units` of the `radiator` equipment, take water from the water system at its supply temperature and give it back colder: for the plant they are one more coil (`Q_heating_coils`), and the energy is reported by its generators.
+
+With `control` "THERMOSTATIC" a thermostatic valve (or a zone thermostat) adjusts the water flow to hold the heating setpoint of the zone: the radiators give the heat the zone needs, up to the heat they give with their nominal flow and the water they get (then the zone stays below the setpoint). With less flow the water leaves them colder. With "NONE" the valve is fully open and the radiators give all they can.
+
+For the zone the radiators are an uncontrolled system: their heat goes to its air (their radiant part is not separated yet), and the zone may have another system that controls it, e.g. one that only cools.
+
+#### Parameters
+
+- **space** [_component_, default = "not_defined", component type = Space or Load_space]: Zone heated by the radiators.
+- **radiator** [_component_, default = "not_defined", component type = Radiator]: Radiator equipment.
+- **number_of_units** [_int_, default = 1, min = 1]: Number of radiators of the zone (identical).
+- **water_system** [_component_, default = "not_defined", component type = HVAC_water_system or HVAC_water_circuit]: Plant or circuit that gives the hot water.
+- **input_variables** [_variable_list_, default = []]: Variables of other components used in the expressions.
+- **heating_setpoint** [_math_exp_, unit = "°C", default = "20"]: Heating setpoint of the zone.
+- **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: If 0 the radiators are off (their valves closed).
+- **control** [_option_, default = "THERMOSTATIC", options = ["THERMOSTATIC", "NONE"]]: "THERMOSTATIC": the water flow is adjusted to hold the heating setpoint. "NONE": the valve is fully open.
+
+#### Variables
+
+- **on_off** (flag): Availability of the radiators.
+- **state** (flag): 1 while they give heat, 0 otherwise.
+- **heating_setpoint** (°C): Heating setpoint of the zone.
+- **Q** (W): Heat given to the zone.
+- **F_load** (frac): Heat over the heat the radiators can give in that time step.
+- **water_flow** (dm³/s): Water flow through the radiators.
+- **T_wi** (°C), **T_wo** (°C): Water inlet (supply of the water system) and outlet temperatures.
+
+**Example** (two radiators of 2000 W in an office, from a boiler plant):
+<pre><code class="python">
+...
+
+pro.new_component("Radiator", "panel").set_parameters({"nominal_heat_output": 2000, "exponent": 1.3})
+pro.new_component("HVAC_radiator_system", "radiators").set_parameters({
+    "space": "office", "radiator": "panel", "number_of_units": 2,
+    "water_system": "boiler_plant", "heating_setpoint": "20"})
+</code></pre>
+
