@@ -36,6 +36,7 @@ class Building(Component):
         self._create_SW_matrices_() # SWDIF_matrix, SWDIR_matrix, SWIG_matrix
         self._create_LW_matrices_() # LWIG_matrix, LWSUR_matrix
         self._create_K_matrices_() # KS_matrix, KS_inv_matrix, KSZ_matrix, KZS_matrix, KZ_matrix
+        self._create_source_lists_() # surfaces with a heat source plane
 
     def _create_lists_(self):
         project_spaces_list = self.project().component_list(comp_type="Space")
@@ -231,6 +232,7 @@ class Building(Component):
     # _______________ pre_iteration _______________
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
+        self._time_i_ = time_index
         self._calculate_Q_igsw_(time_index)
         self._calculate_Q_iglw_(time_index)
         self._calculate_Q_dif_(time_index)
@@ -532,8 +534,101 @@ class Building(Component):
                     sources.append((j, Q, self.radiant_response(space, distribution)))
         return sources
 
+    # _______________ heat source planes (active layers) _______________
+    def _create_source_lists_(self):
+        """Surfaces with a heat source plane and the rows of their sides in KS."""
+        self.source_surfaces = []
+        self._source_rows_ = {}
+        for i, surface in enumerate(self.surfaces):
+            if surface.parameter("type").value == "Building_surface" and surface.has_source():
+                if surface not in self._source_rows_:
+                    self.source_surfaces.append(surface)
+                    self._source_rows_[surface] = [None, None]
+                self._source_rows_[surface][self.sides[i]] = i
+        self._source_cache = {}
+
+    def source_response(self, surface):
+        """Response of the building to 1 W/m² of the heat source plane of a surface.
+
+        Returns:
+            tuple: (term of the surface equations, KS·T_s = FS − KSZ·T_z, per W/m²;
+                heat to the air of each space per W/m², in the same time step).
+        """
+        if surface in self._source_cache:
+            return self._source_cache[surface]
+        s_0, s_1 = surface._construction_.get_source_A()
+        area = surface.area
+        g = np.zeros(self._n_surfaces)
+        row_0, row_1 = self._source_rows_[surface]
+        surface_type = surface.parameter("surface_type").value
+        if row_1 is not None:
+            g[row_1] = -area * s_1
+            if surface_type == "EXTERIOR":  # through T_s0 = (f_0 − k_01·T_s1)/k_0
+                g[row_1] += area * s_0 * surface.k_01 / surface.k[0]
+        if row_0 is not None:
+            g[row_0] = -area * s_0
+        to_air = -np.matmul(self.KZS_matrix, np.matmul(self.KS_inv_matrix, g))
+        self._source_cache[surface] = (g, to_air)
+        return self._source_cache[surface]
+
+    def _sources_(self, exclude=()):
+        """Heat source planes on in this iteration: [(surface, W/m², response)]."""
+        return [(s, s.source_flux, self.source_response(s)) for s in self.source_surfaces
+                if s.source_flux != 0 and s not in exclude]
+
+    def _source_FS_(self, exclude=()):
+        FS = np.zeros(self._n_surfaces)
+        for _, q, (g, _) in self._sources_(exclude):
+            FS += g * q
+        return FS
+
+    def source_temperatures(self, surfaces, q_source, space, T_space):
+        """Temperature of the source planes of some surfaces, all with the source flux
+        q_source, with the air of a space at T_space (the other spaces and sources as
+        they are in this iteration).
+
+        Args:
+            surfaces (list): Building_surface with source.
+            q_source (float): flux of their sources (W/m²).
+            space (Space): space whose air temperature is given.
+            T_space (float): its air temperature (°C).
+
+        Returns:
+            numpy.ndarray: temperature of the source plane of each surface (°C).
+        """
+        time_i = self._time_i_
+        T_spaces = np.array([sp.variable("temperature").values[time_i] for sp in self.spaces])
+        T_spaces[self.spaces.index(space)] = T_space
+        FS = self.FS_vector + self._radiant_FS_() + self._source_FS_(exclude=surfaces)
+        for surface in surfaces:
+            FS += self.source_response(surface)[0] * q_source
+        TS = np.matmul(self.KS_inv_matrix, FS - np.matmul(self.KSZ_matrix, T_spaces))
+        result = []
+        for surface in surfaces:
+            row_0, row_1 = self._source_rows_[surface]
+            T_1 = TS[row_1] if row_1 is not None else None
+            surface_type = surface.parameter("surface_type").value
+            if surface_type == "EXTERIOR":
+                s_0 = surface._construction_.get_source_A()[0]
+                T_0 = (surface.f_0 - surface.area * s_0 * q_source - surface.k_01 * T_1) / surface.k[0]
+            elif surface_type == "UNDERGROUND":
+                T_0 = surface.variable("T_s0").values[time_i]
+            else:
+                T_0 = TS[row_0] if row_0 is not None else None
+            if T_0 is None or T_1 is None:  # interior surface with a side out of the building
+                raise ValueError(f"{surface.parameter('name').value}: both sides must be in the building")
+            result.append(surface.source_temperature(T_0, T_1, q_source))
+        return np.array(result)
+
+    def _radiant_FS_(self):
+        Q_radiant = np.zeros(self._n_surfaces)
+        for _, Q, (_, absorbed, _) in self._radiant_systems_():
+            Q_radiant += absorbed * Q
+        return Q_radiant
+
     def _update_space_K_F_(self, time_i):
         sources = self._radiant_systems_()
+        heat_sources = self._sources_()
         for i in range(self._n_spaces):
             F_spaces = 0
             # radiant heat of the systems of other spaces that reaches this one (that of
@@ -541,6 +636,10 @@ class Building(Component):
             for j, Q, (_, _, to_air) in sources:
                 if j != i:
                     F_spaces += to_air[i] * Q
+            # heat source planes, except those of the systems of this space
+            for surface, q, (_, to_air) in heat_sources:
+                if getattr(surface, "source_space", None) is not self.spaces[i]:
+                    F_spaces += to_air[i] * q
             for j in range(self._n_spaces):
                 if i != j:
                     F_spaces -= self.KFIN_WS_matrix[i][j]* self.spaces[j].variable("temperature").values[time_i]
@@ -554,10 +653,8 @@ class Building(Component):
             T_spaces[i] = self.spaces[i].variable("temperature").values[time_i]
 
         # radiant heat of the systems, absorbed by the surfaces
-        Q_radiant = np.zeros(self._n_surfaces)
-        for _, Q, (_, absorbed, _) in self._radiant_systems_():
-            Q_radiant += absorbed * Q
-        FS = self.FS_vector + Q_radiant
+        Q_radiant = self._radiant_FS_()
+        FS = self.FS_vector + Q_radiant + self._source_FS_()
         if np.any(Q_radiant != 0) or getattr(self, "_radiant_stored_", False):
             # long-wave radiant heat of the surfaces: internal gains and systems
             for i in range(self._n_surfaces):
