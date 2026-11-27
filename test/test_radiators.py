@@ -1,0 +1,140 @@
+"""Radiator (EN 442) and HVAC_radiator_system: radiators of a zone fed by a water plant."""
+
+import json
+import pathlib
+
+import numpy as np
+import pytest
+
+import opensimula as osm
+
+EX = pathlib.Path(osm.__file__).parent / "examples"
+
+
+def office(water="70", control="THERMOSTATIC", units=2, cooling=False, days=31):
+    """The office of example 04 heated by two 2 kW radiators and a gas boiler."""
+    d = json.loads((EX / "04_windows_and_gains.json").read_text(encoding="utf-8"))
+    d["initial_time"], d["n_time_steps"] = "01/01/2001 00:00:00", 24 * days
+    for c in d["components"]:
+        if c["type"] in ("File_met", "File_data"):
+            c["file_name"] = str(EX / pathlib.Path(c["file_name"]).name)
+    d["components"] += [
+        {"type": "Boiler", "name": "boiler", "nominal_heating_capacity": 24000,
+         "nominal_efficiency": 0.92, "nominal_water_flow": 0.3},
+        {"type": "Pump", "name": "pump", "nominal_water_flow": 0.3, "nominal_power": 60},
+        {"type": "HVAC_water_generator", "name": "gen", "equipment": "boiler", "pump": "pump"},
+        {"type": "HVAC_water_system", "name": "plant", "generators": ["gen"],
+         "heating_water_setpoint": water, "total_water_volume": 30, "pump_operation": "ON_LOAD"},
+        {"type": "Radiator", "name": "panel", "nominal_heat_output": 2000, "exponent": 1.3},
+        {"type": "HVAC_radiator_system", "name": "radiators", "space": "office", "radiator": "panel",
+         "number_of_units": units, "water_system": "plant", "heating_setpoint": "20",
+         "control": control},
+    ]
+    if cooling:
+        d["components"].append({"type": "HVAC_perfect_system", "name": "cooler", "spaces": "office",
+                                "heating_setpoint": "-50", "cooling_setpoint": "25"})
+    return d
+
+
+def simulate(data):
+    sim = osm.Simulation()
+    sim.console_print = False
+    pro = sim.new_project("p")
+    pro.read_dict(data)
+    errors = [m.text for m in sim.message_list() if m.level == "ERROR"]
+    assert not errors, errors
+    pro.simulate(progress=lambda i, n: None)
+    return pro
+
+
+def values(pro, component, variable):
+    return np.asarray(pro.component(component).variable(variable).values, dtype=float)
+
+
+def radiator(**parameters):
+    sim = osm.Simulation()
+    pro = sim.new_project("p")
+    r = pro.new_component("Radiator", "r")
+    r.set_parameters({"nominal_heat_output": 1000, **parameters})
+    r._sim_ = sim
+    r.pre_simulation(1, 3600)
+    return r
+
+
+def test_radiator_en_442():
+    r = radiator()
+    # nominal conditions 75 / 65 / 20 °C with its nominal flow: the nominal heat
+    Q, T_wo = r.heat_output(75, r.nominal_flow, 20)
+    assert Q == pytest.approx(1000, rel=1e-6) and T_wo == pytest.approx(65, abs=1e-4)
+    # colder water: the characteristic equation and the heat of the water agree
+    Q, T_wo = r.heat_output(50, r.nominal_flow, 20)
+    dT = r.log_mean(50, T_wo, 20)
+    assert Q == pytest.approx(1000 * (dT / r.dT_nom) ** 1.3, rel=1e-6)
+    mc = r.props["RHOCP_W"](50) / 1000 * r.nominal_flow
+    assert Q == pytest.approx(mc * (50 - T_wo), rel=1e-6)
+    assert Q < 0.5 * 1000
+    # the flow for a part of the heat: less flow, colder return
+    flow, T_wo_part = r.flow_for(300, 75, 20)
+    assert 0 < flow < r.nominal_flow and T_wo_part < 65
+    assert r.heat_output(75, flow, 20)[0] == pytest.approx(300, rel=1e-4)
+    assert r.heat_output(20, r.nominal_flow, 20) == (0.0, 20)
+
+
+def test_thermostatic_radiators_hold_the_setpoint():
+    pro = simulate(office())
+    T = values(pro, "office", "temperature")
+    Q = values(pro, "radiators", "Q")
+    assert T.min() > 20 - 0.01
+    assert Q.sum() > 0 and np.all(values(pro, "radiators", "F_load") <= 1 + 1e-9)
+    # for the plant the radiators are a heating coil; its balance holds
+    assert np.allclose(-values(pro, "plant", "Q_heating_coils"), Q)
+    p = "plant"
+    balance = (values(pro, p, "Q_generators") + values(pro, p, "Q_loads") + values(pro, p, "Q_loss")
+               + values(pro, p, "Q_pump") - values(pro, p, "delta_U"))
+    assert abs(balance.sum()) < 1e-3 * values(pro, p, "Q_generators").sum()
+    # the heat of the water: flow and temperatures
+    on = Q > 0
+    rho_cp = pro._sim_.props["RHOCP_W"](60) / 1000
+    heat = rho_cp * values(pro, "radiators", "water_flow") * (
+        values(pro, "radiators", "T_wi") - values(pro, "radiators", "T_wo"))
+    assert np.allclose(heat[on], Q[on], rtol=0.02)
+
+
+def test_colder_water_gives_less_heat():
+    hot, cold = simulate(office()), simulate(office(water="45"))
+    assert values(cold, "radiators", "Q").max() < values(hot, "radiators", "Q").max()
+    # at the peaks the radiators are at full capacity and the office below 20 °C
+    full = values(cold, "radiators", "F_load") >= 1 - 1e-9
+    assert full.sum() > 0
+    assert values(cold, "office", "temperature")[full].min() < 20
+
+
+def test_no_control_gives_all_it_can():
+    pro = simulate(office(control="NONE", days=7))
+    assert values(pro, "office", "temperature").mean() > 30
+    assert np.allclose(values(pro, "radiators", "water_flow")[values(pro, "radiators", "Q") > 0],
+                       2 * pro.component("panel").nominal_flow)
+
+
+def test_radiators_and_a_cooling_system_in_the_same_zone():
+    pro = simulate(office(cooling=True))
+    T = values(pro, "office", "temperature")
+    assert T.min() > 20 - 0.01 and T.max() < 25 + 0.01
+    assert values(pro, "radiators", "Q").sum() > 0
+    assert values(pro, "cooler", "Q_sensible").min() < 0
+
+
+def test_zone_setpoints_and_checks():
+    pro = simulate(office(days=2))
+    control = pro.component("radiators").get_zone_setpoints()[0]
+    assert control.zone is pro.component("office")
+    assert np.all(control.heating_setpoint == 20) and np.all(np.isinf(control.cooling_setpoint))
+    data = office(days=2)
+    for c in data["components"]:
+        if c["name"] == "radiators":
+            c["water_system"] = "not_defined"
+    sim = osm.Simulation()
+    sim.console_print = False
+    p = sim.new_project("p")
+    p.read_dict(data)
+    assert any("water_system" in m.text for m in p.check() if m.level == "ERROR")

@@ -2,6 +2,12 @@
 
 This is the list of changes to opensimula between each release. For full details, see the commit logs.
 
+### Next version (not released yet)
+
+#### New
+
+- **Radiators**: `Radiator` (EN 442 characteristic equation) and `HVAC_radiator_system`, the radiators of a zone fed by a water plant or circuit, with a thermostatic valve or without control; an uncontrolled system of the zone, so it can share it with a cooling system.
+
 ### 0.11.0 (November 26, 2026)
 
 Domestic hot water and solar thermal on the water plants, energy and comfort indicators, verification of the Spanish CTE DB-HE (HE0 and HE4), and help in the app. **One variable of the water plants and circuits has a new name**: see [Upgrading from 0.10](#upgrading-from-010).

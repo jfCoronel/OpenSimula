@@ -48,6 +48,15 @@
   <text x="345" y="345" text-anchor="middle" class="name">HVAC_MZW_system</text>
   <text x="345" y="362" text-anchor="middle" class="uses">uses Water_coil, Fan</text>
 
+  <!-- radiators: a zone system on the water side -->
+  <rect x="250" y="400" width="190" height="46" rx="6" class="system"/>
+  <text x="345" y="420" text-anchor="middle" class="name">HVAC_radiator_system</text>
+  <text x="345" y="437" text-anchor="middle" class="uses">uses Radiator</text>
+  <path d="M 250 423 C 205 423, 205 300, 184 282" class="link"/>
+  <text x="226" y="398" text-anchor="middle" class="param">space</text>
+  <path d="M 440 423 C 500 423, 515 362, 558 352" class="link"/>
+  <text x="503" y="440" text-anchor="middle" class="param">water_system</text>
+
   <!-- air systems to zones -->
   <path d="M 250 83 C 215 83, 215 160, 184 165" class="link"/>
   <path d="M 250 158 C 220 158, 210 185, 184 188" class="link"/>
@@ -82,8 +91,8 @@
   <text x="505" y="246" text-anchor="end" class="param">cooling_water_system</text>
   <path d="M 440 280 C 500 285, 510 318, 558 322" class="link-alt"/>
   <path d="M 440 355 C 500 360, 515 340, 558 336" class="link-alt"/>
-  <text x="498" y="398" text-anchor="middle" class="note">or directly to the plant</text>
-  <line x1="498" y1="386" x2="512" y2="352" stroke="#52514e" stroke-width="0.8"/>
+  <text x="452" y="386" text-anchor="middle" class="note">or directly to the plant</text>
+  <line x1="478" y1="375" x2="510" y2="355" stroke="#52514e" stroke-width="0.8"/>
 
   <!-- circuit to plant, plant to generators -->
   <path d="M 660 221 L 660 298" class="link"/>
@@ -121,6 +130,6 @@
   <text x="264" y="515" class="note">optional</text>
   <line x1="340" y1="511" x2="372" y2="511" class="link"/>
   <text x="380" y="515" class="note">refers to, with the parameter in italics</text>
-  <text x="20" y="538" class="note">Equipment components (DX_unit, Water_coil, Fan, Pump, Chiller_heat_pump, Boiler, Solar_collector, Water_tank) only hold the manufacturer's data:</text>
+  <text x="20" y="538" class="note">Equipment components (DX_unit, Water_coil, Fan, Pump, Chiller_heat_pump, Boiler, Solar_collector, Water_tank, Radiator) only hold the manufacturer's data:</text>
   <text x="20" y="553" class="note">they are named in grey under the systems that use them.</text>
 </svg>

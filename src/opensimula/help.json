@@ -2396,6 +2396,110 @@
     }
    }
   },
+  "HVAC_radiator_system": {
+   "anchor": "hvac_radiator_system",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "control": {
+     "anchor": "hvac_radiator_system-control",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "\"THERMOSTATIC\": the water flow is adjusted to hold the heating setpoint. \"NONE\": the valve is fully open.",
+     "unit": ""
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_radiator_system-heating_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heating setpoint of the zone.",
+     "unit": "°C"
+    },
+    "input_variables": {
+     "anchor": "hvac_radiator_system-input_variables",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Variables of other components used in the expressions.",
+     "unit": ""
+    },
+    "number_of_units": {
+     "anchor": "hvac_radiator_system-number_of_units",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Number of radiators of the zone (identical).",
+     "unit": ""
+    },
+    "radiator": {
+     "anchor": "hvac_radiator_system-radiator",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Radiator equipment.",
+     "unit": ""
+    },
+    "space": {
+     "anchor": "hvac_radiator_system-space",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Zone heated by the radiators.",
+     "unit": ""
+    },
+    "system_on_off": {
+     "anchor": "hvac_radiator_system-system_on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "If 0 the radiators are off (their valves closed).",
+     "unit": "on/off"
+    },
+    "water_system": {
+     "anchor": "hvac_radiator_system-water_system",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Plant or circuit that gives the hot water.",
+     "unit": ""
+    }
+   },
+   "variables": {
+    "F_load": {
+     "anchor": "hvac_radiator_system-var-f_load",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat over the heat the radiators can give in that time step.",
+     "unit": "frac"
+    },
+    "Q": {
+     "anchor": "hvac_radiator_system-var-q",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat given to the zone.",
+     "unit": "W"
+    },
+    "T_wi": {
+     "anchor": "hvac_radiator_system-var-t_wi",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water inlet (supply of the water system) and outlet temperatures.",
+     "unit": "°C"
+    },
+    "T_wo": {
+     "anchor": "hvac_radiator_system-var-t_wo",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water inlet (supply of the water system) and outlet temperatures.",
+     "unit": "°C"
+    },
+    "heating_setpoint": {
+     "anchor": "hvac_radiator_system-var-heating_setpoint",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heating setpoint of the zone.",
+     "unit": "°C"
+    },
+    "on_off": {
+     "anchor": "hvac_radiator_system-var-on_off",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Availability of the radiators.",
+     "unit": "flag"
+    },
+    "state": {
+     "anchor": "hvac_radiator_system-var-state",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "1 while they give heat, 0 otherwise.",
+     "unit": "flag"
+    },
+    "water_flow": {
+     "anchor": "hvac_radiator_system-var-water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow through the radiators.",
+     "unit": "dm³/s"
+    }
+   }
+  },
   "HVAC_water_circuit": {
    "anchor": "hvac_water_circuit",
    "page": "component_list_HVAC_water_systems/",
@@ -3503,6 +3607,37 @@
      "page": "component_list_HVAC_water_systems/",
      "text": "Mathematical expression to correct the pressure rise of the pump in conditions different from the nominal ones.",
      "unit": "frac"
+    }
+   },
+   "variables": {}
+  },
+  "Radiator": {
+   "anchor": "radiator",
+   "page": "component_list_HVAC_water_systems/",
+   "parameters": {
+    "exponent": {
+     "anchor": "radiator-exponent",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Exponent n of the characteristic equation (about 1.3 for panel radiators, 1.25-1.35 for most).",
+     "unit": ""
+    },
+    "nominal_conditions": {
+     "anchor": "radiator-nominal_conditions",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water inlet, water outlet and air temperatures of the nominal heat output.",
+     "unit": "°C"
+    },
+    "nominal_heat_output": {
+     "anchor": "radiator-nominal_heat_output",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Heat output at the nominal conditions.",
+     "unit": "W"
+    },
+    "nominal_water_flow": {
+     "anchor": "radiator-nominal_water_flow",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Water flow of one radiator with the valve fully open. 0: the flow of the nominal conditions (nominal heat output with the temperature drop of the nominal conditions).",
+     "unit": "dm³/s"
     }
    },
    "variables": {}

@@ -436,7 +436,7 @@ Jupyter shell:
 
 ## HVAC systems and water plants
 
-The HVAC components are of two kinds: **equipment** components, which only hold the manufacturer's data of a piece of equipment and are not simulated by themselves (`DX_unit`, `Water_coil`, `Fan`, `Pump`, `Chiller_heat_pump`, `Boiler`, `Solar_collector`, `Water_tank`), and **systems** (`HVAC_*`), which use them, are simulated in each time step and store the variables of the installation. An installation is put together by references between them:
+The HVAC components are of two kinds: **equipment** components, which only hold the manufacturer's data of a piece of equipment and are not simulated by themselves (`DX_unit`, `Water_coil`, `Fan`, `Pump`, `Chiller_heat_pump`, `Boiler`, `Solar_collector`, `Water_tank`, `Radiator`), and **systems** (`HVAC_*`), which use them, are simulated in each time step and store the variables of the installation. An installation is put together by references between them:
 
 ![How the HVAC components refer to each other](img/hvac_components.svg)
 
@@ -450,6 +450,8 @@ The HVAC components are of two kinds: **equipment** components, which only hold 
 - The generators able to serve the mode share the load with the `sequencing` of the plant: "PRIORITY", in the order of the list, the next one when the previous is at full load (a heat pump first and a boiler as backup), or "EQUAL_LOAD", all of them at the same part load. When they cannot reach the setpoint they give their full capacity at the actual water temperature.
 - The mode, heating or cooling, follows the load of the coils ("LOAD_CONTROL") or a schedule ("SCHEDULE_CONTROL", e.g. heating and cooling seasons of a two-pipe installation). Heating and cooling at the same time need two plants (four pipes). Coils only take heat or cold from a plant that can give it in its mode.
 - Without secondary `pumps` the water of the coils goes through the generators, moved by their pumps. With them the plant has a header between the primary circuit of the generators and the secondary one: the primary pump of each generator moves water only while it runs, and the mixing in the header matters. A primary flow larger than the secondary returns hot water to the generators through the bypass (bad for a condensing boiler); a smaller one sends part of the return to the supply (the water to the coils is below the setpoint).
+
+**Radiators.** An `HVAC_radiator_system` heats a zone with radiators (`Radiator`, EN 442: Q = Q_nom·(ΔT_lm/49.83)^n) fed by a plant or circuit: with a thermostatic valve it gives the heat that holds the heating setpoint, up to what the radiators give with the water they get (a radiator gives less than half its nominal output with water at 50 °C), and returns the water colder the less flow it takes. It is an uncontrolled system of the zone, so the same zone may have another system for cooling. For the plant the radiators are one more heating coil.
 
 **Circuits.** An `HVAC_water_circuit` hangs from a plant: its own pumps, availability and, with a mixing valve (`heating_supply_setpoint`, `cooling_supply_setpoint`), its own supply temperature. A plant can feed several circuits at different temperatures. For the coils a circuit is like a plant; for the plant it is one more coil.
 

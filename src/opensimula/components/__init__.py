@@ -32,6 +32,8 @@ from opensimula.components.HVAC_water_circuit import HVAC_water_circuit
 from opensimula.components.DHW_demand import DHW_demand
 from opensimula.components.Water_tank import Water_tank
 from opensimula.components.Solar_collector import Solar_collector
+from opensimula.components.Radiator import Radiator
+from opensimula.components.HVAC_radiator_system import HVAC_radiator_system
 from opensimula.components.HVAC_water_system import HVAC_water_system
 from opensimula.components.Energy_indicators import Energy_indicators
 from opensimula.components.Comfort_indicators import Comfort_indicators
@@ -49,6 +51,7 @@ DEFAULT_COMPONENTS_ORDER = [
                     "HVAC_perfect_system",
                     "HVAC_DX_system",
                     "HVAC_SZW_system",
+                    "HVAC_radiator_system",
                     "DHW_demand",
                     "HVAC_water_circuit",
                     "HVAC_water_generator",
