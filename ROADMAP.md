@@ -23,6 +23,15 @@ the maintainer, not end users — it is not part of the published docs (`mkdocs/
   one combined paper update for 0.9 + 0.10 when an editor is assigned or with the ping at
   the end of November.
 
+## Version plan (agreed 2026-11-27)
+
+- **0.12**: all the systems of the plan of 2026-11-24, released together: radiators and
+  radiant panels (done: #92, #93), radiant floor with an active layer in the floor
+  construction (option (b), in progress), multisplit / VRF, ventilation with heat recovery
+  and primary-air AHU. No release in between: each step is merged (commit and push) and
+  goes into the "Next version" of the release notes.
+- **0.13**: the importers, EnergyPlus IDF (phase 1) and HULC.
+
 ## Where things stand (2026-11-26): 0.11.0 released
 
 - **v0.11.0 released (2026-11-26)**: PyPI, GitHub release `v0.11.0`, Zenodo version DOI
