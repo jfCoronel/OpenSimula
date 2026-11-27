@@ -544,3 +544,15 @@ pro.new_component("HVAC_radiator_system", "radiators").set_parameters({
     "water_system": "boiler_plant", "heating_setpoint": "20"})
 </code></pre>
 
+**Ceiling and wall radiant panels** (heating) are modelled as radiators with their own data: the nominal conditions and exponent of their test (EN 14037: exponents about 1.1), a large radiant fraction, and a distribution of the radiation that leaves out the surface they are on. E.g. four ceiling panels that radiate to the floor and walls:
+<pre><code class="python">
+...
+
+pro.new_component("Radiator", "ceiling_panel").set_parameters({
+    "nominal_heat_output": 1200, "exponent": 1.1, "nominal_conditions": [55, 45, 20],
+    "radiant_fraction": 0.7})
+pro.new_component("HVAC_radiator_system", "panels").set_parameters({
+    "space": "office", "radiator": "ceiling_panel", "number_of_units": 4,
+    "water_system": "boiler_plant", "radiant_distribution": [0.5, 0, 0.5]})
+</code></pre>
+
