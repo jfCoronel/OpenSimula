@@ -499,6 +499,7 @@ with ΔT_lm the logarithmic mean temperature difference between the water, enter
 - **exponent** [_float_, default = 1.3, min = 0.5, max = 2]: Exponent n of the characteristic equation (about 1.3 for panel radiators, 1.25-1.35 for most).
 - **nominal_conditions** [_float_list_, unit = "°C", default = [75, 65, 20]]: Water inlet, water outlet and air temperatures of the nominal heat output.
 - **nominal_water_flow** [_float_, unit = "dm³/s", default = 0, min = 0]: Water flow of one radiator with the valve fully open. 0: the flow of the nominal conditions (nominal heat output with the temperature drop of the nominal conditions).
+- **radiant_fraction** [_float_, unit = "frac", default = 0.3, min = 0, max = 1]: Part of the heat given by radiation to the surfaces of the room (about 0.2-0.4 for panel radiators, less for convectors); the rest goes to the air.
 
 ### HVAC_radiator_system
 
@@ -506,7 +507,9 @@ Radiators of a zone (`Space` or `Load_space`) fed by a water plant or circuit; h
 
 With `control` "THERMOSTATIC" a thermostatic valve (or a zone thermostat) adjusts the water flow to hold the heating setpoint of the zone: the radiators give the heat the zone needs, up to the heat they give with their nominal flow and the water they get (then the zone stays below the setpoint). With less flow the water leaves them colder. With "NONE" the valve is fully open and the radiators give all they can.
 
-For the zone the radiators are an uncontrolled system: their heat goes to its air (their radiant part is not separated yet), and the zone may have another system that controls it, e.g. one that only cools.
+The `radiant_fraction` of the heat of the radiator goes by radiation to the surfaces of the zone: it is distributed over them by area, or among floor, ceiling and walls with `radiant_distribution` (and by area within each group), reflected and absorbed with the long-wave radiosity of the building, and the surfaces give part of it to the air in the same time step and store the rest (in the office of the examples about 36 %). In a `Load_space` it goes to its thermal mass node. The rest of the heat goes to the air. So, to hold the same air temperature, radiators with a larger radiant part give somewhat more heat (part of what warms the surfaces is lost through the envelope).
+
+For the zone the radiators are an uncontrolled system: the zone may have another system that controls it, e.g. one that only cools.
 
 #### Parameters
 
@@ -518,6 +521,7 @@ For the zone the radiators are an uncontrolled system: their heat goes to its ai
 - **heating_setpoint** [_math_exp_, unit = "°C", default = "20"]: Heating setpoint of the zone.
 - **system_on_off** [_math_exp_, unit = "on/off", default = "1"]: If 0 the radiators are off (their valves closed).
 - **control** [_option_, default = "THERMOSTATIC", options = ["THERMOSTATIC", "NONE"]]: "THERMOSTATIC": the water flow is adjusted to hold the heating setpoint. "NONE": the valve is fully open.
+- **radiant_distribution** [_float_list_, unit = "frac", default = []]: Fractions of the radiant heat to the floor, ceiling and walls of a Space, e.g. [0.3, 0.2, 0.5]; within each group by area. [] (default): over all the surfaces by area, as the radiant internal gains.
 
 #### Variables
 
@@ -525,6 +529,7 @@ For the zone the radiators are an uncontrolled system: their heat goes to its ai
 - **state** (flag): 1 while they give heat, 0 otherwise.
 - **heating_setpoint** (°C): Heating setpoint of the zone.
 - **Q** (W): Heat given to the zone.
+- **Q_radiant** (W): Part of Q given by radiation to the surfaces (or thermal mass) of the zone.
 - **F_load** (frac): Heat over the heat the radiators can give in that time step.
 - **water_flow** (dm³/s): Water flow through the radiators.
 - **T_wi** (°C), **T_wo** (°C): Water inlet (supply of the water system) and outlet temperatures.

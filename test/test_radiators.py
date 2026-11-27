@@ -144,7 +144,89 @@ def test_heat_of_uncontrolled_systems_is_stored():
     """The heat of an uncontrolled system (Q_s: radiators, MZW reheat) was not in the
     variable u_system_sensible_heat of the zone (only that of its air)."""
     pro = simulate(office(days=7))
-    assert np.allclose(values(pro, "office", "u_system_sensible_heat"),
-                       values(pro, "radiators", "Q") - values(pro, "radiators", "Q_radiant")
-                       if "Q_radiant" in pro.component("radiators").variable_dict()
-                       else values(pro, "radiators", "Q"))
+    Q = values(pro, "radiators", "Q")
+    radiant = values(pro, "radiators", "Q_radiant")
+    # the heat that reaches the air: the convective part and, of the radiant one, what
+    # the surfaces give to the air in the same time step
+    to_air = Q - radiant + pro.component("office").radiant_to_air() * radiant
+    assert np.allclose(values(pro, "office", "u_system_sensible_heat"), to_air)
+
+
+# _________________ radiant part _________________
+
+def with_radiant(data, fraction, distribution=None):
+    for c in data["components"]:
+        if c["name"] == "panel":
+            c["radiant_fraction"] = fraction
+        if c["name"] == "radiators" and distribution is not None:
+            c["radiant_distribution"] = distribution
+    return data
+
+
+def building_of(pro):
+    return next(c for c in pro.component_list() if c.parameter("type").value == "Building")
+
+
+def test_radiant_part_reaches_the_surfaces():
+    pro = simulate(with_radiant(office(days=3), 0.3))
+    space, building = pro.component("office"), building_of(pro)
+    for distribution in (None, [1, 0, 0], [0.3, 0.2, 0.5]):
+        R, absorbed, to_air = building.radiant_response(space, distribution)
+        assert absorbed.sum() == pytest.approx(-1)  # all of it is absorbed
+        assert 0 < R < 1 and to_air[0] == R
+    # all to the floor: the floor absorbs most of it (the rest is reflected)
+    _, absorbed, _ = building.radiant_response(space, [1, 0, 0])
+    floor = [i for i, s in enumerate(building.surfaces)
+             if s.orientation_angle("altitude", building.sides[i]) == 90]
+    assert -absorbed[floor].sum() > 0.85
+    # the long-wave heat of the surfaces: internal gains and the radiators
+    total = sum(s.area * values(pro, s.parameter("name").value,
+                                "q_lwig0" if building.sides[i] == 0 else "q_lwig1")
+                for i, s in enumerate(building.surfaces)
+                if s.parameter("type").value == "Opening" or s.parameter("surface_type").value != "VIRTUAL")
+    gains = values(pro, "office", "people_radiant") + values(pro, "office", "other_gains_radiant")
+    assert np.allclose(total - gains, values(pro, "radiators", "Q_radiant"), atol=1e-6)
+
+
+def test_more_radiant_more_heat_for_the_same_air_temperature():
+    heat = {}
+    for fraction in (0.0, 0.3):
+        pro = simulate(with_radiant(office(days=14), fraction))
+        assert values(pro, "office", "temperature").min() > 20 - 0.01
+        heat[fraction] = values(pro, "radiators", "Q").sum()
+    assert heat[0.3] > heat[0.0]
+
+
+def load_space_radiators(fraction):
+    d = json.loads((EX / "08_load_records.json").read_text(encoding="utf-8"))
+    d["initial_time"], d["n_time_steps"] = "01/01/2001 00:00:00", 24 * 7
+    for c in d["components"]:
+        if c["type"] in ("File_met", "File_data"):
+            c["file_name"] = str(EX / pathlib.Path(c["file_name"]).name)
+    d["components"] = [c for c in d["components"] if c["type"] != "HVAC_DX_system"]
+    zone = next(c["name"] for c in d["components"] if c["type"] == "Load_space")
+    d["components"] += [
+        {"type": "Boiler", "name": "boiler", "nominal_heating_capacity": 24000,
+         "nominal_efficiency": 0.92, "nominal_water_flow": 0.3},
+        {"type": "HVAC_water_generator", "name": "gen", "equipment": "boiler"},
+        {"type": "HVAC_water_system", "name": "plant", "generators": ["gen"],
+         "heating_water_setpoint": "70", "total_water_volume": 30},
+        {"type": "Radiator", "name": "panel", "nominal_heat_output": 2000, "radiant_fraction": fraction},
+        {"type": "HVAC_radiator_system", "name": "radiators", "space": zone, "radiator": "panel",
+         "number_of_units": 2, "water_system": "plant", "heating_setpoint": "20"},
+    ]
+    return simulate(d), zone
+
+
+def test_radiant_part_to_the_mass_of_a_load_space():
+    convective, zone = load_space_radiators(0.0)
+    radiant, _ = load_space_radiators(0.8)
+    for pro in (convective, radiant):
+        assert values(pro, zone, "temperature").min() > 20 - 0.01
+    # the radiant heat warms the thermal mass; the air gets the convective part and,
+    # of the radiant part, what the mass gives it in the same time step
+    assert values(radiant, zone, "mass_temperature").mean() > values(convective, zone, "mass_temperature").mean()
+    b = radiant.component(zone).radiant_to_air()
+    assert 0 < b < 1
+    Q, Q_r = values(radiant, "radiators", "Q"), values(radiant, "radiators", "Q_radiant")
+    assert np.allclose(values(radiant, zone, "u_system_sensible_heat"), Q - Q_r + b * Q_r)

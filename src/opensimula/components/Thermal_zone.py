@@ -56,6 +56,7 @@ class Thermal_zone(Component):
     def _reset_systems_(self):
         """Remove the systems: none supplies anything until they are set again."""
         self.uncontrol_systems = []
+        self.radiant_systems = {}  # name: (radiant heat W, distribution)
         self.control_system = {"M_a": 0, "T_a": 0, "w_a": 0, "Q_s": 0, "M_w": 0}
 
     def add_uncontrol_system(self, system_dic):
@@ -77,6 +78,29 @@ class Thermal_zone(Component):
         self.uncontrol_systems = [
             air for air in self.uncontrol_systems if air["name"] != system_name
         ]
+
+    def radiant_to_air(self, distribution=None):
+        """Fraction of the radiant heat of a system that reaches the air of the zone in
+        the same time step (the rest heats its surfaces or thermal mass). A zone without
+        surfaces or mass: 1.
+
+        Args:
+            distribution (list, optional): fractions of the radiation to the floor,
+                ceiling and walls; None: by area.
+        """
+        return 1.0
+
+    def add_radiant_system(self, name, Q_radiant, distribution=None):
+        """Add (or replace, by name) the radiant heat of a system in this iteration: it
+        goes to the surfaces (or thermal mass) of the zone. The system gives the part
+        that reaches the air, ``radiant_to_air()``, as heat of an uncontrolled system.
+
+        Args:
+            name (str): name of the system.
+            Q_radiant (float): radiant heat (W).
+            distribution (list, optional): fractions to the floor, ceiling and walls.
+        """
+        self.radiant_systems[name] = (Q_radiant, distribution)
 
     def set_control_system(self, system_dic):
         """Set the controlled system: the air or heat that keeps the zone at its setpoint.

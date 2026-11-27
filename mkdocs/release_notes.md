@@ -6,7 +6,11 @@ This is the list of changes to opensimula between each release. For full details
 
 #### New
 
-- **Radiators**: `Radiator` (EN 442 characteristic equation) and `HVAC_radiator_system`, the radiators of a zone fed by a water plant or circuit, with a thermostatic valve or without control; an uncontrolled system of the zone, so it can share it with a cooling system.
+- **Radiators**: `Radiator` (EN 442 characteristic equation) and `HVAC_radiator_system`, the radiators of a zone fed by a water plant or circuit, with a thermostatic valve or without control; an uncontrolled system of the zone, so it can share it with a cooling system. Their radiant part goes to the surfaces of the zone (by area, or among floor, ceiling and walls) with the long-wave radiosity of the building, or to the thermal mass of a `Load_space`; any system can do the same (`radiant_to_air()`, `add_radiant_system()` of the zones).
+
+#### Fixes that change results
+
+- `Space` and `Load_space`: `u_system_sensible_heat` (and `u_system_latent_heat`) did not include the direct heat (and water) of the uncontrolled systems, only that of their air: the reheat of `HVAC_MZW_system` was missing from them, and from the `unmet_sensible_heat` of a `Load_space`. Only these variables change: the balance of the zone already included that heat.
 
 ### 0.11.0 (November 26, 2026)
 

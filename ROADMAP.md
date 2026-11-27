@@ -76,9 +76,18 @@ and indoor units `UT_ED_UnidadInterior` per zone). An importer of EnergyPlus IDF
    **Radiators done 2026-11-27** (branch `feat/radiators`): `Radiator` (EN 442 with the
    log mean ΔT, T_wo from the water balance, `flow_for`), `HVAC_radiator_system` (zone
    `space`, `number_of_units`, `water_system`, THERMOSTATIC / NONE, uncontrolled system of
-   the zone, all heat convective; coil load to the plant). Next: radiant part of emitters
-   (Building would have to take radiant heat from systems in the iteration) and the
-   radiant floor (screed node, or a heat source layer in the floor construction).
+   the zone; coil load to the plant). **Radiant part done 2026-11-27** (branch
+   `feat/radiant-emitters`, idea of the user: a vector of fractions to the surfaces, a
+   floor/ceiling/walls hypothesis, the long-wave redistribution matrix computed once):
+   `Building.radiant_response(space, distribution)` (absorbed per surface with LWAUX =
+   area·alpha·radiosity, response of the air −KZS·KS⁻¹·absorbed, constant: cached);
+   `Thermal_zone.radiant_to_air()` / `add_radiant_system()`; the building adds the radiant
+   heat to FS and q_lwig in each iteration and its effect on other spaces to their F;
+   Load_space: to the mass node (fraction b = H_am/D). Radiator `radiant_fraction` 0.3,
+   system `radiant_distribution`. Office of the examples: 36 % to the air in the step.
+   Fixed on the way: u_system_sensible_heat without the Q_s of uncontrolled systems.
+   Next: the radiant floor (screed node, or a heat source layer in the floor
+   construction).
 4. **Multizone direct expansion**: multisplit / VRF, one outdoor unit with curves and
    indoor units per zone (CALENER-GT / DOE-2 style; heat recovery VRF later).
 5. **Ventilation**: mechanical ventilation with heat recovery and a primary-air AHU
