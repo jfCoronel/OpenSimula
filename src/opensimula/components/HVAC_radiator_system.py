@@ -4,6 +4,7 @@ from opensimula.Component import Component
 from opensimula.Message import Message
 from opensimula.Parameters import (
     Parameter_component,
+    Parameter_float_list,
     Parameter_int,
     Parameter_math_exp,
     Parameter_options,
@@ -23,9 +24,12 @@ class HVAC_radiator_system(Component):
     the heat of the radiators at their nominal flow with the water they get; with
     "NONE" the valve is fully open and they give all they can.
 
-    For the zone the radiators are an uncontrolled system (heat to its air): the zone
-    may have another system that controls it, e.g. one that only cools. All their heat
-    goes to the air of the zone (their radiant part is not separated yet).
+    The ``radiant_fraction`` of the radiator goes by radiation to the surfaces of the
+    zone (or to the thermal mass of a Load_space), distributed by area or among floor,
+    ceiling and walls (``radiant_distribution``); the surfaces give part of it to the
+    air in the same time step and keep the rest. The rest of the heat goes to the air.
+    For the zone the radiators are an uncontrolled system: the zone may have another
+    system that controls it, e.g. one that only cools.
     """
 
     def __init__(self, name, project):
@@ -41,10 +45,13 @@ class HVAC_radiator_system(Component):
         self.add_parameter(Parameter_math_exp("heating_setpoint", "20", "°C"))
         self.add_parameter(Parameter_math_exp("system_on_off", "1", "on/off"))
         self.add_parameter(Parameter_options("control", "THERMOSTATIC", ["THERMOSTATIC", "NONE"]))
+        # fractions of the radiant heat to the floor, ceiling and walls ([]: by area)
+        self.add_parameter(Parameter_float_list("radiant_distribution", [], "frac", min=0))
         self.add_variable(Variable("on_off", unit="flag"))  # availability (system_on_off)
         self.add_variable(Variable("state", unit="flag"))  # 1 heating, 0 off
         self.add_variable(Variable("heating_setpoint", unit="°C"))
         self.add_variable(Variable("Q", unit="W"))  # heat to the zone
+        self.add_variable(Variable("Q_radiant", unit="W"))  # part of Q by radiation
         self.add_variable(Variable("F_load", unit="frac"))  # Q / capacity
         self.add_variable(Variable("water_flow", unit="dm³/s"))
         self.add_variable(Variable("T_wi", unit="°C"))
@@ -56,6 +63,10 @@ class HVAC_radiator_system(Component):
         for key in ("space", "radiator", "water_system"):
             if self.parameter(key).value == "not_defined":
                 errors.append(Message(f"Error: {name}, {key} must be defined", "ERROR"))
+        distribution = self.parameter("radiant_distribution").value
+        if distribution and (len(distribution) != 3 or sum(distribution) <= 0):
+            errors.append(Message(f"Error: {name}, radiant_distribution must be [] or 3 fractions "
+                                  "(floor, ceiling, walls)", "ERROR"))
         return errors
 
     def pre_simulation(self, n_time_steps, delta_t):
@@ -65,6 +76,8 @@ class HVAC_radiator_system(Component):
         self.water_system = self.parameter("water_system").component
         self.n_units = self.parameter("number_of_units").value
         self.name = self.parameter("name").value
+        self.f_radiant = self.radiator.parameter("radiant_fraction").value
+        self.distribution = list(self.parameter("radiant_distribution").value) or None
 
     def pre_iteration(self, time_index, date, daylight_saving):
         super().pre_iteration(time_index, date, daylight_saving)
@@ -83,16 +96,23 @@ class HVAC_radiator_system(Component):
         super().iteration(time_index, date, daylight_saving, n_iter)
         space = self.space
         space.del_uncontrol_system(self.name)
+        space.add_radiant_system(self.name, 0.0)
         self.Q = self.water_flow = self.capacity = 0.0
         self.T_wi = self.T_wo = self.water_system.get_heating_coil_inlet_T()
         if not (self.on and self.water_system.can_heat()):
             return True
-        # the zone without the radiators: K·T = F + Q
+        # the zone without the radiators: K·T = F + e·Q, e the part of the heat of the
+        # radiators that reaches the air in this time step (convective, and radiant
+        # through the surfaces)
         K, F = space.get_thermal_equation(False)
+        e = 1 - self.f_radiant
+        if self.f_radiant > 0:
+            e += self.f_radiant * space.radiant_to_air(self.distribution)
+        e = max(e, 1e-6)
         nominal = self.radiator.nominal_flow * self.n_units
         T_free = F / K
         thermostatic = self.parameter("control").value == "THERMOSTATIC"
-        Q_required = max(K * self.T_sp - F, 0.0) if thermostatic else float("inf")
+        Q_required = max(K * self.T_sp - F, 0.0) / e if thermostatic else float("inf")
         if Q_required <= 0 or self.T_wi <= T_free:
             return True
         capacity_sp, _ = self._output(self.T_wi, nominal, self.T_sp)
@@ -108,7 +128,7 @@ class HVAC_radiator_system(Component):
             low, high = T_free, self.T_wi
             for _ in range(60):
                 T = (low + high) / 2
-                if K * T - F < self._output(self.T_wi, nominal, T)[0]:
+                if K * T - F < e * self._output(self.T_wi, nominal, T)[0]:
                     low = T
                 else:
                     high = T
@@ -117,7 +137,8 @@ class HVAC_radiator_system(Component):
             self.capacity = self.Q
             self.water_flow = nominal
         space.add_uncontrol_system({"name": self.name, "M_a": 0, "T_a": 0, "w_a": 0,
-                                    "Q_s": self.Q, "M_w": 0})
+                                    "Q_s": e * self.Q, "M_w": 0})
+        space.add_radiant_system(self.name, self.f_radiant * self.Q, self.distribution)
         if self.Q > 0:
             self.water_system.add_coil_load(-self.Q, self.water_flow)
         return True
@@ -129,6 +150,7 @@ class HVAC_radiator_system(Component):
             "state": 1 if self.Q > 0 else 0,
             "heating_setpoint": self.T_sp,
             "Q": self.Q,
+            "Q_radiant": self.f_radiant * self.Q,
             "F_load": self.Q / self.capacity if self.capacity > 0 else 0,
             "water_flow": self.water_flow,
             "T_wi": self.T_wi,

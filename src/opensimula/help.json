@@ -2424,6 +2424,12 @@
      "text": "Number of radiators of the zone (identical).",
      "unit": ""
     },
+    "radiant_distribution": {
+     "anchor": "hvac_radiator_system-radiant_distribution",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Fractions of the radiant heat to the floor, ceiling and walls of a Space, e.g. [0.3, 0.2, 0.5]; within each group by area. [] (default): over all the surfaces by area, as the radiant internal gains.",
+     "unit": "frac"
+    },
     "radiator": {
      "anchor": "hvac_radiator_system-radiator",
      "page": "component_list_HVAC_water_systems/",
@@ -2460,6 +2466,12 @@
      "anchor": "hvac_radiator_system-var-q",
      "page": "component_list_HVAC_water_systems/",
      "text": "Heat given to the zone.",
+     "unit": "W"
+    },
+    "Q_radiant": {
+     "anchor": "hvac_radiator_system-var-q_radiant",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Part of Q given by radiation to the surfaces (or thermal mass) of the zone.",
      "unit": "W"
     },
     "T_wi": {
@@ -3638,6 +3650,12 @@
      "page": "component_list_HVAC_water_systems/",
      "text": "Water flow of one radiator with the valve fully open. 0: the flow of the nominal conditions (nominal heat output with the temperature drop of the nominal conditions).",
      "unit": "dm³/s"
+    },
+    "radiant_fraction": {
+     "anchor": "radiator-radiant_fraction",
+     "page": "component_list_HVAC_water_systems/",
+     "text": "Part of the heat given by radiation to the surfaces of the room (about 0.2-0.4 for panel radiators, less for convectors); the rest goes to the air.",
+     "unit": "frac"
     }
    },
    "variables": {}
@@ -3997,13 +4015,13 @@
     "u_system_latent_heat": {
      "anchor": "space-var-u_system_latent_heat",
      "page": "component_list_building/",
-     "text": "Latent heat introduced by uncontrolled systems in space.",
+     "text": "Latent heat introduced by uncontrolled systems in space (their air and their water vapour).",
      "unit": "W"
     },
     "u_system_sensible_heat": {
      "anchor": "space-var-u_system_sensible_heat",
      "page": "component_list_building/",
-     "text": "Sensible heat introduced by uncontrolled systems in space. Spaces can collect airflows from various types of systems, those that are not capable of controlling the room temperature are called ‘uncontrolled systems’. For example, a flow of outside air, a flow from a dedicated outdoor air system, etc.",
+     "text": "Sensible heat introduced by uncontrolled systems in space. Spaces can collect airflows from various types of systems, those that are not capable of controlling the room temperature are called ‘uncontrolled systems’. For example, a flow of outside air, a flow from a dedicated outdoor air system, etc. It includes the heat of their air and their direct heat to the air (e.g. radiators, reheat), not the radiant part that goes to the surfaces.",
      "unit": "W"
     }
    }

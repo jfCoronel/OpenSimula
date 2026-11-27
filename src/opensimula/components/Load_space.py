@@ -152,6 +152,7 @@ class Load_space(Thermal_zone):
         #   C_m/Dt·(th_m - th_m_pre) = H_am·(th - th_m) - H_mo·th_m
         # the mass node, th_m = a + b·th, is eliminated: K·T = F + Q_sys
         D = self._C_m / self._Dt + self._H_am + self._H_mo
+        self._D = D
         self._a = self._C_m / self._Dt * self._theta_m_pre / D
         self._b = self._H_am / D
         G = self._C_a / self._Dt + self._H_ao + self._H_am * (1 - self._b)
@@ -177,6 +178,11 @@ class Load_space(Thermal_zone):
         self._reset_systems_()
         self._create_iterative_processes_()
 
+    def radiant_to_air(self, distribution=None):
+        """Fraction of the radiant heat of a system (to the thermal mass node) that
+        reaches the air in the same time step: H_am / (C_m/Δt + H_am + H_mo)."""
+        return self._b
+
     def _zone_thermal_equation_(self):
         return (self._K, self._F)
 
@@ -187,7 +193,9 @@ class Load_space(Thermal_zone):
         super().post_iteration(time_index, date, daylight_saving, converged)
         self._calculate_system_heat_(time_index)
         theta = self._T - self._T_ref
-        theta_m = self._a + self._b * theta
+        # radiant heat of the systems: to the thermal mass
+        Q_radiant = sum(Q for Q, _ in self.radiant_systems.values())
+        theta_m = self._a + self._b * theta + Q_radiant / self._D
         self._theta_pre = theta
         self._theta_m_pre = theta_m
         self.variable("mass_temperature").values[time_index] = self._T_ref + theta_m

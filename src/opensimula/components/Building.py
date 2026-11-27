@@ -130,6 +130,8 @@ class Building(Component):
                 i_glob += 1
 
         self.LWIG_matrix = np.matmul(aux_matrix, ig_dist_matrix)
+        self.LWAUX_matrix = aux_matrix  # absorbed by each surface per incident radiation
+        self._radiant_cache = {}
 
         # Temperature matrix
         self.LWSUR_matrix = np.matmul(area_matrix, -1 * alpha_matrix) - np.matmul(
@@ -479,9 +481,66 @@ class Building(Component):
         self._store_surfaces_values_(time_index)
         return True
     
+    # _______________ radiant heat of systems _______________
+    def radiant_response(self, space, distribution=None):
+        """Response of the building to 1 W of radiant heat of a system in a space.
+
+        The radiation is distributed over the surfaces of the space (by area, or among
+        floor, ceiling and walls with the given fractions and by area within each group),
+        reflected and absorbed with the long-wave radiosity of the building, and the
+        surfaces give part of it to the air of the spaces in the same time step.
+
+        Args:
+            space (Space): space of the system.
+            distribution (list, optional): fractions to the floor, ceiling and walls.
+
+        Returns:
+            tuple: (fraction to the air of the space, heat absorbed by each surface per W
+                (with the sign of the internal gains), heat to the air of each space per W).
+        """
+        key = (space.parameter("name").value, tuple(distribution) if distribution else None)
+        if key in self._radiant_cache:
+            return self._radiant_cache[key]
+        j = self.spaces.index(space)
+        offset = sum(len(self.spaces[k].surfaces) for k in range(j))
+        n = len(space.surfaces)
+        areas = np.array([s.area for s in space.surfaces])
+        if distribution:
+            groups = np.array([0 if space.surfaces[i].orientation_angle("altitude", space.sides[i]) == 90
+                               else 1 if space.surfaces[i].orientation_angle("altitude", space.sides[i]) == -90
+                               else 2 for i in range(n)])
+            fractions = np.array([distribution[g] if areas[groups == g].sum() > 0 else 0.0
+                                  for g in range(3)], dtype=float)
+            fractions = fractions / fractions.sum() if fractions.sum() > 0 else np.ones(3) / 3
+            local = np.array([fractions[groups[i]] / areas[groups == groups[i]].sum() for i in range(n)])
+        else:
+            local = np.full(n, 1 / areas.sum())
+        dist = np.zeros(self._n_surfaces)
+        dist[offset:offset + n] = local
+        absorbed = np.matmul(self.LWAUX_matrix, dist)
+        to_air = -np.matmul(self.KZS_matrix, np.matmul(self.KS_inv_matrix, absorbed))
+        result = (float(to_air[j]), absorbed, to_air)
+        self._radiant_cache[key] = result
+        return result
+
+    def _radiant_systems_(self):
+        """Radiant heat of the systems in this iteration: [(space index, W, response)]."""
+        sources = []
+        for j, space in enumerate(self.spaces):
+            for Q, distribution in space.radiant_systems.values():
+                if Q != 0:
+                    sources.append((j, Q, self.radiant_response(space, distribution)))
+        return sources
+
     def _update_space_K_F_(self, time_i):
+        sources = self._radiant_systems_()
         for i in range(self._n_spaces):
             F_spaces = 0
+            # radiant heat of the systems of other spaces that reaches this one (that of
+            # its own systems is given by them)
+            for j, Q, (_, _, to_air) in sources:
+                if j != i:
+                    F_spaces += to_air[i] * Q
             for j in range(self._n_spaces):
                 if i != j:
                     F_spaces -= self.KFIN_WS_matrix[i][j]* self.spaces[j].variable("temperature").values[time_i]
@@ -494,8 +553,24 @@ class Building(Component):
         for i in range(self._n_spaces):
             T_spaces[i] = self.spaces[i].variable("temperature").values[time_i]
 
+        # radiant heat of the systems, absorbed by the surfaces
+        Q_radiant = np.zeros(self._n_surfaces)
+        for _, Q, (_, absorbed, _) in self._radiant_systems_():
+            Q_radiant += absorbed * Q
+        FS = self.FS_vector + Q_radiant
+        if np.any(Q_radiant != 0) or getattr(self, "_radiant_stored_", False):
+            # long-wave radiant heat of the surfaces: internal gains and systems
+            for i in range(self._n_surfaces):
+                surface = self.surfaces[i]
+                if surface.parameter("type").value == "Building_surface" and \
+                        surface.parameter("surface_type").value == "VIRTUAL":
+                    continue
+                side = "q_lwig0" if self.sides[i] == 0 else "q_lwig1"
+                surface.variable(side).values[time_i] = -(self.Q_iglw[i] + Q_radiant[i]) / surface.area
+            self._radiant_stored_ = bool(np.any(Q_radiant != 0))
+
         # Calculate TS,
-        self.TS_vector = np.matmul(self.KS_inv_matrix, self.FS_vector) - np.matmul(self.KS_inv_matrix, np.matmul(self.KSZ_matrix,T_spaces))
+        self.TS_vector = np.matmul(self.KS_inv_matrix, FS) - np.matmul(self.KS_inv_matrix, np.matmul(self.KSZ_matrix,T_spaces))
         
         # Store TS
         # Openings too: their T_s1 (and, for interior ones, T_s0) is only known here,

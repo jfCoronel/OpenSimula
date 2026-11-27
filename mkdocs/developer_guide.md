@@ -16,6 +16,16 @@ list by default):
 - `get_zone_setpoints()`: a list of `opensimula.comfort.Zone_control(zone,
   heating_setpoint, cooling_setpoint, on)`, for `Comfort_indicators`.
 
+A system that gives heat to a zone by radiation (radiators, radiant panels) uses two
+methods of the zone (`Space` or `Load_space`): `radiant_to_air(distribution)`, the part of
+1 W of radiant heat that reaches the air in the same time step (computed by the building
+for a space: the radiation distributed over its surfaces, by area or among floor, ceiling
+and walls, absorbed with the long-wave radiosity and given back to the air; the thermal
+mass node of a `Load_space`), and `add_radiant_system(name, Q_radiant, distribution)`,
+which puts that heat into the surfaces (or the mass) in each iteration. The system gives
+the zone, as an uncontrolled system, its convective heat plus `radiant_to_air()` times
+its radiant heat (see `HVAC_radiator_system`).
+
 ### Documentation of a component and the help of the app
 
 The parameters and variables of each component are described once, in its section of

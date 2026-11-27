@@ -125,8 +125,8 @@ After the simulation we will have the following variables of this component:
 - __infiltration_latent_heat__ [W]: Latent heat due to air infiltration from outdoor.
 - __surfaces_convective__ [W]: Convective heat flux exchanged between interior surfaces and space air.
 - __delta_int_energy__ [W]: Increase of internal energy of the space (air and furniture).
-- __u_system_sensible_heat__ [W]: Sensible heat introduced by uncontrolled systems in space. Spaces can collect airflows from various types of systems, those that are not capable of controlling the room temperature are called ‘uncontrolled systems’. For example, a flow of outside air, a flow from a dedicated outdoor air system, etc.
-- __u_system_latent_heat__ [W]: Latent heat introduced by uncontrolled systems in space.
+- __u_system_sensible_heat__ [W]: Sensible heat introduced by uncontrolled systems in space. Spaces can collect airflows from various types of systems, those that are not capable of controlling the room temperature are called ‘uncontrolled systems’. For example, a flow of outside air, a flow from a dedicated outdoor air system, etc. It includes the heat of their air and their direct heat to the air (e.g. radiators, reheat), not the radiant part that goes to the surfaces.
+- __u_system_latent_heat__ [W]: Latent heat introduced by uncontrolled systems in space (their air and their water vapour).
 - __system_sensible_heat__ [W]: Sensible heat introduced by the system responsible for space control. Positive for heating and negative for cooling.
 - __system_latent_heat__ [W]: Latent heat introduced by control system in space. Positive for humidification and negative for dehumidification.
 

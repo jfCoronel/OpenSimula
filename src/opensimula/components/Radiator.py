@@ -30,6 +30,8 @@ class Radiator(Component):
         self.add_parameter(Parameter_float_list("nominal_conditions", [75, 65, 20], "°C"))
         # 0: the flow of the nominal conditions
         self.add_parameter(Parameter_float("nominal_water_flow", 0, "dm³/s", min=0))
+        # part of the heat given by radiation to the surfaces of the room
+        self.add_parameter(Parameter_float("radiant_fraction", 0.3, "frac", min=0, max=1))
 
     def check(self):
         errors = super().check()

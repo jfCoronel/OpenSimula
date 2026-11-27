@@ -58,6 +58,11 @@ class Space(Thermal_zone):
     def get_building(self):
         return self.parameter("building").component
 
+    def radiant_to_air(self, distribution=None):
+        """Fraction of the radiant heat of a system that reaches the air of the space in
+        the same time step, through its surfaces (computed by its building)."""
+        return self.get_building().radiant_response(self, distribution)[0]
+
     def check(self):
         errors = super().check()
         # Test building is defined
