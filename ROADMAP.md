@@ -96,7 +96,16 @@ and indoor units `UT_ED_UnidadInterior` per zone). An importer of EnergyPlus IDF
    system `radiant_distribution`. Office of the examples: 36 % to the air in the step.
    Fixed on the way: u_system_sensible_heat without the Q_s of uncontrolled systems.
    Next: the radiant floor (screed node, or a heat source layer in the floor
-   construction).
+   construction): **option (b) chosen 2026-11-27**, two PRs: (1) done, branch
+   `feat/radiant-floor`: `Construction.source_layer` and the transfer functions of the
+   source plane (split H = H_A·H_B: q_cd1 = (B_A/B)·q_s, q_cd0 = ((D_A·B − D·B_A)/B)·q_s,
+   T_plane = (B_B·T0 + (A_B·B − B_B·A)·T1 + B_B·B_A·q_s)/B, same roots and d), checked in
+   steady state and against a fine finite-difference model (tests); (2) next: the source in
+   Building_surface / Building (current coefficient in the surface equation, history in p,
+   variables q_source, T_source) and `HVAC_radiant_floor_system` (effectiveness model
+   water–pipe plane, ISO 11855 resistances, zone thermostat with throttling range, heating
+   only), and the diagram of the user guide (radiator and radiant floor water_system to a
+   plant or a circuit).
 4. **Multizone direct expansion**: multisplit / VRF, one outdoor unit with curves and
    indoor units per zone (CALENER-GT / DOE-2 style; heat recovery VRF later).
 5. **Ventilation**: mechanical ventilation with heat recovery and a primary-air AHU

@@ -34,6 +34,7 @@ Component to describe the composition of the different layers (Material componen
 - **lw_epsilon** [_float-list_, unit = "frac", default = [0.9,0.9], min = 0, max = 1]: Long wave emissivity for surfaces 1 and 2.
 - **materials** [[_component-list_, default = [], component type = Material]]: Materials list for each of the layers, defined from surface 1 to 2.
 - **thicknesses** [_float-list_, unit = "m", default = [], min = 0]: Thicknesses of each of the layers defined in the "materials" parameter. Must have the same number of elements as the "materials" parameter.
+- **source_layer** [_int_, default = 0, min = 0]: Active layer: a heat source (the pipes of a radiant floor or ceiling) in the plane after this layer, counted from side 0 (1 to the number of layers − 1); 0: none. The construction then also has the transfer functions of the source: the heat it gives to each side and the temperature of the source plane, exact as those of the conduction (same roots); in steady state the source leaves by each side in proportion to the thermal resistance on the other side of the plane. Split a layer in two to place the pipes inside it.
 
 **Example:**
 <pre><code class="python">
